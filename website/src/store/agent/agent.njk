@@ -53,6 +53,35 @@ eleventyComputed:
   }
   a { color: inherit; text-decoration: none; }
 
+  /* ── Aurora background ── */
+  .aurora { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .aurora::before, .aurora::after, .aurora .blob {
+    content: ""; position: absolute; border-radius: 50%;
+    filter: blur(90px); will-change: transform;
+  }
+  .aurora::before {
+    top: -20%; left: -10%; width: 60vw; height: 60vw;
+    background: radial-gradient(circle, #b8d4ff 0%, transparent 65%);
+    opacity: 0.55;
+    animation: aurora-drift-a 28s ease-in-out infinite alternate;
+  }
+  .aurora::after {
+    top: 10%; right: -15%; width: 55vw; height: 55vw;
+    background: radial-gradient(circle, #e0c7ff 0%, transparent 65%);
+    opacity: 0.50;
+    animation: aurora-drift-b 32s ease-in-out infinite alternate;
+  }
+  .aurora .blob {
+    bottom: -15%; left: 25%; width: 50vw; height: 50vw;
+    background: radial-gradient(circle, #ffc8e5 0%, transparent 65%);
+    opacity: 0.42;
+    animation: aurora-drift-c 36s ease-in-out infinite alternate;
+  }
+  @keyframes aurora-drift-a { from { transform: translate(0,0); } to { transform: translate(4%, -3%); } }
+  @keyframes aurora-drift-b { from { transform: translate(0,0); } to { transform: translate(-3%, 4%); } }
+  @keyframes aurora-drift-c { from { transform: translate(0,0); } to { transform: translate(3%, -2%); } }
+  @media (prefers-reduced-motion: reduce) { .aurora::before, .aurora::after, .aurora .blob { animation: none; } }
+
   /* ── Nav (light) ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -89,200 +118,162 @@ eleventyComputed:
   .btn-primary:hover { background: black; }
   .btn-outline { background: white; color: var(--gray-950); border-color: var(--border-medium); }
   .btn-outline:hover { background: var(--gray-50); }
-  .btn-lg { height: 46px; padding: 0 24px; font-size: 15px; border-radius: 12px; }
 
-  /* ── Page ── */
-  .container {
-    max-width: 960px; margin: 0 auto;
-    padding: 24px 40px 96px;
-  }
+  /* ── Page container ── */
+  .detail-wrap { max-width: 880px; margin: 0 auto; padding: 72px 40px 96px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 6px;
-    font-size: 13px; color: var(--gray-500);
-    margin-bottom: 32px;
+    font-size: 13px; color: var(--gray-600);
+    margin-bottom: 20px;
     transition: color 0.15s;
   }
   .back-link:hover { color: var(--gray-950); }
+  .detail-card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 24px;
+    padding: 36px 40px;
+    box-shadow: 0 24px 64px rgba(13,13,13,0.06);
+  }
 
-  /* Hero block */
-  .agent-hero {
-    display: flex; align-items: flex-start; gap: 24px;
-    margin-bottom: 28px;
-  }
-  .agent-icon {
-    flex-shrink: 0;
-    width: 80px; height: 80px;
-    border-radius: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'General Sans', sans-serif;
-    font-weight: 600;
-    font-size: 30px;
-    color: white;
-    letter-spacing: -0.02em;
-  }
-  .agent-head { flex: 1; min-width: 0; }
-  .agent-name {
-    font-family: 'General Sans', sans-serif;
-    font-size: clamp(28px, 4vw, 40px);
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.1;
-    color: var(--gray-950);
+  /* ── Title row ── */
+  .detail-title-row {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
     margin-bottom: 6px;
-    display: flex; align-items: center; gap: 10px;
-    flex-wrap: wrap;
   }
-  .agent-publisher {
-    font-size: 14px; color: var(--gray-600);
+  .detail-title {
+    font-family: 'General Sans', sans-serif;
+    font-size: 28px; font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #0d0d0d;
+    line-height: 1.15;
   }
-  .agent-publisher a {
-    color: var(--gray-950);
-    border-bottom: 1px solid var(--gray-300);
-    transition: border-color 0.15s;
-  }
-  .agent-publisher a:hover { border-bottom-color: var(--gray-950); }
-  .verified-tick {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px;
-    color: var(--info);
-  }
-
-  .badges {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    margin-bottom: 20px;
+  .detail-badges {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   }
   .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; height: 22px;
     border-radius: 999px;
-    font-size: 12px; font-weight: 500;
+    font-size: 11px; font-weight: 500; line-height: 1;
   }
-  .badge-official { background: rgba(41,100,170,0.08); color: var(--info); }
-  .badge-community { background: var(--gray-100); color: var(--gray-700); }
-  .badge-paid { background: rgba(0,162,64,0.08); color: var(--success); }
-  .badge-verified { background: rgba(41,100,170,0.08); color: var(--info); }
+  .badge-official  { background: rgba(41,100,170,0.10); color: #2964aa; }
+  .badge-community { background: #ececec;               color: #424242; }
+  .badge-verified  { background: rgba(0,162,64,0.10);   color: #00a240; }
+  .badge-paid      { background: rgba(245,166,35,0.14); color: #b46a00; }
+  .badge svg { width: 11px; height: 11px; }
 
-  .description {
-    font-size: 17px; color: var(--gray-700); line-height: 1.6;
-    max-width: 720px;
-    margin-bottom: 32px;
+  /* ── Publisher line ── */
+  .detail-publisher {
+    font-size: 14px; color: #5d5d5d;
+    margin-bottom: 18px;
+  }
+  .detail-publisher .version {
+    color: #9b9b9b; margin-left: 12px; font-size: 13px;
   }
 
-  /* Install panel */
-  .install-panel {
-    background: var(--gray-50);
-    border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 28px;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px;
+  /* ── Stats row ── */
+  .detail-stats {
+    display: flex; align-items: center; gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 24px;
     flex-wrap: wrap;
-    margin-bottom: 32px;
+    font-size: 13.5px; color: #5d5d5d;
   }
-  .install-panel-text { flex: 1; min-width: 200px; }
-  .install-panel-text h3 {
-    font-family: 'General Sans', sans-serif;
-    font-size: 18px; font-weight: 600; letter-spacing: -0.015em;
-    color: var(--gray-950);
-    margin-bottom: 4px;
-  }
-  .install-panel-text p {
-    font-size: 13.5px; color: var(--gray-600);
-  }
-  .install-panel-text p a {
-    color: var(--gray-950);
-    border-bottom: 1px solid var(--gray-300);
-  }
-  .install-panel-text p a:hover { border-bottom-color: var(--gray-950); }
-  .price-tag {
-    font-family: 'General Sans', sans-serif;
-    font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
-    color: var(--success);
-    margin-bottom: 4px;
-  }
-  .install-panel-actions { display: flex; gap: 12px; align-items: center; }
+  .detail-stats .stars { display: inline-flex; align-items: center; gap: 4px; color: #424242; font-weight: 500; }
+  .detail-stats .stars svg { width: 14px; height: 14px; color: #f5a623; }
+  .detail-stats .reviews { color: #9b9b9b; font-weight: 400; }
+  .detail-stats .installs { display: inline-flex; align-items: center; gap: 6px; color: #424242; font-weight: 500; }
+  .detail-stats .installs svg { width: 14px; height: 14px; color: #5d5d5d; }
+  .detail-stats .gh-link { display: inline-flex; align-items: center; gap: 6px; color: #424242; transition: color 0.15s; }
+  .detail-stats .gh-link:hover { color: #0d0d0d; }
+  .detail-stats .gh-link svg { width: 16px; height: 16px; }
+  .detail-stats .dot { color: #cdcdcd; }
 
-  /* Info grid */
-  .info-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
+  /* ── Description ── */
+  .detail-desc {
+    font-size: 15.5px; color: #424242; line-height: 1.65;
+    margin-bottom: 28px;
   }
-  .info-card {
-    padding: 22px;
-    border: 1px solid var(--border-light);
-    border-radius: 14px;
-  }
-  .info-card h4 {
-    font-family: 'General Sans', sans-serif;
-    font-size: 12px; font-weight: 500;
+
+  /* ── Sections ── */
+  .detail-section { margin-bottom: 28px; }
+  .detail-section-label {
+    font-size: 11px; font-weight: 500;
+    color: #9b9b9b;
     text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--gray-500);
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
-  .pill-list { display: flex; flex-wrap: wrap; gap: 6px; }
-  .pill {
-    font-size: 12px;
-    padding: 4px 10px;
+  .detail-integrations { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .detail-integrations img.int-icon-lg { width: 24px; height: 24px; opacity: 0.85; transition: opacity 0.15s; }
+  .detail-integrations img.int-icon-lg:hover { opacity: 1; }
+  .int-pill-stub {
+    display: inline-flex; align-items: center;
+    height: 26px; padding: 0 10px;
+    border-radius: 8px;
+    font-size: 12.5px; color: #424242;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .detail-tag {
+    padding: 4px 12px; height: 26px;
     border-radius: 999px;
-    background: var(--gray-100);
-    color: var(--gray-700);
+    font-size: 12.5px; font-weight: 500; color: #424242;
+    background: rgba(0,0,0,0.04);
+    display: inline-flex; align-items: center;
   }
-  .info-card .publisher-row {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 6px;
-  }
-  .info-card .pub-name {
-    font-size: 14px; font-weight: 500; color: var(--gray-950);
-  }
-  .info-card .pub-handle {
-    font-size: 13px; color: var(--gray-500);
-  }
-  .info-card a.text-link {
-    font-size: 13px;
-    color: var(--gray-700);
-    display: inline-flex; align-items: center; gap: 4px;
-    border-bottom: 1px solid var(--gray-300);
-    margin-top: 4px;
-    transition: border-color 0.15s, color 0.15s;
-  }
-  .info-card a.text-link:hover { color: var(--gray-950); border-bottom-color: var(--gray-950); }
-  .meta-line { font-size: 13px; color: var(--gray-600); margin-bottom: 6px; }
-  .meta-line strong { color: var(--gray-950); font-weight: 500; }
 
-  /* Stars */
-  .stars {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 13px; font-weight: 500;
-    color: var(--gray-700);
+  /* ── Disclaimer ── */
+  .detail-disclaimer {
+    margin: 8px 0 28px;
+    padding: 14px 16px;
+    background: rgba(0,0,0,0.025);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 12px;
+    font-size: 13.5px; color: #676767;
   }
-  .stars svg { width: 14px; height: 14px; color: #f5a623; }
-  .stars-faint { color: var(--gray-500); font-weight: 400; }
 
-  /* Source link */
-  .source-link {
+  /* ── CTA ── */
+  .detail-cta-row {
+    display: flex; justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .btn-install {
     display: inline-flex; align-items: center; gap: 8px;
-    font-size: 14px; color: var(--gray-700);
-    border-bottom: 1px solid var(--gray-300);
-    padding-bottom: 2px;
+    padding: 0 22px; height: 44px;
+    border-radius: 999px;
+    font-size: 14.5px; font-weight: 500;
+    background: #0d0d0d; color: white; border: 1px solid #0d0d0d;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
   }
-  .source-link:hover { color: var(--gray-950); border-bottom-color: var(--gray-950); }
+  .btn-install:hover { background: #000; }
+  .btn-install:active { transform: scale(0.98); }
+  .btn-install.is-disabled {
+    background: #5d5d5d; border-color: #5d5d5d;
+    cursor: not-allowed; opacity: 0.85;
+  }
+  .btn-install.is-disabled:hover { background: #5d5d5d; }
+  .btn-install svg { width: 14px; height: 14px; }
 
-  /* Responsive */
+  /* ── Responsive ── */
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
     .nav-center { display: none; }
-    .container { padding: 24px 20px 64px; }
-    .agent-hero { flex-direction: column; gap: 18px; }
-    .agent-icon { width: 64px; height: 64px; font-size: 24px; border-radius: 16px; }
-    .install-panel { padding: 20px; flex-direction: column; align-items: stretch; }
-    .install-panel-actions { flex-direction: column; align-items: stretch; }
-    .install-panel-actions .btn { width: 100%; justify-content: center; }
-    .info-grid { grid-template-columns: 1fr; }
+    .detail-wrap { padding: 48px 20px 64px; }
+    .detail-card { padding: 28px 24px; border-radius: 20px; }
+    .detail-title { font-size: 24px; }
   }
 </style>
 {% endblock %}
 {% block body %}
+<div class="aurora"><div class="blob"></div></div>
+
 <nav>
   <a href="../../../" class="nav-logo">Houston</a>
   <div class="nav-center">
@@ -300,149 +291,122 @@ eleventyComputed:
   </div>
 </nav>
 
-<div class="container">
+<div class="detail-wrap">
   <a class="back-link" href="../../../store/">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     All agents
   </a>
 
-  {% set initials = agent.name.charAt(0) | upper %}
-  {% set hash = agent.id.length * 53 %}
-  {% set hue = hash % 360 %}
-
-  <div class="agent-hero">
-    <div class="agent-icon" style="background: hsl({{ hue }}, 62%, 48%);">{{ initials }}</div>
-    <div class="agent-head">
-      <h1 class="agent-name">
-        {{ agent.name }}
-        {% if agent.publisher.verified %}
-          <span class="verified-tick" title="Verified publisher">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
-          </span>
-        {% endif %}
-      </h1>
-      <div class="agent-publisher">
-        by
-        {% if agent.publisher and agent.publisher.github_url %}
-          <a href="{{ agent.publisher.github_url }}" target="_blank" rel="noopener noreferrer">{{ agent.publisher.name }}</a>
-        {% elif agent.publisher %}
-          {{ agent.publisher.name }}
+  <div class="detail-card">
+    {# ── Title row: name + badges ── #}
+    <div class="detail-title-row">
+      <h1 class="detail-title">{{ agent.name }}</h1>
+      <div class="detail-badges">
+        {% if agent.source == "houston" %}
+          <span class="badge badge-official">Official</span>
         {% else %}
-          {{ agent.author }}
+          <span class="badge badge-community">Community</span>
         {% endif %}
-        <span style="color: var(--gray-400);"> ·  </span>
-        v{{ agent.version }}
-        <span style="color: var(--gray-400);"> ·  </span>
-        {{ agent.installs }} installs
-        {% if agent.rating %}
-          <span style="color: var(--gray-400);"> ·  </span>
-          <span class="stars" style="display: inline-flex;">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
-            {{ agent.rating }}
-            <span class="stars-faint">({{ agent.reviews_count }})</span>
-          </span>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <div class="badges">
-    {% if agent.source == "houston" %}
-      <span class="badge badge-official">Official</span>
-    {% else %}
-      <span class="badge badge-community">Community</span>
-    {% endif %}
-    {% if agent.publisher.verified %}
-      <span class="badge badge-verified">Verified publisher</span>
-    {% endif %}
-    {% if agent.pricing.kind == "paid" %}
-      <span class="badge badge-paid">
-        ${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %}/month{% else %} one time{% endif %}
-      </span>
-    {% else %}
-      <span class="badge badge-community">Free</span>
-    {% endif %}
-  </div>
-
-  <p class="description">{{ agent.description }}</p>
-
-  <div class="install-panel">
-    <div class="install-panel-text">
-      {% if agent.pricing.kind == "paid" %}
-        <div class="price-tag">
-          ${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %} / month{% else %} one time{% endif %}
-        </div>
-      {% endif %}
-      <h3>Install with one click</h3>
-      <p>Don't have Houston yet? <a href="../../../">Download for free</a>.</p>
-    </div>
-    <div class="install-panel-actions">
-      <a class="btn btn-primary btn-lg" href="houston://store/agent/{{ agent.id }}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Open in Houston
-      </a>
-    </div>
-  </div>
-
-  <div class="info-grid">
-    <div class="info-card">
-      <h4>Integrations</h4>
-      {% if agent.integrations.length %}
-        <div class="pill-list">
-          {% for int in agent.integrations %}
-            <span class="pill">{{ int }}</span>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p style="font-size: 13px; color: var(--gray-500);">No connections required.</p>
-      {% endif %}
-    </div>
-
-    <div class="info-card">
-      <h4>Tags</h4>
-      {% if agent.tags.length %}
-        <div class="pill-list">
-          {% for tag in agent.tags %}
-            <span class="pill">{{ tag }}</span>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p style="font-size: 13px; color: var(--gray-500);">No tags.</p>
-      {% endif %}
-    </div>
-
-    <div class="info-card">
-      <h4>Publisher</h4>
-      <div class="publisher-row">
-        <span class="pub-name">
-          {% if agent.publisher %}{{ agent.publisher.name }}{% else %}{{ agent.author }}{% endif %}
-        </span>
         {% if agent.publisher.verified %}
-          <span class="verified-tick" title="Verified publisher" style="width: 16px; height: 16px;">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
+          <span class="badge badge-verified">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Verified
+          </span>
+        {% endif %}
+        {% if agent.pricing.kind == "paid" %}
+          <span class="badge badge-paid">
+            ${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %}/mo{% endif %}
           </span>
         {% endif %}
       </div>
-      {% if agent.publisher %}
-        <div class="pub-handle">@{{ agent.publisher.handle }}</div>
-        {% if agent.publisher.github_url %}
-          <a class="text-link" href="{{ agent.publisher.github_url }}" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-            Visit on GitHub
-          </a>
-        {% endif %}
+    </div>
+
+    {# ── Publisher + version ── #}
+    <div class="detail-publisher">
+      Published by
+      {% if agent.publisher and agent.publisher.github_url %}
+        <a href="{{ agent.publisher.github_url }}" target="_blank" rel="noopener noreferrer" style="color: #424242; border-bottom: 1px solid rgba(0,0,0,0.15);">{{ agent.publisher.name }}</a>
+      {% elif agent.publisher %}
+        {{ agent.publisher.name }}
+      {% else %}
+        {{ agent.author }}
+      {% endif %}
+      {% if agent.version %}
+        <span class="version">OSS Version {{ agent.version }}</span>
+      {% endif %}
+    </div>
+
+    {# ── Stats row ── #}
+    <div class="detail-stats">
+      {% if agent.rating %}
+        <span class="stars">
+          <svg viewBox="0 0 24 24" fill="#f5a623" aria-hidden="true"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
+          {{ agent.rating }}
+          {% if agent.reviews_count %}<span class="reviews">({{ agent.reviews_count }})</span>{% endif %}
+        </span>
+        <span class="dot">·</span>
+      {% endif %}
+      <span class="installs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        {{ agent.installs }} installs
+      </span>
+      {% if agent.repo or agent.publisher.github_url %}
+        <span class="dot">·</span>
+        <a class="gh-link"
+           href="{% if agent.publisher.github_url %}{{ agent.publisher.github_url }}{% else %}https://github.com/{{ agent.repo }}{% endif %}"
+           target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      {% endif %}
+    </div>
+
+    {# ── Description ── #}
+    <p class="detail-desc">{{ agent.description }}</p>
+
+    {# ── Integrations ── #}
+    {% if agent.integrations.length %}
+      <div class="detail-section">
+        <div class="detail-section-label">Integrations</div>
+        <div class="detail-integrations">
+          {% for int in agent.integrations %}
+            <span class="int-pill-stub" title="{{ int }}">{{ int }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {# ── Tags ── #}
+    {% if agent.tags.length %}
+      <div class="detail-section">
+        <div class="detail-section-label">Tags</div>
+        <div class="detail-tags">
+          {% for tag in agent.tags %}
+            <span class="detail-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {# ── Disclaimer (mock agents only) ── #}
+    {% if agent.source == "mock" %}
+      <div class="detail-disclaimer">
+        This agent is a design preview. Real community agents will be installable when the marketplace launches.
+      </div>
+    {% endif %}
+
+    {# ── CTA bottom-right ── #}
+    <div class="detail-cta-row">
+      {% if agent.source == "mock" %}
+        <button class="btn-install is-disabled" disabled>Preview, not yet available</button>
+      {% else %}
+        <a class="btn-install" href="houston://store/agent/{{ agent.id }}">
+          Install in Houston
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+        </a>
       {% endif %}
     </div>
   </div>
-
-  {% if agent.repo or agent.publisher.github_url %}
-    <a class="source-link"
-       href="{% if agent.publisher.github_url %}{{ agent.publisher.github_url }}{% else %}https://github.com/{{ agent.repo }}{% endif %}"
-       target="_blank" rel="noopener noreferrer">
-      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-      View source on GitHub
-    </a>
-  {% endif %}
 </div>
 
 {% include "footer-landing.njk" %}
