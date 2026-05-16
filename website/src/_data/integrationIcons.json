@@ -1,5 +1,11 @@
 {
   "airtable":         { "slug": "airtable",         "label": "Airtable",         "color": "#18BFFF" },
+  "cloudflare":       { "slug": "cloudflare",       "label": "Cloudflare",       "color": "#F38020" },
+  "datadog":          { "slug": "datadog",          "label": "Datadog",          "color": "#632CA6" },
+  "figma":            { "slug": "figma",            "label": "Figma",            "color": "#F24E1E" },
+  "npm":              { "slug": "npm",              "label": "npm",              "color": "#CB3837" },
+  "sentry":           { "slug": "sentry",           "label": "Sentry",           "color": "#362D59" },
+  "vercel":           { "slug": "vercel",           "label": "Vercel",           "color": "#000000" },
   "apollo":           { "slug": "apollographql",    "label": "Apollo",           "color": "#311C87" },
   "buffer":           { "slug": "buffer",           "label": "Buffer",           "color": "#231F20" },
   "discord":          { "slug": "discord",          "label": "Discord",          "color": "#5865F2" },
