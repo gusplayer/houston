@@ -10,6 +10,7 @@ import { useAgentInvalidation } from "./hooks/use-agent-invalidation";
 import { useAnalyticsSubscriber } from "./hooks/use-analytics-subscriber";
 import { useWorkspaceStore } from "./stores/workspaces";
 import { useAgentStore } from "./stores/agents";
+import { useHoustonCreditsStore } from "./stores/houston-credits";
 import { useUIStore } from "./stores/ui";
 import { useConnections, useComposioApps } from "./hooks/queries";
 import { analytics } from "./lib/analytics";
@@ -27,6 +28,8 @@ export default function App() {
   useSessionEvents();
   useAgentInvalidation();
   useAnalyticsSubscriber();
+  const initCredits = useHoustonCreditsStore((s) => s.init);
+  useEffect(() => { void initCredits(); }, [initCredits]);
   // Prefetch Composio data on launch so the integrations tab opens instantly.
   useConnections();
   useComposioApps();

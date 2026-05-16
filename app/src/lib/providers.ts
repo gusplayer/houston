@@ -16,6 +16,13 @@ export interface ProviderInfo {
   defaultModel: string;
 }
 
+export interface HoustonCreditsInfo {
+  id: "houston-credits";
+  name: string;
+  subtitle: string;
+  model: string;
+}
+
 export const PROVIDERS: readonly ProviderInfo[] = [
   {
     id: "openai",
@@ -61,6 +68,16 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     defaultModel: "sonnet",
   },
 ] as const;
+
+export const HOUSTON_CREDITS_INFO: HoustonCreditsInfo = {
+  id: "houston-credits",
+  name: "Houston Credits",
+  subtitle: "Free trial",
+  model: "claude-haiku-4-5-20251001",
+} as const;
+
+export const FREE_CREDITS_LIMIT = 20;
+export const LOW_CREDITS_THRESHOLD = 5;
 
 /** Find a provider by id. */
 export function getProvider(id: string): ProviderInfo | undefined {

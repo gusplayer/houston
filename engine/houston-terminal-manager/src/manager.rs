@@ -32,6 +32,11 @@ impl SessionManager {
         disable_builtin_tools: bool,
         // When true, disables ALL tools (--allowedTools ""). Use for pure conversation.
         disable_all_tools: bool,
+        // Optional ANTHROPIC_API_KEY override exported to the claude-code
+        // subprocess env. Used by the Houston Credits virtual provider so a
+        // bundled key powers the trial without touching the user's own
+        // subscription auth. Ignored for OpenAI sessions.
+        anthropic_api_key_override: Option<String>,
     ) -> (mpsc::UnboundedReceiver<SessionUpdate>, SessionHandle) {
         let (tx, rx) = mpsc::unbounded_channel();
 
@@ -51,6 +56,7 @@ impl SessionManager {
                         mcp_config,
                         disable_builtin_tools,
                         disable_all_tools,
+                        anthropic_api_key_override,
                     )
                     .await;
                 }

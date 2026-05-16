@@ -10,10 +10,24 @@ use houston_terminal_manager::Provider;
 use serde::Deserialize;
 use std::path::Path;
 
+/// Workspace provider string that signals the Houston Credits trial — internally
+/// resolves to Anthropic + Haiku with the bundled HOUSTON_CREDITS_KEY env var
+/// exported to the claude-code subprocess.
+pub const HOUSTON_CREDITS_PROVIDER: &str = "houston-credits";
+
+/// Model used when a session runs through Houston Credits. Haiku keeps the
+/// trial cost low without changing the CLI surface.
+pub const HOUSTON_CREDITS_MODEL: &str = "claude-haiku-4-5-20251001";
+
 #[derive(Debug, Clone)]
 pub struct ResolvedProvider {
     pub provider: Provider,
     pub model: Option<String>,
+    /// True when the resolved configuration came from the `houston-credits`
+    /// virtual provider. Callers should pass the bundled HOUSTON_CREDITS_KEY
+    /// to the session spawn so claude-code uses it instead of the user's
+    /// own subscription.
+    pub uses_houston_credits: bool,
 }
 
 impl Default for ResolvedProvider {
@@ -21,7 +35,16 @@ impl Default for ResolvedProvider {
         Self {
             provider: Provider::Anthropic,
             model: None,
+            uses_houston_credits: false,
         }
+    }
+}
+
+fn houston_credits_resolved() -> ResolvedProvider {
+    ResolvedProvider {
+        provider: Provider::Anthropic,
+        model: Some(HOUSTON_CREDITS_MODEL.to_string()),
+        uses_houston_credits: true,
     }
 }
 
@@ -45,10 +68,14 @@ pub fn resolve_provider(paths: &EnginePaths, agent_dir: &Path) -> ResolvedProvid
         // Agent-level config exists — but model can come from workspace if
         // the agent only overrides one field. Match the old Tauri behavior.
         if let Some(ref p_str) = from_agent.provider {
+            if p_str == HOUSTON_CREDITS_PROVIDER {
+                return houston_credits_resolved();
+            }
             if let Ok(provider) = p_str.parse::<Provider>() {
                 return ResolvedProvider {
                     provider,
                     model: from_agent.model.clone(),
+                    uses_houston_credits: false,
                 };
             }
         }
@@ -57,6 +84,7 @@ pub fn resolve_provider(paths: &EnginePaths, agent_dir: &Path) -> ResolvedProvid
             return ResolvedProvider {
                 provider: ws.provider,
                 model: from_agent.model,
+                uses_houston_credits: ws.uses_houston_credits,
             };
         }
     }
@@ -89,6 +117,9 @@ fn resolve_workspace(paths: &EnginePaths, agent_dir: &Path) -> ResolvedProvider 
             Err(_) => continue,
         };
         if let Some(ws) = all.iter().find(|w| w.name == ws_name) {
+            if ws.provider.as_deref() == Some(HOUSTON_CREDITS_PROVIDER) {
+                return houston_credits_resolved();
+            }
             let provider = ws
                 .provider
                 .as_deref()
@@ -97,10 +128,19 @@ fn resolve_workspace(paths: &EnginePaths, agent_dir: &Path) -> ResolvedProvider 
             return ResolvedProvider {
                 provider,
                 model: ws.model.clone(),
+                uses_houston_credits: false,
             };
         }
     }
     ResolvedProvider::default()
+}
+
+/// Read the bundled Houston Credits Anthropic API key from the engine process
+/// environment. The app passes it at engine spawn when bundled at build time.
+pub fn houston_credits_key() -> Option<String> {
+    std::env::var("HOUSTON_CREDITS_KEY")
+        .ok()
+        .filter(|s| !s.is_empty())
 }
 
 #[cfg(test)]
@@ -170,5 +210,36 @@ mod tests {
         let r = resolve_provider(&paths, &agent);
         assert_eq!(r.provider, Provider::OpenAI);
         assert_eq!(r.model.as_deref(), Some("sonnet"));
+    }
+
+    #[test]
+    fn houston_credits_workspace_maps_to_anthropic_haiku() {
+        let d = TempDir::new().unwrap();
+        write_json(
+            &d.path().join("workspaces.json"),
+            r#"[{"id":"x","name":"ws","isDefault":true,"createdAt":"t","provider":"houston-credits"}]"#,
+        );
+        let agent = d.path().join("ws").join("agent");
+        std::fs::create_dir_all(&agent).unwrap();
+        let paths = EnginePaths::new(d.path().to_path_buf(), d.path().to_path_buf());
+        let r = resolve_provider(&paths, &agent);
+        assert_eq!(r.provider, Provider::Anthropic);
+        assert_eq!(r.model.as_deref(), Some(HOUSTON_CREDITS_MODEL));
+        assert!(r.uses_houston_credits);
+    }
+
+    #[test]
+    fn houston_credits_agent_config_maps_to_anthropic_haiku() {
+        let d = TempDir::new().unwrap();
+        let agent = d.path().join("ws").join("agent");
+        write_json(
+            &agent.join(".houston/config/config.json"),
+            r#"{"provider":"houston-credits"}"#,
+        );
+        let paths = EnginePaths::new(d.path().to_path_buf(), d.path().to_path_buf());
+        let r = resolve_provider(&paths, &agent);
+        assert_eq!(r.provider, Provider::Anthropic);
+        assert_eq!(r.model.as_deref(), Some(HOUSTON_CREDITS_MODEL));
+        assert!(r.uses_houston_credits);
     }
 }

@@ -1,15 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2, LogIn, LogOut } from "lucide-react";
-import { Spinner, ConfirmDialog } from "@houston-ai/core";
+import { Loader2, LogIn, LogOut, Zap } from "lucide-react";
+import { Spinner, ConfirmDialog, cn } from "@houston-ai/core";
 import { tauriProvider, type ProviderStatus } from "../../lib/tauri";
+import { osHoustonCreditsAvailable } from "../../lib/os-bridge";
 import {
   PROVIDERS,
   COMING_SOON_PROVIDERS,
+  HOUSTON_CREDITS_INFO,
   type ProviderInfo,
   type ComingSoonProviderInfo,
 } from "../../lib/providers";
 import { useUIStore } from "../../stores/ui";
+import { useHoustonCreditsStore } from "../../stores/houston-credits";
 import { analytics } from "../../lib/analytics";
 
 interface Props {
@@ -20,13 +23,15 @@ interface Props {
   onSelect: (provider: string, model: string) => void;
 }
 
-export function ProviderPicker({ onSelect }: Props) {
+export function ProviderPicker({ value, onSelect }: Props) {
   const { t } = useTranslation("providers");
   const [statuses, setStatuses] = useState<Record<string, ProviderStatus>>({});
   const [loading, setLoading] = useState(true);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [confirmSignOutFor, setConfirmSignOutFor] = useState<ProviderInfo | null>(null);
+  const [creditsAvailable, setCreditsAvailable] = useState(false);
   const addToast = useUIStore((s) => s.addToast);
+  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
 
   const prevStatuses = useRef<Record<string, ProviderStatus>>({});
   const loadStatuses = useCallback(async () => {
@@ -51,6 +56,7 @@ export function ProviderPicker({ onSelect }: Props) {
 
   useEffect(() => {
     loadStatuses();
+    osHoustonCreditsAvailable().then(setCreditsAvailable).catch(() => {});
   }, [loadStatuses]);
 
   // Poll while a sign-in is in flight so the card flips as soon as the
@@ -119,6 +125,13 @@ export function ProviderPicker({ onSelect }: Props) {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {creditsAvailable && (
+          <HoustonCreditsPickerCard
+            active={value === HOUSTON_CREDITS_INFO.id}
+            balance={creditsBalance}
+            onClick={() => onSelect(HOUSTON_CREDITS_INFO.id, HOUSTON_CREDITS_INFO.model)}
+          />
+        )}
         {PROVIDERS.map((prov) => {
           const status = statuses[prov.id];
           const connected = (status?.cli_installed && status?.authenticated) ?? false;
@@ -245,6 +258,49 @@ function ComingSoonLogo({ provider }: { provider: ComingSoonProviderInfo }) {
         </span>
       );
   }
+}
+
+function HoustonCreditsPickerCard({
+  active,
+  balance,
+  onClick,
+}: {
+  active: boolean;
+  balance: number | null;
+  onClick: () => void;
+}) {
+  const { t } = useTranslation("providers");
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={t("credits.name")}
+      className="group w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary hover:bg-black/[0.05] transition-colors focus-visible:outline-none focus-visible:bg-black/[0.05]"
+    >
+      <div className="size-8 rounded-lg bg-background flex items-center justify-center shrink-0">
+        <Zap className="size-4 text-muted-foreground" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className={cn("text-[13px] font-medium text-foreground truncate flex items-center gap-1.5")}>
+          {t("credits.name")}
+          {active && (
+            <span
+              className="size-1.5 rounded-full bg-emerald-500 shrink-0"
+              aria-label={t("credits.connected")}
+            />
+          )}
+        </p>
+        <p className="text-[11px] text-muted-foreground truncate">
+          {active && balance !== null
+            ? t("credits.settingsBalance", { count: balance })
+            : t("credits.subtitle")}
+        </p>
+      </div>
+      <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground shrink-0">
+        {t("credits.badge")}
+      </span>
+    </button>
+  );
 }
 
 function ClaudeLogo() {

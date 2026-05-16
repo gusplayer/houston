@@ -23,5 +23,39 @@
   "toast": {
     "signInFailed": "Não foi possível abrir o login de {{provider}}",
     "signOutFailed": "Não foi possível sair de {{provider}}"
+  },
+  "credits": {
+    "name": "Houston Credits",
+    "subtitle": "Teste gratuito",
+    "badge": "Gratis",
+    "connected": "Ativo",
+    "cost": "{{count}} mensagens restantes",
+    "lowWarning": "{{count}} restantes",
+    "settingsBalance": "{{count}} mensagens restantes",
+    "topUp": "Recarregar"
+  },
+  "topup": {
+    "title": "Obter mais mensagens",
+    "subtitle": "Escolha o pacote que funciona para voce",
+    "tier100label": "100 mensagens",
+    "tier100price": "$20",
+    "tier500label": "500 mensagens",
+    "tier500price": "$80",
+    "tier2000label": "2.000 mensagens",
+    "tier2000price": "$200",
+    "pay": "Pagar {{price}}",
+    "cardNumber": "Numero do cartao",
+    "expiry": "MM / AA",
+    "cvc": "CVC",
+    "back": "Voltar",
+    "success": "Creditos adicionados",
+    "successBody": "{{count}} mensagens foram adicionadas a sua conta.",
+    "close": "Entendi"
+  },
+  "outOfCredits": {
+    "title": "Sem mensagens",
+    "body": "Voce usou todas as suas mensagens gratuitas. Obtenha mais para continuar.",
+    "cta": "Obter mais mensagens",
+    "switchProvider": "Usar sua propria assinatura"
   }
 }
