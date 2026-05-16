@@ -16,6 +16,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/houston-gray.svg");
   eleventyConfig.addPassthroughCopy("src/og-image.jpg");
   eleventyConfig.addPassthroughCopy("src/icons");
+  eleventyConfig.addPassthroughCopy("src/integration-icons");
   eleventyConfig.addPassthroughCopy("src/learn/style.css");
   eleventyConfig.addPassthroughCopy("src/slack");
   eleventyConfig.addPassthroughCopy("src/auth");

@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "fetch:icons": "node scripts/fetch-integration-icons.mjs",
+    "prebuild": "node scripts/fetch-integration-icons.mjs",
     "build": "npx @11ty/eleventy",
     "dev": "npx @11ty/eleventy --serve",
     "deploy": "npm run build && npx wrangler pages deploy _site --project-name=houston-site --branch=main --commit-dirty=true"
