@@ -132,7 +132,11 @@
     "reportSuccessDescription": "Houston recibió los registros.",
     "reportErrorTitle": "No se pudo enviar el reporte",
     "reportErrorDescription": "Intenta otra vez en un momento.",
-    "retryErrorTitle": "No se pudo intentar de nuevo"
+    "retryErrorTitle": "No se pudo intentar de nuevo",
+    "showDetails": "Mostrar qué falló",
+    "hideDetails": "Ocultar detalles",
+    "copyDetails": "Copiar",
+    "copyDetailsSuccess": "Copiado"
   },
   "updateChecker": {
     "cardLabel": "Actualización de Houston disponible",

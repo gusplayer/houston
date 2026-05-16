@@ -13,6 +13,10 @@ interface ToolRuntimeErrorCardProps {
   onRetry?: () => Promise<void> | void;
 }
 
+function stripAnsi(s: string): string {
+  return s.replace(/\x1b\[[0-9;]*m/g, "");
+}
+
 export function ToolRuntimeErrorCard({
   error,
   onRetry,
@@ -22,6 +26,19 @@ export function ToolRuntimeErrorCard({
   const workspaceName = useWorkspaceStore((s) => s.current?.name);
   const [retrying, setRetrying] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const cleanedDetails = error.details ? stripAnsi(error.details).trim() : "";
+  const hasDetails =
+    cleanedDetails.length > 0 &&
+    cleanedDetails !== "no stderr output captured";
+
+  const onCopy = () => {
+    navigator.clipboard.writeText(cleanedDetails);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   const retry = async () => {
     if (!onRetry || retrying) return;
@@ -114,6 +131,39 @@ export function ToolRuntimeErrorCard({
                 : t("shell:toolRuntimeError.report")}
             </Button>
           </div>
+
+          {hasDetails && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowDetails((v) => !v)}
+                className="mt-2 text-xs text-muted-foreground underline-offset-2 hover:underline self-start"
+              >
+                {t(
+                  showDetails
+                    ? "shell:toolRuntimeError.hideDetails"
+                    : "shell:toolRuntimeError.showDetails",
+                )}
+              </button>
+              {showDetails && (
+                <>
+                  <pre className="mt-2 max-h-60 overflow-auto rounded-md border border-border bg-background p-3 text-xs font-mono whitespace-pre-wrap break-all text-foreground">
+                    {cleanedDetails}
+                  </pre>
+                  <Button
+                    onClick={onCopy}
+                    className="mt-2 h-7 gap-2 rounded-full px-3 text-xs self-start"
+                    size="sm"
+                    variant="outline"
+                  >
+                    {copied
+                      ? t("shell:toolRuntimeError.copyDetailsSuccess")
+                      : t("shell:toolRuntimeError.copyDetails")}
+                  </Button>
+                </>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

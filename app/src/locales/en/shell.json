@@ -132,7 +132,11 @@
     "reportSuccessDescription": "Houston received the logs.",
     "reportErrorTitle": "Could not send report",
     "reportErrorDescription": "Try again in a moment.",
-    "retryErrorTitle": "Could not try again"
+    "retryErrorTitle": "Could not try again",
+    "showDetails": "Show what went wrong",
+    "hideDetails": "Hide details",
+    "copyDetails": "Copy",
+    "copyDetailsSuccess": "Copied"
   },
   "updateChecker": {
     "cardLabel": "Houston update available",
