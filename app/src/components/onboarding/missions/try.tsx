@@ -356,18 +356,6 @@ export function TryMission({
               <p className="mt-2 text-sm text-muted-foreground">
                 {t("setup:tutorial.missions.try.workingBody")}
               </p>
-              {/* Escape hatch — only visible once the mission has started,
-               * so it doesn't compete with the chip CTA on the empty
-               * left panel. Hard-coded EN/ES copy because adding i18n
-               * keys for a single line during a hotfix isn't worth the
-               * locale churn. */}
-              <button
-                type="button"
-                onClick={handleSkipTutorial}
-                className="mt-3 text-xs text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Skip tutorial / Saltar tutorial
-              </button>
             </div>
           )}
           {error && (
@@ -375,6 +363,17 @@ export function TryMission({
               {error}
             </p>
           )}
+          {/* Escape hatch — always visible in M4 so users who bypass the
+           * chip cards by typing directly into the chat composer still
+           * have a way out. Anchored at the bottom of the left column
+           * via `mt-auto`. */}
+          <button
+            type="button"
+            onClick={handleSkipTutorial}
+            className="mt-auto self-start pt-4 text-xs text-muted-foreground underline-offset-2 hover:underline"
+          >
+            {t("setup:tutorial.missions.try.skipTutorial")}
+          </button>
         </div>
       }
       right={
