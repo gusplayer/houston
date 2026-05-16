@@ -241,6 +241,11 @@ permalink: /store/index.html
   }
   .filter-item.is-active svg { color: var(--gray-700); }
 
+  /* Mobile-only category select (hidden on desktop). The desktop buttons
+     remain in the DOM and drive the filter state; the select mirrors the
+     same values and triggers a click on the matching button via JS. */
+  .filter-select-mobile { display: none; }
+
   /* ── Right column: search + grid ── */
   .store-main { min-width: 0; padding-bottom: 96px; }
 
@@ -581,35 +586,34 @@ permalink: /store/index.html
       padding: 8px 0 0;
     }
 
-    /* Filter rail collapses to vertical stack of horizontally-scrollable groups */
+    /* Filter rail — mobile keeps only the Categories group, which becomes
+       a native select. Source and Pricing default to "all" anyway and add
+       clutter on small screens; hidden until desktop layout is back. */
     .filter-rail {
       position: static;
-      padding: 0 0 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow: visible;
+      padding: 0 20px 16px;
+      display: block;
       min-width: 0;
       max-width: 100%;
     }
-    .filter-group {
-      margin-bottom: 0;
+    .filter-group[data-filter-group="source"],
+    .filter-group[data-filter-group="pricing"] { display: none; }
+
+    .filter-group[data-filter-group="categories"] {
       display: flex;
       align-items: center;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding: 4px 20px;
-      scroll-padding-left: 20px;
+      gap: 12px;
+      padding: 0;
+      margin: 0;
+      overflow: visible;
       max-width: 100%;
       min-width: 0;
     }
-    .filter-group::-webkit-scrollbar { display: none; }
-    .filter-group-title {
+    .filter-group[data-filter-group="categories"] .filter-group-title {
       display: inline-flex;
       align-items: center;
       flex-shrink: 0;
-      height: 28px;
+      height: 44px;
       padding: 0;
       margin: 0;
       font-size: 10px;
@@ -617,20 +621,34 @@ permalink: /store/index.html
       letter-spacing: 0.08em;
       color: var(--gray-500);
       text-transform: uppercase;
-      min-width: 64px;
     }
-    .filter-item {
-      width: auto;
-      padding: 6px 14px;
-      height: 30px;
-      border-radius: 999px;
+    .filter-group[data-filter-group="categories"] .filter-item { display: none; }
+    .filter-group[data-filter-group="categories"] .filter-select-mobile {
+      display: block;
+      flex: 1;
+      min-width: 0;
+      height: 44px;
+      padding: 0 40px 0 14px;
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: white;
-      flex-shrink: 0;
-      white-space: nowrap;
-      font-size: 12.5px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--gray-950);
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23676767' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .filter-item svg { display: none; }
+    .filter-group[data-filter-group="categories"] .filter-select-mobile:focus {
+      outline: none;
+      border-color: var(--gray-700);
+      box-shadow: 0 0 0 3px rgba(13,13,13,0.06);
+    }
 
     .store-main { padding: 0 20px 64px; min-width: 0; max-width: 100%; }
     .search-wrap { max-width: 100%; }
@@ -689,8 +707,14 @@ permalink: /store/index.html
 
 <div class="store-shell">
   <aside class="filter-rail" aria-label="Filters">
-    <div class="filter-group">
+    <div class="filter-group" data-filter-group="categories">
       <div class="filter-group-title">Categories</div>
+      <select class="filter-select-mobile" id="mobile-category-select" aria-label="Filter by category">
+        <option value="all">All categories</option>
+        {% for cat in storeCategories %}
+          <option value="{{ cat }}">{{ cat | capitalize }}</option>
+        {% endfor %}
+      </select>
       <button class="filter-item is-active" data-category-filter="all">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         All categories
@@ -717,7 +741,7 @@ permalink: /store/index.html
       {% endfor %}
     </div>
 
-    <div class="filter-group">
+    <div class="filter-group" data-filter-group="source">
       <div class="filter-group-title">Source</div>
       <button class="filter-item is-active" data-source-filter="all">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m6.08 9.5-3.48 1.58a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83L17.92 9.5"/><path d="m6.08 14.5-3.48 1.58a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83l-3.42-1.58"/></svg>
@@ -733,7 +757,7 @@ permalink: /store/index.html
       </button>
     </div>
 
-    <div class="filter-group">
+    <div class="filter-group" data-filter-group="pricing">
       <div class="filter-group-title">Pricing</div>
       <button class="filter-item is-active" data-price-filter="all">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m6.08 9.5-3.48 1.58a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83L17.92 9.5"/><path d="m6.08 14.5-3.48 1.58a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83l-3.42-1.58"/></svg>
@@ -937,6 +961,16 @@ permalink: /store/index.html
       search.addEventListener('input', function() {
         state.q = search.value;
         apply();
+      });
+    }
+
+    // Mobile category dropdown — proxies to the matching desktop button so
+    // there's a single source of truth for the active state + filter logic.
+    var mobileCatSelect = document.getElementById('mobile-category-select');
+    if (mobileCatSelect) {
+      mobileCatSelect.addEventListener('change', function() {
+        var btn = document.querySelector('[data-category-filter="' + this.value + '"]');
+        if (btn) btn.click();
       });
     }
   })();
