@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { marked } from "marked";
 
 marked.setOptions({ gfm: true, breaks: false });
@@ -8,6 +10,25 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("markdown", (str) => {
     if (!str) return "";
     return marked.parse(str);
+  });
+
+  // Inline a brand SVG from src/integration-icons/<slug>.svg, stripping
+  // intrinsic fill/width/height and injecting fill="currentColor" so the
+  // consumer can size with CSS and tint via the wrapper's `color`.
+  eleventyConfig.addFilter("readSvg", (slug) => {
+    if (!slug) return "";
+    const filePath = path.resolve("src/integration-icons", `${slug}.svg`);
+    try {
+      let svg = fs.readFileSync(filePath, "utf-8");
+      svg = svg.replace(/\s+fill="[^"]*"/g, "");
+      svg = svg.replace(/\s+width="[^"]*"/g, "");
+      svg = svg.replace(/\s+height="[^"]*"/g, "");
+      svg = svg.replace(/<svg\b/, '<svg fill="currentColor" width="100%" height="100%"');
+      return svg;
+    } catch {
+      // Missing SVG — caller renders the text-pill fallback.
+      return "";
+    }
   });
 
   // Pass through static assets unchanged
