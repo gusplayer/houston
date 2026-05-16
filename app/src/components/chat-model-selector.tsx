@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Zap } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
 } from "@houston-ai/core";
 import { tauriProvider, type ProviderStatus } from "../lib/tauri";
-import { PROVIDERS, getProvider, getModel, type ProviderInfo } from "../lib/providers";
+import { PROVIDERS, HOUSTON_CREDITS_INFO, getProvider, getModel, type ProviderInfo } from "../lib/providers";
+import { useHoustonCreditsStore } from "../stores/houston-credits";
 
 interface ChatModelSelectorProps {
   /** Current provider id (from workspace/agent config). */
@@ -30,6 +31,7 @@ interface ChatModelSelectorProps {
 export function ChatModelSelector({ provider, model, onSelect, lockedProvider }: ChatModelSelectorProps) {
   const { t } = useTranslation("chat");
   const [statuses, setStatuses] = useState<Record<string, ProviderStatus>>({});
+  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
 
   const loadStatuses = useCallback(async () => {
     const [openai, anthropic] = await Promise.all([
@@ -43,13 +45,28 @@ export function ChatModelSelector({ provider, model, onSelect, lockedProvider }:
     loadStatuses();
   }, [loadStatuses]);
 
+  const isCredits = provider === HOUSTON_CREDITS_INFO.id;
   const currentProvider = getProvider(provider);
   const currentModel = getModel(provider, model);
-  const displayLabel = currentModel?.label ?? currentProvider?.subtitle ?? t("modelSelector.selectModel");
+  const displayLabel = isCredits
+    ? t("modelSelector.creditsLabel")
+    : (currentModel?.label ?? currentProvider?.subtitle ?? t("modelSelector.selectModel"));
+
+  // Whether the houston-credits group should appear in the dropdown.
+  // Always shown when it's the active provider. Also shown when not locked
+  // so the user can see it exists (but they'd need to switch via provider
+  // picker, not here — for simplicity we only show it when active).
+  const showCreditsGroup = isCredits || lockedProvider === HOUSTON_CREDITS_INFO.id;
+
+  // Count how many provider groups will render (to decide separators)
+  const visibleProviders = PROVIDERS.filter((prov) => {
+    const connected = (statuses[prov.id]?.cli_installed && statuses[prov.id]?.authenticated) ?? false;
+    if (!connected && prov.id !== provider) return false;
+    if (lockedProvider && prov.id !== lockedProvider) return false;
+    return true;
+  });
 
   return (
-    // Stop pointer events from bubbling — prevents the board detail panel
-    // from interpreting dropdown clicks as "click outside → close panel".
     <div onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -67,13 +84,16 @@ export function ChatModelSelector({ provider, model, onSelect, lockedProvider }:
           className="w-64"
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
-          {PROVIDERS.map((prov, idx) => {
-            const status = statuses[prov.id];
-            const connected = (status?.cli_installed && status?.authenticated) ?? false;
-            // Hide disconnected providers that aren't active
-            if (!connected && prov.id !== provider) return null;
-            // When provider is locked, only show the locked provider's models
-            if (lockedProvider && prov.id !== lockedProvider) return null;
+          {showCreditsGroup && (
+            <HoustonCreditsGroup
+              isActive={isCredits}
+              balance={creditsBalance}
+              onSelect={() => onSelect(HOUSTON_CREDITS_INFO.id, HOUSTON_CREDITS_INFO.model)}
+              showSeparator={false}
+            />
+          )}
+          {visibleProviders.map((prov, idx) => {
+            const connected = (statuses[prov.id]?.cli_installed && statuses[prov.id]?.authenticated) ?? false;
             return (
               <ProviderModelGroup
                 key={prov.id}
@@ -82,13 +102,56 @@ export function ChatModelSelector({ provider, model, onSelect, lockedProvider }:
                 isActiveProvider={prov.id === provider}
                 activeModel={prov.id === provider ? model : null}
                 onSelect={onSelect}
-                showSeparator={idx > 0 && !lockedProvider}
+                showSeparator={showCreditsGroup || idx > 0}
               />
             );
           })}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
+  );
+}
+
+function HoustonCreditsGroup({
+  isActive,
+  balance,
+  onSelect,
+  showSeparator,
+}: {
+  isActive: boolean;
+  balance: number | null;
+  onSelect: () => void;
+  showSeparator: boolean;
+}) {
+  const { t } = useTranslation("chat");
+  return (
+    <>
+      {showSeparator && <DropdownMenuSeparator />}
+      <DropdownMenuLabel className="flex items-center gap-1.5 text-xs text-muted-foreground font-normal">
+        <Zap className="size-3.5" />
+        {HOUSTON_CREDITS_INFO.name}
+      </DropdownMenuLabel>
+      <DropdownMenuItem
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect();
+        }}
+        className="flex items-start gap-2.5 py-1.5"
+      >
+        <div className="w-4 shrink-0 mt-0.5 flex justify-center">
+          {isActive && <Check className="h-3.5 w-3.5 text-foreground" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm">Claude Haiku</div>
+          <div className="text-xs text-muted-foreground leading-snug">
+            {balance !== null
+              ? t("modelSelector.creditsBalance", { count: balance })
+              : HOUSTON_CREDITS_INFO.subtitle}
+          </div>
+        </div>
+      </DropdownMenuItem>
+    </>
   );
 }
 
@@ -146,6 +209,9 @@ function ProviderModelGroup({
 }
 
 function ProviderIcon({ providerId, className }: { providerId: string; className?: string }) {
+  if (providerId === HOUSTON_CREDITS_INFO.id) {
+    return <Zap className={className} />;
+  }
   if (providerId === "anthropic") {
     return (
       <svg viewBox="0 0 24 24" className={className} fill="currentColor">

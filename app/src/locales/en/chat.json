@@ -53,7 +53,10 @@
   "modelSelector": {
     "selectModel": "Select model",
     "model": "Model",
-    "notConnected": "Not connected"
+    "notConnected": "Not connected",
+    "creditsLabel": "Free · Haiku",
+    "creditsBalance_one": "{{count}} message left",
+    "creditsBalance_other": "{{count}} messages left"
   },
   "reasoning": {
     "thinking": "Thinking...",
