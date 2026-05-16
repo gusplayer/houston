@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Blend, Settings } from "lucide-react";
+import { LayoutDashboard, Blend, Settings, Store } from "lucide-react";
 import { ConfirmDialog } from "@houston-ai/core";
 import { AppSidebar, WorkspaceSwitcher } from "@houston-ai/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -52,7 +52,11 @@ export function Sidebar({ children }: { children: ReactNode }) {
       void handleChangeColor(agentId, color);
     },
   });
-  const isTopLevel = viewMode === "dashboard" || viewMode === "connections" || viewMode === "settings";
+  const isTopLevel =
+    viewMode === "dashboard" ||
+    viewMode === "store" ||
+    viewMode === "connections" ||
+    viewMode === "settings";
 
   const handleWorkspaceSwitch = async (wsId: string) => {
     if (wsId === currentWorkspace?.id) return;
@@ -125,6 +129,13 @@ export function Sidebar({ children }: { children: ReactNode }) {
             icon: <LayoutDashboard className="h-4 w-4" />,
             onClick: () => setViewMode("dashboard"),
             dataAttrs: { "data-tour-target": "nav-dashboard" },
+          },
+          {
+            id: "store",
+            label: t("shell:sidebar.store"),
+            icon: <Store className="h-4 w-4" />,
+            onClick: () => setViewMode("store"),
+            dataAttrs: { "data-tour-target": "nav-store" },
           },
           {
             id: "connections",
