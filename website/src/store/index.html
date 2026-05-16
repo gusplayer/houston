@@ -114,30 +114,27 @@ permalink: /store/index.html
   .btn-secondary:hover { background: var(--gray-50); }
   .btn-lg { height: 44px; padding: 0 20px; font-size: 15px; border-radius: 12px; }
 
-  /* ── Page header (mirrors landing section style) ── */
+  /* ── Page header (mirrors tier-section title style) ── */
   .store-intro {
-    max-width: 1200px; margin: 0 auto;
-    padding: 80px 40px 32px;
-  }
-  .store-intro .section-label {
-    font-size: 12px; font-weight: 500;
-    color: var(--gray-500);
-    margin-bottom: 16px;
+    max-width: 1120px; margin: 0 auto;
+    padding: 96px 40px 48px;
+    text-align: center;
   }
   .store-intro h1 {
     font-family: 'General Sans', sans-serif;
-    font-size: clamp(36px, 4.5vw, 48px);
-    font-weight: 600;
+    font-size: clamp(32px, 3.8vw, 44px);
+    font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.1;
     color: var(--gray-950);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .store-intro p {
-    font-size: 20px;
+    font-size: 17px;
     color: var(--gray-600);
+    max-width: 560px;
+    margin: 0 auto;
     line-height: 1.5;
-    max-width: 640px;
   }
 
   /* ── Shell: left rail + grid ── */
@@ -554,9 +551,9 @@ permalink: /store/index.html
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
     .nav-center { display: none; }
-    .store-intro { padding: 48px 20px 24px; }
-    .store-intro h1 { font-size: 36px; }
-    .store-intro p { font-size: 17px; }
+    .store-intro { padding: 64px 20px 32px; }
+    .store-intro h1 { font-size: 32px; }
+    .store-intro p { font-size: 15px; }
     .store-main { padding-bottom: 64px; }
     .grid { grid-template-columns: 1fr; }
     .tier-section { padding: 64px 20px 96px; }
@@ -584,7 +581,6 @@ permalink: /store/index.html
 </nav>
 
 <div class="store-intro" id="top">
-  <div class="section-label">Store</div>
   <h1>Agent Store</h1>
   <p>Discover agents for every job, built by the Houston team and the community.</p>
 </div>
