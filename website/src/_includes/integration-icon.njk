@@ -1,3 +1,6 @@
-{# Contract: pass { name } where name is the catalog integration string (e.g. "slack"). Renders <img> from /integration-icons/<slug>.svg if known, else a text pill. #}
+{# Contract: pass { name } where name is the catalog integration string (lowercase slug like "slack"). Renders an inline brand-colored SVG when known, falls back to a text pill otherwise. Size and exact dimensions are CSS-controlled by the consuming page via `.int-icon { width: ... }`. #}
 {% set icon = integrationIcons[name] %}
-{% if icon %}<img class="int-icon" src="/integration-icons/{{ icon.slug }}.svg" alt="{{ icon.label }}" title="{{ icon.label }}" width="18" height="18" loading="lazy" style="--brand:{{ icon.color }};">{% else %}<span class="int-pill int-pill-text" title="{{ name }}">{{ name }}</span>{% endif %}
+{% if icon %}
+  {% set svgMarkup = icon.slug | readSvg %}
+  {% if svgMarkup %}<span class="int-icon" style="color: {{ icon.color }};" title="{{ icon.label }}" aria-label="{{ icon.label }}">{{ svgMarkup | safe }}</span>{% else %}<span class="int-pill-text" title="{{ icon.label }}">{{ icon.label }}</span>{% endif %}
+{% else %}<span class="int-pill-text" title="{{ name }}">{{ name }}</span>{% endif %}
