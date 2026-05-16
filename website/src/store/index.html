@@ -193,7 +193,7 @@ permalink: /store/index.html
     margin: 0 auto;
     padding: 32px 40px 0;
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 220px minmax(0, 1fr);
     gap: 32px;
   }
 
@@ -288,7 +288,7 @@ permalink: /store/index.html
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
 
@@ -576,7 +576,7 @@ permalink: /store/index.html
   }
   @media (max-width: 860px) {
     .store-shell {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 0;
       padding: 8px 0 0;
     }
@@ -589,6 +589,8 @@ permalink: /store/index.html
       flex-direction: column;
       gap: 12px;
       overflow: visible;
+      min-width: 0;
+      max-width: 100%;
     }
     .filter-group {
       margin-bottom: 0;
@@ -596,10 +598,11 @@ permalink: /store/index.html
       align-items: center;
       gap: 8px;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       padding: 4px 20px;
       scroll-padding-left: 20px;
+      max-width: 100%;
+      min-width: 0;
     }
     .filter-group::-webkit-scrollbar { display: none; }
     .filter-group-title {
@@ -629,7 +632,7 @@ permalink: /store/index.html
     }
     .filter-item svg { display: none; }
 
-    .store-main { padding: 0 20px 64px; }
+    .store-main { padding: 0 20px 64px; min-width: 0; max-width: 100%; }
     .search-wrap { max-width: 100%; }
   }
   @media (max-width: 768px) {
