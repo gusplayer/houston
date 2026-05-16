@@ -85,7 +85,8 @@
         },
         "chip": "Planeja meu próximo dia de trabalho",
         "composerHint": "Clique para começar a missão.",
-        "continueChip": "Entre no Houston"
+        "continueChip": "Entre no Houston",
+        "skipTutorial": "Pular tutorial"
       }
     }
   }
