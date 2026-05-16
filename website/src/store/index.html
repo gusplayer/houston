@@ -656,19 +656,13 @@ permalink: /store/index.html
 
     <div class="grid" id="store-grid">
       {% for agent in storeCatalog %}
-        {# Pastel avatar tint derived from category (catalog has no color field). #}
-        {% if agent.category == "business" %}{% set tintRgb = "234,179,8" %}
-        {% elif agent.category == "marketing" %}{% set tintRgb = "235,107,40" %}
-        {% elif agent.category == "operations" %}{% set tintRgb = "99,102,241" %}
-        {% elif agent.category == "people" %}{% set tintRgb = "20,184,166" %}
-        {% else %}{% set tintRgb = "156,163,175" %}{% endif %}
         <a class="agent-card store-card"
            href="agent/{{ agent.id }}/"
            data-source="{{ agent.source }}"
            data-pricing="{{ agent.pricing.kind }}"
            data-category="{{ agent.category }}"
            data-search="{{ agent.name | lower }} {{ agent.tags | join(' ') | lower }} {{ agent.integrations | join(' ') | lower }} {{ agent.author | lower }}">
-          <div class="agent-avatar" style="background: rgba({{ tintRgb }}, 0.10);">
+          <div class="agent-avatar" style="background: rgba({{ agent.avatar_tint }}, 0.10);">
             <img src="../houston-black.svg" alt="" width="24" height="24">
           </div>
           <div class="agent-card-content">
