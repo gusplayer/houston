@@ -192,6 +192,7 @@ export function PersonalAssistantOnboarding({
           provider={provider ?? "anthropic"}
           model={model ?? "sonnet"}
           onContinue={handleTryComplete}
+          onChangeBrain={() => setStep("brain")}
         />
       )}
       <ToastContainer toasts={toasts} onDismiss={onDismissToast} />

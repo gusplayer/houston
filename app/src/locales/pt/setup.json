@@ -86,7 +86,8 @@
         "chip": "Planeja meu próximo dia de trabalho",
         "composerHint": "Clique para começar a missão.",
         "continueChip": "Entre no Houston",
-        "skipTutorial": "Pular tutorial"
+        "skipTutorial": "Pular tutorial",
+        "changeBrain": "Trocar cérebro"
       }
     }
   }

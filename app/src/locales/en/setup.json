@@ -86,7 +86,8 @@
         "chip": "Plan my next working day",
         "composerHint": "Click to start the mission.",
         "continueChip": "Enter Houston",
-        "skipTutorial": "Skip tutorial"
+        "skipTutorial": "Skip tutorial",
+        "changeBrain": "Change brain"
       }
     }
   }
