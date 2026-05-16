@@ -28,7 +28,7 @@ interface ChatModelSelectorProps {
   lockedProvider?: string | null;
 }
 
-export function ChatModelSelector({ provider, model, onSelect, lockedProvider }: ChatModelSelectorProps) {
+export function ChatModelSelector({ provider, model, onSelect }: ChatModelSelectorProps) {
   const { t } = useTranslation("chat");
   const [statuses, setStatuses] = useState<Record<string, ProviderStatus>>({});
   const creditsBalance = useHoustonCreditsStore((s) => s.balance);
@@ -52,17 +52,13 @@ export function ChatModelSelector({ provider, model, onSelect, lockedProvider }:
     ? t("modelSelector.creditsLabel")
     : (currentModel?.label ?? currentProvider?.subtitle ?? t("modelSelector.selectModel"));
 
-  // Whether the houston-credits group should appear in the dropdown.
-  // Always shown when it's the active provider. Also shown when not locked
-  // so the user can see it exists (but they'd need to switch via provider
-  // picker, not here — for simplicity we only show it when active).
-  const showCreditsGroup = isCredits || lockedProvider === HOUSTON_CREDITS_INFO.id;
+  // Always show Houston Credits group when it's the active provider.
+  const showCreditsGroup = isCredits;
 
-  // When locked, only show the locked provider. Otherwise show all providers
-  // so the user can see what's available and connect new ones via Settings.
-  const visibleProviders = lockedProvider
-    ? PROVIDERS.filter((prov) => prov.id === lockedProvider)
-    : PROVIDERS;
+  // Always show all providers — connected ones are selectable, disconnected
+  // ones are disabled. lockedProvider is no longer used to hide options;
+  // the user should always be able to switch from the dropdown.
+  const visibleProviders = PROVIDERS;
 
   return (
     <div onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
