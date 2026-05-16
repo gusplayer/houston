@@ -314,10 +314,10 @@ permalink: /store/index.html
   }
   .agent-card-head {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
   }
   .agent-card-content h4 {
     font-family: 'General Sans', sans-serif;
@@ -326,6 +326,9 @@ permalink: /store/index.html
     color: var(--foreground);
     letter-spacing: -0.01em;
     min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .agent-card-desc {
     font-size: 12px;
@@ -340,10 +343,13 @@ permalink: /store/index.html
 
   /* ── Badges row ── */
   .store-badges {
-    display: inline-flex; flex-wrap: wrap;
+    display: flex;
+    flex-wrap: wrap;
     gap: 4px;
-    flex-shrink: 0;
+    width: 100%;
+    min-width: 0;
   }
+  .store-badges .badge { flex-shrink: 0; max-width: 100%; }
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 0 8px;
