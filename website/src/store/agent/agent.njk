@@ -21,6 +21,9 @@ eleventyComputed:
 <meta name="twitter:card" content="summary_large_image">
 {% endblock %}
 {% block favicon %}<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">{% endblock %}
+{% block stylesheets %}
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" rel="stylesheet">
+{% endblock %}
 {% block inlineStyles %}
 <style>
   :root {
@@ -52,35 +55,6 @@ eleventyComputed:
     padding-top: 65px;
   }
   a { color: inherit; text-decoration: none; }
-
-  /* ── Aurora background ── */
-  .aurora { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-  .aurora::before, .aurora::after, .aurora .blob {
-    content: ""; position: absolute; border-radius: 50%;
-    filter: blur(90px); will-change: transform;
-  }
-  .aurora::before {
-    top: -20%; left: -10%; width: 60vw; height: 60vw;
-    background: radial-gradient(circle, #b8d4ff 0%, transparent 65%);
-    opacity: 0.55;
-    animation: aurora-drift-a 28s ease-in-out infinite alternate;
-  }
-  .aurora::after {
-    top: 10%; right: -15%; width: 55vw; height: 55vw;
-    background: radial-gradient(circle, #e0c7ff 0%, transparent 65%);
-    opacity: 0.50;
-    animation: aurora-drift-b 32s ease-in-out infinite alternate;
-  }
-  .aurora .blob {
-    bottom: -15%; left: 25%; width: 50vw; height: 50vw;
-    background: radial-gradient(circle, #ffc8e5 0%, transparent 65%);
-    opacity: 0.42;
-    animation: aurora-drift-c 36s ease-in-out infinite alternate;
-  }
-  @keyframes aurora-drift-a { from { transform: translate(0,0); } to { transform: translate(4%, -3%); } }
-  @keyframes aurora-drift-b { from { transform: translate(0,0); } to { transform: translate(-3%, 4%); } }
-  @keyframes aurora-drift-c { from { transform: translate(0,0); } to { transform: translate(3%, -2%); } }
-  @media (prefers-reduced-motion: reduce) { .aurora::before, .aurora::after, .aurora .blob { animation: none; } }
 
   /* ── Nav (light) ── */
   nav {
@@ -116,11 +90,15 @@ eleventyComputed:
   }
   .btn-primary { background: var(--gray-950); color: white; border-color: var(--gray-950); }
   .btn-primary:hover { background: black; }
-  .btn-outline { background: white; color: var(--gray-950); border-color: var(--border-medium); }
+  .btn-outline {
+    background: white; color: var(--gray-950);
+    border-color: var(--border-medium);
+  }
   .btn-outline:hover { background: var(--gray-50); }
+  .btn-lg { height: 44px; padding: 0 20px; font-size: 15px; border-radius: 12px; }
 
   /* ── Page container ── */
-  .detail-wrap { max-width: 880px; margin: 0 auto; padding: 72px 40px 96px; }
+  .detail-wrap { max-width: 760px; margin: 0 auto; padding: 56px 40px 80px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 13px; color: var(--gray-600);
@@ -128,27 +106,30 @@ eleventyComputed:
     transition: color 0.15s;
   }
   .back-link:hover { color: var(--gray-950); }
+
+  /* ── Detail card: flat white with subtle elevation ── */
   .detail-card {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 24px;
-    padding: 36px 40px;
-    box-shadow: 0 24px 64px rgba(13,13,13,0.06);
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(13, 13, 13, 0.04);
   }
 
   /* ── Title row ── */
   .detail-title-row {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 16px; flex-wrap: wrap;
-    margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: flex-start;
+    gap: 12px; flex-wrap: wrap;
+    margin-bottom: 8px;
   }
   .detail-title {
     font-family: 'General Sans', sans-serif;
-    font-size: 28px; font-weight: 600;
+    font-size: clamp(28px, 3vw, 36px);
+    font-weight: 600;
     letter-spacing: -0.02em;
-    color: #0d0d0d;
     line-height: 1.15;
+    color: var(--foreground);
+    margin-right: 4px;
   }
   .detail-badges {
     display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
@@ -160,121 +141,159 @@ eleventyComputed:
     font-size: 11px; font-weight: 500; line-height: 1;
   }
   .badge-official  { background: rgba(41,100,170,0.10); color: #2964aa; }
-  .badge-community { background: #ececec;               color: #424242; }
+  .badge-community { background: var(--gray-100);       color: var(--gray-700); }
   .badge-verified  { background: rgba(0,162,64,0.10);   color: #00a240; }
   .badge-paid      { background: rgba(245,166,35,0.14); color: #b46a00; }
+  .badge-preview   { background: rgba(245,166,35,0.12); color: #b46a00; }
   .badge svg { width: 11px; height: 11px; }
 
   /* ── Publisher line ── */
   .detail-publisher {
-    font-size: 14px; color: #5d5d5d;
-    margin-bottom: 18px;
+    font-size: 14px; color: var(--gray-500);
+    margin-bottom: 12px;
+  }
+  .detail-publisher a {
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--border-medium);
   }
   .detail-publisher .version {
-    color: #9b9b9b; margin-left: 12px; font-size: 13px;
+    color: var(--gray-500); margin-left: 12px; font-size: 13px;
   }
 
   /* ── Stats row ── */
   .detail-stats {
     display: flex; align-items: center; gap: 16px;
     padding-bottom: 24px;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid var(--border-light);
     margin-bottom: 24px;
     flex-wrap: wrap;
-    font-size: 13.5px; color: #5d5d5d;
+    font-size: 13.5px; color: var(--gray-600);
   }
-  .detail-stats .stars { display: inline-flex; align-items: center; gap: 4px; color: #424242; font-weight: 500; }
+  .detail-stats .stars { display: inline-flex; align-items: center; gap: 4px; color: var(--gray-700); font-weight: 500; }
   .detail-stats .stars svg { width: 14px; height: 14px; color: #f5a623; }
-  .detail-stats .reviews { color: #9b9b9b; font-weight: 400; }
-  .detail-stats .installs { display: inline-flex; align-items: center; gap: 6px; color: #424242; font-weight: 500; }
-  .detail-stats .installs svg { width: 14px; height: 14px; color: #5d5d5d; }
-  .detail-stats .gh-link { display: inline-flex; align-items: center; gap: 6px; color: #424242; transition: color 0.15s; }
-  .detail-stats .gh-link:hover { color: #0d0d0d; }
+  .detail-stats .reviews { color: var(--gray-500); font-weight: 400; }
+  .detail-stats .installs { display: inline-flex; align-items: center; gap: 6px; color: var(--gray-700); font-weight: 500; }
+  .detail-stats .installs svg { width: 14px; height: 14px; color: var(--gray-600); }
+  .detail-stats .gh-link { display: inline-flex; align-items: center; gap: 6px; color: var(--gray-700); transition: color 0.15s; }
+  .detail-stats .gh-link:hover { color: var(--gray-950); }
   .detail-stats .gh-link svg { width: 16px; height: 16px; }
-  .detail-stats .dot { color: #cdcdcd; }
+  .detail-stats .dot { color: var(--gray-300); }
 
-  /* ── Description ── */
+  /* ── Description prose ── */
   .detail-desc {
-    font-size: 15.5px; color: #424242; line-height: 1.65;
-    margin-bottom: 28px;
+    font-size: 17px;
+    color: var(--gray-700);
+    line-height: 1.65;
+    max-width: 65ch;
+    margin: 24px 0 32px;
   }
 
   /* ── Sections ── */
   .detail-section { margin-bottom: 28px; }
   .detail-section-label {
     font-size: 11px; font-weight: 500;
-    color: #9b9b9b;
-    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     margin-bottom: 12px;
   }
-  .detail-integrations { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-  .detail-integrations .int-icon { width: 24px; height: 24px; opacity: 0.85; transition: opacity 0.15s; }
-  .detail-integrations .int-icon:hover { opacity: 1; }
-  .detail-integrations .int-pill-text {
-    height: 28px; padding: 0 12px;
-    font-size: 13px;
-    border-radius: 8px;
-    color: var(--gray-700, #424242);
-    background: rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.04);
-    display: inline-flex; align-items: center;
+
+  .detail-integrations { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .detail-integrations .int-icon {
+    display: inline-block;
+    width: 24px; height: 24px;
+    line-height: 0;
+    opacity: 0.95;
+    transition: transform 0.15s, opacity 0.15s;
   }
-  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .detail-tag {
-    padding: 4px 12px; height: 26px;
-    border-radius: 999px;
-    font-size: 12.5px; font-weight: 500; color: #424242;
-    background: rgba(0,0,0,0.04);
+  .detail-integrations .int-icon:hover { transform: scale(1.08); opacity: 1; }
+  .detail-integrations .int-icon svg { width: 100%; height: 100%; display: block; }
+  .detail-integrations .int-pill-text {
     display: inline-flex; align-items: center;
+    height: 28px; padding: 0 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--gray-700);
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
   }
 
-  /* ── Disclaimer ── */
-  .detail-disclaimer {
-    margin: 8px 0 28px;
-    padding: 14px 16px;
-    background: rgba(0,0,0,0.025);
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 12px;
-    font-size: 13.5px; color: #676767;
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .detail-tag {
+    padding: 4px 12px; height: 26px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 500;
+    color: var(--gray-700);
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
+    display: inline-flex; align-items: center;
   }
 
   /* ── CTA ── */
   .detail-cta-row {
-    display: flex; justify-content: flex-end;
-    padding-top: 20px;
-    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+    margin-top: 12px;
   }
   .btn-install {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 0 22px; height: 44px;
-    border-radius: 999px;
-    font-size: 14.5px; font-weight: 500;
-    background: #0d0d0d; color: white; border: 1px solid #0d0d0d;
+    padding: 0 24px; height: 48px;
+    border-radius: 12px;
+    font-size: 15px; font-weight: 500;
+    background: var(--gray-950); color: white;
+    border: 1px solid var(--gray-950);
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
   }
-  .btn-install:hover { background: #000; }
+  .btn-install:hover { background: black; }
   .btn-install:active { transform: scale(0.98); }
   .btn-install.is-disabled {
-    background: #5d5d5d; border-color: #5d5d5d;
-    cursor: not-allowed; opacity: 0.85;
+    background: var(--gray-400); border-color: var(--gray-400);
+    cursor: not-allowed; opacity: 0.95;
   }
-  .btn-install.is-disabled:hover { background: #5d5d5d; }
+  .btn-install.is-disabled:hover { background: var(--gray-400); }
   .btn-install svg { width: 14px; height: 14px; }
+
+  /* ── Publish strip (below card) ── */
+  .publish-strip {
+    max-width: 1100px;
+    margin: 0 auto 64px;
+    padding: 28px 40px;
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+  }
+  .publish-strip h3 {
+    font-family: 'General Sans', sans-serif;
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--gray-950);
+    margin-bottom: 4px;
+  }
+  .publish-strip p {
+    font-size: 14px;
+    color: var(--gray-600);
+  }
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
     .nav-center { display: none; }
-    .detail-wrap { padding: 48px 20px 64px; }
-    .detail-card { padding: 28px 24px; border-radius: 20px; }
-    .detail-title { font-size: 24px; }
+    .detail-wrap { padding: 40px 20px 64px; }
+    .detail-card { padding: 28px 24px; border-radius: 16px; }
+    .publish-strip {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-left: 20px; margin-right: 20px;
+      padding: 24px;
+    }
   }
 </style>
 {% endblock %}
 {% block body %}
-<div class="aurora"><div class="blob"></div></div>
-
 <nav>
   <a href="../../../" class="nav-logo">Houston</a>
   <div class="nav-center">
@@ -299,7 +318,7 @@ eleventyComputed:
   </a>
 
   <div class="detail-card">
-    {# ── Title row: name + badges ── #}
+    {# ── Title row: name + badges (inline) ── #}
     <div class="detail-title-row">
       <h1 class="detail-title">{{ agent.name }}</h1>
       <div class="detail-badges">
@@ -319,6 +338,9 @@ eleventyComputed:
             ${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %}/mo{% endif %}
           </span>
         {% endif %}
+        {% if agent.source == "mock" %}
+          <span class="badge badge-preview" title="Design preview, not yet installable">Design preview</span>
+        {% endif %}
       </div>
     </div>
 
@@ -326,7 +348,7 @@ eleventyComputed:
     <div class="detail-publisher">
       Published by
       {% if agent.publisher and agent.publisher.github_url %}
-        <a href="{{ agent.publisher.github_url }}" target="_blank" rel="noopener noreferrer" style="color: #424242; border-bottom: 1px solid rgba(0,0,0,0.15);">{{ agent.publisher.name }}</a>
+        <a href="{{ agent.publisher.github_url }}" target="_blank" rel="noopener noreferrer">{{ agent.publisher.name }}</a>
       {% elif agent.publisher %}
         {{ agent.publisher.name }}
       {% else %}
@@ -387,13 +409,6 @@ eleventyComputed:
       </div>
     {% endif %}
 
-    {# ── Disclaimer (mock agents only) ── #}
-    {% if agent.source == "mock" %}
-      <div class="detail-disclaimer">
-        This agent is a design preview. Real community agents will be installable when the marketplace launches.
-      </div>
-    {% endif %}
-
     {# ── CTA bottom-right ── #}
     <div class="detail-cta-row">
       {% if agent.source == "mock" %}
@@ -406,6 +421,15 @@ eleventyComputed:
       {% endif %}
     </div>
   </div>
+</div>
+
+{# ── Publish strip (below card) ── #}
+<div class="publish-strip">
+  <div>
+    <h3>Build, share, monetize.</h3>
+    <p>Houston is open. Publish your own agent and the best ones rise to the top.</p>
+  </div>
+  <a class="btn btn-outline btn-lg" href="../../../store/publish/">Read the publishing guide</a>
 </div>
 
 {% include "footer-landing.njk" %}
