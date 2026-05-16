@@ -1,6 +1,5 @@
 {
-  "title": "Store",
-  "subtitle": "Discover agents for every job",
+  "title": "Agent Store",
   "search": { "placeholder": "Search agents, tags, integrations" },
   "filters": {
     "all": "All",
@@ -56,9 +55,9 @@
     "cancel": "Cancel"
   },
   "import": {
-    "trigger": "Import from URL",
+    "trigger": "Import Agent",
     "title": "Import an agent from GitHub",
-    "body": "Paste a GitHub URL or owner/repo path. Houston will fetch its houston.json and CLAUDE.md.",
+    "body": "Point Houston to any public GitHub repo containing an agent. It will pull the config and skills automatically, no setup needed.",
     "placeholder": "owner/repo or https://github.com/owner/repo",
     "submit": "Import",
     "cancel": "Cancel",

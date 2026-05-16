@@ -94,7 +94,7 @@ export function StoreDetailDialog({
                   )}
                 </span>
               </div>
-              <div className="flex shrink-0 flex-wrap items-center gap-1 justify-end">
+              <div className="flex shrink-0 flex-wrap items-center gap-1 justify-end pr-7">
                 <SourceBadge source={source} />
                 {listing.publisher?.verified && <VerifiedBadge />}
                 {listing.pricing && <PricingBadge pricing={listing.pricing} />}

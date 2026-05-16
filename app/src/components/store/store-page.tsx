@@ -25,8 +25,6 @@ import { useStoreDeepLink } from "./use-store-deep-link";
 import {
   StoreFilters,
   type StoreCategory,
-  type StorePricingFilter,
-  type StoreSort,
   type StoreSourceFilter,
 } from "./store-filters";
 import { filterAndSortListings } from "./store-sorter";
@@ -38,9 +36,7 @@ export function StorePage() {
 
   const [query, setQuery] = useState("");
   const [source, setSource] = useState<StoreSourceFilter>("all");
-  const [pricing, setPricing] = useState<StorePricingFilter>("all");
   const [category, setCategory] = useState<StoreCategory>("all");
-  const [sort, setSort] = useState<StoreSort>("trending");
   const [importOpen, setImportOpen] = useState(false);
   const [active, setActive] = useState<StoreListing | null>(null);
   const [activeIsHouston, setActiveIsHouston] = useState(false);
@@ -67,12 +63,12 @@ export function StorePage() {
       filterAndSortListings(merged, {
         query,
         source,
-        pricing,
+        pricing: "all",
         category,
-        sort,
+        sort: "trending",
         houstonIds,
       }),
-    [merged, query, source, pricing, category, sort, houstonIds],
+    [merged, query, source, category, houstonIds],
   );
 
   const openListing = useCallback(
@@ -97,12 +93,9 @@ export function StorePage() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <StoreIcon className="size-6 text-primary" />
-            <div className="flex flex-col">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                {t("title")}
-              </h1>
-              <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t("title")}
+            </h1>
           </div>
           <Button variant="outline" onClick={() => setImportOpen(true)}>
             {t("import.trigger")}
@@ -123,12 +116,8 @@ export function StorePage() {
         <StoreFilters
           source={source}
           onSourceChange={setSource}
-          pricing={pricing}
-          onPricingChange={setPricing}
           category={category}
           onCategoryChange={setCategory}
-          sort={sort}
-          onSortChange={setSort}
         />
         <main className="min-w-0 flex-1 overflow-y-auto">
           {visible.length === 0 ? (

@@ -7,15 +7,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import {
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  cn,
-} from "@houston-ai/core";
+import { Button, cn } from "@houston-ai/core";
 
 export type StoreSourceFilter = "all" | "official" | "community";
 export type StorePricingFilter = "all" | "free" | "paid";
@@ -25,12 +17,8 @@ export type StoreCategory = "all" | "business" | "marketing" | "operations" | "p
 interface Props {
   source: StoreSourceFilter;
   onSourceChange: (s: StoreSourceFilter) => void;
-  pricing: StorePricingFilter;
-  onPricingChange: (p: StorePricingFilter) => void;
   category: StoreCategory;
   onCategoryChange: (c: StoreCategory) => void;
-  sort: StoreSort;
-  onSortChange: (s: StoreSort) => void;
 }
 
 const CATEGORY_ICONS: Record<StoreCategory, React.ReactNode> = {
@@ -70,32 +58,6 @@ export function StoreFilters(props: Props) {
             onClick={() => props.onSourceChange(s)}
           />
         ))}
-      </Group>
-
-      <Group label={t("filters.free")}>
-        {(["all", "free", "paid"] as const).map((p) => (
-          <FilterRow
-            key={p}
-            active={props.pricing === p}
-            icon={<FilterIcon className="size-4" />}
-            label={t(`filters.${p}`)}
-            onClick={() => props.onPricingChange(p)}
-          />
-        ))}
-      </Group>
-
-      <Group label={t("filters.sort.label")}>
-        <Select value={props.sort} onValueChange={(v) => props.onSortChange(v as StoreSort)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="trending">{t("filters.sort.trending")}</SelectItem>
-            <SelectItem value="newest">{t("filters.sort.newest")}</SelectItem>
-            <SelectItem value="installs">{t("filters.sort.installs")}</SelectItem>
-            <SelectItem value="rating">{t("filters.sort.rating")}</SelectItem>
-          </SelectContent>
-        </Select>
       </Group>
     </aside>
   );

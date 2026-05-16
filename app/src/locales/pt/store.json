@@ -1,6 +1,5 @@
 {
-  "title": "Store",
-  "subtitle": "Descubra agentes para cada trabalho",
+  "title": "Agent Store",
   "search": { "placeholder": "Buscar agentes, tags, integrações" },
   "filters": {
     "all": "Todos",
@@ -56,9 +55,9 @@
     "cancel": "Cancelar"
   },
   "import": {
-    "trigger": "Importar de URL",
+    "trigger": "Importar Agente",
     "title": "Importar um agente do GitHub",
-    "body": "Cole uma URL do GitHub ou caminho owner/repo. A Houston baixará o houston.json e o CLAUDE.md.",
+    "body": "Aponte o Houston para qualquer repositório público do GitHub com um agente. Ele vai baixar a configuração e as habilidades automaticamente, sem configuração adicional.",
     "placeholder": "owner/repo ou https://github.com/owner/repo",
     "submit": "Importar",
     "cancel": "Cancelar",

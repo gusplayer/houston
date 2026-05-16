@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Github } from "lucide-react";
 import {
   Button,
   Dialog,
@@ -65,13 +66,15 @@ export function ImportFromUrlDialog({ open, onOpenChange }: Props) {
           <DialogDescription>{t("import.body")}</DialogDescription>
         </DialogHeader>
 
-        <div className="py-2">
+        <div className="relative py-2">
+          <Github className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={t("import.placeholder")}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             disabled={busy}
             autoFocus
+            className="pl-9"
             onKeyDown={(e) => {
               if (e.key === "Enter") void handleSubmit();
             }}
