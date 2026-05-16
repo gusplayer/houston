@@ -14,11 +14,18 @@ permalink: /store/index.html
 <meta name="twitter:card" content="summary_large_image">
 {% endblock %}
 {% block favicon %}<link rel="icon" type="image/svg+xml" href="../favicon.svg">{% endblock %}
+{% block stylesheets %}
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" rel="stylesheet">
+{% endblock %}
 {% block inlineStyles %}
 <style>
+  /* ═══════════════════════════════════════════
+     DESIGN SYSTEM — mirrors landing/index.html
+     ═══════════════════════════════════════════ */
   :root {
     --background: #ffffff;
     --foreground: #0d0d0d;
+    --secondary: #f9f9f9;
     --muted-foreground: #5d5d5d;
     --border: #e5e5e5;
     --gray-50: #f9f9f9;
@@ -32,6 +39,8 @@ permalink: /store/index.html
     --gray-950: #0d0d0d;
     --success: #00a240;
     --info: #2964aa;
+    --warning: #e0ac00;
+    --danger: #e02e2a;
     --border-light: rgba(13,13,13,0.05);
     --border-medium: rgba(0,0,0,0.15);
   }
@@ -39,7 +48,7 @@ permalink: /store/index.html
   body {
     font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
     color: var(--foreground);
-    background: rgba(255,255,255,0.65);
+    background: var(--background);
     -webkit-font-smoothing: antialiased;
     line-height: 1.5;
     padding-top: 65px;
@@ -47,35 +56,11 @@ permalink: /store/index.html
   }
   a { color: inherit; text-decoration: none; }
 
-  /* ── Aurora background ── */
-  .aurora { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-  .aurora::before, .aurora::after, .aurora .blob {
-    content: ""; position: absolute; border-radius: 50%;
-    filter: blur(90px); will-change: transform;
-  }
-  .aurora::before {
-    top: -20%; left: -10%; width: 60vw; height: 60vw;
-    background: radial-gradient(circle, #b8d4ff 0%, transparent 65%);
-    opacity: 0.55;
-    animation: aurora-drift-a 28s ease-in-out infinite alternate;
-  }
-  .aurora::after {
-    top: 10%; right: -15%; width: 55vw; height: 55vw;
-    background: radial-gradient(circle, #e0c7ff 0%, transparent 65%);
-    opacity: 0.50;
-    animation: aurora-drift-b 32s ease-in-out infinite alternate;
-  }
-  .aurora .blob {
-    bottom: -15%; left: 25%; width: 50vw; height: 50vw;
-    background: radial-gradient(circle, #ffc8e5 0%, transparent 65%);
-    opacity: 0.42;
-    animation: aurora-drift-c 36s ease-in-out infinite alternate;
-  }
-  @keyframes aurora-drift-a { from { transform: translate(0,0); } to { transform: translate(4%, -3%); } }
-  @keyframes aurora-drift-b { from { transform: translate(0,0); } to { transform: translate(-3%, 4%); } }
-  @keyframes aurora-drift-c { from { transform: translate(0,0); } to { transform: translate(3%, -2%); } }
-  @media (prefers-reduced-motion: reduce) {
-    .aurora::before, .aurora::after, .aurora .blob { animation: none; }
+  /* Comet-border animation — copied from landing */
+  @property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  @keyframes comet-border {
+    0% { --angle: 0deg; }
+    100% { --angle: 360deg; }
   }
 
   /* ── Nav (light) ── */
@@ -113,6 +98,7 @@ permalink: /store/index.html
     font-size: 14px; font-weight: 500;
     border: 1px solid transparent; cursor: pointer;
     transition: all 0.15s;
+    font-family: inherit;
   }
   .btn-primary {
     background: var(--gray-950); color: white; border-color: var(--gray-950);
@@ -122,33 +108,39 @@ permalink: /store/index.html
     background: white; color: var(--gray-950); border-color: var(--border-medium);
   }
   .btn-outline:hover { background: var(--gray-50); }
+  .btn-secondary {
+    background: white; color: var(--gray-950); border-color: var(--border-medium);
+  }
+  .btn-secondary:hover { background: var(--gray-50); }
   .btn-lg { height: 44px; padding: 0 20px; font-size: 15px; border-radius: 12px; }
 
   /* ── Page header ── */
   .page-header {
     max-width: 880px; margin: 0 auto;
-    padding: 72px 40px 28px;
+    padding: 64px 40px 16px;
     text-align: center;
   }
   .page-header-title {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 12px;
+    gap: 14px;
     margin-bottom: 16px;
   }
   .page-header-icon {
-    width: 24px; height: 24px;
+    width: 28px; height: 28px;
     color: var(--gray-950);
     flex-shrink: 0;
   }
   .page-header h1 {
     font-family: 'General Sans', sans-serif;
-    font-size: clamp(40px, 5vw, 56px);
-    font-weight: 600; letter-spacing: -0.035em; line-height: 1.05;
+    font-size: clamp(36px, 4.5vw, 52px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     color: var(--gray-950);
   }
   .page-header p {
-    font-size: 18px; color: var(--gray-600);
-    max-width: 560px; margin: 0 auto;
+    font-size: 17px; color: var(--gray-600);
+    max-width: 520px; margin: 0 auto;
     line-height: 1.5;
   }
 
@@ -156,7 +148,7 @@ permalink: /store/index.html
   .store-shell {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 40px;
+    padding: 32px 40px 0;
     display: grid;
     grid-template-columns: 220px 1fr;
     gap: 32px;
@@ -172,7 +164,7 @@ permalink: /store/index.html
   .filter-group { margin-bottom: 24px; }
   .filter-group-title {
     font-size: 11px; font-weight: 500;
-    color: var(--gray-600);
+    color: var(--gray-500);
     text-transform: uppercase; letter-spacing: 0.08em;
     margin-bottom: 10px;
     padding: 0 10px;
@@ -192,18 +184,19 @@ permalink: /store/index.html
     transition: background 0.12s, color 0.12s;
   }
   .filter-item svg {
-    width: 14px; height: 14px;
+    width: 16px; height: 16px;
     flex-shrink: 0;
-    color: var(--gray-500);
+    color: var(--gray-400);
+    transition: color 0.12s;
   }
-  .filter-item:hover { background: rgba(0,0,0,0.04); color: var(--gray-950); }
+  .filter-item:hover { background: rgba(13,13,13,0.04); color: var(--gray-950); }
   .filter-item:hover svg { color: var(--gray-700); }
   .filter-item.is-active {
-    background: rgba(0,0,0,0.06);
+    background: rgba(13,13,13,0.05);
     color: var(--gray-950);
-    font-weight: 500;
+    font-weight: 600;
   }
-  .filter-item.is-active svg { color: var(--gray-950); }
+  .filter-item.is-active svg { color: var(--gray-700); }
 
   /* ── Right column: search + grid ── */
   .store-main { min-width: 0; padding-bottom: 96px; }
@@ -222,8 +215,7 @@ permalink: /store/index.html
     border: 1px solid var(--border);
     font-size: 15px;
     font-family: inherit;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(8px);
+    background: white;
     color: var(--gray-950);
     transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   }
@@ -231,7 +223,6 @@ permalink: /store/index.html
     outline: none;
     border-color: var(--gray-700);
     box-shadow: 0 0 0 3px rgba(13,13,13,0.06);
-    background: white;
   }
   .search-input::placeholder { color: var(--gray-400); }
   .search-icon {
@@ -247,194 +238,294 @@ permalink: /store/index.html
     text-align: center;
     color: var(--gray-500);
     font-size: 15px;
-    background: rgba(249,249,249,0.7);
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
     border-radius: 16px;
   }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 12px;
   }
 
-  /* ── Card ── */
-  .card {
-    display: flex; flex-direction: column;
-    padding: 20px;
-    background: rgba(255,255,255,0.78);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0,0,0,0.06);
+  /* ── Store card (extends landing's .agent-card) ── */
+  .agent-card.store-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
     border-radius: 16px;
+    background: transparent;
+    border: none;
     cursor: pointer;
+    text-align: left;
     position: relative;
     overflow: hidden;
-    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 220ms ease,
-                border-color 220ms ease;
+    color: inherit;
   }
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(13,13,13,0.07);
-    border-color: rgba(0,0,0,0.10);
-  }
-  .card.is-hidden { display: none; }
 
-  .card-top {
-    display: flex; gap: 12px;
-    align-items: flex-start;
-    margin-bottom: 12px;
+  .agent-card.store-card::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    background: conic-gradient(
+      from var(--angle),
+      transparent 60%,
+      #3b82f6 72%,
+      #818cf8 80%,
+      #f97316 88%,
+      #eab308 92%,
+      transparent 100%
+    );
+    animation: comet-border 2.5s linear infinite;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
-  .card-icon {
-    flex-shrink: 0;
-    width: 44px; height: 44px;
-    border-radius: 12px;
+  .agent-card.store-card:hover::before { opacity: 1; }
+
+  .agent-card.store-card::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 14px;
+    background: #f5f5f5;
+    z-index: 0;
+    transition: background 0.2s;
+  }
+  .agent-card.store-card:hover::after { background: #ebebeb; }
+
+  .agent-card.store-card > * { position: relative; z-index: 1; }
+  .agent-card.store-card.is-hidden { display: none; }
+
+  .agent-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'General Sans', sans-serif;
-    font-weight: 600;
-    font-size: 17px;
-    color: white;
-    letter-spacing: -0.01em;
+    flex-shrink: 0;
   }
-  .card-head {
-    flex: 1; min-width: 0;
-    display: flex; flex-direction: column;
-    gap: 3px;
+  .agent-avatar img { width: 24px; height: 24px; display: block; }
+
+  .agent-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding-top: 2px;
+    flex: 1;
   }
-  .card-name-row {
+  .agent-card-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
     flex-wrap: wrap;
   }
-  .card-name {
+  .agent-card-content h4 {
     font-family: 'General Sans', sans-serif;
-    font-size: 16px; font-weight: 600;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--foreground);
     letter-spacing: -0.01em;
-    color: var(--gray-950);
     min-width: 0;
   }
-  .card-badges {
-    display: inline-flex; flex-wrap: wrap;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .card-publisher {
-    font-size: 12.5px;
-    color: var(--gray-500);
-  }
-
-  .card-desc {
-    font-size: 13.5px;
+  .agent-card-desc {
+    font-size: 12px;
     color: var(--gray-600);
-    line-height: 1.55;
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    margin-bottom: 14px;
+    margin-top: 2px;
   }
 
-  /* ── Badges ── */
+  /* ── Badges row ── */
+  .store-badges {
+    display: inline-flex; flex-wrap: wrap;
+    gap: 4px;
+    flex-shrink: 0;
+  }
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
-    padding: 3px 10px;
-    height: 22px;
+    padding: 0 8px;
+    height: 20px;
     border-radius: 999px;
-    font-size: 11px; font-weight: 500;
+    font-size: 10.5px; font-weight: 500;
     line-height: 1;
+    letter-spacing: 0;
   }
-  .badge svg { width: 11px; height: 11px; }
+  .badge svg { width: 10px; height: 10px; }
   .badge-official   { background: rgba(41,100,170,0.10); color: #2964aa; }
-  .badge-community  { background: #ececec;               color: #424242; }
+  .badge-community  { background: rgba(13,13,13,0.06);   color: #424242; }
   .badge-verified   { background: rgba(0,162,64,0.10);   color: #00a240; }
-  .badge-paid       { background: rgba(245,166,35,0.14); color: #b46a00; }
+  .badge-paid       { background: rgba(245,166,35,0.16); color: #8a4f00; }
 
-  /* ── Integrations row ── */
-  .integrations {
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-    margin-bottom: 14px;
-  }
-  .int-icon {
-    width: 18px; height: 18px; display: inline-block;
-    opacity: 0.85; transition: opacity 0.15s;
-  }
-  .int-icon:hover { opacity: 1; }
-  .int-pill-text {
-    display: inline-flex; align-items: center;
-    height: 22px; padding: 0 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    color: var(--gray-600);
-    background: #f5f5f7;
-    border: 1px solid rgba(0,0,0,0.04);
-  }
-  .int-pill-more {
-    display: inline-flex; align-items: center;
-    height: 22px; padding: 0 8px;
-    border-radius: 6px;
-    font-size: 11px; font-weight: 500;
-    color: var(--gray-700);
-    background: #f5f5f7;
-    border: 1px solid rgba(0,0,0,0.04);
-  }
-
-  /* ── Card meta ── */
-  .card-meta {
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid var(--border-light);
-    display: flex; flex-wrap: wrap; gap: 8px;
-    font-size: 12px;
-    color: var(--gray-500);
+  /* ── Integration icons row ── */
+  .agent-tools {
+    display: flex;
     align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .agent-tools .int-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .agent-tools .int-pill-more {
+    display: inline-flex; align-items: center;
+    height: 18px; padding: 0 6px;
+    border-radius: 6px;
+    font-size: 10.5px; font-weight: 500;
+    color: var(--gray-600);
+    background: rgba(13,13,13,0.05);
+  }
+  .agent-tools .int-pill-text {
+    display: inline-flex; align-items: center;
+    height: 18px; padding: 0 6px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    color: var(--gray-600);
+    background: rgba(13,13,13,0.05);
+  }
+
+  /* ── Card meta (stars + installs) ── */
+  .agent-card-meta {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--gray-500);
   }
   .stars {
     display: inline-flex; align-items: center; gap: 4px;
     color: var(--gray-700);
     font-weight: 500;
   }
-  .stars svg { width: 12px; height: 12px; color: #f5a623; }
+  .stars svg { display: block; }
   .stars .reviews { color: var(--gray-500); font-weight: 400; }
   .meta-dot { color: var(--gray-400); }
-  .meta-installs {
-    display: inline-flex; align-items: center; gap: 4px;
-  }
-  .meta-installs svg { width: 12px; height: 12px; color: var(--gray-500); }
+  .meta-installs { color: var(--gray-600); }
 
-  /* ── CTA strip ── */
-  .publish-cta {
-    max-width: 1200px;
-    margin: 0 auto 96px;
-    padding: 32px 40px;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px;
-    margin-left: 40px; margin-right: 40px;
+  /* ═══════════════════════════════════════════
+     PRICING TIER SECTION
+     ═══════════════════════════════════════════ */
+  .tier-section {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 96px 40px 120px;
+    text-align: center;
+    position: relative;
   }
-  .publish-cta h3 {
+  .tier-section h2 {
     font-family: 'General Sans', sans-serif;
-    font-size: 20px; font-weight: 600; letter-spacing: -0.02em;
+    font-size: clamp(32px, 3.8vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     color: var(--gray-950);
+    margin-bottom: 16px;
+  }
+  .tier-section .tier-sub {
+    font-size: 17px;
+    color: var(--gray-600);
+    max-width: 560px;
+    margin: 0 auto 48px;
+    line-height: 1.5;
+  }
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-radius: 20px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    background: white;
+    text-align: left;
+  }
+  .tier-card {
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .tier-card + .tier-card {
+    border-left: 1px solid var(--border-light);
+  }
+  .tier-eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-400);
     margin-bottom: 4px;
   }
-  .publish-cta p {
-    font-size: 14px; color: var(--gray-600);
+  .tier-card h3 {
+    font-family: 'General Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--gray-950);
+    margin-bottom: 6px;
   }
+  .tier-card .tier-desc {
+    font-size: 14px;
+    color: var(--gray-600);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .tier-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--gray-700);
+  }
+  .tier-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.45;
+  }
+  .tier-list li svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tier-card .tier-cta {
+    margin-top: 24px;
+    align-self: stretch;
+  }
+  .tier-card.tier-card-dark {
+    background: var(--gray-950);
+    color: white;
+  }
+  .tier-card.tier-card-dark h3 { color: white; }
+  .tier-card.tier-card-dark .tier-eyebrow { color: var(--gray-500); }
+  .tier-card.tier-card-dark .tier-desc { color: rgba(255,255,255,0.65); }
+  .tier-card.tier-card-dark .tier-list { color: var(--gray-300); }
+  .tier-card.tier-card-dark .tier-cta {
+    background: white; color: var(--gray-950); border-color: white;
+  }
+  .tier-card.tier-card-dark .tier-cta:hover { background: var(--gray-100); }
 
   /* ── Responsive ── */
-  @media (max-width: 1100px) {
+  @media (max-width: 1024px) {
     .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .tier-grid { grid-template-columns: 1fr; }
+    .tier-card + .tier-card { border-left: none; border-top: 1px solid var(--border-light); }
   }
   @media (max-width: 860px) {
     .store-shell {
       grid-template-columns: 1fr;
       gap: 0;
-      padding: 0 20px;
+      padding: 24px 20px 0;
     }
     .filter-rail {
       position: static;
@@ -461,19 +552,15 @@ permalink: /store/index.html
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
     .nav-center { display: none; }
-    .page-header { padding: 48px 20px 20px; }
+    .page-header { padding: 48px 20px 16px; }
     .store-main { padding-bottom: 64px; }
     .grid { grid-template-columns: 1fr; }
-    .publish-cta {
-      flex-direction: column; align-items: flex-start;
-      margin-left: 20px; margin-right: 20px;
-      padding: 24px;
-    }
+    .tier-section { padding: 64px 20px 96px; }
+    .tier-card { padding: 32px 24px; }
   }
 </style>
 {% endblock %}
 {% block body %}
-<div class="aurora"><div class="blob"></div></div>
 
 <nav>
   <a href="../" class="nav-logo">Houston</a>
@@ -492,7 +579,7 @@ permalink: /store/index.html
   </div>
 </nav>
 
-<div class="page-header">
+<div class="page-header" id="top">
   <div class="page-header-title">
     <svg class="page-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M2 7c0-1 .5-2 2-2h16c1.5 0 2 1 2 2l-1.5 4.5a3 3 0 0 1-2.9 2.1H6.4a3 3 0 0 1-2.9-2.1L2 7Z"/>
@@ -531,7 +618,7 @@ permalink: /store/index.html
     </div>
 
     <div class="filter-group">
-      <div class="filter-group-title">Official</div>
+      <div class="filter-group-title">Source</div>
       <button class="filter-item is-active" data-source-filter="all">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m6.08 9.5-3.48 1.58a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83L17.92 9.5"/><path d="m6.08 14.5-3.48 1.58a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83l-3.42-1.58"/></svg>
         All
@@ -571,64 +658,61 @@ permalink: /store/index.html
 
     <div class="grid" id="store-grid">
       {% for agent in storeCatalog %}
-        {% set initials = agent.name.charAt(0) | upper %}
-        {% set hue = loop.index0 * 53 % 360 %}
-        <a class="card"
+        {# Pastel avatar tint derived from category (catalog has no color field). #}
+        {% if agent.category == "business" %}{% set tintRgb = "234,179,8" %}
+        {% elif agent.category == "marketing" %}{% set tintRgb = "235,107,40" %}
+        {% elif agent.category == "operations" %}{% set tintRgb = "99,102,241" %}
+        {% elif agent.category == "people" %}{% set tintRgb = "20,184,166" %}
+        {% else %}{% set tintRgb = "156,163,175" %}{% endif %}
+        <a class="agent-card store-card"
            href="agent/{{ agent.id }}/"
            data-source="{{ agent.source }}"
            data-pricing="{{ agent.pricing.kind }}"
            data-category="{{ agent.category }}"
            data-search="{{ agent.name | lower }} {{ agent.tags | join(' ') | lower }} {{ agent.integrations | join(' ') | lower }} {{ agent.author | lower }}">
-          <div class="card-top">
-            <div class="card-icon" style="background: hsl({{ hue }}, 62%, 48%);">{{ initials }}</div>
-            <div class="card-head">
-              <div class="card-name-row">
-                <span class="card-name">{{ agent.name }}</span>
-                <div class="card-badges">
-                  {% if agent.source == "houston" %}
-                    <span class="badge badge-official">Official</span>
-                  {% else %}
-                    <span class="badge badge-community">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                      Community
-                    </span>
-                  {% endif %}
-                  {% if agent.publisher.verified %}
-                    <span class="badge badge-verified" title="Verified publisher">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                      Verified
-                    </span>
-                  {% endif %}
-                  {% if agent.pricing.kind == "paid" %}
-                    <span class="badge badge-paid">${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %}/mo{% endif %}</span>
-                  {% endif %}
-                </div>
+          <div class="agent-avatar" style="background: rgba({{ tintRgb }}, 0.10);">
+            <img src="../houston-black.svg" alt="" width="24" height="24">
+          </div>
+          <div class="agent-card-content">
+            <div class="agent-card-head">
+              <h4>{{ agent.name }}</h4>
+              <div class="store-badges">
+                {% if agent.source == "houston" %}
+                  <span class="badge badge-official">Official</span>
+                {% else %}
+                  <span class="badge badge-community">Community</span>
+                {% endif %}
+                {% if agent.publisher.verified %}
+                  <span class="badge badge-verified" title="Verified publisher">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    Verified
+                  </span>
+                {% endif %}
+                {% if agent.pricing.kind == "paid" %}
+                  <span class="badge badge-paid">${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %}/mo{% endif %}</span>
+                {% endif %}
               </div>
-              <div class="card-publisher">by {% if agent.publisher %}{{ agent.publisher.name }}{% else %}{{ agent.author }}{% endif %}</div>
             </div>
-          </div>
-          <p class="card-desc">{{ agent.description }}</p>
-          <div class="integrations">
-            {% for int in agent.integrations %}
-              {% if loop.index0 < 5 %}{% set name = int %}{% include "integration-icon.njk" %}{% endif %}
-            {% endfor %}
-            {% if agent.integrations.length > 5 %}
-              <span class="int-pill-more">+{{ agent.integrations.length - 5 }}</span>
-            {% endif %}
-          </div>
-          <div class="card-meta">
-            {% if agent.rating %}
-              <span class="stars">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
-                {{ agent.rating }}
-                <span class="reviews">({{ agent.reviews_count }})</span>
-              </span>
-              <span class="meta-dot">·</span>
-            {% endif %}
-            <span class="meta-installs">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              {{ agent.installs }} installs
-            </span>
+            <p class="agent-card-desc">{{ agent.description }}</p>
+            <div class="agent-tools">
+              {% for int in agent.integrations %}
+                {% if loop.index0 < 5 %}{% set name = int %}{% include "integration-icon.njk" %}{% endif %}
+              {% endfor %}
+              {% if agent.integrations.length > 5 %}
+                <span class="int-pill-more">+{{ agent.integrations.length - 5 }}</span>
+              {% endif %}
+            </div>
+            <div class="agent-card-meta">
+              {% if agent.rating %}
+                <span class="stars">
+                  <svg viewBox="0 0 24 24" fill="#f5a623" width="12" height="12" aria-hidden="true"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
+                  {{ agent.rating }}
+                  <span class="reviews">({{ agent.reviews_count }})</span>
+                </span>
+                <span class="meta-dot">·</span>
+              {% endif %}
+              <span class="meta-installs">{{ agent.installs }} installs</span>
+            </div>
           </div>
         </a>
       {% endfor %}
@@ -639,13 +723,51 @@ permalink: /store/index.html
   </div>
 </div>
 
-<div class="publish-cta">
-  <div>
-    <h3>Want to publish your own agent?</h3>
-    <p>Add a houston.json to your repo and submit it to the catalog. We are accepting early submissions.</p>
+<!-- ═══════════════════════════════════════════
+     PRICING TIERS — build, share, monetize
+     ═══════════════════════════════════════════ -->
+<section class="tier-section">
+  <h2>Build, share, monetize</h2>
+  <p class="tier-sub">Houston is open. Anyone can publish an agent and the best ones rise to the top.</p>
+
+  <div class="tier-grid">
+    <div class="tier-card">
+      <div class="tier-eyebrow">For everyone</div>
+      <h3>Use free agents</h3>
+      <p class="tier-desc">Browse the catalog, install in one click, put them to work on your own data.</p>
+      <ul class="tier-list">
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="var(--gray-950)" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> All Houston-official agents free</li>
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="var(--gray-950)" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> 1000+ integrations included</li>
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="var(--gray-950)" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Runs on your machine, your data stays local</li>
+      </ul>
+      <a class="btn btn-secondary btn-lg tier-cta" href="#top">Browse agents</a>
+    </div>
+
+    <div class="tier-card">
+      <div class="tier-eyebrow">For builders</div>
+      <h3>Publish your own</h3>
+      <p class="tier-desc">Ship an agent to the store. The best ones get featured and reach thousands of users.</p>
+      <ul class="tier-list">
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="var(--gray-950)" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Drop a houston.json in your repo</li>
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="var(--gray-950)" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Free or paid, you set the terms</li>
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="var(--gray-950)" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Install count, ratings, reviews built in</li>
+      </ul>
+      <a class="btn btn-secondary btn-lg tier-cta" href="publish/">Read the publishing guide</a>
+    </div>
+
+    <div class="tier-card tier-card-dark">
+      <div class="tier-eyebrow">For teams + partners</div>
+      <h3>Become verified</h3>
+      <p class="tier-desc">Verified publishers get a checkmark next to every agent and priority placement in the store.</p>
+      <ul class="tier-list">
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Green checkmark on your cards</li>
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Priority in search and category browse</li>
+        <li><svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" width="12" height="12"><path d="M2 6l3 3 5-5"/></svg> Dedicated review channel with our team</li>
+      </ul>
+      <a class="btn btn-lg tier-cta" href="mailto:hello@gethouston.ai?subject=Verified%20publisher%20application">Apply to verify</a>
+    </div>
   </div>
-  <a class="btn btn-outline btn-lg" href="publish/">Read the publishing guide</a>
-</div>
+</section>
 
 {% include "footer-landing.njk" %}
 
@@ -661,7 +783,7 @@ permalink: /store/index.html
 
   // Filters + search
   (function() {
-    var cards = Array.from(document.querySelectorAll('#store-grid .card'));
+    var cards = Array.from(document.querySelectorAll('#store-grid .agent-card.store-card'));
     var empty = document.getElementById('store-empty');
     var search = document.getElementById('store-search');
     var state = { source: 'all', pricing: 'all', category: 'all', q: '' };
