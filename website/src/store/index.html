@@ -114,6 +114,54 @@ permalink: /store/index.html
   .btn-secondary:hover { background: var(--gray-50); }
   .btn-lg { height: 44px; padding: 0 20px; font-size: 15px; border-radius: 12px; }
 
+  /* Hamburger (mobile only) */
+  .nav-burger {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--gray-700);
+    transition: background 0.2s;
+  }
+  .nav-burger:hover { background: var(--gray-50); }
+  .nav-burger svg { width: 20px; height: 20px; }
+
+  .nav-dropdown {
+    display: none;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    padding: 8px 20px 16px;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  }
+  .nav-dropdown.open { display: flex; }
+  .nav-dropdown a {
+    font-size: 15px;
+    color: var(--gray-700);
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border-light);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-dropdown a:last-child { border-bottom: none; }
+  .nav-dropdown a:hover { color: var(--gray-950); }
+  .nav-dropdown a svg { width: 16px; height: 16px; opacity: 0.5; }
+
   /* ── Page header (mirrors tier-section title style) ── */
   .store-intro {
     max-width: 1120px; margin: 0 auto;
@@ -524,37 +572,68 @@ permalink: /store/index.html
     .store-shell {
       grid-template-columns: 1fr;
       gap: 0;
-      padding: 24px 20px 0;
+      padding: 8px 0 0;
     }
+
+    /* Filter rail collapses to vertical stack of horizontally-scrollable groups */
     .filter-rail {
       position: static;
-      padding-bottom: 16px;
-      display: flex; flex-wrap: wrap;
-      gap: 8px;
-      overflow-x: auto;
+      padding: 0 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: visible;
     }
     .filter-group {
       margin-bottom: 0;
-      display: flex; align-items: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 4px 20px;
+      scroll-padding-left: 20px;
     }
-    .filter-group-title { display: none; }
+    .filter-group::-webkit-scrollbar { display: none; }
+    .filter-group-title {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      height: 28px;
+      padding: 0;
+      margin: 0;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      min-width: 64px;
+    }
     .filter-item {
       width: auto;
-      padding: 6px 12px;
+      padding: 6px 14px;
+      height: 30px;
       border-radius: 999px;
       border: 1px solid var(--border);
       background: white;
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-size: 12.5px;
     }
     .filter-item svg { display: none; }
+
+    .store-main { padding: 0 20px 64px; }
     .search-wrap { max-width: 100%; }
   }
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
     .nav-center { display: none; }
+    .nav-right .gh-icon-desktop { display: none; }
+    .nav-burger { display: inline-flex; }
     .store-intro { padding: 64px 20px 32px; }
     .store-intro h1 { font-size: 32px; }
     .store-intro p { font-size: 15px; }
-    .store-main { padding-bottom: 64px; }
     .grid { grid-template-columns: 1fr; }
     .tier-section { padding: 64px 20px 96px; }
     .tier-card { padding: 32px 24px; }
@@ -573,12 +652,26 @@ permalink: /store/index.html
     <a href="../store/">Store</a>
   </div>
   <div class="nav-right">
-    <a href="https://github.com/gethouston/houston" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+    <a class="gh-icon-desktop" href="https://github.com/gethouston/houston" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
       <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
     </a>
     <a class="btn btn-primary" href="../">Download</a>
+    <button class="nav-burger" id="nav-burger" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="burger-icon"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
   </div>
 </nav>
+<div class="nav-dropdown" id="nav-dropdown">
+  <a href="../#agents">Agents</a>
+  <a href="../#features">Features</a>
+  <a href="../changelog/">Changelog</a>
+  <a href="../startups/">For Startups</a>
+  <a href="../store/">Store</a>
+  <a href="https://github.com/gethouston/houston" target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+    GitHub
+  </a>
+</div>
 
 <div class="store-intro" id="top">
   <h1>Agent Store</h1>
@@ -771,6 +864,26 @@ permalink: /store/index.html
     function check() { nav.classList.toggle('scrolled', window.scrollY > 10); }
     window.addEventListener('scroll', check, { passive: true });
     check();
+  })();
+
+  // Hamburger menu (mobile)
+  (function() {
+    var burger = document.getElementById('nav-burger');
+    var dropdown = document.getElementById('nav-dropdown');
+    var icon = document.getElementById('burger-icon');
+    if (!burger || !dropdown || !icon) return;
+    burger.addEventListener('click', function() {
+      var open = dropdown.classList.toggle('open');
+      icon.innerHTML = open
+        ? '<path d="M18 6L6 18M6 6l12 12"/>'
+        : '<path d="M4 6h16M4 12h16M4 18h16"/>';
+    });
+    dropdown.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        dropdown.classList.remove('open');
+        icon.innerHTML = '<path d="M4 6h16M4 12h16M4 18h16"/>';
+      });
+    });
   })();
 
   // Filters + search
