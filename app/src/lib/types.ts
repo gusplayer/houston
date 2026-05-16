@@ -35,13 +35,16 @@ export interface AgentTab {
   chip?: string;
 }
 
-/** Agent category for Houston Store filtering */
-export type AgentCategory =
-  | "productivity"
-  | "development"
-  | "research"
-  | "creative"
-  | "business";
+/** Agent category for Houston Store filtering.
+ *
+ * TODO: narrow to a union once the engine-client `StoreListing` type also
+ * narrows (`@houston-ai/engine-client/src/types.ts` currently types
+ * `category: string`). Today's Store sidebar exposes only four buckets —
+ * `"business" | "marketing" | "operations" | "people"` — but built-in
+ * agent configs use `"productivity"` and the engine-client cross-package
+ * type uses `string`, so narrowing in this app-side type causes a
+ * boundary type mismatch in `tauri.ts`. */
+export type AgentCategory = string;
 
 /** An agent mode defines a prompt profile (e.g. "execution" or "planning"). */
 export interface AgentMode {
@@ -188,4 +191,37 @@ export interface StoreListing {
   version?: string;
   content_hash?: string;
   bundled?: boolean;
+  /** Origin of the listing. Real Houston-published agents come from the
+   * engine catalog (no source set or "houston"). Community entries come
+   * from third-party repos. "mock" is used by design previews. */
+  source?: "houston" | "community" | "mock";
+  /** True if the publisher has been verified by Houston. */
+  verified?: boolean;
+  /** Average user rating, 0-5 with one decimal. */
+  rating?: number;
+  /** Total number of user reviews. */
+  reviews_count?: number;
+  /** GitHub stars for the source repo (community only). */
+  stars?: number;
+  /** Publisher metadata for the Store detail view. */
+  publisher?: {
+    name: string;
+    handle?: string;
+    github_url?: string;
+    avatar_url?: string;
+    verified?: boolean;
+  };
+  /** Pricing for the agent. Free unless set. */
+  pricing?:
+    | { kind: "free" }
+    | {
+        kind: "paid";
+        price_cents: number;
+        currency: string;
+        model: "one_time" | "subscription";
+      };
+  /** Optional link to a long-form README to render in the detail view. */
+  readme_url?: string;
+  /** Optional gallery image URLs. */
+  screenshots?: string[];
 }

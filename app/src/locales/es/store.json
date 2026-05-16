@@ -1,0 +1,78 @@
+{
+  "title": "Store",
+  "subtitle": "Descubre agentes para cada trabajo",
+  "search": { "placeholder": "Buscar agentes, etiquetas, integraciones" },
+  "filters": {
+    "all": "Todos",
+    "official": "Oficial",
+    "community": "Comunidad",
+    "free": "Gratis",
+    "paid": "De pago",
+    "sort": {
+      "label": "Ordenar por",
+      "trending": "En tendencia",
+      "newest": "Más nuevos",
+      "installs": "Más instalaciones",
+      "rating": "Mejor valorados"
+    },
+    "categories": {
+      "all": "Todas las categorías",
+      "business": "Negocio",
+      "marketing": "Marketing",
+      "operations": "Operaciones",
+      "people": "Personas"
+    }
+  },
+  "card": {
+    "installs_one": "{{count}} instalación",
+    "installs_other": "{{count}} instalaciones",
+    "by": "por {{name}}",
+    "moreIntegrations": "+{{count}}"
+  },
+  "badge": {
+    "official": "Oficial",
+    "community": "Comunidad",
+    "verified": "Verificado",
+    "paid": "De pago",
+    "free": "Gratis"
+  },
+  "detail": {
+    "install": "Instalar",
+    "comingSoon": "Vista previa, aún no disponible",
+    "comingSoonHint": "Este agente es una vista previa de diseño. Los agentes comunitarios reales se podrán instalar cuando el marketplace se lance.",
+    "viewSource": "Ver en GitHub",
+    "integrations": "Integraciones",
+    "tags": "Etiquetas",
+    "publisher": "Publicado por",
+    "version": "Versión {{version}}",
+    "screenshots": "Capturas"
+  },
+  "trust": {
+    "title": "¿Instalar {{name}}?",
+    "body": "Este agente fue publicado por {{publisher}}. Houston no ha revisado su código. Solicitará acceso a las integraciones listadas abajo.",
+    "viewSource": "Ver código en GitHub",
+    "integrationsNeeded": "Integraciones que usará este agente",
+    "confirm": "Instalar",
+    "cancel": "Cancelar"
+  },
+  "import": {
+    "trigger": "Importar desde URL",
+    "title": "Importar un agente desde GitHub",
+    "body": "Pega una URL de GitHub o ruta owner/repo. Houston descargará su houston.json y CLAUDE.md.",
+    "placeholder": "owner/repo o https://github.com/owner/repo",
+    "submit": "Importar",
+    "cancel": "Cancelar",
+    "success": "Agente importado",
+    "error": "No se pudo importar el agente"
+  },
+  "empty": {
+    "title": "Ningún agente coincide con tus filtros",
+    "hint": "Intenta limpiar los filtros o buscar otro término"
+  },
+  "notFound": {
+    "title": "Agente aún no disponible",
+    "body": "No encontramos un agente con id \"{{id}}\" en el Store. Puede ser una vista previa del sitio web que aún no se ha publicado.",
+    "close": "Cerrar"
+  },
+  "ratingLabel": "{{rating}} de 5, {{count}} reseñas"
+}

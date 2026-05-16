@@ -1,0 +1,547 @@
+---
+rootPath: "../"
+permalink: /store/index.html
+---
+{% extends "base.njk" %}
+{% block title %}Houston Store, discover agents for every job{% endblock %}
+{% block meta %}
+<meta name="description" content="Browse Houston agents built by the team and the community. Install in one click and put them to work.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gethouston.ai/store/">
+<meta property="og:title" content="Houston Store, discover agents for every job">
+<meta property="og:description" content="Browse Houston agents built by the team and the community.">
+<meta property="og:site_name" content="Houston">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+{% block favicon %}<link rel="icon" type="image/svg+xml" href="../favicon.svg">{% endblock %}
+{% block inlineStyles %}
+<style>
+  :root {
+    --background: #ffffff;
+    --foreground: #0d0d0d;
+    --muted-foreground: #5d5d5d;
+    --border: #e5e5e5;
+    --gray-50: #f9f9f9;
+    --gray-100: #ececec;
+    --gray-200: #e3e3e3;
+    --gray-300: #cdcdcd;
+    --gray-400: #b4b4b4;
+    --gray-500: #9b9b9b;
+    --gray-600: #676767;
+    --gray-700: #424242;
+    --gray-950: #0d0d0d;
+    --success: #00a240;
+    --info: #2964aa;
+    --border-light: rgba(13,13,13,0.05);
+    --border-medium: rgba(0,0,0,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--foreground);
+    background: var(--background);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    padding-top: 65px;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Nav (light) ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 16px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  nav.scrolled { border-bottom-color: var(--border-light); }
+  .nav-logo {
+    font-family: 'General Sans', sans-serif;
+    font-size: 22px; font-weight: 500; letter-spacing: -0.02em;
+    color: var(--gray-950);
+  }
+  .nav-center {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 32px; align-items: center;
+  }
+  .nav-center a { font-size: 14px; color: var(--gray-700); transition: color 0.15s; }
+  .nav-center a:hover { color: var(--gray-950); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-right a:not(.btn) {
+    color: var(--gray-700);
+    display: inline-flex; align-items: center;
+    transition: color 0.15s;
+  }
+  .nav-right a:not(.btn):hover { color: var(--gray-950); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; height: 36px; border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    border: 1px solid transparent; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--gray-950); color: white; border-color: var(--gray-950);
+  }
+  .btn-primary:hover { background: black; }
+  .btn-outline {
+    background: white; color: var(--gray-950); border-color: var(--border-medium);
+  }
+  .btn-outline:hover { background: var(--gray-50); }
+  .btn-lg { height: 44px; padding: 0 20px; font-size: 15px; border-radius: 12px; }
+
+  /* ── Page header ── */
+  .page-header {
+    max-width: 880px; margin: 0 auto;
+    padding: 72px 40px 24px;
+    text-align: center;
+  }
+  .page-eyebrow {
+    font-size: 12px; font-weight: 500; color: var(--gray-500);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+  .page-header h1 {
+    font-family: 'General Sans', sans-serif;
+    font-size: clamp(40px, 5vw, 56px);
+    font-weight: 600; letter-spacing: -0.035em; line-height: 1.05;
+    color: var(--gray-950);
+    margin-bottom: 18px;
+  }
+  .page-header p {
+    font-size: 18px; color: var(--gray-600);
+    max-width: 560px; margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* ── Filter bar ── */
+  .filters {
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 40px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .filter-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    align-items: center;
+  }
+  .filter-row-label {
+    font-size: 12px; font-weight: 500; color: var(--gray-500);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-right: 4px;
+  }
+  .chip {
+    display: inline-flex; align-items: center;
+    padding: 6px 14px; height: 32px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    color: var(--gray-700);
+    background: white;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--gray-400); color: var(--gray-950); }
+  .chip.is-active {
+    background: var(--gray-950); color: white; border-color: var(--gray-950);
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1; max-width: 360px;
+  }
+  .search-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 14px 0 38px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    font-family: inherit;
+    background: white;
+    color: var(--gray-950);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--gray-700);
+    box-shadow: 0 0 0 3px rgba(13,13,13,0.06);
+  }
+  .search-input::placeholder { color: var(--gray-400); }
+  .search-icon {
+    position: absolute;
+    left: 12px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px;
+    color: var(--gray-400);
+    pointer-events: none;
+  }
+
+  /* ── Grid ── */
+  .grid-wrap {
+    max-width: 1100px; margin: 0 auto;
+    padding: 32px 40px 96px;
+  }
+  .empty-state {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 15px;
+    background: var(--gray-50);
+    border-radius: 16px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  /* ── Card ── */
+  .card {
+    display: flex; flex-direction: column;
+    padding: 22px;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    transition: all 0.18s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    border-color: var(--border-medium);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+  }
+  .card.is-hidden { display: none; }
+
+  .card-top {
+    display: flex; gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .card-icon {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'General Sans', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: white;
+    letter-spacing: -0.01em;
+  }
+  .card-head {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    gap: 2px;
+  }
+  .card-name {
+    font-family: 'General Sans', sans-serif;
+    font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+    color: var(--gray-950);
+    display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap;
+  }
+  .card-publisher {
+    font-size: 12px; color: var(--gray-500);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .verified-tick {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px;
+    color: var(--info);
+  }
+  .verified-tick svg { width: 14px; height: 14px; }
+
+  .card-desc {
+    font-size: 13.5px;
+    color: var(--gray-600);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .badges {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 12px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .badge-official {
+    background: rgba(41,100,170,0.08);
+    color: var(--info);
+  }
+  .badge-community {
+    background: var(--gray-100);
+    color: var(--gray-700);
+  }
+  .badge-paid {
+    background: rgba(0,162,64,0.08);
+    color: var(--success);
+  }
+
+  .card-meta {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+    display: flex; flex-wrap: wrap; gap: 12px;
+    font-size: 12px;
+    color: var(--gray-500);
+    align-items: center;
+  }
+  .card-meta-item {
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .stars {
+    display: inline-flex; align-items: center; gap: 3px;
+    color: var(--gray-700);
+    font-weight: 500;
+  }
+  .stars svg { width: 12px; height: 12px; color: #f5a623; }
+
+  .integrations {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .int-chip {
+    font-size: 11px;
+    color: var(--gray-600);
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* ── CTA strip ── */
+  .publish-cta {
+    max-width: 1100px;
+    margin: 0 auto 96px;
+    padding: 32px 40px;
+    background: var(--gray-50);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+    margin-left: 40px; margin-right: 40px;
+  }
+  .publish-cta h3 {
+    font-family: 'General Sans', sans-serif;
+    font-size: 20px; font-weight: 600; letter-spacing: -0.02em;
+    color: var(--gray-950);
+    margin-bottom: 4px;
+  }
+  .publish-cta p {
+    font-size: 14px; color: var(--gray-600);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 980px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    .nav-center { display: none; }
+    .page-header { padding: 48px 20px 16px; }
+    .filters { padding: 0 20px; }
+    .grid-wrap { padding: 24px 20px 64px; }
+    .grid { grid-template-columns: 1fr; }
+    .publish-cta {
+      flex-direction: column; align-items: flex-start;
+      margin-left: 20px; margin-right: 20px;
+      padding: 24px;
+    }
+    .search-wrap { max-width: 100%; }
+  }
+</style>
+{% endblock %}
+{% block body %}
+<nav>
+  <a href="../" class="nav-logo">Houston</a>
+  <div class="nav-center">
+    <a href="../#agents">Agents</a>
+    <a href="../#features">Features</a>
+    <a href="../changelog/">Changelog</a>
+    <a href="../startups/">For Startups</a>
+    <a href="../store/">Store</a>
+  </div>
+  <div class="nav-right">
+    <a href="https://github.com/gethouston/houston" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+    </a>
+    <a class="btn btn-primary" href="../">Download</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-eyebrow">Store</div>
+  <h1>Houston Store</h1>
+  <p>Discover agents for every job. Built by the Houston team and the community.</p>
+</div>
+
+<div class="filters">
+  <div class="filter-row">
+    <span class="filter-row-label">Source</span>
+    <button class="chip is-active" data-source-filter="all">All</button>
+    <button class="chip" data-source-filter="houston">Official</button>
+    <button class="chip" data-source-filter="community">Community</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-row-label">Pricing</span>
+    <button class="chip is-active" data-price-filter="all">All</button>
+    <button class="chip" data-price-filter="free">Free</button>
+    <button class="chip" data-price-filter="paid">Paid</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-row-label">Category</span>
+    <button class="chip is-active" data-category-filter="all">All</button>
+    {% for cat in storeCategories %}
+      <button class="chip" data-category-filter="{{ cat }}">{{ cat | capitalize }}</button>
+    {% endfor %}
+    <div class="search-wrap" style="margin-left: auto;">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="search" class="search-input" id="store-search" placeholder="Search agents, tags, integrations">
+    </div>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid" id="store-grid">
+    {% for agent in storeCatalog %}
+      {% set initials = agent.name.charAt(0) | upper %}
+      {% set hue = loop.index0 * 53 % 360 %}
+      <a class="card"
+         href="agent/{{ agent.id }}/"
+         data-source="{{ agent.source }}"
+         data-pricing="{{ agent.pricing.kind }}"
+         data-category="{{ agent.category }}"
+         data-search="{{ agent.name | lower }} {{ agent.tags | join(' ') | lower }} {{ agent.integrations | join(' ') | lower }} {{ agent.author | lower }}">
+        <div class="card-top">
+          <div class="card-icon" style="background: hsl({{ hue }}, 62%, 48%);">{{ initials }}</div>
+          <div class="card-head">
+            <div class="card-name">
+              {{ agent.name }}
+              {% if agent.publisher.verified %}
+                <span class="verified-tick" title="Verified publisher"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg></span>
+              {% endif %}
+            </div>
+            <div class="card-publisher">
+              {% if agent.publisher %}{{ agent.publisher.name }}{% else %}{{ agent.author }}{% endif %}
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">{{ agent.description }}</p>
+        <div class="badges">
+          {% if agent.source == "houston" %}
+            <span class="badge badge-official">Official</span>
+          {% else %}
+            <span class="badge badge-community">Community</span>
+          {% endif %}
+          {% if agent.pricing.kind == "paid" %}
+            <span class="badge badge-paid">
+              ${{ (agent.pricing.price_cents / 100) | round }}{% if agent.pricing.model == "subscription" %}/mo{% else %} once{% endif %}
+            </span>
+          {% endif %}
+        </div>
+        <div class="integrations">
+          {% for int in agent.integrations %}
+            {% if loop.index0 < 4 %}<span class="int-chip">{{ int }}</span>{% endif %}
+          {% endfor %}
+          {% if agent.integrations.length > 4 %}
+            <span class="int-chip">+{{ agent.integrations.length - 4 }}</span>
+          {% endif %}
+        </div>
+        <div class="card-meta">
+          {% if agent.rating %}
+            <span class="stars">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
+              {{ agent.rating }}
+              <span style="color: var(--gray-500); font-weight: 400;">({{ agent.reviews_count }})</span>
+            </span>
+          {% endif %}
+          <span class="card-meta-item">{{ agent.installs }} installs</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  <div class="empty-state" id="store-empty" style="display:none; margin-top: 24px;">
+    No agents match those filters. Try clearing the search or choose a different category.
+  </div>
+</div>
+
+<div class="publish-cta">
+  <div>
+    <h3>Want to publish your own agent?</h3>
+    <p>Add a houston.json to your repo and submit it to the catalog. We are accepting early submissions.</p>
+  </div>
+  <a class="btn btn-outline btn-lg" href="publish/">Read the publishing guide</a>
+</div>
+
+{% include "footer-landing.njk" %}
+
+<script>
+  // Nav scroll shadow
+  (function() {
+    var nav = document.querySelector('nav');
+    if (!nav) return;
+    function check() { nav.classList.toggle('scrolled', window.scrollY > 10); }
+    window.addEventListener('scroll', check, { passive: true });
+    check();
+  })();
+
+  // Filters + search
+  (function() {
+    var cards = Array.from(document.querySelectorAll('#store-grid .card'));
+    var empty = document.getElementById('store-empty');
+    var search = document.getElementById('store-search');
+    var state = { source: 'all', pricing: 'all', category: 'all', q: '' };
+
+    function bind(attr, key) {
+      document.querySelectorAll('[data-' + attr + ']').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          state[key] = btn.getAttribute('data-' + attr);
+          document.querySelectorAll('[data-' + attr + ']').forEach(function(b) {
+            b.classList.toggle('is-active', b === btn);
+          });
+          apply();
+        });
+      });
+    }
+
+    function apply() {
+      var q = state.q.trim().toLowerCase();
+      var visible = 0;
+      cards.forEach(function(card) {
+        var matchSource = state.source === 'all' || card.dataset.source === state.source;
+        var matchPricing = state.pricing === 'all' || card.dataset.pricing === state.pricing;
+        var matchCategory = state.category === 'all' || card.dataset.category === state.category;
+        var matchSearch = !q || (card.dataset.search || '').indexOf(q) !== -1;
+        var show = matchSource && matchPricing && matchCategory && matchSearch;
+        card.classList.toggle('is-hidden', !show);
+        if (show) visible++;
+      });
+      empty.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    bind('source-filter', 'source');
+    bind('price-filter', 'pricing');
+    bind('category-filter', 'category');
+
+    if (search) {
+      search.addEventListener('input', function() {
+        state.q = search.value;
+        apply();
+      });
+    }
+  })();
+</script>
+{% endblock %}

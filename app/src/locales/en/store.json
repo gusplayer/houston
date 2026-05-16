@@ -1,0 +1,78 @@
+{
+  "title": "Store",
+  "subtitle": "Discover agents for every job",
+  "search": { "placeholder": "Search agents, tags, integrations" },
+  "filters": {
+    "all": "All",
+    "official": "Official",
+    "community": "Community",
+    "free": "Free",
+    "paid": "Paid",
+    "sort": {
+      "label": "Sort by",
+      "trending": "Trending",
+      "newest": "Newest",
+      "installs": "Most installs",
+      "rating": "Top rated"
+    },
+    "categories": {
+      "all": "All categories",
+      "business": "Business",
+      "marketing": "Marketing",
+      "operations": "Operations",
+      "people": "People"
+    }
+  },
+  "card": {
+    "installs_one": "{{count}} install",
+    "installs_other": "{{count}} installs",
+    "by": "by {{name}}",
+    "moreIntegrations": "+{{count}}"
+  },
+  "badge": {
+    "official": "Official",
+    "community": "Community",
+    "verified": "Verified",
+    "paid": "Paid",
+    "free": "Free"
+  },
+  "detail": {
+    "install": "Install",
+    "comingSoon": "Preview, not yet available",
+    "comingSoonHint": "This agent is a design preview. Real community agents will be installable when the marketplace launches.",
+    "viewSource": "View on GitHub",
+    "integrations": "Integrations",
+    "tags": "Tags",
+    "publisher": "Published by",
+    "version": "Version {{version}}",
+    "screenshots": "Screenshots"
+  },
+  "trust": {
+    "title": "Install {{name}}?",
+    "body": "This agent is published by {{publisher}}. Houston has not reviewed its code. It will request access to the integrations listed below.",
+    "viewSource": "View source on GitHub",
+    "integrationsNeeded": "Integrations this agent will use",
+    "confirm": "Install",
+    "cancel": "Cancel"
+  },
+  "import": {
+    "trigger": "Import from URL",
+    "title": "Import an agent from GitHub",
+    "body": "Paste a GitHub URL or owner/repo path. Houston will fetch its houston.json and CLAUDE.md.",
+    "placeholder": "owner/repo or https://github.com/owner/repo",
+    "submit": "Import",
+    "cancel": "Cancel",
+    "success": "Agent imported",
+    "error": "Could not import agent"
+  },
+  "empty": {
+    "title": "No agents match your filters",
+    "hint": "Try clearing filters or searching by a different term"
+  },
+  "notFound": {
+    "title": "Agent not yet available",
+    "body": "We could not find an agent with id \"{{id}}\" in the Store. It may be a preview from the website that has not been published yet.",
+    "close": "Close"
+  },
+  "ratingLabel": "{{rating}} out of 5, {{count}} reviews"
+}

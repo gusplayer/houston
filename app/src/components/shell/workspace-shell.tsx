@@ -19,6 +19,7 @@ import { AgentRenderer } from "./experience-renderer";
 import { Dashboard } from "../dashboard";
 import { IntegrationsView } from "../tabs/integrations-view";
 import { SettingsView } from "../settings/settings-view";
+import { StorePage } from "../store/store-page";
 import { Sidebar } from "./sidebar";
 import { HoustonLogo } from "./experience-card";
 import { CreateAgentDialog } from "./create-workspace-dialog";
@@ -59,7 +60,10 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const { data: activities } = useActivity(currentAgent?.folderPath);
   const needsYouCount = (activities ?? []).filter((a) => a.status === "needs_you").length;
   const isAgentView =
-    viewMode !== "dashboard" && viewMode !== "connections" && viewMode !== "settings";
+    viewMode !== "dashboard" &&
+    viewMode !== "store" &&
+    viewMode !== "connections" &&
+    viewMode !== "settings";
   const tabIds = new Set(tabs.map((tab) => tab.id));
   const firstAgentTab = agentDef?.config.defaultTab ?? tabs[0]?.id ?? "activity";
   // Map a desired tab id to one this agent actually has, falling back to its
@@ -89,6 +93,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
             >
               {viewMode === "dashboard" ? (
                 <Dashboard />
+              ) : viewMode === "store" ? (
+                <StorePage />
               ) : viewMode === "connections" ? (
                 <IntegrationsView title={t("shell:sidebar.integrations")} />
               ) : viewMode === "settings" ? (

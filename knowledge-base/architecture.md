@@ -108,7 +108,7 @@ the typed `.houston/<type>/<type>.json` layout.
 | Reference custom-frontend integration | ✅ `examples/smartbooks/` — Vite + React, own brand, ~400 LOC TSX, proven end-to-end |
 | Always On | ✅ Dockerfile + compose + systemd unit + README all shipped |
 | Teams / Cloud | 🟡 Identity foundation shipped (Supabase Google SSO + Keychain sessions — see `knowledge-base/auth.md`); Cloud API surface TBD |
-| Store populated | 🟡 release-bundled MVP: `store/catalog.json` + `store/agents/*`; community sharing TBD |
+| Store populated | 🟡 release-bundled MVP: `store/catalog.json` + `store/agents/*`; in-app + website Store surfaces with mock community agents; remote catalog server + real submissions TBD (see `store-marketplace.md`) |
 | Binary file read route (xlsx, pdf download through HTTP) | ❌ workaround: use `/v1/shell` with `open`/`xdg-open` to hand binary files to host OS |
 | Windows support (Rust engine layer) | ✅ `cargo check --target x86_64-pc-windows-gnu` clean across the workspace; platform-specific branches (taskkill vs kill, PATH separator, symlink_dir) covered. See `knowledge-base/platform-matrix.md`. |
 
