@@ -60,6 +60,7 @@ interface TryMissionProps {
   provider: string;
   model: string;
   onContinue: () => void;
+  onChangeBrain?: () => void;
 }
 
 /**
@@ -82,6 +83,7 @@ export function TryMission({
   provider,
   model,
   onContinue,
+  onChangeBrain,
 }: TryMissionProps) {
   const { t } = useTranslation(["setup", "chat"]);
   const agentPath = agent.folderPath;
@@ -265,6 +267,22 @@ export function TryMission({
     onContinue();
   }, [agentPath, missionSessionKey, onContinue]);
 
+  /**
+   * Escape hatch when the chosen provider's CLI is broken (eg. a malformed
+   * `~/.codex/config.toml` killing every chat with "A local tool failed to
+   * start"). Stops any in-flight session and asks the parent to send the
+   * user back to Mission 2 so they can pick a different brain. The
+   * previously selected provider stays set in the parent so the brain
+   * screen shows it already highlighted; the user can flip to the other
+   * option from there.
+   */
+  const handleChangeBrain = useCallback(() => {
+    if (missionSessionKey) {
+      tauriChat.stop(agentPath, missionSessionKey).catch(console.error);
+    }
+    onChangeBrain?.();
+  }, [agentPath, missionSessionKey, onChangeBrain]);
+
   // Chip click → `createMission` mints an activity, sends the chip text as
   // the first user prompt, and returns the session key. From then on the
   // chat lives on `activity-${id}` so it shows up as a mission card on the
@@ -363,17 +381,29 @@ export function TryMission({
               {error}
             </p>
           )}
-          {/* Escape hatch — always visible in M4 so users who bypass the
-           * chip cards by typing directly into the chat composer still
-           * have a way out. Anchored at the bottom of the left column
-           * via `mt-auto`. */}
-          <button
-            type="button"
-            onClick={handleSkipTutorial}
-            className="mt-auto self-start pt-4 text-xs text-muted-foreground underline-offset-2 hover:underline"
-          >
-            {t("setup:tutorial.missions.try.skipTutorial")}
-          </button>
+          {/* Escape hatches — always visible in M4. Anchored at the
+           * bottom of the left column via `mt-auto` so users who bypass
+           * the chip cards by typing directly into the composer still
+           * have a way out (Skip) and a way to change provider
+           * (Change brain) without restarting onboarding. */}
+          <div className="mt-auto flex flex-col gap-2 self-start pt-4">
+            {onChangeBrain && (
+              <button
+                type="button"
+                onClick={handleChangeBrain}
+                className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+              >
+                {t("setup:tutorial.missions.try.changeBrain")}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSkipTutorial}
+              className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+            >
+              {t("setup:tutorial.missions.try.skipTutorial")}
+            </button>
+          </div>
         </div>
       }
       right={
