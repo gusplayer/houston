@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Spinner } from "@houston-ai/core";
-import { User, Smartphone, Folder, Bot, Bug } from "lucide-react";
+import { User, Smartphone, Folder, Bot, Bug, Zap } from "lucide-react";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import {
   SidebarSectionNav,
@@ -12,6 +12,7 @@ type SettingsSectionId =
   | "account"
   | "workspace"
   | "provider"
+  | "usage"
   | "phone"
   | "reportBug";
 import { AccountSection, useAccountAvailable } from "./sections/account";
@@ -23,6 +24,7 @@ import { LanguageSection } from "./sections/language";
 import { AppearanceSection } from "./sections/appearance";
 import { DangerSection } from "./sections/danger";
 import { ReportBugSection } from "./sections/report-bug";
+import { UsageSection } from "./sections/usage";
 
 export function SettingsView() {
   const { t } = useTranslation(["settings", "common"]);
@@ -37,6 +39,7 @@ export function SettingsView() {
     list.push(
       { id: "workspace", label: t("settings:nav.workspace"), icon: Folder },
       { id: "provider", label: t("settings:nav.provider"), icon: Bot },
+      { id: "usage", label: t("settings:nav.usage"), icon: Zap },
       { id: "phone", label: t("settings:nav.phone"), icon: Smartphone, beta: true },
       { id: "reportBug", label: t("settings:nav.reportBug"), icon: Bug },
     );
@@ -79,6 +82,7 @@ export function SettingsView() {
             </div>
           )}
           {activeVisible === "provider" && <ProviderSection />}
+          {activeVisible === "usage" && <UsageSection />}
           {activeVisible === "phone" && <ConnectPhoneSection />}
           {activeVisible === "reportBug" && <ReportBugSection />}
         </div>

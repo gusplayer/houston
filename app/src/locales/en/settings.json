@@ -4,6 +4,7 @@
     "account": "Account",
     "workspace": "Workspace",
     "provider": "AI provider",
+    "usage": "Usage",
     "phone": "Connect phone",
     "reportBug": "Report bug"
   },
@@ -19,6 +20,21 @@
   "provider": {
     "title": "AI provider",
     "description": "Houston uses <emph>your own</emph> subscription. We never see your credentials."
+  },
+  "usage": {
+    "title": "Usage",
+    "subtitle": "Track your message usage and plan.",
+    "credits": {
+      "used": "{{used}} of {{total}} messages used",
+      "remaining_one": "{{count}} message remaining",
+      "remaining_other": "{{count}} messages remaining",
+      "topUpTitle": "Need more messages?",
+      "topUpHint": "Top up to keep going without switching providers."
+    },
+    "ownProvider": {
+      "title": "Using {{provider}}",
+      "body": "You're using your own subscription. Houston doesn't track usage for external providers."
+    }
   },
   "connectPhone": {
     "title": "Connect phone",

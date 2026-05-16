@@ -4,6 +4,7 @@
     "account": "Cuenta",
     "workspace": "Espacio de trabajo",
     "provider": "Proveedor de IA",
+    "usage": "Uso",
     "phone": "Conectar celular",
     "reportBug": "Reportar bug"
   },
@@ -19,6 +20,21 @@
   "provider": {
     "title": "Proveedor de IA",
     "description": "Houston usa <emph>tu propia</emph> suscripción. Nunca vemos tus credenciales."
+  },
+  "usage": {
+    "title": "Uso",
+    "subtitle": "Revisa tu uso de mensajes y plan actual.",
+    "credits": {
+      "used": "{{used}} de {{total}} mensajes usados",
+      "remaining_one": "{{count}} mensaje restante",
+      "remaining_other": "{{count}} mensajes restantes",
+      "topUpTitle": "Necesitas mas mensajes?",
+      "topUpHint": "Recarga para seguir sin cambiar de proveedor."
+    },
+    "ownProvider": {
+      "title": "Usando {{provider}}",
+      "body": "Estas usando tu propia suscripcion. Houston no rastrea el uso de proveedores externos."
+    }
   },
   "connectPhone": {
     "title": "Conectar celular",
