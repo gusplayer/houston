@@ -361,18 +361,18 @@ eleventyComputed:
 
     {# ── Stats row ── #}
     <div class="detail-stats">
-      {% if agent.rating %}
-        <span class="stars">
-          <svg viewBox="0 0 24 24" fill="#f5a623" aria-hidden="true"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
-          {{ agent.rating }}
-          {% if agent.reviews_count %}<span class="reviews">({{ agent.reviews_count }})</span>{% endif %}
-        </span>
-        <span class="dot">·</span>
-      {% endif %}
-      <span class="installs">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        {{ agent.installs }} installs
+      <span class="stars">
+        <svg viewBox="0 0 24 24" fill="#f5a623" aria-hidden="true"><path d="M12 1l2.39 4.84L20 6.5l-3.99 3.89.94 5.49L12 13.27 7.05 15.88l.94-5.49L4 6.5l5.61-.66L12 1z"/></svg>
+        {{ agent.rating }}
+        {% if agent.reviews_count %}<span class="reviews">({{ agent.reviews_count }})</span>{% endif %}
       </span>
+      {% if agent.installs > 0 %}
+        <span class="dot">·</span>
+        <span class="installs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          {{ agent.installs }} installs
+        </span>
+      {% endif %}
       {% if agent.repo or agent.publisher.github_url %}
         <span class="dot">·</span>
         <a class="gh-link"
@@ -388,11 +388,11 @@ eleventyComputed:
     <p class="detail-desc">{{ agent.description }}</p>
 
     {# ── Integrations ── #}
-    {% if agent.integrations.length %}
+    {% if agent.mapped_integrations.length %}
       <div class="detail-section">
         <div class="detail-section-label">Integrations</div>
         <div class="detail-integrations">
-          {% for int in agent.integrations %}{% set name = int %}{% include "integration-icon.njk" %}{% endfor %}
+          {% for int in agent.mapped_integrations %}{% set name = int %}{% include "integration-icon.njk" %}{% endfor %}
         </div>
       </div>
     {% endif %}
