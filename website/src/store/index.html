@@ -45,6 +45,7 @@ permalink: /store/index.html
     --border-medium: rgba(0,0,0,0.15);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
   body {
     font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
     color: var(--foreground);
@@ -53,6 +54,7 @@ permalink: /store/index.html
     line-height: 1.5;
     padding-top: 65px;
     position: relative;
+    max-width: 100vw;
   }
   a { color: inherit; text-decoration: none; }
 
@@ -355,8 +357,9 @@ permalink: /store/index.html
     gap: 4px;
     min-width: 0;
     padding-top: 2px;
-    flex: 1;
+    flex: 1 1 0;
   }
+  .agent-card-content > * { min-width: 0; max-width: 100%; }
   .agent-card-head {
     display: flex;
     flex-direction: column;
@@ -384,6 +387,9 @@ permalink: /store/index.html
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-top: 2px;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   /* ── Badges row ── */
@@ -629,7 +635,7 @@ permalink: /store/index.html
   @media (max-width: 768px) {
     nav { padding: 14px 20px; }
     .nav-center { display: none; }
-    .nav-right .gh-icon-desktop { display: none; }
+    .nav-right .gh-icon-desktop { display: none !important; }
     .nav-burger { display: inline-flex; }
     .store-intro { padding: 64px 20px 32px; }
     .store-intro h1 { font-size: 32px; }
