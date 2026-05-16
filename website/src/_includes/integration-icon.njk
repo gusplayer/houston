@@ -1,0 +1,3 @@
+{# Contract: pass { name } where name is the catalog integration string (e.g. "slack"). Renders <img> from /integration-icons/<slug>.svg if known, else a text pill. #}
+{% set icon = integrationIcons[name] %}
+{% if icon %}<img class="int-icon" src="/integration-icons/{{ icon.slug }}.svg" alt="{{ icon.label }}" title="{{ icon.label }}" width="18" height="18" loading="lazy" style="--brand:{{ icon.color }};">{% else %}<span class="int-pill int-pill-text" title="{{ name }}">{{ name }}</span>{% endif %}
