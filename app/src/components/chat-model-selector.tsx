@@ -58,13 +58,11 @@ export function ChatModelSelector({ provider, model, onSelect, lockedProvider }:
   // picker, not here — for simplicity we only show it when active).
   const showCreditsGroup = isCredits || lockedProvider === HOUSTON_CREDITS_INFO.id;
 
-  // Count how many provider groups will render (to decide separators)
-  const visibleProviders = PROVIDERS.filter((prov) => {
-    const connected = (statuses[prov.id]?.cli_installed && statuses[prov.id]?.authenticated) ?? false;
-    if (!connected && prov.id !== provider) return false;
-    if (lockedProvider && prov.id !== lockedProvider) return false;
-    return true;
-  });
+  // When locked, only show the locked provider. Otherwise show all providers
+  // so the user can see what's available and connect new ones via Settings.
+  const visibleProviders = lockedProvider
+    ? PROVIDERS.filter((prov) => prov.id === lockedProvider)
+    : PROVIDERS;
 
   return (
     <div onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
