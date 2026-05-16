@@ -79,6 +79,27 @@ function withMappedIntegrations(agent) {
   return { ...agent, mapped_integrations: mapped };
 }
 
+// Curated pastel palette mirroring the landing's agent showcase. Each
+// agent gets a deterministic tint (hash by id) so the grid reads with
+// the same color variety as the "Hire your team" section instead of a
+// monochrome yellow wall when most agents share one category.
+const AVATAR_PALETTE = [
+  "59,130,246", // blue
+  "234,179,8", // yellow
+  "168,85,247", // purple
+  "16,185,129", // green
+  "239,68,68", // red
+  "249,115,22", // orange
+  "236,72,153", // pink
+  "20,184,166", // teal
+  "99,102,241", // indigo
+];
+
+function withAvatarTint(agent) {
+  const h = deterministicHash(agent.id);
+  return { ...agent, avatar_tint: AVATAR_PALETTE[h % AVATAR_PALETTE.length] };
+}
+
 const MOCK_COMMUNITY_AGENTS = [
   {
     id: "mock-recruiter-pro",
@@ -275,7 +296,9 @@ function loadHoustonAgents() {
 export default function () {
   const houston = loadHoustonAgents();
   const merged = [...houston, ...MOCK_COMMUNITY_AGENTS];
-  return merged.map((a) => withMappedIntegrations(withSyntheticMetrics(a)));
+  return merged.map((a) =>
+    withAvatarTint(withMappedIntegrations(withSyntheticMetrics(a)))
+  );
 }
 
 // Eleventy auto-discovers global data named after the file. Since we want
