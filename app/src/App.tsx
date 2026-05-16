@@ -57,7 +57,12 @@ export default function App() {
     const unlistenStorePromise = installStoreDeepLinkListener();
     return () => {
       if (unlistenAuth) unlistenAuth();
-      unlistenStorePromise.then((fn) => fn()).catch(() => {});
+      unlistenStorePromise.then((fn) => fn()).catch((err) => {
+        // Unmount-cleanup: the user is gone, so a toast would land on the
+        // sign-in screen or empty shell. Log at error level instead so the
+        // bug-report bundle picks it up.
+        console.error("[store-deep-link] cleanup failed:", err);
+      });
     };
   }, []);
 

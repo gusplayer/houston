@@ -24,7 +24,6 @@
     }
   },
   "card": {
-    "installs": "{{count}} installs",
     "installs_one": "{{count}} install",
     "installs_other": "{{count}} installs",
     "by": "by {{name}}",

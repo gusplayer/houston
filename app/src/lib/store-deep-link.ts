@@ -34,7 +34,13 @@ export async function installStoreDeepLinkListener(): Promise<UnlistenFn> {
   };
 }
 
-function handleStoreUrl(rawUrl: string): void {
+/**
+ * Pure URL parser for the Store deep-link dispatcher. Exported so unit
+ * tests can exercise the parsing + UI-store mutation in isolation, without
+ * having to mount the Tauri event listener. Production callers use
+ * `installStoreDeepLinkListener` which forwards `event.payload` here.
+ */
+export function handleStoreUrl(rawUrl: string): void {
   let url: URL;
   try {
     url = new URL(rawUrl);
@@ -50,8 +56,17 @@ function handleStoreUrl(rawUrl: string): void {
     return;
   }
 
+  // Defense in depth: the Rust dispatcher already routes by host
+  // (`auth.rs::dispatch_deep_link`), but if anything else ever pushed a
+  // payload to the `store://deep-link` channel we still refuse to mutate
+  // state on a non-`store` host.
+  if (url.host !== "store") {
+    logger.warn(`[store-deep-link] unexpected host in ${rawUrl}`);
+    return;
+  }
+
   // URL hosts and pathnames are parsed differently across browsers for
-  // custom schemes — be permissive. For `houston://store/agent/<id>`:
+  // custom schemes — be permissive on the path. For `houston://store/agent/<id>`:
   //   - parsed.host === "store"
   //   - parsed.pathname === "/agent/<id>"
   // Split and filter empties so leading-slash quirks don't break the match.

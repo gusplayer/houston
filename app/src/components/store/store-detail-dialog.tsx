@@ -45,7 +45,7 @@ export function StoreDetailDialog({
   const [installing, setInstalling] = useState(false);
   if (!listing) return null;
 
-  const isMock = listing.source === "mock" || listing.id.startsWith("mock-");
+  const isMock = listing.source === "mock";
   const publisher = listing.publisher?.name ?? listing.author;
   const github =
     listing.publisher?.github_url ?? `https://github.com/${listing.repo}`;

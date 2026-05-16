@@ -257,16 +257,21 @@ pub async fn auth_remove_item(key: String) -> Result<(), String> {
 /// The same string URL is forwarded as the event payload — the frontend
 /// parses path / query / fragment.
 pub fn dispatch_deep_link(handle: &AppHandle, raw_url: &str) {
-    let channel = match url::Url::parse(raw_url) {
-        Ok(parsed) if parsed.host_str() == Some("store") => "store://deep-link",
-        Ok(_) => "auth://deep-link",
+    // A garbage URL (e.g. accidental paste, browser shenanigans) used to
+    // fall through to the auth channel as a catch-all, which surfaced a
+    // confusing auth-flow error in the UI. Drop it on the floor instead —
+    // there's nothing the frontend can do with unparseable input.
+    let parsed = match url::Url::parse(raw_url) {
+        Ok(u) => u,
         Err(e) => {
-            // Malformed URL — log and still forward to the auth channel,
-            // which is the historical catch-all. The auth listener will
-            // surface its own error toast if the payload is unusable.
             tracing::warn!("[deep-link] could not parse URL {raw_url:?}: {e}");
-            "auth://deep-link"
+            return;
         }
+    };
+    let channel = if parsed.host_str() == Some("store") {
+        "store://deep-link"
+    } else {
+        "auth://deep-link"
     };
     if let Err(e) = handle.emit(channel, raw_url) {
         tracing::error!("[deep-link] failed to emit {channel} for {raw_url}: {e}");

@@ -24,7 +24,6 @@
     }
   },
   "card": {
-    "installs": "{{count}} instalações",
     "installs_one": "{{count}} instalação",
     "installs_other": "{{count}} instalações",
     "by": "por {{name}}",

@@ -35,13 +35,16 @@ export interface AgentTab {
   chip?: string;
 }
 
-/** Agent category for Houston Store filtering */
-export type AgentCategory =
-  | "productivity"
-  | "development"
-  | "research"
-  | "creative"
-  | "business";
+/** Agent category for Houston Store filtering.
+ *
+ * TODO: narrow to a union once the engine-client `StoreListing` type also
+ * narrows (`@houston-ai/engine-client/src/types.ts` currently types
+ * `category: string`). Today's Store sidebar exposes only four buckets —
+ * `"business" | "marketing" | "operations" | "people"` — but built-in
+ * agent configs use `"productivity"` and the engine-client cross-package
+ * type uses `string`, so narrowing in this app-side type causes a
+ * boundary type mismatch in `tauri.ts`. */
+export type AgentCategory = string;
 
 /** An agent mode defines a prompt profile (e.g. "execution" or "planning"). */
 export interface AgentMode {
