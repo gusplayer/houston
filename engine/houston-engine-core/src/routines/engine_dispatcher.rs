@@ -60,6 +60,11 @@ impl RoutineDispatcher for EngineRoutineDispatcher {
         };
 
         let resolved = sessions::resolve_provider(&self.paths, ctx.working_dir);
+        let anthropic_api_key_override = if resolved.uses_houston_credits {
+            sessions::houston_credits_key()
+        } else {
+            None
+        };
         let agent_key = format!(
             "{}:{}:{}",
             ctx.working_dir.to_string_lossy(),
@@ -97,6 +102,7 @@ impl RoutineDispatcher for EngineRoutineDispatcher {
             resolved.provider,
             resolved.model,
             None,
+            anthropic_api_key_override,
         );
 
         match join_handle.await {

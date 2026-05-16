@@ -29,6 +29,8 @@ import {
 } from "../composio-link-card";
 import { analytics } from "../../lib/analytics";
 import type { TabProps } from "../../lib/types";
+import { useHoustonCreditsStore } from "../../stores/houston-credits";
+import { HoustonCreditsBanner, HoustonCreditsFooterPill } from "../houston-credits-banner";
 import { HoustonThinkingIndicator } from "../shell/experience-card";
 import { ChatModelSelector } from "../chat-model-selector";
 import { useChatDisplayLabels } from "../use-chat-display-labels";
@@ -184,9 +186,13 @@ export default function ChatTab({ agent }: TabProps) {
     [connectedSet],
   );
 
+  const creditsDecrement = useHoustonCreditsStore((s) => s.decrement);
+  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
+
   const sendNow = useCallback(
     async (text: string, files: File[]) => {
       if (sendingRef.current) return;
+      if (effectiveProvider === "houston-credits" && (creditsBalance ?? 1) <= 0) return;
       sendingRef.current = true;
       setIsLoading(true);
       let started = false;
@@ -198,6 +204,9 @@ export default function ChatTab({ agent }: TabProps) {
           modelOverride: chatModel ?? undefined,
         });
         started = true;
+        if (effectiveProvider === "houston-credits") {
+          void creditsDecrement();
+        }
         pushFeedItem(agentPath, sessionKey, { feed_type: "user_message", data: prompt });
         analytics.track("chat_message_sent");
         setComposerText("");
@@ -214,7 +223,7 @@ export default function ChatTab({ agent }: TabProps) {
         sendingRef.current = false;
       }
     },
-    [agentPath, sessionKey, attachmentScope, pushFeedItem, setComposerText, setComposerFiles, chatProvider, chatModel, t],
+    [agentPath, sessionKey, attachmentScope, pushFeedItem, setComposerText, setComposerFiles, chatProvider, chatModel, effectiveProvider, creditsDecrement, t],
   );
   const handleQueued = useCallback(() => {
     setComposerText("");
@@ -291,12 +300,18 @@ export default function ChatTab({ agent }: TabProps) {
         onRemoveQueuedMessage={messageQueue.removeQueuedMessage}
         queuedLabels={queuedLabels}
         footer={
-          <ChatModelSelector
-            provider={effectiveProvider}
-            model={effectiveModel}
-            onSelect={handleModelSelect}
-            lockedProvider={visibleFeedItems.length > 0 ? effectiveProvider : null}
-          />
+          <div className="flex flex-col gap-2 w-full">
+            <HoustonCreditsBanner />
+            <div className="flex items-center gap-2">
+              <HoustonCreditsFooterPill />
+              <ChatModelSelector
+                provider={effectiveProvider}
+                model={effectiveModel}
+                onSelect={handleModelSelect}
+                lockedProvider={visibleFeedItems.length > 0 ? effectiveProvider : null}
+              />
+            </div>
+          </div>
         }
         emptyState={
           <Empty className="border-0">

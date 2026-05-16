@@ -10,9 +10,12 @@ import {
 } from "lucide-react";
 import { Button, cn } from "@houston-ai/core";
 import { tauriProvider, tauriSystem, type ProviderStatus } from "../../../lib/tauri";
+import { osHoustonCreditsAvailable } from "../../../lib/os-bridge";
 import {
   PROVIDERS,
   COMING_SOON_PROVIDERS,
+  HOUSTON_CREDITS_INFO,
+  FREE_CREDITS_LIMIT,
   type ProviderInfo,
   type ComingSoonProviderInfo,
 } from "../../../lib/providers";
@@ -32,6 +35,7 @@ export function BrainMission({
   const [statuses, setStatuses] = useState<Record<string, ProviderStatus>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [creditsAvailable, setCreditsAvailable] = useState(false);
 
   const refresh = useCallback(async () => {
     const [openai, anthropic] = await Promise.all([
@@ -44,12 +48,13 @@ export function BrainMission({
 
   useEffect(() => {
     void refresh();
+    osHoustonCreditsAvailable().then(setCreditsAvailable).catch(() => {});
   }, [refresh]);
 
   // Poll while a disconnected provider is selected so the screen unblocks the
   // moment the user finishes the browser sign-in flow.
   useEffect(() => {
-    if (!provider) return;
+    if (!provider || provider === HOUSTON_CREDITS_INFO.id) return;
     const status = statuses[provider];
     const connected = !!status?.cli_installed && !!status?.authenticated;
     if (connected) return;
@@ -58,7 +63,8 @@ export function BrainMission({
   }, [provider, refresh, statuses]);
 
   const selectedConnected =
-    !!provider && !!statuses[provider]?.cli_installed && !!statuses[provider]?.authenticated;
+    provider === HOUSTON_CREDITS_INFO.id ||
+    (!!provider && !!statuses[provider]?.cli_installed && !!statuses[provider]?.authenticated);
 
   const handleContinue = async () => {
     if (!selectedConnected) return;
@@ -73,6 +79,12 @@ export function BrainMission({
   return (
     <div className="flex flex-1 flex-col gap-6">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {creditsAvailable && (
+          <HoustonCreditsCard
+            selected={provider === HOUSTON_CREDITS_INFO.id}
+            onSelect={() => onSelect(HOUSTON_CREDITS_INFO.id, HOUSTON_CREDITS_INFO.model)}
+          />
+        )}
         {PROVIDERS.map((prov) => (
           <ProviderCard
             key={prov.id}
@@ -186,6 +198,49 @@ function ProviderCard({
           {t("providers:card.connected")}
         </p>
       )}
+    </button>
+  );
+}
+
+function HoustonCreditsCard({
+  selected,
+  onSelect,
+}: {
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const { t } = useTranslation("providers");
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "group flex w-full flex-col gap-3 rounded-xl border bg-background p-4 text-left transition-all",
+        "border-black/5 hover:border-black/15 hover:shadow-[0_1px_0_rgba(0,0,0,0.05)]",
+        selected && "border-foreground shadow-[0_1px_0_rgba(0,0,0,0.05)]",
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-sm font-medium text-foreground">{t("credits.name")}</p>
+          <p className="text-xs text-muted-foreground">{t("credits.subtitle")}</p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {selected ? (
+            <span className="inline-flex items-center gap-1 text-xs text-[#00a240]">
+              <Check className="size-3" />
+              {t("credits.connected")}
+            </span>
+          ) : (
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              {t("credits.badge")}
+            </span>
+          )}
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {t("credits.cost", { count: FREE_CREDITS_LIMIT })}
+      </p>
     </button>
   );
 }

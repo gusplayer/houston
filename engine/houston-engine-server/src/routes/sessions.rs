@@ -99,8 +99,17 @@ async fn start_session(
         .unwrap_or_else(|| agent_dir.clone());
 
     // Override > agent config > workspace > default.
-    let ResolvedProviderChoice { provider, model } =
-        resolve_provider_with_overrides(&st, &agent_dir, req.provider.as_deref(), req.model.clone())?;
+    let ResolvedProviderChoice {
+        provider,
+        model,
+        uses_houston_credits,
+    } = resolve_provider_with_overrides(&st, &agent_dir, req.provider.as_deref(), req.model.clone())?;
+
+    let anthropic_api_key_override = if uses_houston_credits {
+        sessions::houston_credits_key()
+    } else {
+        None
+    };
 
     let params = StartParams {
         agent_dir,
@@ -112,6 +121,7 @@ async fn start_session(
         provider,
         model,
         effort: req.effort,
+        anthropic_api_key_override,
     };
 
     let rt = SessionRuntime::clone(&st.engine.sessions);
@@ -229,6 +239,7 @@ async fn cancel_session(
 struct ResolvedProviderChoice {
     provider: Provider,
     model: Option<String>,
+    uses_houston_credits: bool,
 }
 
 fn resolve_provider_with_overrides(
@@ -238,12 +249,24 @@ fn resolve_provider_with_overrides(
     model_override: Option<String>,
 ) -> Result<ResolvedProviderChoice, ApiError> {
     if let Some(p_str) = provider_override {
+        // Per-session override of the workspace's resolved provider. The
+        // Houston Credits virtual provider is honored here too so a chat-level
+        // switch picks up the bundled trial key + Haiku model.
+        if p_str == sessions::HOUSTON_CREDITS_PROVIDER {
+            return Ok(ResolvedProviderChoice {
+                provider: Provider::Anthropic,
+                model: model_override
+                    .or_else(|| Some(sessions::HOUSTON_CREDITS_MODEL.to_string())),
+                uses_houston_credits: true,
+            });
+        }
         let provider: Provider = p_str
             .parse()
             .map_err(|e: String| CoreError::BadRequest(e))?;
         return Ok(ResolvedProviderChoice {
             provider,
             model: model_override,
+            uses_houston_credits: false,
         });
     }
     let mut resolved = resolve_provider(&st.engine.paths, agent_dir);
@@ -253,5 +276,6 @@ fn resolve_provider_with_overrides(
     Ok(ResolvedProviderChoice {
         provider: resolved.provider,
         model: resolved.model,
+        uses_houston_credits: resolved.uses_houston_credits,
     })
 }

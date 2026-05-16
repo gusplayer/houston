@@ -240,6 +240,19 @@ pub fn run() {
                     engine_env.push(("HOUSTON_TUNNEL_URL".into(), v));
                 }
             }
+            // Houston Credits trial key. Baked in at compile time via
+            // option_env! (release builds) or read at runtime (dev), and
+            // forwarded to the engine so claude-code sessions with the
+            // virtual `houston-credits` provider use it as ANTHROPIC_API_KEY.
+            // When unset (e.g. dev checkouts without the secret), the
+            // Houston Credits card stays hidden in the UI.
+            let houston_credits_key = option_env!("HOUSTON_CREDITS_KEY")
+                .map(str::to_string)
+                .or_else(|| std::env::var("HOUSTON_CREDITS_KEY").ok())
+                .filter(|s| !s.is_empty());
+            if let Some(key) = houston_credits_key {
+                engine_env.push(("HOUSTON_CREDITS_KEY".into(), key));
+            }
             // 30s banner timeout: first-run Gatekeeper scan on a notarized
             // sidecar can take 15–20s on slow machines.
             let slot = spawn_supervisor(binary, Duration::from_secs(30), engine_env, cb)
@@ -325,6 +338,7 @@ pub fn run() {
             commands::os::reveal_agent,
             commands::terminal::open_terminal,
             commands::os::check_claude_cli,
+            commands::os::houston_credits_available,
             commands::update::current_app_bundle_path,
             commands::update::relaunch_app_from_path,
             // Logging (writes to local log files).

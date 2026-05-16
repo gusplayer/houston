@@ -64,6 +64,7 @@ async fn provider_auth_state(provider: Provider) -> ProviderAuthState {
 ///
 /// Automatically calls `claude_path::init()` (idempotent via `OnceLock`)
 /// so apps don't need to remember to initialize PATH resolution.
+#[allow(clippy::too_many_arguments)]
 pub fn spawn_and_monitor(
     sink: DynEventSink,
     agent_path: String,
@@ -78,6 +79,7 @@ pub fn spawn_and_monitor(
     provider: Provider,
     model: Option<String>,
     effort: Option<String>,
+    anthropic_api_key_override: Option<String>,
 ) -> tokio::task::JoinHandle<SessionResult> {
     // Ensure the user's shell PATH is resolved before spawning.
     // OnceLock inside init() makes this a no-op after the first call.
@@ -97,6 +99,7 @@ pub fn spawn_and_monitor(
         None,  // mcp_config
         false, // disable_builtin_tools
         false, // disable_all_tools
+        anthropic_api_key_override,
     );
 
     let sink = sink;

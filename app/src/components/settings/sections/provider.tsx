@@ -1,27 +1,40 @@
+import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { ProviderPicker } from "../../shell/provider-picker";
+import { HoustonCreditsTopUpDialog } from "../../houston-credits-topup-dialog";
 import { useWorkspaceStore } from "../../../stores/workspaces";
 import { useUIStore } from "../../../stores/ui";
+import { useHoustonCreditsStore } from "../../../stores/houston-credits";
+import { Button } from "@houston-ai/core";
 
 export function ProviderSection() {
-  const { t } = useTranslation("settings");
+  const { t } = useTranslation(["settings", "providers"]);
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const currentWorkspace = useWorkspaceStore((s) => s.current);
   const updateProvider = useWorkspaceStore((s) => s.updateProvider);
   const addToast = useUIStore((s) => s.addToast);
+  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
 
   if (!currentWorkspace) return null;
 
   const handleProviderSelect = async (provider: string, model: string) => {
     await updateProvider(currentWorkspace.id, provider, model);
-    const provName = provider === "openai" ? "OpenAI" : "Anthropic";
+    const provName =
+      provider === "openai"
+        ? "OpenAI"
+        : provider === "houston-credits"
+          ? "Houston Credits"
+          : "Anthropic";
     addToast({
-      title: t("toasts.providerSwitched", { provider: provName, model }),
+      title: t("settings:toasts.providerSwitched", { provider: provName, model }),
     });
   };
 
+  const usingCredits = currentWorkspace.provider === "houston-credits";
+
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-1">{t("provider.title")}</h2>
+      <h2 className="text-lg font-semibold mb-1">{t("settings:provider.title")}</h2>
       <p className="text-sm text-muted-foreground mb-4">
         <Trans
           i18nKey="settings:provider.description"
@@ -33,6 +46,22 @@ export function ProviderSection() {
         model={currentWorkspace.model ?? null}
         onSelect={handleProviderSelect}
       />
+      {usingCredits && creditsBalance !== null && (
+        <div className="mt-3 flex items-center justify-between rounded-xl border border-black/5 bg-background px-4 py-3">
+          <p className="text-xs text-muted-foreground">
+            {t("providers:credits.settingsBalance", { count: creditsBalance })}
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 rounded-full px-3 text-xs"
+            onClick={() => setTopUpOpen(true)}
+          >
+            {t("providers:credits.topUp")}
+          </Button>
+        </div>
+      )}
+      <HoustonCreditsTopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
     </section>
   );
 }

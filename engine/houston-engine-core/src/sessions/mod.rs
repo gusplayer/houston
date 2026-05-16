@@ -40,7 +40,10 @@ use houston_ui_events::{DynEventSink, HoustonEvent};
 use std::path::{Path, PathBuf};
 use workdir_locks::{WorkdirLocks, WorkdirSessionGuard};
 
-pub use provider::{resolve_provider, ResolvedProvider};
+pub use provider::{
+    houston_credits_key, resolve_provider, ResolvedProvider, HOUSTON_CREDITS_MODEL,
+    HOUSTON_CREDITS_PROVIDER,
+};
 
 /// Engine-owned session state. Cheap to clone.
 #[derive(Default, Clone)]
@@ -98,6 +101,11 @@ pub struct StartParams {
     /// `--effort <value>`. Accepted values vary per provider; the caller is
     /// responsible for passing something each CLI understands (e.g. "medium").
     pub effort: Option<String>,
+    /// Optional ANTHROPIC_API_KEY exported to the claude-code subprocess.
+    /// Set by the route layer when the resolved provider is the Houston
+    /// Credits virtual provider and the engine env has HOUSTON_CREDITS_KEY.
+    /// `None` lets claude-code use whatever auth the user already has.
+    pub anthropic_api_key_override: Option<String>,
 }
 
 /// Start a session turn. The request is accepted immediately. Turns with the
@@ -167,6 +175,7 @@ async fn run_start(
         provider,
         model,
         effort,
+        anthropic_api_key_override,
     } = params;
 
     if !agent_dir.exists() {
@@ -278,6 +287,7 @@ async fn run_start(
         provider,
         model,
         effort,
+        anthropic_api_key_override,
     );
 
     // Own the end-of-session activity flip engine-side. Before this, the
@@ -499,6 +509,11 @@ pub async fn start_onboarding(
     let product_prompt = format!("{app_system_prompt}{app_onboarding_prompt}");
 
     let resolved = resolve_provider(paths, &agent_dir);
+    let anthropic_api_key_override = if resolved.uses_houston_credits {
+        provider::houston_credits_key()
+    } else {
+        None
+    };
 
     start(
         rt,
@@ -515,6 +530,7 @@ pub async fn start_onboarding(
             provider: resolved.provider,
             model: resolved.model,
             effort: None,
+            anthropic_api_key_override,
         },
     )
     .await
@@ -582,6 +598,7 @@ mod tests {
                     provider: Provider::OpenAI,
                     model: None,
                     effort: None,
+                    anthropic_api_key_override: None,
                 },
             ),
         )

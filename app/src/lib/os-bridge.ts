@@ -78,6 +78,11 @@ export function osCheckClaudeCli(): Promise<boolean> {
   return invoke<boolean>("check_claude_cli");
 }
 
+/** Is the Houston Credits trial key bundled in this build? */
+export function osHoustonCreditsAvailable(): Promise<boolean> {
+  return invoke<boolean>("houston_credits_available");
+}
+
 /** Resolve the app bundle/executable path before updater install moves it. */
 export function osCurrentAppBundlePath(): Promise<string> {
   return invoke<string>("current_app_bundle_path");

@@ -29,6 +29,7 @@ fn claude_command_name() -> OsString {
 }
 
 /// Spawn a Claude CLI session (`claude -p --output-format stream-json`).
+#[allow(clippy::too_many_arguments)]
 pub(crate) async fn spawn_claude(
     tx: &mpsc::UnboundedSender<SessionUpdate>,
     prompt: String,
@@ -40,6 +41,7 @@ pub(crate) async fn spawn_claude(
     mcp_config: Option<std::path::PathBuf>,
     disable_builtin_tools: bool,
     disable_all_tools: bool,
+    anthropic_api_key_override: Option<String>,
 ) {
     tracing::info!(
         "[houston:session] spawning claude -p (resume={:?})",
@@ -67,6 +69,7 @@ pub(crate) async fn spawn_claude(
         mcp_config.as_deref(),
         disable_builtin_tools,
         disable_all_tools,
+        anthropic_api_key_override.as_deref(),
     );
     let outcome = run_cli_process(tx, &mut cmd, &prompt, Provider::Anthropic).await;
     if should_retry_malformed_provider_json(outcome, resume_session_id.as_deref()) {
@@ -84,6 +87,7 @@ pub(crate) async fn spawn_claude(
             mcp_config.as_deref(),
             disable_builtin_tools,
             disable_all_tools,
+            anthropic_api_key_override.as_deref(),
         )
         .await;
     } else if outcome == CliRunOutcome::ProviderRequestMalformedJson {
@@ -102,6 +106,7 @@ async fn retry_fresh(
     mcp_config: Option<&std::path::Path>,
     disable_builtin_tools: bool,
     disable_all_tools: bool,
+    anthropic_api_key_override: Option<&str>,
 ) {
     let mut fresh_cmd = Command::new(claude_command_name());
     configure_claude_command(
@@ -114,6 +119,7 @@ async fn retry_fresh(
         mcp_config,
         disable_builtin_tools,
         disable_all_tools,
+        anthropic_api_key_override,
     );
     let retry_outcome = run_cli_process(tx, &mut fresh_cmd, prompt, Provider::Anthropic).await;
     if retry_outcome == CliRunOutcome::ProviderRequestMalformedJson {
@@ -132,8 +138,15 @@ fn configure_claude_command(
     mcp_config: Option<&std::path::Path>,
     disable_builtin_tools: bool,
     disable_all_tools: bool,
+    anthropic_api_key_override: Option<&str>,
 ) {
     cmd.env("PATH", super::claude_path::shell_path());
+    // Houston Credits path: override ANTHROPIC_API_KEY so claude-code uses
+    // the bundled trial key instead of (or in place of) the user's own
+    // subscription auth. claude-code prefers env var over the OAuth file.
+    if let Some(key) = anthropic_api_key_override {
+        cmd.env("ANTHROPIC_API_KEY", key);
+    }
     cmd.arg("-p")
         .arg("--output-format")
         .arg("stream-json")
