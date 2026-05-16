@@ -130,16 +130,20 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
-            // Deep-link handler for Google-OAuth callbacks
-            // (`houston://auth-callback?code=...`). Forwards the URL to the
-            // frontend; Supabase's PKCE exchange runs in JS so the verifier
-            // stays in Keychain-backed storage end-to-end.
+            // Deep-link dispatcher. Routes incoming `houston://` URLs to
+            // the right frontend event channel based on host:
+            //   - `houston://store/agent/<id>` -> `store://deep-link`
+            //     (opens the Store detail dialog for that agent).
+            //   - `houston://auth-callback?code=...` (and any unrecognized
+            //     URL) -> `auth://deep-link` (Supabase PKCE exchange runs in
+            //     JS so the verifier stays in Keychain-backed storage
+            //     end-to-end).
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
                 let handle = app.handle().clone();
                 app.deep_link().on_open_url(move |event| {
                     for url in event.urls() {
-                        auth::emit_deep_link(&handle, url.as_str());
+                        auth::dispatch_deep_link(&handle, url.as_str());
                     }
                 });
             }

@@ -70,5 +70,10 @@
     "title": "No agents match your filters",
     "hint": "Try clearing filters or searching by a different term"
   },
+  "notFound": {
+    "title": "Agent not yet available",
+    "body": "We could not find an agent with id \"{{id}}\" in the Store. It may be a preview from the website that has not been published yet.",
+    "close": "Close"
+  },
   "ratingLabel": "{{rating}} out of 5, {{count}} reviews"
 }

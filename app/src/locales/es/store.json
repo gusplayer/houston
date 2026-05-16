@@ -70,5 +70,10 @@
     "title": "Ningún agente coincide con tus filtros",
     "hint": "Intenta limpiar los filtros o buscar otro término"
   },
+  "notFound": {
+    "title": "Agente aún no disponible",
+    "body": "No encontramos un agente con id \"{{id}}\" en el Store. Puede ser una vista previa del sitio web que aún no se ha publicado.",
+    "close": "Cerrar"
+  },
   "ratingLabel": "{{rating}} de 5, {{count}} reseñas"
 }

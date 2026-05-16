@@ -1,8 +1,14 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Search, Store as StoreIcon } from "lucide-react";
 import {
   Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -15,6 +21,7 @@ import { MOCK_COMMUNITY_AGENTS } from "./mock-catalog";
 import { StoreCard } from "./store-card";
 import { StoreDetailDialog } from "./store-detail-dialog";
 import { ImportFromUrlDialog } from "./import-from-url-dialog";
+import { useStoreDeepLink } from "./use-store-deep-link";
 import {
   StoreFilters,
   type StoreCategory,
@@ -37,6 +44,8 @@ export function StorePage() {
   const [importOpen, setImportOpen] = useState(false);
   const [active, setActive] = useState<StoreListing | null>(null);
   const [activeIsHouston, setActiveIsHouston] = useState(false);
+  // Set when a deep-link agent id is not in the catalog. Drives the fallback dialog.
+  const [unknownAgentId, setUnknownAgentId] = useState<string | null>(null);
 
   // The set of real Houston-published agent IDs comes straight from the
   // engine catalog. Anything else here is a mock community preview.
@@ -66,10 +75,21 @@ export function StorePage() {
     [merged, query, source, pricing, category, sort, houstonIds],
   );
 
-  const openListing = (l: StoreListing) => {
-    setActive(l);
-    setActiveIsHouston(houstonIds.has(l.id));
-  };
+  const openListing = useCallback(
+    (l: StoreListing) => {
+      setActive(l);
+      setActiveIsHouston(houstonIds.has(l.id));
+    },
+    [houstonIds],
+  );
+
+  const handleMissingAgent = useCallback((agentId: string) => {
+    setUnknownAgentId(agentId);
+  }, []);
+
+  // Connect `houston://store/agent/<id>` (stored on useUIStore.storeAgentId)
+  // to the dialog state. The hook clears storeAgentId after handling so the effect cannot loop.
+  useStoreDeepLink({ merged, onMatch: openListing, onMissing: handleMissingAgent });
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -151,6 +171,27 @@ export function StorePage() {
       />
 
       <ImportFromUrlDialog open={importOpen} onOpenChange={setImportOpen} />
+
+      <Dialog
+        open={unknownAgentId !== null}
+        onOpenChange={(open) => {
+          if (!open) setUnknownAgentId(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("notFound.title")}</DialogTitle>
+            <DialogDescription>
+              {t("notFound.body", { id: unknownAgentId ?? "" })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUnknownAgentId(null)}>
+              {t("notFound.close")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

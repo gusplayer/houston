@@ -27,10 +27,13 @@
 //!   4. macOS hands the URL to the running app via tauri-plugin-deep-link;
 //!      Windows hands it via tauri-plugin-single-instance argv forwarding
 //!      into the same plugin (see `lib.rs`).
-//!   5. This module emits `auth://deep-link` with the URL to the frontend.
+//!   5. `dispatch_deep_link` routes the URL: anything not in the
+//!      `houston://store/...` namespace is emitted as `auth://deep-link`
+//!      (Store URLs go to `store://deep-link`, handled in
+//!      `app/src/lib/store-deep-link.ts`).
 //!   6. Frontend calls `supabase.auth.exchangeCodeForSession(code)` for
-//!      PKCE or `setSession({access_token, refresh_token})` for implicit
-//!      — and writes the result directly into the TanStack Query cache so
+//!      PKCE or `setSession({access_token, refresh_token})` for implicit,
+//!      and writes the result directly into the TanStack Query cache so
 //!      the auth gate flips without relying on supabase's listener.
 
 use tauri::{AppHandle, Emitter};
@@ -238,12 +241,35 @@ pub async fn auth_remove_item(key: String) -> Result<(), String> {
     storage::remove(&key)
 }
 
-/// Forward a deep-link URL to the frontend. Called by the tauri-plugin-deep-link
-/// handler installed in `lib.rs`. The frontend extracts the `code` (PKCE) or
-/// `access_token` + `refresh_token` (implicit) and installs the session.
-pub fn emit_deep_link(handle: &AppHandle, url: &str) {
-    if let Err(e) = handle.emit("auth://deep-link", url) {
-        tracing::error!("[auth] failed to emit deep-link event: {e}");
+/// Forward a deep-link URL to the frontend, routing it to the right
+/// namespace based on the URL host. Called by the tauri-plugin-deep-link
+/// handler installed in `lib.rs`.
+///
+/// Routing:
+/// - `houston://store/...` → `store://deep-link` (handled by
+///   `app/src/lib/store-deep-link.ts`, opens the Store detail dialog
+///   for the requested agent).
+/// - everything else (including `houston://auth-callback?...`) →
+///   `auth://deep-link` (handled by `installDeepLinkListener` in
+///   `app/src/lib/auth.ts`, which extracts the PKCE `code` /
+///   implicit-flow tokens and installs the Supabase session).
+///
+/// The same string URL is forwarded as the event payload — the frontend
+/// parses path / query / fragment.
+pub fn dispatch_deep_link(handle: &AppHandle, raw_url: &str) {
+    let channel = match url::Url::parse(raw_url) {
+        Ok(parsed) if parsed.host_str() == Some("store") => "store://deep-link",
+        Ok(_) => "auth://deep-link",
+        Err(e) => {
+            // Malformed URL — log and still forward to the auth channel,
+            // which is the historical catch-all. The auth listener will
+            // surface its own error toast if the payload is unusable.
+            tracing::warn!("[deep-link] could not parse URL {raw_url:?}: {e}");
+            "auth://deep-link"
+        }
+    };
+    if let Err(e) = handle.emit(channel, raw_url) {
+        tracing::error!("[deep-link] failed to emit {channel} for {raw_url}: {e}");
     }
 }
 

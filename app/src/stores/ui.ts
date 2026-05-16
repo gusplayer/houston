@@ -37,6 +37,12 @@ interface UIState {
    * Set when the user completes M3 Try and clicks "Tutorial complete";
    * cleared when the user dismisses the final tour step. */
   uiTourActive: boolean;
+  /** Agent id requested by a `houston://store/agent/<id>` deep link. When
+   * non-null, the Store page should switch to view-mode "store" and open
+   * the detail dialog for this agent. Cleared by the Store page once it
+   * has handled the request (either by opening the listing or by surfacing
+   * a "not found" fallback). */
+  storeAgentId: string | null;
   setViewMode: (mode: string) => void;
   setAssistantPanelOpen: (open: boolean) => void;
   setActivityPanelId: (id: string | null) => void;
@@ -53,6 +59,7 @@ interface UIState {
   setJobDescriptionTarget: (target: JobDescriptionTarget | null) => void;
   setTutorialActive: (active: boolean) => void;
   setUiTourActive: (active: boolean) => void;
+  setStoreAgentId: (id: string | null) => void;
 }
 
 let toastCounter = 0;
@@ -73,6 +80,7 @@ export const useUIStore = create<UIState>((set) => ({
   jobDescriptionTarget: null,
   tutorialActive: false,
   uiTourActive: false,
+  storeAgentId: null,
 
   setViewMode: (viewMode) => set({ viewMode }),
   setAssistantPanelOpen: (assistantPanelOpen) => set({ assistantPanelOpen }),
@@ -121,4 +129,5 @@ export const useUIStore = create<UIState>((set) => ({
   setJobDescriptionTarget: (jobDescriptionTarget) => set({ jobDescriptionTarget }),
   setTutorialActive: (tutorialActive) => set({ tutorialActive }),
   setUiTourActive: (uiTourActive) => set({ uiTourActive }),
+  setStoreAgentId: (storeAgentId) => set({ storeAgentId }),
 }));
