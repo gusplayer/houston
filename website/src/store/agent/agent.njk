@@ -410,15 +410,18 @@ eleventyComputed:
     {% endif %}
 
     {# ── CTA bottom-right ── #}
+    {# Houston is in closed beta. The houston:// deep link only works if the
+       desktop app is installed, which is not the case for typical web
+       visitors yet, so we point every CTA at the waiting list. Switch back
+       to deep links once general availability ships. #}
     <div class="detail-cta-row">
-      {% if agent.source == "mock" %}
-        <button class="btn-install is-disabled" disabled>Preview, not yet available</button>
-      {% else %}
-        <a class="btn-install" href="houston://store/agent/{{ agent.id }}">
-          Install in Houston
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
-        </a>
-      {% endif %}
+      <a class="btn-install"
+         href="https://forms.gle/ac24qrKSufYvfudt8"
+         target="_blank"
+         rel="noopener noreferrer">
+        Join the waiting list
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+      </a>
     </div>
   </div>
 </div>

@@ -750,7 +750,7 @@ permalink: /store/index.html
     <div class="grid" id="store-grid">
       {% for agent in storeCatalog %}
         <a class="agent-card store-card"
-           href="agent/{{ agent.id }}/"
+           href="/store/agent/{{ agent.id }}/"
            data-source="{{ agent.source }}"
            data-pricing="{{ agent.pricing.kind }}"
            data-category="{{ agent.category }}"
