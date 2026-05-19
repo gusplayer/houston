@@ -6,7 +6,7 @@
   },
   "notInstalled": {
     "title": "Conecta tus apps",
-    "body": "Houston usa un proveedor de integraciones para que tu agente pueda usar Gmail, Slack, Google Drive y más de 100 servicios por ti. El proveedor por defecto es Composio. Se instala una sola vez y pesa unos 80 MB.",
+    "body": "Squad usa un proveedor de integraciones para que tu agente pueda usar Gmail, Slack, Google Drive y más de 100 servicios por ti. El proveedor por defecto es Composio. Se instala una sola vez y pesa unos 80 MB.",
     "install": "Instalar proveedor",
     "installing": "Instalando…"
   },

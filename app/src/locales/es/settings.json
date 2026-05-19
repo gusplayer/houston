@@ -19,7 +19,7 @@
   },
   "provider": {
     "title": "Proveedor de IA",
-    "description": "Houston usa <emph>tu propia</emph> suscripción. Nunca vemos tus credenciales."
+    "description": "Squad usa <emph>tu propia</emph> suscripción. Nunca vemos tus credenciales."
   },
   "usage": {
     "title": "Uso",
@@ -33,18 +33,18 @@
     },
     "ownProvider": {
       "title": "Usando {{provider}}",
-      "body": "Estas usando tu propia suscripcion. Houston no rastrea el uso de proveedores externos."
+      "body": "Estas usando tu propia suscripcion. Squad no rastrea el uso de proveedores externos."
     }
   },
   "connectPhone": {
     "title": "Conectar celular",
-    "description": "Escanea este código para manejar Houston desde tu iPhone. El mismo código sigue funcionando mientras este Mac esté encendido y Houston esté abierto.",
+    "description": "Escanea este código para manejar Squad desde tu iPhone. El mismo código sigue funcionando mientras este Mac esté encendido y Squad esté abierto.",
     "loading": "Preparando la conexión con tu celular…",
     "connectingStatus": "Conectando con el servicio del celular. Suele tomar unos segundos.",
-    "keepMacAwake": "Mantén este Mac despierto mientras usas Houston en tu celular.",
-    "alwaysOnHint": "Para acceso 24/7, <emph>Always On</emph> ejecuta Houston en nuestros servidores.",
+    "keepMacAwake": "Mantén este Mac despierto mientras usas Squad en tu celular.",
+    "alwaysOnHint": "Para acceso 24/7, <emph>Always On</emph> ejecuta Squad en nuestros servidores.",
     "errors": {
-      "noInternet": "Houston necesita conexión a internet la primera vez que lo abres. Conéctate y reabre Houston para habilitar el emparejamiento del celular.",
+      "noInternet": "Squad necesita conexión a internet la primera vez que lo abres. Conéctate y reabre Squad para habilitar el emparejamiento del celular.",
       "generic": "No se pudo generar un código de emparejamiento. Inténtalo de nuevo."
     },
     "reset": {

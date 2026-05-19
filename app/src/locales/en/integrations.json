@@ -6,7 +6,7 @@
   },
   "notInstalled": {
     "title": "Connect your apps",
-    "body": "Houston uses an integrations provider to let your agent use Gmail, Slack, Google Drive, and 100+ other services on your behalf. The default provider is Composio. One-time install, about 80 MB.",
+    "body": "Squad uses an integrations provider to let your agent use Gmail, Slack, Google Drive, and 100+ other services on your behalf. The default provider is Composio. One-time install, about 80 MB.",
     "install": "Install provider",
     "installing": "Installing…"
   },

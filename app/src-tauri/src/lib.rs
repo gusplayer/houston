@@ -66,7 +66,7 @@ impl SupervisorCallbacks for TauriSupervisorCallbacks {
 pub fn run() {
     // Initialize logging before anything else. `squad_dir()` flips to
     // `~/.dev-squad/` in debug builds so `pnpm tauri dev` stays isolated
-    // from an installed release of Houston.
+    // from an installed release of Squad.
     let squad = squad_tauri::squad_db::db::squad_dir();
     logging::init(&squad);
 
@@ -93,9 +93,9 @@ pub fn run() {
     // is the one the deep-link plugin attaches to. Without this, every
     // `squad://auth-callback?...` from the Google OAuth flow launches
     // a fresh squad-app.exe (the OS protocol handler does this by
-    // design — Start-menu launches resolve to `C:\Program Files\Houston\…`
+    // design — Start-menu launches resolve to `C:\Program Files\Squad\…`
     // and protocol-handler launches resolve to the 8.3 short form
-    // `C:\PROGRA~1\Houston\…`, both visible as separate engine spawns
+    // `C:\PROGRA~1\Squad\…`, both visible as separate engine spawns
     // in `backend.log` on the bad path) while the primary instance
     // sits on the login screen waiting for an event that never arrives.
     //
@@ -162,7 +162,7 @@ pub fn run() {
 
             // One-time migration: earlier versions stored workspaces under
             // `~/Documents/Houston/`. New default is `$SQUAD_HOME/workspaces/`
-            // so everything Houston owns is under a single discoverable root.
+            // so everything Squad owns is under a single discoverable root.
             // Move the legacy directory if it exists and the new location is
             // empty. Idempotent on subsequent launches.
             migrate_legacy_docs_dir(&squad);
@@ -200,12 +200,12 @@ pub fn run() {
             });
             // Product-layer prompts live in the `squad_prompt` module and are
             // exported to the engine via env vars. The engine treats these
-            // as opaque strings — it has no hardcoded Houston copy.
+            // as opaque strings — it has no hardcoded Squad copy.
             //
             // Also pin SQUAD_HOME + SQUAD_DOCS so the engine uses the
             // same data roots as the app. Workspaces live under
             // `$SQUAD_HOME/workspaces/` in both debug (`~/.dev-squad/`)
-            // and release (`~/.squad/`) — everything Houston writes is
+            // and release (`~/.squad/`) — everything Squad writes is
             // rooted at a single discoverable location.
             let docs_dir = squad.join("workspaces");
             let mut engine_env: Vec<(String, String)> = vec![
@@ -244,12 +244,12 @@ pub fn run() {
                     engine_env.push(("SQUAD_TUNNEL_URL".into(), v));
                 }
             }
-            // Houston Credits trial key. Baked in at compile time via
+            // Squad Credits trial key. Baked in at compile time via
             // option_env! (release builds) or read at runtime (dev), and
             // forwarded to the engine so claude-code sessions with the
             // virtual `squad-credits` provider use it as ANTHROPIC_API_KEY.
             // When unset (e.g. dev checkouts without the secret), the
-            // Houston Credits card stays hidden in the UI.
+            // Squad Credits card stays hidden in the UI.
             let squad_credits_key = option_env!("SQUAD_CREDITS_KEY")
                 .map(str::to_string)
                 .or_else(|| std::env::var("SQUAD_CREDITS_KEY").ok())

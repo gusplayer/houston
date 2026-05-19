@@ -48,7 +48,7 @@
   },
   "trust": {
     "title": "Instalar {{name}}?",
-    "body": "Este agente foi publicado por {{publisher}}. A Houston não revisou seu código. Ele solicitará acesso às integrações listadas abaixo.",
+    "body": "Este agente foi publicado por {{publisher}}. A Squad não revisou seu código. Ele solicitará acesso às integrações listadas abaixo.",
     "viewSource": "Ver código no GitHub",
     "integrationsNeeded": "Integrações que este agente usará",
     "confirm": "Instalar",
@@ -57,7 +57,7 @@
   "import": {
     "trigger": "Importar Agente",
     "title": "Importar um agente do GitHub",
-    "body": "Aponte o Houston para qualquer repositório público do GitHub com um agente. Ele vai baixar a configuração e as habilidades automaticamente, sem configuração adicional.",
+    "body": "Aponte o Squad para qualquer repositório público do GitHub com um agente. Ele vai baixar a configuração e as habilidades automaticamente, sem configuração adicional.",
     "placeholder": "owner/repo ou https://github.com/owner/repo",
     "submit": "Importar",
     "cancel": "Cancelar",

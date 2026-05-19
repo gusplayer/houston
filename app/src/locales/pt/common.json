@@ -32,7 +32,7 @@
   },
   "language": {
     "title": "Idioma",
-    "description": "Escolha o idioma que o Houston usa na interface.",
+    "description": "Escolha o idioma que o Squad usa na interface.",
     "label": "Idioma da interface",
     "toastChanged": "Idioma alterado"
   }

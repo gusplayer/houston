@@ -7,9 +7,9 @@ pub(super) fn format_issue_title(payload: &BugReportPayload) -> String {
     let command = collapse_whitespace(&payload.command);
     let summary = collapse_whitespace(payload.error.lines().next().unwrap_or(""));
     if summary.is_empty() {
-        truncate_chars(&format!("Houston bug: {command}"), 140)
+        truncate_chars(&format!("Squad bug: {command}"), 140)
     } else {
-        truncate_chars(&format!("Houston bug: {command} - {summary}"), 140)
+        truncate_chars(&format!("Squad bug: {command} - {summary}"), 140)
     }
 }
 
@@ -119,7 +119,7 @@ mod tests {
         let payload = sample_payload();
         assert_eq!(
             format_issue_title(&payload),
-            "Houston bug: list_workspaces - Error: no workspace found"
+            "Squad bug: list_workspaces - Error: no workspace found"
         );
     }
 

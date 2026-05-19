@@ -7,7 +7,7 @@
     "signOutTitle": "Sair de {{name}}"
   },
   "setup": {
-    "installHint": "Instale a CLI {{cli}} no seu computador. Houston detecta sozinho.",
+    "installHint": "Instale a CLI {{cli}} no seu computador. Squad detecta sozinho.",
     "installGuide": "Guia de instalação",
     "signInWith": "Entrar com {{provider}}",
     "waiting": "Esperando você terminar o login no navegador...",
@@ -16,7 +16,7 @@
   },
   "signOutConfirm": {
     "title": "Sair de {{provider}}?",
-    "description": "Houston vai parar de usar {{provider}} até você entrar de novo. As missões em andamento podem terminar o turno atual.",
+    "description": "Squad vai parar de usar {{provider}} até você entrar de novo. As missões em andamento podem terminar o turno atual.",
     "confirm": "Sair",
     "cancel": "Cancelar"
   },
@@ -25,7 +25,7 @@
     "signOutFailed": "Não foi possível sair de {{provider}}"
   },
   "credits": {
-    "name": "Houston Credits",
+    "name": "Squad Credits",
     "subtitle": "Teste gratuito",
     "badge": "Gratis",
     "connected": "Ativo",

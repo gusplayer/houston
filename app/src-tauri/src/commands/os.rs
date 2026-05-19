@@ -1,7 +1,7 @@
 //! OS-native commands — kept in the Tauri adapter because they only make
 //! sense on the user's local machine.
 //!
-//! The engine may run on a remote VPS for Houston Always On / Teams /
+//! The engine may run on a remote VPS for Squad Always On / Teams /
 //! Cloud; these commands (folder picker, Finder reveal, URL open, terminal
 //! launch, local CLI probes) would be meaningless there and stay
 //! desktop-only.
@@ -24,9 +24,9 @@ pub fn check_claude_cli() -> bool {
     shell_command_exists("claude")
 }
 
-/// True when the Houston Credits trial key is bundled (release builds with
+/// True when the Squad Credits trial key is bundled (release builds with
 /// the secret) or present in the environment (dev). The brain-step provider
-/// picker hides the Houston Credits card when this returns false.
+/// picker hides the Squad Credits card when this returns false.
 #[tauri::command]
 pub fn squad_credits_available() -> bool {
     option_env!("SQUAD_CREDITS_KEY")

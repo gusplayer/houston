@@ -6,7 +6,7 @@
   },
   "notInstalled": {
     "title": "Conecte seus apps",
-    "body": "O Houston usa um provedor de integrações para deixar seu agente usar Gmail, Slack, Google Drive e mais de 100 serviços por você. O provedor padrão é o Composio. Instalação única, cerca de 80 MB.",
+    "body": "O Squad usa um provedor de integrações para deixar seu agente usar Gmail, Slack, Google Drive e mais de 100 serviços por você. O provedor padrão é o Composio. Instalação única, cerca de 80 MB.",
     "install": "Instalar provedor",
     "installing": "Instalando…"
   },

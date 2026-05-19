@@ -111,7 +111,7 @@
     "reloadNow": "Recargar ahora"
   },
   "authReconnect": {
-    "heading": "Houston, tenemos un problema",
+    "heading": "Squad, tenemos un problema",
     "body": "Tu sesión de {{provider}} expiró. Inicia sesión de nuevo para mantener tus agentes funcionando.",
     "waiting": "Esperando el inicio de sesión en el navegador...",
     "signInWith": "Iniciar sesión con {{provider}}"
@@ -130,7 +130,7 @@
     "report": "Reportar error",
     "reporting": "Enviando reporte...",
     "reportSuccessTitle": "Reporte enviado",
-    "reportSuccessDescription": "Houston recibió los registros.",
+    "reportSuccessDescription": "Squad recibió los registros.",
     "reportErrorTitle": "No se pudo enviar el reporte",
     "reportErrorDescription": "Intenta otra vez en un momento.",
     "retryErrorTitle": "No se pudo intentar de nuevo",
@@ -140,19 +140,19 @@
     "copyDetailsSuccess": "Copiado"
   },
   "updateChecker": {
-    "cardLabel": "Actualización de Houston disponible",
-    "title": "¡Houston, tenemos una actualización!",
+    "cardLabel": "Actualización de Squad disponible",
+    "title": "¡Squad, tenemos una actualización!",
     "availableDescription": "La versión {{version}} está lista. Estás en v{{currentVersion}}.",
     "downloading": "Descargando e instalando la actualización...",
     "downloadingProgress": "Descargando e instalando... {{progress}}%",
-    "ready": "Actualización instalada. Reinicia Houston para terminar.",
-    "errorInstall": "Houston no pudo instalar la actualización. Intenta otra vez en un momento.",
-    "errorRelaunch": "La actualización se instaló, pero Houston no pudo reiniciarse solo. Reinícialo manualmente o intenta otra vez.",
+    "ready": "Actualización instalada. Reinicia Squad para terminar.",
+    "errorInstall": "Squad no pudo instalar la actualización. Intenta otra vez en un momento.",
+    "errorRelaunch": "La actualización se instaló, pero Squad no pudo reiniciarse solo. Reinícialo manualmente o intenta otra vez.",
     "detailsHeading": "Novedades",
     "noDetails": "Esta actualización incluye las últimas correcciones y mejoras.",
     "primaryAction": "Actualizar y reiniciar",
     "installingAction": "Instalando actualización...",
-    "relaunchAction": "Reiniciar Houston",
+    "relaunchAction": "Reiniciar Squad",
     "retryAction": "Intentar otra vez"
   },
   "store": {
@@ -171,6 +171,6 @@
     "dialogTitle": "Nuevo agente"
   },
   "engineGate": {
-    "starting": "Iniciando el motor de Houston…"
+    "starting": "Iniciando el motor de Squad…"
   }
 }

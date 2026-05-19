@@ -7,7 +7,7 @@
     "signOutTitle": "Cerrar sesión de {{name}}"
   },
   "setup": {
-    "installHint": "Instala la CLI de {{cli}} en tu computador. Houston la detecta sola.",
+    "installHint": "Instala la CLI de {{cli}} en tu computador. Squad la detecta sola.",
     "installGuide": "Guía de instalación",
     "signInWith": "Iniciar sesión con {{provider}}",
     "waiting": "Esperando a que termines de iniciar sesión en tu navegador...",
@@ -16,7 +16,7 @@
   },
   "signOutConfirm": {
     "title": "¿Cerrar sesión de {{provider}}?",
-    "description": "Houston dejará de usar {{provider}} hasta que vuelvas a iniciar sesión. Las misiones existentes pueden terminar su turno actual.",
+    "description": "Squad dejará de usar {{provider}} hasta que vuelvas a iniciar sesión. Las misiones existentes pueden terminar su turno actual.",
     "confirm": "Cerrar sesión",
     "cancel": "Cancelar"
   },
@@ -25,7 +25,7 @@
     "signOutFailed": "No se pudo cerrar sesión de {{provider}}"
   },
   "credits": {
-    "name": "Houston Credits",
+    "name": "Squad Credits",
     "subtitle": "Prueba gratuita",
     "badge": "Gratis",
     "connected": "Activo",

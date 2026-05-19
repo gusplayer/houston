@@ -111,7 +111,7 @@
     "reloadNow": "Reload now"
   },
   "authReconnect": {
-    "heading": "Houston, we have a problem",
+    "heading": "Squad, we have a problem",
     "body": "Your {{provider}} session expired. Sign in again to keep your agents running.",
     "waiting": "Waiting for browser sign-in...",
     "signInWith": "Sign in with {{provider}}"
@@ -130,7 +130,7 @@
     "report": "Report bug",
     "reporting": "Sending report...",
     "reportSuccessTitle": "Report sent",
-    "reportSuccessDescription": "Houston received the logs.",
+    "reportSuccessDescription": "Squad received the logs.",
     "reportErrorTitle": "Could not send report",
     "reportErrorDescription": "Try again in a moment.",
     "retryErrorTitle": "Could not try again",
@@ -140,19 +140,19 @@
     "copyDetailsSuccess": "Copied"
   },
   "updateChecker": {
-    "cardLabel": "Houston update available",
-    "title": "Houston, we have an update!",
+    "cardLabel": "Squad update available",
+    "title": "Squad, we have an update!",
     "availableDescription": "Version {{version}} is ready. You're on v{{currentVersion}}.",
     "downloading": "Downloading and installing update...",
     "downloadingProgress": "Downloading and installing... {{progress}}%",
-    "ready": "Update installed. Relaunch Houston to finish.",
-    "errorInstall": "Houston couldn't install the update. Try again in a moment.",
-    "errorRelaunch": "Update installed, but Houston couldn't relaunch itself. Relaunch manually or try again.",
+    "ready": "Update installed. Relaunch Squad to finish.",
+    "errorInstall": "Squad couldn't install the update. Try again in a moment.",
+    "errorRelaunch": "Update installed, but Squad couldn't relaunch itself. Relaunch manually or try again.",
     "detailsHeading": "What's new",
     "noDetails": "This update includes the latest fixes and improvements.",
     "primaryAction": "Update and relaunch",
     "installingAction": "Installing update...",
-    "relaunchAction": "Relaunch Houston",
+    "relaunchAction": "Relaunch Squad",
     "retryAction": "Try again"
   },
   "store": {
@@ -171,6 +171,6 @@
     "dialogTitle": "New agent"
   },
   "engineGate": {
-    "starting": "Starting Houston engine…"
+    "starting": "Starting Squad engine…"
   }
 }

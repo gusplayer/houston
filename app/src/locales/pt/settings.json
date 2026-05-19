@@ -19,7 +19,7 @@
   },
   "provider": {
     "title": "Provedor de IA",
-    "description": "O Houston usa <emph>sua própria</emph> assinatura. Nunca vemos suas credenciais."
+    "description": "O Squad usa <emph>sua própria</emph> assinatura. Nunca vemos suas credenciais."
   },
   "usage": {
     "title": "Uso",
@@ -33,18 +33,18 @@
     },
     "ownProvider": {
       "title": "Usando {{provider}}",
-      "body": "Voce esta usando sua propria assinatura. O Houston nao rastreia o uso de provedores externos."
+      "body": "Voce esta usando sua propria assinatura. O Squad nao rastreia o uso de provedores externos."
     }
   },
   "connectPhone": {
     "title": "Conectar celular",
-    "description": "Escaneie este código para usar o Houston no seu iPhone. O mesmo código continua funcionando enquanto este Mac estiver ligado e o Houston estiver aberto.",
+    "description": "Escaneie este código para usar o Squad no seu iPhone. O mesmo código continua funcionando enquanto este Mac estiver ligado e o Squad estiver aberto.",
     "loading": "Preparando a conexão com seu celular…",
     "connectingStatus": "Conectando ao serviço do celular. Costuma levar alguns segundos.",
-    "keepMacAwake": "Mantenha este Mac aberto enquanto você usa o Houston no celular.",
-    "alwaysOnHint": "Para acesso 24/7, <emph>Always On</emph> roda o Houston nos nossos servidores.",
+    "keepMacAwake": "Mantenha este Mac aberto enquanto você usa o Squad no celular.",
+    "alwaysOnHint": "Para acesso 24/7, <emph>Always On</emph> roda o Squad nos nossos servidores.",
     "errors": {
-      "noInternet": "O Houston precisa de internet na primeira vez que você abre o app. Conecte-se e reabra o Houston para habilitar o pareamento do celular.",
+      "noInternet": "O Squad precisa de internet na primeira vez que você abre o app. Conecte-se e reabra o Squad para habilitar o pareamento do celular.",
       "generic": "Não foi possível gerar um código de pareamento. Tente novamente."
     },
     "reset": {
