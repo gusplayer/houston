@@ -14,7 +14,7 @@ pub const PROTOCOL_VERSION: u8 = 1;
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Header name for engine version on every response.
-pub const HEADER_ENGINE_VERSION: &str = "X-Houston-Engine-Version";
+pub const HEADER_ENGINE_VERSION: &str = "X-Squad-Engine-Version";
 
 /// Envelope for every WebSocket frame.
 #[derive(Debug, Clone, Serialize, Deserialize)]
