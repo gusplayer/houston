@@ -88,6 +88,11 @@ pub fn spawn_and_monitor(
     let provider_kind = provider;
     let provider_str = provider.to_string();
 
+    let mcp_config_path = {
+        let candidate = working_dir.join(".squad/mcps/mcps.json");
+        if candidate.is_file() { Some(candidate) } else { None }
+    };
+
     let (mut rx, _handle) = SessionManager::spawn_session(
         provider,
         prompt,
@@ -96,7 +101,7 @@ pub fn spawn_and_monitor(
         model,
         effort,
         system_prompt,
-        None,  // mcp_config
+        mcp_config_path,
         false, // disable_builtin_tools
         false, // disable_all_tools
         anthropic_api_key_override,

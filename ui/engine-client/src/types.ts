@@ -617,6 +617,19 @@ export interface Branch {
   isRemote: boolean;
 }
 
+// ---------- MCP ----------
+
+export interface McpServerConfig {
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+}
+
+export interface McpConfig {
+  mcpServers: Record<string, McpServerConfig>;
+}
+
 // ---------- Composio ----------
 
 export type ComposioStatus =

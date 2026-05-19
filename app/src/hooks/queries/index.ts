@@ -27,6 +27,7 @@ export {
   useRemoveLearning,
   useUpdateLearning,
 } from "./use-learnings";
+export { useMcpConfig, useSaveMcpConfig } from "./use-mcps";
 export {
   useProjects,
   useCreateProject,

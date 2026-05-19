@@ -9,6 +9,7 @@ pub mod composio;
 pub mod conversations;
 pub mod error;
 pub mod git;
+pub mod mcps;
 pub mod health;
 pub mod preferences;
 pub mod projects;

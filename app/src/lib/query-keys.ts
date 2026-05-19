@@ -33,6 +33,9 @@ export const queryKeys = {
   composioApps: () => ["composio-apps"] as const,
   connectedToolkits: () => ["connected-toolkits"] as const,
 
+  // Agent-scoped MCP config
+  mcpConfig: (agentPath: string) => ["mcp-config", agentPath] as const,
+
   // Workspace-scoped projects
   projects: (workspaceId: string) => ["projects", workspaceId] as const,
   // Project-scoped git queries

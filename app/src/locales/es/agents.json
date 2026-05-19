@@ -51,7 +51,8 @@
     "learnings": "Aprendizajes",
     "configure": "Configurar",
     "settings": "Configuración",
-    "repo": "Repositorio"
+    "repo": "Repositorio",
+    "mcp": "MCP"
   },
   "configure": {
     "projectContext": {
@@ -124,5 +125,19 @@
     "clean": "Limpio",
     "branches": "Ramas",
     "commits": "Commits"
+  },
+  "mcp": {
+    "title": "Servidores MCP",
+    "description": "Servidores Model Context Protocol disponibles en cada sesión para este agente.",
+    "addServer": "Agregar servidor",
+    "newServer": "Nuevo servidor MCP",
+    "serverName": "Nombre",
+    "command": "Comando",
+    "args": "Args",
+    "url": "URL",
+    "add": "Agregar",
+    "cancel": "Cancelar",
+    "empty": "No hay servidores MCP configurados",
+    "emptyHint": "Agrega servidores para darle a este agente acceso a Playwright, bases de datos, APIs y más via MCP."
   }
 }

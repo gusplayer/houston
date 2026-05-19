@@ -33,7 +33,7 @@ const baseArgs = {
   pricing: "all" as const,
   category: "all" as const,
   sort: "trending" as const,
-  houstonIds: new Set<string>(),
+  squadIds: new Set<string>(),
 };
 
 describe("filterAndSortListings", () => {
@@ -92,32 +92,32 @@ describe("filterAndSortListings", () => {
     strictEqual(result[0].id, "popular");
   });
 
-  it("source filter 'official' keeps only IDs in houstonIds (or source 'houston')", () => {
+  it("source filter 'official' keeps only IDs in squadIds (or source 'squad')", () => {
     const items = [
       listing({ id: "bookkeeping" }),
       listing({ id: "community-a", source: "community" }),
-      listing({ id: "tagged-houston", source: "houston" }),
+      listing({ id: "tagged-houston", source: "squad" }),
     ];
     const result = filterAndSortListings(items, {
       ...baseArgs,
       source: "official",
-      houstonIds: new Set(["bookkeeping"]),
+      squadIds: new Set(["bookkeeping"]),
     });
     const ids = result.map((l) => l.id).sort();
     deepStrictEqual(ids, ["bookkeeping", "tagged-houston"]);
   });
 
-  it("source filter 'community' excludes houstonIds and items tagged 'houston'", () => {
+  it("source filter 'community' excludes squadIds and items tagged 'squad'", () => {
     const items = [
       listing({ id: "bookkeeping" }),
       listing({ id: "mock-a", source: "mock" }),
       listing({ id: "comm-b", source: "community" }),
-      listing({ id: "tagged-houston", source: "houston" }),
+      listing({ id: "tagged-houston", source: "squad" }),
     ];
     const result = filterAndSortListings(items, {
       ...baseArgs,
       source: "community",
-      houstonIds: new Set(["bookkeeping"]),
+      squadIds: new Set(["bookkeeping"]),
     });
     const ids = result.map((l) => l.id).sort();
     deepStrictEqual(ids, ["comm-b", "mock-a"]);
@@ -214,7 +214,7 @@ describe("filterAndSortListings", () => {
       source: "community",
       pricing: "paid",
       query: "analytics",
-      houstonIds: new Set(["bookkeeping"]),
+      squadIds: new Set(["bookkeeping"]),
     });
     deepStrictEqual(result.map((l) => l.id), ["mock-paid-analytics"]);
   });

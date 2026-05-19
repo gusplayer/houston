@@ -698,6 +698,7 @@ import type {
   GitStatus,
   Commit,
   Branch,
+  McpConfig,
 } from "@squad/engine-client";
 
 export const tauriProjects = {
@@ -709,6 +710,13 @@ export const tauriProjects = {
     call<Project>("update_project", () => getEngine().updateProject(workspaceId, projectId, req)),
   delete: (workspaceId: string, projectId: string) =>
     call<void>("delete_project", () => getEngine().deleteProject(workspaceId, projectId)),
+};
+
+export const tauriMcps = {
+  read: (agentPath: string) =>
+    call<McpConfig>("read_mcps", () => getEngine().readMcpConfig(agentPath)),
+  write: (agentPath: string, config: McpConfig) =>
+    call<void>("write_mcps", () => getEngine().writeMcpConfig(agentPath, config)),
 };
 
 export const tauriGit = {

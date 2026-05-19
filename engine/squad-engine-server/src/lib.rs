@@ -27,6 +27,7 @@ pub fn build_router(state: Arc<ServerState>) -> Router {
         .merge(routes::workspaces::router())
         .merge(routes::projects::router())
         .merge(routes::git::router())
+        .merge(routes::mcps::router())
         .merge(routes::preferences::router())
         .merge(routes::conversations::router())
         .merge(routes::providers::router())

@@ -75,6 +75,7 @@ import type {
   GitStatus,
   Commit,
   Branch,
+  McpConfig,
 } from "./types";
 import { planAttachmentUploadBatches } from "./attachments";
 
@@ -666,6 +667,15 @@ export class SquadClient {
     if (to) params.set("to", to);
     const qs = params.toString();
     return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/diff${qs ? `?${qs}` : ""}`);
+  }
+
+  // ---------- mcp ----------
+
+  readMcpConfig(agentPath: string): Promise<McpConfig> {
+    return this.request("GET", `/agents/mcps?agentPath=${encodeURIComponent(agentPath)}`);
+  }
+  writeMcpConfig(agentPath: string, config: McpConfig): Promise<void> {
+    return this.request("PUT", `/agents/mcps?agentPath=${encodeURIComponent(agentPath)}`, config);
   }
 
   // ---------- composio ----------
