@@ -50,7 +50,8 @@
     "events": "Eventos",
     "learnings": "Aprendizajes",
     "configure": "Configurar",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "repo": "Repositorio"
   },
   "configure": {
     "projectContext": {
@@ -106,5 +107,22 @@
       "reveal": "Mostrar en Finder",
       "delete": "Mover a la Papelera"
     }
+  },
+  "repo": {
+    "selectProject": "Seleccionar proyecto",
+    "noProjects": "Sin proyectos",
+    "addProject": "Agregar proyecto",
+    "newProject": "Nuevo proyecto",
+    "projectName": "Nombre",
+    "repoPath": "Ruta del repositorio",
+    "stack": "Stack (opcional)",
+    "create": "Crear",
+    "cancel": "Cancelar",
+    "emptyState": "Vincula un repositorio para ver el estado de git",
+    "selectCommit": "Selecciona un commit para ver el diff",
+    "emptyDiff": "Diff vacío",
+    "clean": "Limpio",
+    "branches": "Ramas",
+    "commits": "Commits"
   }
 }

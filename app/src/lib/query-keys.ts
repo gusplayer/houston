@@ -32,4 +32,13 @@ export const queryKeys = {
   connections: () => ["connections"] as const,
   composioApps: () => ["composio-apps"] as const,
   connectedToolkits: () => ["connected-toolkits"] as const,
+
+  // Workspace-scoped projects
+  projects: (workspaceId: string) => ["projects", workspaceId] as const,
+  // Project-scoped git queries
+  gitStatus: (workspaceId: string, projectId: string) => ["git-status", workspaceId, projectId] as const,
+  gitLog: (workspaceId: string, projectId: string) => ["git-log", workspaceId, projectId] as const,
+  gitBranches: (workspaceId: string, projectId: string) => ["git-branches", workspaceId, projectId] as const,
+  gitDiff: (workspaceId: string, projectId: string, from?: string, to?: string) =>
+    ["git-diff", workspaceId, projectId, from ?? "", to ?? ""] as const,
 };

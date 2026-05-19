@@ -555,6 +555,68 @@ export interface AttachmentManifest extends AttachmentUploadResult {
   createdAt: string;
 }
 
+// ---------- Projects ----------
+
+export interface Project {
+  id: string;
+  name: string;
+  repoPath: string;
+  repoRemote?: string | null;
+  stack?: string | null;
+  defaultBranch?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProject {
+  name: string;
+  repoPath: string;
+  repoRemote?: string;
+  stack?: string;
+  defaultBranch?: string;
+}
+
+export interface UpdateProject {
+  name?: string;
+  repoPath?: string;
+  repoRemote?: string | null;
+  stack?: string | null;
+  defaultBranch?: string | null;
+}
+
+// ---------- Git ----------
+
+export interface FileChange {
+  path: string;
+  status: string;
+  oldPath?: string | null;
+}
+
+export interface GitStatus {
+  branch: string;
+  ahead: number;
+  behind: number;
+  staged: FileChange[];
+  unstaged: FileChange[];
+  untracked: string[];
+  clean: boolean;
+}
+
+export interface Commit {
+  sha: string;
+  shortSha: string;
+  authorName: string;
+  authorEmail: string;
+  date: string;
+  subject: string;
+}
+
+export interface Branch {
+  name: string;
+  isCurrent: boolean;
+  isRemote: boolean;
+}
+
 // ---------- Composio ----------
 
 export type ComposioStatus =

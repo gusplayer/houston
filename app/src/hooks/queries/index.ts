@@ -27,3 +27,13 @@ export {
   useRemoveLearning,
   useUpdateLearning,
 } from "./use-learnings";
+export {
+  useProjects,
+  useCreateProject,
+  useUpdateProject,
+  useDeleteProject,
+  useGitStatus,
+  useGitLog,
+  useGitBranches,
+  useGitDiff,
+} from "./use-projects";

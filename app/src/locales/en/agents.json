@@ -50,7 +50,8 @@
     "events": "Events",
     "learnings": "Learnings",
     "configure": "Configure",
-    "settings": "Settings"
+    "settings": "Settings",
+    "repo": "Repo"
   },
   "configure": {
     "projectContext": {
@@ -106,5 +107,22 @@
       "reveal": "Show in Finder",
       "delete": "Move to Trash"
     }
+  },
+  "repo": {
+    "selectProject": "Select project",
+    "noProjects": "No projects",
+    "addProject": "Add project",
+    "newProject": "New project",
+    "projectName": "Name",
+    "repoPath": "Repository path",
+    "stack": "Stack (optional)",
+    "create": "Create",
+    "cancel": "Cancel",
+    "emptyState": "Bind a repository to view git status",
+    "selectCommit": "Select a commit to view diff",
+    "emptyDiff": "Empty diff",
+    "clean": "Clean",
+    "branches": "Branches",
+    "commits": "Commits"
   }
 }

@@ -688,3 +688,38 @@ export const tauriTunnel = {
   resetAccess: () =>
     call<EnginePairingCode>("tunnel_reset_access", () => getEngine().resetPhoneAccess()),
 };
+
+// ─── Projects + Git ───────────────────────────────────────────────────
+
+import type {
+  Project,
+  CreateProject,
+  UpdateProject,
+  GitStatus,
+  Commit,
+  Branch,
+} from "@squad/engine-client";
+
+export const tauriProjects = {
+  list: (workspaceId: string) =>
+    call<Project[]>("list_projects", () => getEngine().listProjects(workspaceId)),
+  create: (workspaceId: string, req: CreateProject) =>
+    call<Project>("create_project", () => getEngine().createProject(workspaceId, req)),
+  update: (workspaceId: string, projectId: string, req: UpdateProject) =>
+    call<Project>("update_project", () => getEngine().updateProject(workspaceId, projectId, req)),
+  delete: (workspaceId: string, projectId: string) =>
+    call<void>("delete_project", () => getEngine().deleteProject(workspaceId, projectId)),
+};
+
+export const tauriGit = {
+  status: (workspaceId: string, projectId: string) =>
+    call<GitStatus>("git_status", () => getEngine().gitStatus(workspaceId, projectId)),
+  currentBranch: (workspaceId: string, projectId: string) =>
+    call<string>("git_current_branch", () => getEngine().gitCurrentBranch(workspaceId, projectId)),
+  log: (workspaceId: string, projectId: string, limit?: number) =>
+    call<Commit[]>("git_log", () => getEngine().gitLog(workspaceId, projectId, limit)),
+  branches: (workspaceId: string, projectId: string) =>
+    call<Branch[]>("git_branches", () => getEngine().gitBranches(workspaceId, projectId)),
+  diff: (workspaceId: string, projectId: string, from?: string, to?: string) =>
+    call<string>("git_diff", () => getEngine().gitDiff(workspaceId, projectId, from, to)),
+};

@@ -69,6 +69,12 @@ import type {
   VersionResponse,
   Workspace,
   WorktreeInfo,
+  Project,
+  CreateProject,
+  UpdateProject,
+  GitStatus,
+  Commit,
+  Branch,
 } from "./types";
 import { planAttachmentUploadBatches } from "./attachments";
 
@@ -620,6 +626,46 @@ export class SquadClient {
   }
   stopAgentWatcher(): Promise<void> {
     return this.request("POST", "/watcher/stop");
+  }
+
+  // ---------- projects ----------
+
+  listProjects(workspaceId: string): Promise<Project[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects`);
+  }
+  createProject(workspaceId: string, req: CreateProject): Promise<Project> {
+    return this.request("POST", `/workspaces/${workspaceId}/projects`, req);
+  }
+  getProject(workspaceId: string, projectId: string): Promise<Project> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}`);
+  }
+  updateProject(workspaceId: string, projectId: string, req: UpdateProject): Promise<Project> {
+    return this.request("PATCH", `/workspaces/${workspaceId}/projects/${projectId}`, req);
+  }
+  deleteProject(workspaceId: string, projectId: string): Promise<void> {
+    return this.request("DELETE", `/workspaces/${workspaceId}/projects/${projectId}`);
+  }
+
+  // ---------- git ----------
+
+  gitStatus(workspaceId: string, projectId: string): Promise<GitStatus> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/status`);
+  }
+  gitCurrentBranch(workspaceId: string, projectId: string): Promise<string> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/current-branch`);
+  }
+  gitLog(workspaceId: string, projectId: string, limit = 20): Promise<Commit[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/log?limit=${limit}`);
+  }
+  gitBranches(workspaceId: string, projectId: string): Promise<Branch[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/branches`);
+  }
+  gitDiff(workspaceId: string, projectId: string, from?: string, to?: string): Promise<string> {
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString();
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/diff${qs ? `?${qs}` : ""}`);
   }
 
   // ---------- composio ----------
