@@ -33,6 +33,10 @@ export const queryKeys = {
   composioApps: () => ["composio-apps"] as const,
   connectedToolkits: () => ["connected-toolkits"] as const,
 
+  // Agent-scoped dev workflow data
+  sprints: (agentPath: string) => ["sprints", agentPath] as const,
+  stories: (agentPath: string) => ["stories", agentPath] as const,
+
   // Agent-scoped MCP config
   mcpConfig: (agentPath: string) => ["mcp-config", agentPath] as const,
 

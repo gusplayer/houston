@@ -69,6 +69,8 @@ fn event_for_write(agent_path: &str, rel_path: &str) -> Option<SquadEvent> {
         "routine_runs" => SquadEvent::RoutineRunsChanged { agent_path },
         "config" => SquadEvent::ConfigChanged { agent_path },
         "learnings" => SquadEvent::LearningsChanged { agent_path },
+        "sprints" => SquadEvent::SprintsChanged { agent_path },
+        "stories" => SquadEvent::StoriesChanged { agent_path },
         _ => return None,
     })
 }

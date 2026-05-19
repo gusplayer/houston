@@ -52,7 +52,8 @@
     "configure": "Configure",
     "settings": "Settings",
     "repo": "Repo",
-    "mcp": "MCP"
+    "mcp": "MCP",
+    "sprints": "Sprints"
   },
   "configure": {
     "projectContext": {
@@ -125,6 +126,19 @@
     "clean": "Clean",
     "branches": "Branches",
     "commits": "Commits"
+  },
+  "sprints": {
+    "backlog": "Backlog",
+    "active": "Active",
+    "completeSprint": "Complete sprint",
+    "startSprint": "Start sprint",
+    "newSprint": "New sprint",
+    "sprintName": "Sprint name",
+    "create": "Create",
+    "cancel": "Cancel",
+    "storyTitle": "Story title",
+    "add": "Add",
+    "delete": "Delete"
   },
   "mcp": {
     "title": "MCP Servers",

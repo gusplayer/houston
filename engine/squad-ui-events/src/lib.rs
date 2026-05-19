@@ -119,6 +119,14 @@ pub enum SquadEvent {
     LearningsChanged {
         agent_path: String,
     },
+    /// Sprints changed (.squad/sprints/sprints.json).
+    SprintsChanged {
+        agent_path: String,
+    },
+    /// Stories changed (.squad/stories/stories.json).
+    StoriesChanged {
+        agent_path: String,
+    },
 
     // ----- Composio CLI lifecycle -----
 

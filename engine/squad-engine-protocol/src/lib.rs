@@ -143,7 +143,9 @@ pub fn event_topic(event: &SquadEvent) -> String {
         | SquadEvent::FilesChanged { agent_path }
         | SquadEvent::ConfigChanged { agent_path }
         | SquadEvent::ContextChanged { agent_path }
-        | SquadEvent::LearningsChanged { agent_path } => format!("agent:{agent_path}"),
+        | SquadEvent::LearningsChanged { agent_path }
+        | SquadEvent::SprintsChanged { agent_path }
+        | SquadEvent::StoriesChanged { agent_path } => format!("agent:{agent_path}"),
         SquadEvent::ConversationsChanged { agent_path, .. } => format!("agent:{agent_path}"),
         SquadEvent::ComposioCliReady
         | SquadEvent::ComposioCliFailed { .. }

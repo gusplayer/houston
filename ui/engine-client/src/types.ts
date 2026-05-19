@@ -617,6 +617,40 @@ export interface Branch {
   isRemote: boolean;
 }
 
+// ---------- Sprints + Stories ----------
+
+export type SprintStatus = "planning" | "active" | "completed" | "cancelled";
+
+export interface Sprint {
+  id: string;
+  name: string;
+  goal?: string;
+  status: SprintStatus;
+  startDate?: string | null;
+  endDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StoryStatus = "backlog" | "todo" | "in_progress" | "in_review" | "done" | "cancelled";
+export type StoryPriority = "low" | "medium" | "high" | "critical";
+
+export interface Story {
+  id: string;
+  title: string;
+  description?: string;
+  status: StoryStatus;
+  sprintId?: string | null;
+  epic?: string | null;
+  priority?: StoryPriority;
+  points?: number | null;
+  assignee?: string | null;
+  labels?: string[];
+  prUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ---------- MCP ----------
 
 export interface McpServerConfig {

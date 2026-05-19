@@ -29,6 +29,16 @@ export {
 } from "./use-learnings";
 export { useMcpConfig, useSaveMcpConfig } from "./use-mcps";
 export {
+  useSprints,
+  useCreateSprint,
+  useUpdateSprint,
+  useDeleteSprint,
+  useStories,
+  useCreateStory,
+  useUpdateStory,
+  useDeleteStory,
+} from "./use-sprints";
+export {
   useProjects,
   useCreateProject,
   useUpdateProject,

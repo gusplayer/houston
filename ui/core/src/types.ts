@@ -109,6 +109,14 @@ export type SquadEvent =
       data: { agent_path: string };
     }
   | {
+      type: "SprintsChanged";
+      data: { agent_path: string };
+    }
+  | {
+      type: "StoriesChanged";
+      data: { agent_path: string };
+    }
+  | {
       type: "ComposioCliReady";
       data: Record<string, never>;
     }

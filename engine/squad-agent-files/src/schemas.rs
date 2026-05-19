@@ -6,6 +6,8 @@ pub const ROUTINE_RUNS: &str = include_str!("../../../ui/agent-schemas/src/routi
 pub const CONFIG: &str = include_str!("../../../ui/agent-schemas/src/config.schema.json");
 pub const LEARNINGS: &str = include_str!("../../../ui/agent-schemas/src/learnings.schema.json");
 pub const MCPS: &str = include_str!("../../../ui/agent-schemas/src/mcps.schema.json");
+pub const SPRINTS: &str = include_str!("../../../ui/agent-schemas/src/sprints.schema.json");
+pub const STORIES: &str = include_str!("../../../ui/agent-schemas/src/stories.schema.json");
 
 pub const ALL: &[(&str, &str)] = &[
     ("activity", ACTIVITY),
@@ -14,4 +16,6 @@ pub const ALL: &[(&str, &str)] = &[
     ("config", CONFIG),
     ("learnings", LEARNINGS),
     ("mcps", MCPS),
+    ("sprints", SPRINTS),
+    ("stories", STORIES),
 ];
