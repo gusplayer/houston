@@ -1,17 +1,17 @@
-# @houston-ai/review
+# @squad/review
 
 Code review and deliverables UI. Split-pane review interface with sidebar navigation, detail views, and deliverable acceptance workflow.
 
 ## Install
 
 ```bash
-pnpm add @houston-ai/review
+pnpm add @squad/review
 ```
 
 ## Usage
 
 ```tsx
-import { ReviewSplit } from "@houston-ai/review"
+import { ReviewSplit } from "@squad/review"
 
 <ReviewSplit
   items={reviewItems}
@@ -37,7 +37,7 @@ import { ReviewSplit } from "@houston-ai/review"
 ## Peer Dependencies
 
 - React 19+
-- @houston-ai/core
+- @squad/core
 
 ---
 

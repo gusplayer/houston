@@ -48,7 +48,7 @@ interface ComposioLinkCardProps {
  *
  *   - Connected → green "Connected" pill, click is a no-op
  *   - Not connected → "Connect" button that opens the OAuth URL and,
- *     when the Houston window regains focus (user returned from the
+ *     when the Squad window regains focus (user returned from the
  *     browser), invalidates the probe query so the card flips to
  *     Connected. OAuth flows vary from 5s to 60s+ so a fixed timeout
  *     would always be wrong — focus-driven invalidation updates

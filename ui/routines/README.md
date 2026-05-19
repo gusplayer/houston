@@ -1,17 +1,17 @@
-# @houston-ai/routines
+# @squad/routines
 
 Automated routine management. Create, edit, run, and review recurring agent tasks with trigger scheduling and approval controls.
 
 ## Install
 
 ```bash
-pnpm add @houston-ai/routines
+pnpm add @squad/routines
 ```
 
 ## Usage
 
 ```tsx
-import { RoutinesGrid, RoutineDetailPage } from "@houston-ai/routines"
+import { RoutinesGrid, RoutineDetailPage } from "@squad/routines"
 
 <RoutinesGrid
   routines={routines}
@@ -35,7 +35,7 @@ import { RoutinesGrid, RoutineDetailPage } from "@houston-ai/routines"
 ## Peer Dependencies
 
 - React 19+
-- @houston-ai/core
+- @squad/core
 
 ---
 

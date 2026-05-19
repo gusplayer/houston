@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FileText, LibraryBig, Brain } from "lucide-react";
-import { SkillDetailPage } from "@houston-ai/skills";
+import { SkillDetailPage } from "@squad/skills";
 import {
   useInstructions,
   useSaveInstructions,

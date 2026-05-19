@@ -12,7 +12,7 @@ function usePromptFile(agentPath: string, modeName: string) {
   return useQuery({
     queryKey: [...queryKeys.instructions(agentPath), "mode", modeName],
     queryFn: () =>
-      tauriAgent.readFile(agentPath, `.houston/prompts/modes/${modeName}`).catch(() => ""),
+      tauriAgent.readFile(agentPath, `.squad/prompts/modes/${modeName}`).catch(() => ""),
     enabled: !!agentPath,
   });
 }
@@ -20,7 +20,7 @@ function usePromptFile(agentPath: string, modeName: string) {
 function useSavePromptFile(agentPath: string, modeName: string) {
   return useCallback(
     async (content: string) => {
-      await tauriAgent.writeFile(agentPath, `.houston/prompts/modes/${modeName}`, content);
+      await tauriAgent.writeFile(agentPath, `.squad/prompts/modes/${modeName}`, content);
     },
     [agentPath, modeName],
   );

@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
-import { LEGAL_ACCEPTANCE_KEY, type LegalAcceptance } from "@houston-ai/engine-client";
+import { LEGAL_ACCEPTANCE_KEY, type LegalAcceptance } from "@squad/engine-client";
 
 import { tauriPreferences } from "../lib/tauri";
 import { CURRENT_DISCLAIMER_VERSION } from "../lib/legal";
@@ -37,7 +37,7 @@ export interface LegalAcceptanceState {
   isLoading: boolean;
   /** Write acceptance to engine prefs and invalidate the cached query. */
   accept: () => Promise<void>;
-  /** Close the Houston window. Called when the user clicks Decline. */
+  /** Close the Squad window. Called when the user clicks Decline. */
   decline: () => Promise<void>;
 }
 
@@ -46,7 +46,7 @@ export interface LegalAcceptanceState {
  *
  * The acceptance record lives in engine preferences under
  * `"legal_acceptance"` so it survives app reinstall-in-place and syncs
- * across any surface that shares the same `~/.houston` DB. We treat the
+ * across any surface that shares the same `~/.squad` DB. We treat the
  * user as accepted iff the persisted `version` is at least
  * `CURRENT_DISCLAIMER_VERSION` — bumping that constant forces every
  * user to re-accept.

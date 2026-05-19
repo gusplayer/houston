@@ -2,7 +2,7 @@ import { osWriteFrontendLog } from "./os-bridge";
 
 type LogLevel = "error" | "warn" | "info" | "debug";
 
-/** Write a log entry to ~/Library/Application Support/houston/logs/frontend.log */
+/** Write a log entry to ~/Library/Application Support/squad/logs/frontend.log */
 function writeLog(level: LogLevel, message: string, context?: string) {
   osWriteFrontendLog(level, message, context).catch(() => {
     // If logging itself fails, don't recurse — just drop it

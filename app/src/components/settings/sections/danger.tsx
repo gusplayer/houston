@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, ConfirmDialog } from "@houston-ai/core";
+import { Button, ConfirmDialog } from "@squad/core";
 import { useWorkspaceStore } from "../../../stores/workspaces";
 import { useAgentStore } from "../../../stores/agents";
 

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SkillDetailPage } from "@houston-ai/skills";
+import { SkillDetailPage } from "@squad/skills";
 import type { TabProps } from "../../lib/types";
 import { SkillsContent } from "./skills-content";
 import { useSkillSurface } from "./use-skill-surface";

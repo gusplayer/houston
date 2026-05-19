@@ -1,8 +1,8 @@
 /**
- * Houston backend adapter.
+ * Squad backend adapter.
  *
  * Every domain call (workspaces, agents, chat, skills, store, sync, …) flows
- * through `@houston-ai/engine-client` to the `houston-engine` subprocess the
+ * through `@squad/engine-client` to the `squad-engine` subprocess the
  * Tauri supervisor spawned on startup (see `engine_supervisor.rs`).
  *
  * OS-native calls (`reveal_file`, `open_url`, `pick_directory`, terminal
@@ -27,7 +27,7 @@ import type {
   ComposioStatus as EngineComposioStatus,
   ProviderAuthState,
   ProviderStatus as EngineProviderStatus,
-} from "@houston-ai/engine-client";
+} from "@squad/engine-client";
 import { getEngine } from "./engine";
 import { osPickDirectory } from "./os-bridge";
 import { logger } from "./logger";
@@ -91,7 +91,7 @@ export interface CreateAgentResult {
   agent: Agent;
 }
 
-function toAgent(a: import("@houston-ai/engine-client").Agent): Agent {
+function toAgent(a: import("@squad/engine-client").Agent): Agent {
   return {
     id: a.id,
     name: a.name,
@@ -204,7 +204,7 @@ export const tauriAttachments = {
     call<void>("delete_attachments", () => getEngine().deleteAttachments(scopeId)),
 };
 
-// ─── Agent-data files (`.houston/**`) ─────────────────────────────────
+// ─── Agent-data files (`.squad/**`) ─────────────────────────────────
 
 export const tauriAgent = {
   readFile: (agentPath: string, relPath: string) =>
@@ -478,7 +478,7 @@ export const tauriConversations = {
 };
 
 function conversationToRaw(
-  c: import("@houston-ai/engine-client").ConversationEntry,
+  c: import("@squad/engine-client").ConversationEntry,
 ): RawConversation {
   return {
     id: c.id,
@@ -500,7 +500,7 @@ import * as configData from "../data/config";
 import type {
   NewRoutine as EngineNewRoutine,
   RoutineUpdate as EngineRoutineUpdate,
-} from "@houston-ai/engine-client";
+} from "@squad/engine-client";
 
 export const tauriRoutines = {
   list: (agentPath: string) =>
@@ -678,7 +678,7 @@ export const tauriWatcher = {
 import type {
   TunnelStatus as EngineTunnelStatus,
   PairingCode as EnginePairingCode,
-} from "@houston-ai/engine-client";
+} from "@squad/engine-client";
 
 export const tauriTunnel = {
   status: () =>

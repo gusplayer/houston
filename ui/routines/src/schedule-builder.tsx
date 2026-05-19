@@ -3,7 +3,7 @@
  * Supports presets (daily, weekly, etc.) and custom cron expressions.
  */
 import { useState, useEffect, useRef } from "react"
-import { cn } from "@houston-ai/core"
+import { cn } from "@squad/core"
 import type { SchedulePreset } from "./types"
 import { SCHEDULE_PRESET_LABELS } from "./types"
 import { TimePicker, DayOfWeekPicker, DayOfMonthPicker, CronInput } from "./schedule-picker-fields"

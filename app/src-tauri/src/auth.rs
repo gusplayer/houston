@@ -3,10 +3,10 @@
 //!
 //! Storage layout per OS:
 //! - **macOS**: `keyring` crate writes to the user's Keychain under
-//!   `com.houston.app.auth`. Apple Keychain has no per-blob size limit
+//!   `com.squad.app.auth`. Apple Keychain has no per-blob size limit
 //!   that matters for our session sizes, so this Just Works.
 //! - **Windows**: per-user **DPAPI-encrypted file** under
-//!   `%LOCALAPPDATA%\com.houston.app\auth\<key>.dpapi`. We do NOT use
+//!   `%LOCALAPPDATA%\com.squad.app\auth\<key>.dpapi`. We do NOT use
 //!   Credential Manager here because its `CredentialBlob` field caps at
 //!   ~2560 bytes, and a Supabase session — a JWT access_token plus
 //!   user metadata plus refresh_token plus provider_token — is
@@ -20,15 +20,15 @@
 //!
 //! Deep-link flow:
 //!   1. Frontend calls `supabase.auth.signInWithOAuth({ provider: "google",
-//!      options: { redirectTo: "houston://auth-callback" } })`.
+//!      options: { redirectTo: "squad://auth-callback" } })`.
 //!   2. User completes consent in their system browser.
-//!   3. Supabase redirects to `houston://auth-callback?code=...` (PKCE) or
-//!      `houston://auth-callback/#access_token=...` (implicit).
+//!   3. Supabase redirects to `squad://auth-callback?code=...` (PKCE) or
+//!      `squad://auth-callback/#access_token=...` (implicit).
 //!   4. macOS hands the URL to the running app via tauri-plugin-deep-link;
 //!      Windows hands it via tauri-plugin-single-instance argv forwarding
 //!      into the same plugin (see `lib.rs`).
 //!   5. `dispatch_deep_link` routes the URL: anything not in the
-//!      `houston://store/...` namespace is emitted as `auth://deep-link`
+//!      `squad://store/...` namespace is emitted as `auth://deep-link`
 //!      (Store URLs go to `store://deep-link`, handled in
 //!      `app/src/lib/store-deep-link.ts`).
 //!   6. Frontend calls `supabase.auth.exchangeCodeForSession(code)` for
@@ -39,7 +39,7 @@
 use tauri::{AppHandle, Emitter};
 
 #[cfg(not(target_os = "windows"))]
-const SERVICE: &str = "com.houston.app.auth";
+const SERVICE: &str = "com.squad.app.auth";
 
 /// Reject keys that try to escape the storage directory. Supabase only
 /// ever passes its own well-formed storage keys, but the API surface is
@@ -67,7 +67,7 @@ mod storage {
     fn auth_dir() -> Result<PathBuf, String> {
         let local =
             dirs::data_local_dir().ok_or_else(|| "no LocalAppData dir".to_string())?;
-        let dir = local.join("com.houston.app").join("auth");
+        let dir = local.join("com.squad.app").join("auth");
         std::fs::create_dir_all(&dir)
             .map_err(|e| format!("create auth dir {}: {e}", dir.display()))?;
         Ok(dir)
@@ -246,10 +246,10 @@ pub async fn auth_remove_item(key: String) -> Result<(), String> {
 /// handler installed in `lib.rs`.
 ///
 /// Routing:
-/// - `houston://store/...` → `store://deep-link` (handled by
+/// - `squad://store/...` → `store://deep-link` (handled by
 ///   `app/src/lib/store-deep-link.ts`, opens the Store detail dialog
 ///   for the requested agent).
-/// - everything else (including `houston://auth-callback?...`) →
+/// - everything else (including `squad://auth-callback?...`) →
 ///   `auth://deep-link` (handled by `installDeepLinkListener` in
 ///   `app/src/lib/auth.ts`, which extracts the PKCE `code` /
 ///   implicit-flow tokens and installs the Supabase session).
@@ -280,15 +280,15 @@ pub fn dispatch_deep_link(handle: &AppHandle, raw_url: &str) {
 
 /// Best-effort read of the persisted Supabase session, returning the user_id
 /// if present. Called at engine spawn time so the subprocess can stamp
-/// `HOUSTON_APP_USER_ID` on its own operations. Failures (no entry, corrupt
+/// `SQUAD_APP_USER_ID` on its own operations. Failures (no entry, corrupt
 /// JSON, keychain locked, DPAPI ciphertext from a different Windows user)
 /// all resolve to `None` silently — the engine runs fine without an identity.
 pub fn persisted_user_id() -> Option<String> {
-    if option_env!("HOUSTON_AUTH_STORAGE_MODE") != Some("keychain") {
+    if option_env!("SQUAD_AUTH_STORAGE_MODE") != Some("keychain") {
         return None;
     }
     // Storage key must match `storageKey` in app/src/lib/supabase.ts.
-    let raw = storage::get("houston-auth").ok().flatten()?;
+    let raw = storage::get("squad-auth").ok().flatten()?;
     let parsed: serde_json::Value = serde_json::from_str(&raw).ok()?;
     parsed
         .get("user")
@@ -312,20 +312,20 @@ mod tests {
 
     #[test]
     fn validate_key_accepts_supabase_keys() {
-        assert!(validate_key("houston-auth").is_ok());
-        assert!(validate_key("houston-auth-code-verifier").is_ok());
-        assert!(validate_key("houston-auth-local-default").is_ok());
+        assert!(validate_key("squad-auth").is_ok());
+        assert!(validate_key("squad-auth-code-verifier").is_ok());
+        assert!(validate_key("squad-auth-local-default").is_ok());
     }
 
     /// Round-trip set / get / remove against the real Keychain.
     ///
     /// Ignored by default — on first run macOS prompts the developer to
     /// allow Keychain access, and CI has no Keychain at all. Run locally
-    /// with `cargo test -p houston-app auth:: -- --ignored`.
+    /// with `cargo test -p squad-app auth:: -- --ignored`.
     #[tokio::test]
     #[ignore]
     async fn keychain_round_trip() {
-        let key = "__houston_test__";
+        let key = "__squad_test__";
         let _ = auth_remove_item(key.into()).await;
 
         auth_set_item(key.into(), "hello".into()).await.unwrap();
@@ -339,7 +339,7 @@ mod tests {
 
     #[test]
     fn local_auth_storage_does_not_read_persisted_keychain_user() {
-        if option_env!("HOUSTON_AUTH_STORAGE_MODE") == Some("browser") {
+        if option_env!("SQUAD_AUTH_STORAGE_MODE") == Some("browser") {
             assert!(persisted_user_id().is_none());
         }
     }

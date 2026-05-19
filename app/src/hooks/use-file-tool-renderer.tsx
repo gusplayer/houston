@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { ToolBlock } from "@houston-ai/chat";
-import type { ToolEntry, TurnEndSummary } from "@houston-ai/chat";
+import { ToolBlock } from "@squad/chat";
+import type { ToolEntry, TurnEndSummary } from "@squad/chat";
 import { FileCard } from "../components/file-card";
 import { TurnFileSummary } from "../components/turn-file-summary";
 import { buildTurnSummaryItems, isUserVisibleFilePath } from "../lib/turn-summary-items";

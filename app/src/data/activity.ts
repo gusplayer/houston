@@ -1,11 +1,11 @@
 /**
- * `.houston/activity/activity.json` — the board.
+ * `.squad/activity/activity.json` — the board.
  *
- * Schema-validated via `@houston-ai/agent-schemas/activity.schema.json`.
+ * Schema-validated via `@squad/agent-schemas/activity.schema.json`.
  * Written atomically on every mutation (the backend handles the temp-file + rename).
  */
 
-import schema from "@houston-ai/agent-schemas/activity.schema.json";
+import schema from "@squad/agent-schemas/activity.schema.json";
 import { newId, now, readAgentJson, writeAgentJson } from "./agent-file";
 
 export interface Activity {

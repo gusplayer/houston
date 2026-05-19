@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
-import { HoustonAvatar, resolveAgentColor } from "@houston-ai/core";
-import type { Agent, ConversationEntry } from "@houston-ai/engine-client";
+import { SquadAvatar, resolveAgentColor } from "@squad/core";
+import type { Agent, ConversationEntry } from "@squad/engine-client";
 
 interface ChatHeaderProps {
   convo: ConversationEntry | undefined;
@@ -39,7 +39,7 @@ export function ChatHeader({
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <HoustonAvatar
+      <SquadAvatar
         color={resolveAgentColor(agent?.color)}
         diameter={36}
         running={isRunning}

@@ -5,12 +5,12 @@ import {
   AGENT_COLORS,
   Button,
   DialogTitle,
-  HoustonAvatar,
+  SquadAvatar,
   Input,
   cn,
   colorHex,
   resolveAgentColor,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { ArrowLeft, Check, FolderOpen, ChevronDown } from "lucide-react";
 import type { AgentDefinition } from "../../lib/types";
 import { tauriProvider, type ProviderStatus } from "../../lib/tauri";
@@ -73,7 +73,7 @@ export function NamingStep({
 
       {/* Avatar preview */}
       <div className="flex flex-col items-center gap-4 mb-8">
-        <HoustonAvatar color={resolvedColor} diameter={80} />
+        <SquadAvatar color={resolvedColor} diameter={80} />
 
         <div className="text-center">
           <p className="text-lg font-semibold">

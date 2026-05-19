@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { AIBoard } from "@houston-ai/board";
-import type { KanbanItem, NewPanelOpener } from "@houston-ai/board";
-import type { FeedItem } from "@houston-ai/chat";
+import { AIBoard } from "@squad/board";
+import type { KanbanItem, NewPanelOpener } from "@squad/board";
+import type { FeedItem } from "@squad/chat";
 import { Terminal, GitBranch } from "lucide-react";
 
 import { useFeedStore } from "../../stores/feeds";
@@ -30,7 +30,7 @@ import { queryKeys } from "../../lib/query-keys";
 import { analytics } from "../../lib/analytics";
 import type { TabProps } from "../../lib/types";
 import { useDetailPanelContainer } from "../shell/detail-panel-context";
-import { HoustonThinkingIndicator } from "../shell/experience-card";
+import { SquadThinkingIndicator } from "../shell/experience-card";
 import { AgentCardAvatar } from "../shell/agent-card-avatar";
 import { AgentPanelAvatar } from "../shell/agent-panel-avatar";
 import { useQueuedMessageLabels } from "../use-queued-message-labels";
@@ -601,7 +601,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           actions={agentModes ? cardActions : undefined}
           panelActions={panelActions}
           cardAvatar={<AgentCardAvatar color={agent.color} />}
-          thinkingIndicator={<HoustonThinkingIndicator />}
+          thinkingIndicator={<SquadThinkingIndicator />}
           panelAgentName={agent.name}
           panelAvatar={
             <AgentPanelAvatar

@@ -6,7 +6,7 @@
  * pre-select the browser-detected zone but require an explicit confirmation.
  */
 import { useMemo, useState } from "react"
-import { cn, Button } from "@houston-ai/core"
+import { cn, Button } from "@squad/core"
 import { Globe } from "lucide-react"
 
 export interface TimezoneGateProps {

@@ -1,6 +1,6 @@
-export const RELEASE_AUTH_STORAGE_KEY = "houston-auth";
+export const RELEASE_AUTH_STORAGE_KEY = "squad-auth";
 
-const LOCAL_AUTH_STORAGE_PREFIX = "houston-auth-local";
+const LOCAL_AUTH_STORAGE_PREFIX = "squad-auth-local";
 const FALLBACK_LOCAL_SCOPE = "default";
 
 export type AuthStorageMode = "keychain" | "browser";

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
-import { Button, cn } from "@houston-ai/core";
+import { Button, cn } from "@squad/core";
 import {
   useConnections,
   useResetConnections,

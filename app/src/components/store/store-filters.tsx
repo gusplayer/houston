@@ -7,7 +7,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { Button, cn } from "@houston-ai/core";
+import { Button, cn } from "@squad/core";
 
 export type StoreSourceFilter = "all" | "official" | "community";
 export type StorePricingFilter = "all" | "free" | "paid";

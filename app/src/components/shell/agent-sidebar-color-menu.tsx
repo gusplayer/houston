@@ -7,7 +7,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   colorHex,
-} from "@houston-ai/core";
+} from "@squad/core";
 
 const AGENT_COLOR_LABEL_KEYS: Record<string, AgentColorLabelKey> = {
   charcoal: "shell:sidebar.colorLabels.charcoal",

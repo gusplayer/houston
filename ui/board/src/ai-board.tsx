@@ -2,9 +2,9 @@ import { useState, useCallback, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import type { ReactNode } from "react"
 
-import { ChatPanel } from "@houston-ai/chat"
-import type { ChatPanelProps, FeedItem, ToolsAndCardsProps } from "@houston-ai/chat"
-import { SplitView } from "@houston-ai/layout"
+import { ChatPanel } from "@squad/chat"
+import type { ChatPanelProps, FeedItem, ToolsAndCardsProps } from "@squad/chat"
+import { SplitView } from "@squad/layout"
 import { KanbanBoard } from "./kanban-board"
 import { KanbanDetailPanel } from "./kanban-detail-panel"
 import type { KanbanCardLabels } from "./kanban-card"
@@ -54,7 +54,7 @@ export interface AIBoardProps {
   cardAvatar?: ReactNode
   /** Avatar element shown in the detail panel header. */
   panelAvatar?: ReactNode
-  /** Name shown next to the avatar in the panel header (e.g. "Houston"). */
+  /** Name shown next to the avatar in the panel header (e.g. "Squad"). */
   panelAgentName?: string
   /** Called when the detail panel opens or closes. */
   onPanelOpenChange?: (open: boolean) => void
@@ -77,26 +77,26 @@ export interface AIBoardProps {
   /** Custom tool name → human label mappings. */
   toolLabels?: ToolsAndCardsProps["toolLabels"]
   /** Render prop for an end-of-turn summary (e.g., list of edited files). Forwarded to ChatPanel. */
-  renderTurnSummary?: import("@houston-ai/chat").ChatPanelProps["renderTurnSummary"]
+  renderTurnSummary?: import("@squad/chat").ChatPanelProps["renderTurnSummary"]
   /** Custom renderer for system messages. Forwarded to ChatPanel. */
-  renderSystemMessage?: import("@houston-ai/chat").ChatPanelProps["renderSystemMessage"]
+  renderSystemMessage?: import("@squad/chat").ChatPanelProps["renderSystemMessage"]
   /** Map active feed items before rendering. */
   mapFeedItems?: (ctx: { sessionKey: string; items: FeedItem[] }) => FeedItem[]
   /** Node rendered after the last chat message. */
   afterMessages?: ReactNode | ((ctx: { sessionKey: string; feedItems: FeedItem[] }) => ReactNode)
   /** Custom renderer for user messages. Forwarded to ChatPanel. */
-  renderUserMessage?: import("@houston-ai/chat").ChatPanelProps["renderUserMessage"]
+  renderUserMessage?: import("@squad/chat").ChatPanelProps["renderUserMessage"]
   /** Emitted by ChatPanel to surface short notices to the user
    *  (e.g. duplicate-file drop). Forwarded as-is; app decides display. */
   onNotice?: (message: string) => void
   /** Lets apps reject unsupported files before they enter the composer draft. */
-  prepareAttachments?: import("@houston-ai/chat").ChatPanelProps["prepareAttachments"]
+  prepareAttachments?: import("@squad/chat").ChatPanelProps["prepareAttachments"]
   /** Emitted when `prepareAttachments` rejects any incoming files. */
-  onAttachmentRejections?: import("@houston-ai/chat").ChatPanelProps["onAttachmentRejections"]
+  onAttachmentRejections?: import("@squad/chat").ChatPanelProps["onAttachmentRejections"]
   /** Called when the user clicks the open button on an inline link. Forwarded to ChatPanel. */
-  onOpenLink?: import("@houston-ai/chat").ChatPanelProps["onOpenLink"]
+  onOpenLink?: import("@squad/chat").ChatPanelProps["onOpenLink"]
   /** Custom renderer for markdown links. Forwarded to ChatPanel. */
-  renderLink?: import("@houston-ai/chat").ChatPanelProps["renderLink"]
+  renderLink?: import("@squad/chat").ChatPanelProps["renderLink"]
   /**
    * Composer footer content. When a function, called with `{ hasMessages }` so
    * the consumer can lock the provider for active conversations.

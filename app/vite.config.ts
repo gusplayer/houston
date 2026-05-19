@@ -16,10 +16,10 @@ function resolveAuthStorageMode(
   mode: string,
   env: Record<string, string | undefined>,
 ) {
-  const override = env.HOUSTON_AUTH_STORAGE?.trim().toLowerCase();
+  const override = env.SQUAD_AUTH_STORAGE?.trim().toLowerCase();
   if (override === "keychain" || override === "browser") return override;
   if (override) {
-    throw new Error("HOUSTON_AUTH_STORAGE must be keychain or browser");
+    throw new Error("SQUAD_AUTH_STORAGE must be keychain or browser");
   }
 
   if (mode !== "production") return "browser";
@@ -43,23 +43,23 @@ export default defineConfig(({ mode }) => {
       ),
       __SUPABASE_URL__: JSON.stringify(env.SUPABASE_URL ?? ""),
       __SUPABASE_ANON_KEY__: JSON.stringify(env.SUPABASE_ANON_KEY ?? ""),
-      __HOUSTON_AUTH_STORAGE_MODE__: JSON.stringify(authStorageMode),
-      __HOUSTON_AUTH_STORAGE_SCOPE__: JSON.stringify(authStorageScope),
+      __SQUAD_AUTH_STORAGE_MODE__: JSON.stringify(authStorageMode),
+      __SQUAD_AUTH_STORAGE_SCOPE__: JSON.stringify(authStorageScope),
     },
     clearScreen: false,
     // Exclude workspace packages from Vite's dep pre-bundling so live edits
     // are picked up immediately without stale cache issues.
     optimizeDeps: {
       exclude: [
-        "@houston-ai/chat",
-        "@houston-ai/core",
-        "@houston-ai/board",
-        "@houston-ai/layout",
-        "@houston-ai/events",
-        "@houston-ai/routines",
-        "@houston-ai/skills",
-        "@houston-ai/review",
-        "@houston-ai/agent",
+        "@squad/chat",
+        "@squad/core",
+        "@squad/board",
+        "@squad/layout",
+        "@squad/events",
+        "@squad/routines",
+        "@squad/skills",
+        "@squad/review",
+        "@squad/agent",
       ],
     },
     server: {

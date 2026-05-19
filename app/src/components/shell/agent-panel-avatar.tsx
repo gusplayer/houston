@@ -1,4 +1,4 @@
-import { HoustonAvatar, resolveAgentColor } from "@houston-ai/core";
+import { SquadAvatar, resolveAgentColor } from "@squad/core";
 
 export function AgentPanelAvatar({
   color,
@@ -8,7 +8,7 @@ export function AgentPanelAvatar({
   running: boolean;
 }) {
   return (
-    <HoustonAvatar
+    <SquadAvatar
       color={resolveAgentColor(color)}
       diameter={40}
       running={running}

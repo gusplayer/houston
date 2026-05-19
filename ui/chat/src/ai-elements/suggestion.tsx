@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@houston-ai/core";
+import { Button } from "@squad/core";
 import {
   ScrollArea,
   ScrollBar,
-} from "@houston-ai/core";
-import { cn } from "@houston-ai/core";
+} from "@squad/core";
+import { cn } from "@squad/core";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";
 

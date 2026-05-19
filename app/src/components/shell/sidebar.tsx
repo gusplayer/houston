@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Blend, Settings, Store } from "lucide-react";
-import { ConfirmDialog } from "@houston-ai/core";
-import { AppSidebar, WorkspaceSwitcher } from "@houston-ai/layout";
+import { ConfirmDialog } from "@squad/core";
+import { AppSidebar, WorkspaceSwitcher } from "@squad/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import { useAgentStore } from "../../stores/agents";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";

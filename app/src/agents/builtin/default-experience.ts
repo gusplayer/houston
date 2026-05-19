@@ -6,7 +6,7 @@ export const blankAgent: AgentConfig = {
   description: "A blank agent with no pre-configured actions, instructions, or learnings — build it your way",
   icon: "Plus",
   category: "productivity",
-  author: "Houston",
+  author: "Squad",
   tags: ["blank", "custom", "starter"],
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },

@@ -21,7 +21,7 @@ pub fn init(data_dir: &Path) {
     let _ = GUARD.set(guard);
 
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-        EnvFilter::new("info,houston_terminal_manager=debug,houston_tauri=debug,houston_app=debug")
+        EnvFilter::new("info,squad_terminal_manager=debug,squad_tauri=debug,squad_app=debug")
     });
 
     fmt()
@@ -36,7 +36,7 @@ pub fn init(data_dir: &Path) {
 }
 
 fn logs_dir() -> PathBuf {
-    houston_tauri::houston_db::db::houston_dir().join("logs")
+    squad_tauri::squad_db::db::squad_dir().join("logs")
 }
 
 fn frontend_log_path() -> PathBuf {
@@ -127,7 +127,7 @@ mod tests {
     #[test]
     fn latest_log_matching_uses_newest_rotated_backend_log() {
         let dir = std::env::temp_dir().join(format!(
-            "houston-log-test-{}",
+            "squad-log-test-{}",
             chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)
         ));
         fs::create_dir_all(&dir).expect("create temp log dir");

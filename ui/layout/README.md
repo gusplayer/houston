@@ -1,18 +1,18 @@
-# @houston-ai/layout
+# @squad/layout
 
 App-level layout primitives. Sidebar for navigation, tab bar for view switching, split view for panels.
 
 ## Install
 
 ```bash
-pnpm add @houston-ai/layout
+pnpm add @squad/layout
 ```
 
 ## Usage
 
 ```tsx
-import { AppSidebar, TabBar, SplitView } from "@houston-ai/layout"
-import "@houston-ai/layout/src/styles.css"
+import { AppSidebar, TabBar, SplitView } from "@squad/layout"
+import "@squad/layout/src/styles.css"
 
 <AppSidebar
   logo={<Logo />}
@@ -48,7 +48,7 @@ import "@houston-ai/layout/src/styles.css"
 ## Peer Dependencies
 
 - React 19+
-- @houston-ai/core
+- @squad/core
 
 ---
 

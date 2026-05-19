@@ -4,7 +4,7 @@
  * Visual: dense one-line rows so a long history scans quickly. Surfaced runs
  * get a "View" affordance that links back to the activity board.
  */
-import { cn } from "@houston-ai/core"
+import { cn } from "@squad/core"
 import { ArrowUpRight } from "lucide-react"
 import type { RoutineRun } from "./types"
 

@@ -1,10 +1,10 @@
 /**
- * Events emitted from the Rust backend via houston-tauri.
+ * Events emitted from the Rust backend via squad-tauri.
  *
- * Mirrors the Rust `HoustonEvent` enum in `houston-tauri/src/events.rs`.
+ * Mirrors the Rust `SquadEvent` enum in `squad-tauri/src/events.rs`.
  * Apps can extend this with app-specific event types.
  */
-export type HoustonEvent =
+export type SquadEvent =
   | {
       type: "FeedItem";
       data: {

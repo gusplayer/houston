@@ -8,13 +8,13 @@ import {
   RefreshCw,
   Terminal,
 } from "lucide-react";
-import { Button, cn } from "@houston-ai/core";
+import { Button, cn } from "@squad/core";
 import { tauriProvider, tauriSystem, type ProviderStatus } from "../../../lib/tauri";
-import { osHoustonCreditsAvailable } from "../../../lib/os-bridge";
+import { osSquadCreditsAvailable } from "../../../lib/os-bridge";
 import {
   PROVIDERS,
   COMING_SOON_PROVIDERS,
-  HOUSTON_CREDITS_INFO,
+  SQUAD_CREDITS_INFO,
   FREE_CREDITS_LIMIT,
   type ProviderInfo,
   type ComingSoonProviderInfo,
@@ -48,13 +48,13 @@ export function BrainMission({
 
   useEffect(() => {
     void refresh();
-    osHoustonCreditsAvailable().then(setCreditsAvailable).catch(() => {});
+    osSquadCreditsAvailable().then(setCreditsAvailable).catch(() => {});
   }, [refresh]);
 
   // Poll while a disconnected provider is selected so the screen unblocks the
   // moment the user finishes the browser sign-in flow.
   useEffect(() => {
-    if (!provider || provider === HOUSTON_CREDITS_INFO.id) return;
+    if (!provider || provider === SQUAD_CREDITS_INFO.id) return;
     const status = statuses[provider];
     const connected = !!status?.cli_installed && !!status?.authenticated;
     if (connected) return;
@@ -63,7 +63,7 @@ export function BrainMission({
   }, [provider, refresh, statuses]);
 
   const selectedConnected =
-    provider === HOUSTON_CREDITS_INFO.id ||
+    provider === SQUAD_CREDITS_INFO.id ||
     (!!provider && !!statuses[provider]?.cli_installed && !!statuses[provider]?.authenticated);
 
   const handleContinue = async () => {
@@ -80,9 +80,9 @@ export function BrainMission({
     <div className="flex flex-1 flex-col gap-6">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {creditsAvailable && (
-          <HoustonCreditsCard
-            selected={provider === HOUSTON_CREDITS_INFO.id}
-            onSelect={() => onSelect(HOUSTON_CREDITS_INFO.id, HOUSTON_CREDITS_INFO.model)}
+          <SquadCreditsCard
+            selected={provider === SQUAD_CREDITS_INFO.id}
+            onSelect={() => onSelect(SQUAD_CREDITS_INFO.id, SQUAD_CREDITS_INFO.model)}
           />
         )}
         {PROVIDERS.map((prov) => (
@@ -202,7 +202,7 @@ function ProviderCard({
   );
 }
 
-function HoustonCreditsCard({
+function SquadCreditsCard({
   selected,
   onSelect,
 }: {

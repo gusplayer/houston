@@ -1,7 +1,7 @@
 /**
  * Picker fields used by ScheduleBuilder — time, day-of-week, day-of-month.
  */
-import { cn } from "@houston-ai/core"
+import { cn } from "@squad/core"
 
 const inputClass = cn(
   "px-3 py-2 rounded-lg border border-border/20 bg-background",

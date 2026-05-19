@@ -16,8 +16,8 @@ export interface ProviderInfo {
   defaultModel: string;
 }
 
-export interface HoustonCreditsInfo {
-  id: "houston-credits";
+export interface SquadCreditsInfo {
+  id: "squad-credits";
   name: string;
   subtitle: string;
   model: string;
@@ -33,7 +33,7 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     loginCommand: "codex login",
     cost: "Your ChatGPT subscription",
     // `gpt-5.5-codex` is the default — it is tuned for the agent / tool-use
-    // workload Houston actually runs (the tutorial reads calendar + mail,
+    // workload Squad actually runs (the tutorial reads calendar + mail,
     // drafts emails, edits files, etc.) and is the model the codex CLI was
     // built around. The vanilla `gpt-5.5` stays available for users who
     // want it for chat-style tasks where coding-tuned behavior is less
@@ -43,7 +43,7 @@ export const PROVIDERS: readonly ProviderInfo[] = [
       {
         id: "gpt-5.5-codex",
         label: "GPT-5.5 Codex",
-        description: "Tuned for coding and agent tool use. Best for Houston's tutorial flow.",
+        description: "Tuned for coding and agent tool use. Best for Squad's tutorial flow.",
       },
       {
         id: "gpt-5.5",
@@ -69,9 +69,9 @@ export const PROVIDERS: readonly ProviderInfo[] = [
   },
 ] as const;
 
-export const HOUSTON_CREDITS_INFO: HoustonCreditsInfo = {
-  id: "houston-credits",
-  name: "Houston Credits",
+export const SQUAD_CREDITS_INFO: SquadCreditsInfo = {
+  id: "squad-credits",
+  name: "Squad Credits",
   subtitle: "Free trial",
   model: "claude-haiku-4-5-20251001",
 } as const;

@@ -10,8 +10,8 @@ import { connectEngine, getClient, getWs } from "./lib/engine";
 import { ensureAgent } from "./lib/bootstrap";
 import { listClients } from "./lib/clients";
 import type { Client } from "./lib/clients";
-import { topics } from "@houston-ai/engine-client";
-import type { HoustonEvent } from "./lib/feed";
+import { topics } from "@squad/engine-client";
+import type { SquadEvent } from "./lib/feed";
 import { ConnectScreen } from "./components/ConnectScreen";
 import { Sidebar } from "./components/Sidebar";
 import { ClientView } from "./components/ClientView";
@@ -118,7 +118,7 @@ function Ready({ engine, agent, setStatus }: ReadyProps) {
     const ws = getWs();
     ws.subscribe([topics.agent(agent.agentPath)]);
     const off = ws.onEvent((raw) => {
-      const ev = raw as HoustonEvent;
+      const ev = raw as SquadEvent;
       if (ev.type !== "FilesChanged") return;
       const data = ev.data as { agent_path: string };
       if (data.agent_path === agent.agentPath) void refresh();

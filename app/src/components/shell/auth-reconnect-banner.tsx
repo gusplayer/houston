@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle } from "lucide-react";
-import { Button, Spinner } from "@houston-ai/core";
+import { Button, Spinner } from "@squad/core";
 import { useUIStore } from "../../stores/ui";
 import { tauriProvider } from "../../lib/tauri";
 import { getProvider } from "../../lib/providers";

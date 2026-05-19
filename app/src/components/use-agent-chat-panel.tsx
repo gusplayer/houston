@@ -27,13 +27,13 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@houston-ai/core";
+import { Button } from "@squad/core";
 import { Play } from "lucide-react";
 import {
   decodeAttachmentMessage,
   UserAttachmentMessage,
   type UserAttachmentMessageLabels,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 
 import { useFeedStore } from "../stores/feeds";
 import { useUIStore } from "../stores/ui";
@@ -88,8 +88,8 @@ import {
   providerAuthSignalKey,
 } from "./tabs/provider-auth-feed";
 
-import type { AIBoardProps } from "@houston-ai/board";
-import type { ChatMessage, ChatPanelProps, FeedItem } from "@houston-ai/chat";
+import type { AIBoardProps } from "@squad/board";
+import type { ChatMessage, ChatPanelProps, FeedItem } from "@squad/chat";
 import type { Agent, AgentDefinition, SkillSummary } from "../lib/types";
 
 interface UseAgentChatPanelArgs {

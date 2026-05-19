@@ -3,12 +3,12 @@ import { Check } from "lucide-react";
 import {
   AGENT_COLORS,
   Button,
-  HoustonAvatar,
+  SquadAvatar,
   Input,
   cn,
   colorHex,
   resolveAgentColor,
-} from "@houston-ai/core";
+} from "@squad/core";
 
 interface MeetMissionProps {
   name: string;
@@ -39,7 +39,7 @@ export function MeetMission({
       onSubmit={submit}
       className="mx-auto flex w-full max-w-sm flex-col items-center gap-6"
     >
-      <HoustonAvatar color={resolveAgentColor(color)} diameter={96} />
+      <SquadAvatar color={resolveAgentColor(color)} diameter={96} />
       <Input
         autoFocus
         value={name}

@@ -8,10 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { tauriProvider, type ProviderStatus } from "../lib/tauri";
-import { PROVIDERS, HOUSTON_CREDITS_INFO, getProvider, getModel, type ProviderInfo } from "../lib/providers";
-import { useHoustonCreditsStore } from "../stores/houston-credits";
+import { PROVIDERS, SQUAD_CREDITS_INFO, getProvider, getModel, type ProviderInfo } from "../lib/providers";
+import { useSquadCreditsStore } from "../stores/squad-credits";
 
 interface ChatModelSelectorProps {
   /** Current provider id (from workspace/agent config). */
@@ -31,7 +31,7 @@ interface ChatModelSelectorProps {
 export function ChatModelSelector({ provider, model, onSelect }: ChatModelSelectorProps) {
   const { t } = useTranslation("chat");
   const [statuses, setStatuses] = useState<Record<string, ProviderStatus>>({});
-  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
+  const creditsBalance = useSquadCreditsStore((s) => s.balance);
 
   const loadStatuses = useCallback(async () => {
     const [openai, anthropic] = await Promise.all([
@@ -45,14 +45,14 @@ export function ChatModelSelector({ provider, model, onSelect }: ChatModelSelect
     loadStatuses();
   }, [loadStatuses]);
 
-  const isCredits = provider === HOUSTON_CREDITS_INFO.id;
+  const isCredits = provider === SQUAD_CREDITS_INFO.id;
   const currentProvider = getProvider(provider);
   const currentModel = getModel(provider, model);
   const displayLabel = isCredits
     ? t("modelSelector.creditsLabel")
     : (currentModel?.label ?? currentProvider?.subtitle ?? t("modelSelector.selectModel"));
 
-  // Always show Houston Credits group when it's the active provider.
+  // Always show Squad Credits group when it's the active provider.
   const showCreditsGroup = isCredits;
 
   // Always show all providers — connected ones are selectable, disconnected
@@ -79,10 +79,10 @@ export function ChatModelSelector({ provider, model, onSelect }: ChatModelSelect
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           {showCreditsGroup && (
-            <HoustonCreditsGroup
+            <SquadCreditsGroup
               isActive={isCredits}
               balance={creditsBalance}
-              onSelect={() => onSelect(HOUSTON_CREDITS_INFO.id, HOUSTON_CREDITS_INFO.model)}
+              onSelect={() => onSelect(SQUAD_CREDITS_INFO.id, SQUAD_CREDITS_INFO.model)}
               showSeparator={false}
             />
           )}
@@ -106,7 +106,7 @@ export function ChatModelSelector({ provider, model, onSelect }: ChatModelSelect
   );
 }
 
-function HoustonCreditsGroup({
+function SquadCreditsGroup({
   isActive,
   balance,
   onSelect,
@@ -123,7 +123,7 @@ function HoustonCreditsGroup({
       {showSeparator && <DropdownMenuSeparator />}
       <DropdownMenuLabel className="flex items-center gap-1.5 text-xs text-muted-foreground font-normal">
         <Zap className="size-3.5" />
-        {HOUSTON_CREDITS_INFO.name}
+        {SQUAD_CREDITS_INFO.name}
       </DropdownMenuLabel>
       <DropdownMenuItem
         onPointerDown={(e) => e.stopPropagation()}
@@ -141,7 +141,7 @@ function HoustonCreditsGroup({
           <div className="text-xs text-muted-foreground leading-snug">
             {balance !== null
               ? t("modelSelector.creditsBalance", { count: balance })
-              : HOUSTON_CREDITS_INFO.subtitle}
+              : SQUAD_CREDITS_INFO.subtitle}
           </div>
         </div>
       </DropdownMenuItem>
@@ -203,7 +203,7 @@ function ProviderModelGroup({
 }
 
 function ProviderIcon({ providerId, className }: { providerId: string; className?: string }) {
-  if (providerId === HOUSTON_CREDITS_INFO.id) {
+  if (providerId === SQUAD_CREDITS_INFO.id) {
     return <Zap className={className} />;
   }
   if (providerId === "anthropic") {

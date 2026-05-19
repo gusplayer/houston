@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@houston-ai/core"
+} from "@squad/core"
 import {
   ArrowLeft,
   Play,

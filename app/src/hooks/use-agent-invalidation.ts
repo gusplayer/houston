@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { HoustonEvent } from "@houston-ai/core";
+import type { SquadEvent } from "@squad/core";
 import { queryKeys } from "../lib/query-keys";
-import { subscribeHoustonEvents } from "../lib/events";
+import { subscribeSquadEvents } from "../lib/events";
 
 /**
  * Maps agent-change events from Rust (both Tauri command emissions
@@ -14,7 +14,7 @@ export function useAgentInvalidation() {
   const qc = useQueryClient();
 
   useEffect(() => {
-    const unlisten = subscribeHoustonEvents((p: HoustonEvent) => {
+    const unlisten = subscribeSquadEvents((p: SquadEvent) => {
       console.log("[invalidation] event:", p.type, "data" in p ? (p as { data: { agent_path?: string } }).data?.agent_path : "");
 
       switch (p.type) {

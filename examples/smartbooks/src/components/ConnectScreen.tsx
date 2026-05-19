@@ -28,7 +28,7 @@ export function ConnectScreen({ error, defaults, onConnect }: Props) {
             : "Drop a bank statement in, get a clean workbook back."}
           {" Built on "}
           <a href="https://gethouston.ai" target="_blank" rel="noreferrer">
-            Houston Engine
+            Squad Engine
           </a>
           .
         </p>
@@ -59,7 +59,7 @@ export function ConnectScreen({ error, defaults, onConnect }: Props) {
               type="password"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              placeholder="from ~/.houston/engine.json or your .env"
+              placeholder="from ~/.squad/engine.json or your .env"
               autoComplete="off"
               spellCheck={false}
               required
@@ -74,10 +74,10 @@ export function ConnectScreen({ error, defaults, onConnect }: Props) {
           <summary>How do I find these?</summary>
           <p>
             Start the engine locally with{" "}
-            <code>HOUSTON_ENGINE_TOKEN=your-token cargo run -p houston-engine-server --bin houston-engine</code>{" "}
+            <code>HOUSTON_ENGINE_TOKEN=your-token cargo run -p squad-engine-server --bin squad-engine</code>{" "}
             — it prints the port on stdout and writes a manifest to{" "}
-            <code>~/.houston/engine.json</code>. Or point this at any remote
-            deployment running the same binary (e.g. Houston Always On).
+            <code>~/.squad/engine.json</code>. Or point this at any remote
+            deployment running the same binary (e.g. Squad Always On).
           </p>
         </details>
       </div>

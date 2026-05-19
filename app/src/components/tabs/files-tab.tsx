@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { FilesBrowser } from "@houston-ai/agent";
+import { FilesBrowser } from "@squad/agent";
 import { FolderOpen } from "lucide-react";
 import { useFiles, useDeleteFile, useRenameFile, useCreateFolder } from "../../hooks/queries";
 import { tauriFiles } from "../../lib/tauri";

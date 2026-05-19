@@ -9,9 +9,9 @@
  * ws.connect();
  * ```
  *
- * The engine topic map (see `engine/houston-engine-protocol/src/lib.rs::event_topic`):
+ * The engine topic map (see `engine/squad-engine-protocol/src/lib.rs::event_topic`):
  * - `*` — firehose; matches every topic below (see
- *    `engine/houston-engine-server/src/ws.rs::is_subscribed`)
+ *    `engine/squad-engine-server/src/ws.rs::is_subscribed`)
  * - `session:{session_key}` — FeedItem, SessionStatus
  * - `auth` — AuthRequired
  * - `toast` — Toast, CompletionToast
@@ -27,7 +27,7 @@
  */
 
 import type { EngineEnvelope } from "./types";
-import type { HoustonClient } from "./client";
+import type { SquadClient } from "./client";
 
 type EnvelopeHandler = (env: EngineEnvelope) => void;
 type EventHandler = (event: unknown) => void;
@@ -65,7 +65,7 @@ export class EngineWebSocket {
   /** Topics the caller wants subscribed. Re-sent on every reconnect. */
   private subscribed: Set<string> = new Set();
 
-  constructor(private client: HoustonClient) {}
+  constructor(private client: SquadClient) {}
 
   connect(): void {
     this.shouldRun = true;
@@ -86,7 +86,7 @@ export class EngineWebSocket {
   }
 
   /**
-   * Typed event handler — called once per `HoustonEvent` (kind:"event"
+   * Typed event handler — called once per `SquadEvent` (kind:"event"
    * frames, payload is the tagged event object). Non-event frames are
    * filtered out. Lag markers (`{type:"Lag",...}`) pass through.
    */

@@ -1,0 +1,41 @@
+[package]
+name = "squad-engine-core"
+version = "0.4.19"
+edition = "2021"
+description = "Runtime container for Houston Engine — owns DB, event sinks, paths, and domain logic shared by HTTP routes and CLI tools"
+license = "MIT"
+repository = "https://github.com/getsquad/squad"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+thiserror = "1"
+squad-db = { workspace = true }
+squad-terminal-manager = { workspace = true }
+squad-ui-events = { workspace = true }
+squad-agent-files = { workspace = true }
+squad-skills = { workspace = true, features = ["remote"] }
+squad-engine-protocol = { workspace = true }
+squad-agents-conversations = { workspace = true }
+squad-cli-bundle = { workspace = true }
+squad-claude-installer = { workspace = true }
+dirs-next = "2"
+dirs = "5"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+async-trait = { workspace = true }
+cron = "0.12"
+chrono-tz = "0.9"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+# Native 7z decoder used to extract the bundled PortableGit archive
+# on first launch (see src/git_bash.rs). Replaces an earlier SFX
+# subprocess that popped its own progress dialog and blocked engine
+# boot.
+sevenz-rust2 = "0.18"
+
+[dev-dependencies]
+tempfile = "3"

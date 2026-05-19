@@ -6,7 +6,7 @@
  * already exist we reuse them.
  */
 
-import { HoustonClient } from "@houston-ai/engine-client";
+import { SquadClient } from "@squad/engine-client";
 import type { AgentConfig } from "./config";
 import { loadAgentConfig, saveAgentConfig } from "./config";
 import { SEEDS, CLAUDE_MD } from "./seed";
@@ -14,7 +14,7 @@ import { SEEDS, CLAUDE_MD } from "./seed";
 const WORKSPACE_NAME = "SmartBooks";
 const AGENT_NAME = "Bookkeeper";
 
-export async function ensureAgent(client: HoustonClient): Promise<AgentConfig> {
+export async function ensureAgent(client: SquadClient): Promise<AgentConfig> {
   // Fast path — previously-resolved agent still valid?
   const cached = loadAgentConfig();
   if (cached) {

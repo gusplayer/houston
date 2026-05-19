@@ -13,7 +13,7 @@ interface FilterArgs {
   category: StoreCategory;
   sort: StoreSort;
   /** Listings whose IDs are in this set are treated as official. */
-  houstonIds: Set<string>;
+  squadIds: Set<string>;
 }
 
 /**
@@ -28,7 +28,7 @@ export function filterAndSortListings(
   const filtered = listings.filter((l) => {
     if (args.category !== "all" && l.category !== args.category) return false;
 
-    const isOfficial = args.houstonIds.has(l.id) || l.source === "houston";
+    const isOfficial = args.squadIds.has(l.id) || l.source === "squad";
     if (args.source === "official" && !isOfficial) return false;
     if (args.source === "community" && isOfficial) return false;
 

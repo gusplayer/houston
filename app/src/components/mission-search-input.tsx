@@ -1,4 +1,4 @@
-import { Input } from "@houston-ai/core";
+import { Input } from "@squad/core";
 import { Loader2, Search, X } from "lucide-react";
 
 interface MissionSearchInputLabels {

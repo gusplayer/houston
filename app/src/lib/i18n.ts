@@ -1,5 +1,5 @@
 /**
- * i18next setup for the Houston desktop app.
+ * i18next setup for the Squad desktop app.
  *
  * Source of truth for the user's locale = engine preference `locale`.
  * localStorage is only a boot-time cache so the first paint doesn't flash
@@ -71,7 +71,7 @@ export const LOCALE_PREF_KEY = "locale";
  * Boot-time cache key in localStorage. Used ONLY to avoid flash-of-wrong-
  * language before the engine preference loads. Never the source of truth.
  */
-const LOCALE_CACHE_KEY = "houston.locale.cache";
+const LOCALE_CACHE_KEY = "squad.locale.cache";
 
 export function getCachedLocale(): SupportedLocale | null {
   try {

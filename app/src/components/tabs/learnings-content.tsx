@@ -6,7 +6,7 @@ import {
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { Plus } from "lucide-react";
 import { LearningCard } from "./learning-card";
 

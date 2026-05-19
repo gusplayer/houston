@@ -14,15 +14,15 @@ function resetUIStore() {
 describe("handleStoreUrl", () => {
   beforeEach(resetUIStore);
 
-  it("valid 'houston://store/agent/<id>' sets storeAgentId and viewMode='store'", () => {
-    handleStoreUrl("houston://store/agent/foo");
+  it("valid 'squad://store/agent/<id>' sets storeAgentId and viewMode='store'", () => {
+    handleStoreUrl("squad://store/agent/foo");
     const s = useUIStore.getState();
     strictEqual(s.storeAgentId, "foo");
     strictEqual(s.viewMode, "store");
   });
 
   it("URL-encoded ids are decoded", () => {
-    handleStoreUrl("houston://store/agent/mock%2Drecruiter-pro");
+    handleStoreUrl("squad://store/agent/mock%2Drecruiter-pro");
     const s = useUIStore.getState();
     strictEqual(s.storeAgentId, "mock-recruiter-pro");
     strictEqual(s.viewMode, "store");
@@ -35,26 +35,26 @@ describe("handleStoreUrl", () => {
     strictEqual(s.viewMode, "chat");
   });
 
-  it("wrong host (e.g. 'houston://other/agent/foo') does NOT mutate the UI store", () => {
+  it("wrong host (e.g. 'squad://other/agent/foo') does NOT mutate the UI store", () => {
     // Note: routing-by-host happens in Rust (`dispatch_deep_link`). If a
     // store-channel event ever arrived with a non-store host, the parser
     // should still refuse to mutate state. We test by passing the URL
     // directly to the pure parser.
-    handleStoreUrl("houston://other/agent/foo");
+    handleStoreUrl("squad://other/agent/foo");
     const s = useUIStore.getState();
     strictEqual(s.storeAgentId, null);
     strictEqual(s.viewMode, "chat");
   });
 
-  it("missing agent id ('houston://store/agent/') does NOT mutate the UI store", () => {
-    handleStoreUrl("houston://store/agent/");
+  it("missing agent id ('squad://store/agent/') does NOT mutate the UI store", () => {
+    handleStoreUrl("squad://store/agent/");
     const s = useUIStore.getState();
     strictEqual(s.storeAgentId, null);
     strictEqual(s.viewMode, "chat");
   });
 
-  it("empty path ('houston://store/') does NOT mutate the UI store", () => {
-    handleStoreUrl("houston://store/");
+  it("empty path ('squad://store/') does NOT mutate the UI store", () => {
+    handleStoreUrl("squad://store/");
     const s = useUIStore.getState();
     strictEqual(s.storeAgentId, null);
     strictEqual(s.viewMode, "chat");

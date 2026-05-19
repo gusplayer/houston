@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { tauriPreferences } from "../../../lib/tauri";
 import {
   changeLocale,

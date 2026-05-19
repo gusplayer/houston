@@ -23,7 +23,7 @@ export function defaultAssistantSetup(labels: {
 export function buildAssistantInstructions(setup: AssistantSetup, missionTitle: string): string {
   return `# ${setup.assistantName}
 
-You are my Personal assistant in Houston.
+You are my Personal assistant in Squad.
 
 ## Main job
 ${setup.focus.trim()}

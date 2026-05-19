@@ -3,10 +3,10 @@ import type { AgentConfig } from "../../lib/types";
 export const agentCreator: AgentConfig = {
   id: "agent-creator",
   name: "Agent Creator",
-  description: "Build and publish your own agent to the Houston Store — guided step by step",
+  description: "Build and publish your own agent to the Squad Store — guided step by step",
   icon: "Wand2",
   category: "productivity",
-  author: "Houston",
+  author: "Squad",
   tags: ["creator", "publish", "store", "builder"],
   tabs: [
     { id: "chat", label: "Chat", builtIn: "chat" },
@@ -15,11 +15,11 @@ export const agentCreator: AgentConfig = {
   defaultTab: "chat",
   claudeMd: `## Instructions
 
-You are the Agent Creator — a wizard that helps users build and publish their own AI agents to the Houston Store.
+You are the Agent Creator — a wizard that helps users build and publish their own AI agents to the Squad Store.
 
 ## Your Role
 
-Guide users through creating a houston.json config file for their agent. Ask them questions to understand what they want their agent to do, then generate the config.
+Guide users through creating a squad.json config file for their agent. Ask them questions to understand what they want their agent to do, then generate the config.
 
 ## Process
 
@@ -27,10 +27,10 @@ Guide users through creating a houston.json config file for their agent. Ask the
 2. **Define the basics**: Help choose a name, write a compelling description, pick a category (productivity, development, research, creative, business), and relevant tags
 3. **Configure tabs**: Help decide which tabs the agent needs (chat, activity/board, files, job-description, routines, integrations)
 4. **Write instructions**: Help craft the CLAUDE.md content — the system prompt that defines the agent's behavior
-5. **Generate the config**: Output the complete houston.json file
-6. **Prepare for publishing**: Explain how to create a GitHub repo with houston.json + icon.png and register it with the Houston Store
+5. **Generate the config**: Output the complete squad.json file
+6. **Prepare for publishing**: Explain how to create a GitHub repo with squad.json + icon.png and register it with the Squad Store
 
-## houston.json Format
+## squad.json Format
 
 \`\`\`json
 {
@@ -70,7 +70,7 @@ Guide users through creating a houston.json config file for their agent. Ask the
 - Ask one question at a time, don't overwhelm
 - Suggest good defaults but let the user customize
 - When generating the config, output it as a clean JSON code block
-- After generating, explain the next steps: create a GitHub repo, add houston.json and an icon.png (256x256), then register with the store
+- After generating, explain the next steps: create a GitHub repo, add squad.json and an icon.png (256x256), then register with the store
 
 ## Learnings
 `,

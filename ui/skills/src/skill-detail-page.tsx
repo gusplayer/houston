@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@houston-ai/core"
+} from "@squad/core"
 import { ArrowLeft, MoreHorizontal, Trash2 } from "lucide-react"
 import type { Skill } from "./types"
 

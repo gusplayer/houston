@@ -6,7 +6,7 @@ export const personalAssistantAgent: AgentConfig = {
   description: "A general-purpose assistant for your day, inbox, calendar, follow-ups, and recurring work.",
   icon: "Sparkles",
   category: "productivity",
-  author: "Houston",
+  author: "Squad",
   tags: ["personal", "assistant", "starter", "inbox", "calendar"],
   integrations: ["gmail", "googlecalendar"],
   tabs: [

@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { BadgeCheck, ShieldCheck, Sparkles, Users } from "lucide-react";
-import { Badge, cn } from "@houston-ai/core";
+import { Badge, cn } from "@squad/core";
 import type { StoreListing } from "../../lib/types";
 
-/** Small "Official" pill for first-party Houston agents. */
+/** Small "Official" pill for first-party Squad agents. */
 export function OfficialBadge() {
   const { t } = useTranslation("store");
   return (
@@ -25,7 +25,7 @@ export function CommunityBadge() {
   );
 }
 
-/** "Verified" pill for publishers vouched for by Houston. */
+/** "Verified" pill for publishers vouched for by Squad. */
 export function VerifiedBadge() {
   const { t } = useTranslation("store");
   return (

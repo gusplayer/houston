@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { useSkills } from "../hooks/queries";
 import { SkillCard } from "./skill-card";
 import { SkillList } from "./new-mission-picker-skill-list";

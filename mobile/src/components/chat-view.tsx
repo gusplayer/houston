@@ -13,7 +13,7 @@ import {
   decodeSkillMessage,
   decodeAttachmentMessage,
   type FeedItem,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 import {
   useChatHistory,
   useCreateMission,

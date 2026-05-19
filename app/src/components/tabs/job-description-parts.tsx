@@ -6,7 +6,7 @@ import {
   EmptyHeader,
   EmptyTitle,
   cn,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { FileText } from "lucide-react";
 
 export type SubTab = "instructions" | "skills" | "learnings";

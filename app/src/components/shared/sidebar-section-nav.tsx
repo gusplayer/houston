@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Badge } from "@houston-ai/core";
+import { Badge } from "@squad/core";
 
 export interface SidebarSectionItem<Id extends string> {
   id: Id;

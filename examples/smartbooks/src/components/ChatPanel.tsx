@@ -5,12 +5,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { topics } from "@houston-ai/engine-client";
+import { topics } from "@squad/engine-client";
 import type { AgentConfig } from "../lib/config";
 import type { Client } from "../lib/clients";
 import { clientContextLine } from "../lib/clients";
 import { getClient, getWs } from "../lib/engine";
-import type { FeedItem, HoustonEvent, Message } from "../lib/feed";
+import type { FeedItem, SquadEvent, Message } from "../lib/feed";
 import { appendFeedItem } from "../lib/feed";
 
 export interface ChatHandle {
@@ -80,7 +80,7 @@ export const ChatPanel = forwardRef<ChatHandle, Props>(function ChatPanel(
     const ws = getWs();
     ws.subscribe([topics.session(agent.sessionKey), topics.auth]);
     const off = ws.onEvent((raw) => {
-      const ev = raw as HoustonEvent;
+      const ev = raw as SquadEvent;
       if (ev.type === "FeedItem") {
         const payload = ev.data as { session_key: string; item: FeedItem };
         if (payload.session_key !== agent.sessionKey) return;

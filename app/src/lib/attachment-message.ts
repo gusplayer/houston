@@ -1,9 +1,9 @@
 import type {
   AttachmentInvocation,
   AttachmentReference,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 
-const MARKER_PREFIX = "<!--houston:attachments ";
+const MARKER_PREFIX = "<!--squad:attachments ";
 const MARKER_SUFFIX = "-->";
 
 export function withAttachmentPaths(text: string, paths: string[]): string {

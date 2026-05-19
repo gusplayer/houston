@@ -5,8 +5,8 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@houston-ai/core";
-import { cn } from "@houston-ai/core";
+} from "@squad/core";
+import { cn } from "@squad/core";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";

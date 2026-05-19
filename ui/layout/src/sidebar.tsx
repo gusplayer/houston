@@ -1,6 +1,6 @@
 import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { Plus } from "lucide-react";
-import { ScrollArea } from "@houston-ai/core";
+import { ScrollArea } from "@squad/core";
 import { SidebarNavItem } from "./sidebar-nav";
 import { SidebarItemRow } from "./sidebar-item-row";
 import type { SidebarItemRowLabels } from "./sidebar-item-row";

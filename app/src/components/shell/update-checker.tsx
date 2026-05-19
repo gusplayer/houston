@@ -2,8 +2,8 @@ import { AlertCircle, DownloadCloud, Loader2, RotateCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useUpdateChecker } from "../../hooks/use-update-checker";
 import { normalizeUpdateNotes } from "../../lib/update-details";
-import houstonBlack from "../../assets/houston-black.svg";
-import houstonWhite from "../../assets/houston-icon-white.svg";
+import squadBlack from "../../assets/squad-black.svg";
+import squadWhite from "../../assets/squad-icon-white.svg";
 
 export function UpdateChecker() {
   const { t } = useTranslation("shell");
@@ -50,16 +50,16 @@ export function UpdateChecker() {
       <div className="flex items-start gap-3">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-background ring-1 ring-border">
           <img
-            src={houstonBlack}
+            src={squadBlack}
             alt=""
             aria-hidden="true"
-            className="houston-update-logo-light size-8 object-contain"
+            className="squad-update-logo-light size-8 object-contain"
           />
           <img
-            src={houstonWhite}
+            src={squadWhite}
             alt=""
             aria-hidden="true"
-            className="houston-update-logo-dark hidden size-8 object-contain"
+            className="squad-update-logo-dark hidden size-8 object-contain"
           />
         </div>
         <div className="min-w-0 flex-1">

@@ -17,7 +17,7 @@
  *   already installed, etc). No raw error messages reach the user.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Spinner } from "@houston-ai/core"
+import { Spinner } from "@squad/core"
 import { AlertCircle, Search } from "lucide-react"
 import type { CommunitySkill } from "./types"
 import {

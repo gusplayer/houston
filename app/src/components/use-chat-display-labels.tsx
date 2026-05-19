@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Shimmer } from "@houston-ai/chat";
-import type { ChatPanelProps } from "@houston-ai/chat";
+import { Shimmer } from "@squad/chat";
+import type { ChatPanelProps } from "@squad/chat";
 
 export function useChatDisplayLabels(): Pick<
   ChatPanelProps,

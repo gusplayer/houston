@@ -1,7 +1,7 @@
 import {
   UserAttachmentBadge,
   type UserAttachmentMessageLabels,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 import { SkillIcon } from "./skill-icon";
 import { IntegrationLogos } from "./integration-logos";
 import type { SkillInvocation } from "../lib/skill-message";

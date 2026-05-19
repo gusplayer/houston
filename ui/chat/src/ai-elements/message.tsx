@@ -1,17 +1,17 @@
 "use client";
 
-import { Button } from "@houston-ai/core";
+import { Button } from "@squad/core";
 import {
   ButtonGroup,
   ButtonGroupText,
-} from "@houston-ai/core";
+} from "@squad/core";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@houston-ai/core";
-import { cn } from "@houston-ai/core";
+} from "@squad/core";
+import { cn } from "@squad/core";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";

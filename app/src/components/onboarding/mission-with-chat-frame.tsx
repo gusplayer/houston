@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { cn } from "@houston-ai/core";
-import { HoustonLogo } from "../shell/experience-card";
+import { cn } from "@squad/core";
+import { SquadLogo } from "../shell/experience-card";
 import type { MissionMeta } from "./mission-frame";
 
 interface MissionWithChatFrameProps {
@@ -27,7 +27,7 @@ export function MissionWithChatFrame({
       <header className="shrink-0 border-b border-black/5 bg-background/95 px-5 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <HoustonLogo size={24} />
+            <SquadLogo size={24} />
             <span className="text-sm font-medium">{brandLabel}</span>
           </div>
           <div className="flex items-center gap-3">

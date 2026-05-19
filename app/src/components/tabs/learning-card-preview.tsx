@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 import { ChevronDown, Pencil, Trash2 } from "lucide-react";
 import { learningPreviewText } from "../../lib/learning-preview";
 

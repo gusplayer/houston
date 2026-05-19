@@ -1,9 +1,9 @@
 //! Engine subprocess supervisor (Phase 4).
 //!
-//! Spawns `houston-engine` as a child process, parses its stdout for the
-//! `HOUSTON_ENGINE_LISTENING port=<p> token=<t>` line, polls `/v1/health`
+//! Spawns `squad-engine` as a child process, parses its stdout for the
+//! `SQUAD_ENGINE_LISTENING port=<p> token=<t>` line, polls `/v1/health`
 //! until ready, and hands the `{baseUrl, token}` handshake back to the
-//! caller so the Tauri setup can inject `window.__HOUSTON_ENGINE__` before
+//! caller so the Tauri setup can inject `window.__SQUAD_ENGINE__` before
 //! showing the webview.
 //!
 //! Lifecycle:
@@ -17,7 +17,7 @@
 //!   watchdog: dropping the supervisor closes the pipe and the engine
 //!   exits cleanly on the next read.
 //! - Child crash → [`spawn_supervisor`] restarts with 1s..30s exponential
-//!   backoff and emits a `houston-event` toast to the webview on each
+//!   backoff and emits a `squad-event` toast to the webview on each
 //!   restart.
 //!
 //! Not Tauri-specific — the binary path, resource lookup, and webview
@@ -60,11 +60,11 @@ pub struct EngineSubprocess {
 }
 
 impl EngineSubprocess {
-    /// Spawn `houston-engine` and wait up to `timeout` for the banner.
+    /// Spawn `squad-engine` and wait up to `timeout` for the banner.
     ///
     /// `env` is merged on top of the inherited environment — used by the
-    /// Houston app to pass product-layer prompts (`HOUSTON_APP_SYSTEM_PROMPT`,
-    /// `HOUSTON_APP_ONBOARDING_PROMPT`) into the engine at boot so the engine
+    /// Houston app to pass product-layer prompts (`SQUAD_APP_SYSTEM_PROMPT`,
+    /// `SQUAD_APP_ONBOARDING_PROMPT`) into the engine at boot so the engine
     /// itself carries no product copy.
     pub fn spawn(
         binary: &PathBuf,
@@ -114,7 +114,7 @@ impl EngineSubprocess {
             const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
             // CREATE_NO_WINDOW (0x08000000) prevents Windows from
             // allocating a fresh console for the engine child.
-            // `houston-app.exe` is a GUI Tauri process with no
+            // `squad-app.exe` is a GUI Tauri process with no
             // console attached, so without this flag the engine —
             // which compiles with Rust's default `console` PE
             // subsystem so its tracing output stays inspectable when
@@ -147,7 +147,7 @@ impl EngineSubprocess {
         // Without (1), Windows GUI builds discard engine stderr to NUL.
         let stderr_reader = BufReader::new(stderr);
         thread::spawn(move || {
-            let logs_dir = houston_tauri::houston_db::db::houston_dir().join("logs");
+            let logs_dir = squad_tauri::squad_db::db::squad_dir().join("logs");
             let _ = std::fs::create_dir_all(&logs_dir);
             let today = chrono::Local::now().format("%Y-%m-%d").to_string();
             let log_path = logs_dir.join(format!("engine.log.{today}"));
@@ -260,22 +260,22 @@ impl Drop for EngineSubprocess {
     }
 }
 
-/// Resolve the `houston-engine` binary path.
+/// Resolve the `squad-engine` binary path.
 ///
 /// Resolution order:
-/// 1. `HOUSTON_ENGINE_BIN` env var (dev override / SSH deploy).
+/// 1. `SQUAD_ENGINE_BIN` env var (dev override / SSH deploy).
 /// 2. Debug builds: cargo workspace target (freshest during `pnpm tauri
 ///    dev` — the staged sidecar can be stale if you rebuild just the
 ///    engine crate).
 /// 3. Sibling of the current executable — this is where Tauri's
 ///    `externalBin` places sidecars in shipped app bundles:
-///      - macOS: `Houston.app/Contents/MacOS/houston-engine`
-///      - Windows: next to `houston-app.exe`
+///      - macOS: `Houston.app/Contents/MacOS/squad-engine`
+///      - Windows: next to `squad-app.exe`
 ///      - Linux AppImage: inside the mounted AppImage root
 ///    Authoritative for release builds. (Tauri's `resource_dir()` points
 ///    at `Contents/Resources/` on macOS which is the WRONG place for
 ///    externalBin — sidecars are not resources.)
-/// 4. `<resource_dir>/binaries/houston-engine` — legacy / belt-and-braces
+/// 4. `<resource_dir>/binaries/squad-engine` — legacy / belt-and-braces
 ///    fallback for platforms that stage externalBin into the resources
 ///    tree.
 /// 5. Release builds: cargo workspace target (last-resort, exists only
@@ -297,7 +297,7 @@ pub fn resolve_engine_binary(resource_dir: Option<&PathBuf>) -> Result<PathBuf, 
     };
 
     // 1. Explicit env override.
-    if let Ok(p) = std::env::var("HOUSTON_ENGINE_BIN") {
+    if let Ok(p) = std::env::var("SQUAD_ENGINE_BIN") {
         let pb = PathBuf::from(p);
         if let Some(hit) = try_candidate(pb, &mut tried) {
             return Ok(hit);
@@ -366,7 +366,7 @@ pub fn resolve_engine_binary(resource_dir: Option<&PathBuf>) -> Result<PathBuf, 
     }
 
     Err(format!(
-        "houston-engine binary not found. Tried:\n  - {}",
+        "squad-engine binary not found. Tried:\n  - {}",
         tried
             .iter()
             .map(|p| p.display().to_string())
@@ -377,9 +377,9 @@ pub fn resolve_engine_binary(resource_dir: Option<&PathBuf>) -> Result<PathBuf, 
 
 fn bin_name_no_triple() -> &'static str {
     if cfg!(windows) {
-        "houston-engine.exe"
+        "squad-engine.exe"
     } else {
-        "houston-engine"
+        "squad-engine"
     }
 }
 
@@ -426,7 +426,7 @@ pub trait SupervisorCallbacks: Send + Sync + 'static {
     fn on_restart(&self, handshake: &EngineHandshake);
 }
 
-/// Spawn a background thread that keeps `houston-engine` alive. On crash,
+/// Spawn a background thread that keeps `squad-engine` alive. On crash,
 /// restarts with 1s..30s exponential backoff and invokes `cb.on_restart`.
 ///
 /// Returns the initial [`EngineSubprocess`] so the caller can grab the
@@ -480,8 +480,8 @@ pub fn spawn_supervisor<C: SupervisorCallbacks>(
 }
 
 fn parse_banner(line: &str) -> Option<EngineHandshake> {
-    // Format: HOUSTON_ENGINE_LISTENING port=<p> token=<t>
-    let rest = line.strip_prefix("HOUSTON_ENGINE_LISTENING ")?;
+    // Format: SQUAD_ENGINE_LISTENING port=<p> token=<t>
+    let rest = line.strip_prefix("SQUAD_ENGINE_LISTENING ")?;
     let mut port: Option<u16> = None;
     let mut token: Option<String> = None;
     for field in rest.split_whitespace() {
@@ -555,7 +555,7 @@ mod tests {
 
     #[test]
     fn parses_banner() {
-        let h = parse_banner("HOUSTON_ENGINE_LISTENING port=12345 token=abc").unwrap();
+        let h = parse_banner("SQUAD_ENGINE_LISTENING port=12345 token=abc").unwrap();
         assert_eq!(h.port, 12345);
         assert_eq!(h.token, "abc");
     }

@@ -5,9 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { ChevronDown } from "lucide-react";
-import { HoustonLogo } from "./shell/experience-card";
+import { SquadLogo } from "./shell/experience-card";
 import { AgentCardAvatar } from "./shell/agent-card-avatar";
 import type { Agent } from "../lib/types";
 import { MissionSearchInput } from "./mission-search-input";
@@ -77,7 +77,7 @@ export function MissionControlToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
             <Button data-keep-panel-open onClick={onNewMission}>
-              <HoustonLogo size={16} />
+              <SquadLogo size={16} />
               {t("empty.newMission")}
             </Button>
           </div>

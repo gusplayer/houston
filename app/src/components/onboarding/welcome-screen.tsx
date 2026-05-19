@@ -1,5 +1,5 @@
-import { Button } from "@houston-ai/core";
-import { HoustonLogo } from "../shell/experience-card";
+import { Button } from "@squad/core";
+import { SquadLogo } from "../shell/experience-card";
 
 interface WelcomeScreenProps {
   title: string;
@@ -25,7 +25,7 @@ export function WelcomeScreen({
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-background px-6 text-foreground">
       <div className="flex w-full max-w-md flex-col items-center gap-6 text-center">
-        <HoustonLogo size={56} />
+        <SquadLogo size={56} />
         <h1 className="text-[28px] font-normal leading-tight">{title}</h1>
         <p className="text-base text-muted-foreground">{tagline}</p>
         <div className="w-full rounded-xl border border-black/5 bg-secondary/40 p-4 text-left">

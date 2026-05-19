@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@houston-ai/core";
+} from "@squad/core";
 import type { SidebarItem } from "./sidebar";
 import { sidebarItemRowClasses } from "./sidebar-classes";
 

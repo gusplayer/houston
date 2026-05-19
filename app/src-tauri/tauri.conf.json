@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nickelpack/tauri/v2/crates/tauri-config-schema/schema.json",
-  "productName": "Houston",
-  "identifier": "com.houston.app",
+  "productName": "Squad",
+  "identifier": "com.squad.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
     "withGlobalTauri": false,
     "windows": [
       {
-        "title": "Houston",
+        "title": "Squad",
         "width": 1440,
         "height": 900,
         "minWidth": 800,
@@ -30,13 +30,13 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/gethouston/houston/releases/latest/download/latest.json"
+        "https://github.com/getsquad/squad/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJDQTdCMzc1MURERDRFQkQKUldTOVR0MGRkYk9uTEE4SUNnNElWZzVEN3QvcFQzczl6Y2NTMUpLSXJYZkxyK2g5azk4UHpRdmcK"
     },
     "deep-link": {
       "desktop": {
-        "schemes": ["houston"]
+        "schemes": ["squad"]
       }
     }
   },
@@ -44,7 +44,7 @@
     "createUpdaterArtifacts": true,
     "active": true,
     "targets": ["app", "dmg", "msi"],
-    "externalBin": ["binaries/houston-engine"],
+    "externalBin": ["binaries/squad-engine"],
     "resources": {
       "resources/bin": "bin",
       "../../store": "store"

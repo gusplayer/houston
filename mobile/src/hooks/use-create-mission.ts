@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import type { Activity } from "@houston-ai/engine-client";
+import type { Activity } from "@squad/engine-client";
 import { getEngine } from "../lib/engine";
 import { dropPending, pushPending } from "./chat-optimistic";
 

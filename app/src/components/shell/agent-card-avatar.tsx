@@ -1,5 +1,5 @@
-import { HoustonAvatar, resolveAgentColor } from "@houston-ai/core";
+import { SquadAvatar, resolveAgentColor } from "@squad/core";
 
 export function AgentCardAvatar({ color }: { color?: string }) {
-  return <HoustonAvatar color={resolveAgentColor(color)} diameter={16} />;
+  return <SquadAvatar color={resolveAgentColor(color)} diameter={16} />;
 }

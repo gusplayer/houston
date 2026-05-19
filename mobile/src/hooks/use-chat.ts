@@ -12,7 +12,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { topics } from "@houston-ai/engine-client";
+import { topics } from "@squad/engine-client";
 import { getEngine, getWs, useEngineReady } from "../lib/engine";
 import {
   dropPending,

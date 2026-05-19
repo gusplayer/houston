@@ -1,6 +1,6 @@
 /**
- * Wire types mirroring `engine/houston-engine-protocol/src/lib.rs` and
- * domain DTOs from `engine/houston-engine-core`.
+ * Wire types mirroring `engine/squad-engine-protocol/src/lib.rs` and
+ * domain DTOs from `engine/squad-engine-core`.
  *
  * Until we wire up a Rust→TS code generator (`ts-rs` or `specta`) these
  * are maintained by hand. Keep them in sync — the Rust side is the
@@ -329,9 +329,9 @@ export interface CommunitySkill {
 // ---------- Providers / preferences ----------
 
 /**
- * Where Houston found the CLI binary backing a provider. Surfaced so
- * the UI can label whether the user is talking to a copy Houston shipped
- * (`bundled`), one Houston downloaded for them (`managed`), one already
+ * Where Squad found the CLI binary backing a provider. Surfaced so
+ * the UI can label whether the user is talking to a copy Squad shipped
+ * (`bundled`), one Squad downloaded for them (`managed`), one already
  * on their PATH (`path`), or nothing at all (`missing`).
  *
  * Mirrors the Rust `houston_engine_core::provider::InstallSource` enum
@@ -359,7 +359,7 @@ export interface PreferenceValue {
  * Known preference keys. Free-form strings are still allowed — this alias
  * just documents the well-known keys and gives consumers completion.
  *
- * Keep in sync with `houston-engine-core::preferences` constants.
+ * Keep in sync with `squad-engine-core::preferences` constants.
  */
 export type KnownPreferenceKey =
   | "timezone"

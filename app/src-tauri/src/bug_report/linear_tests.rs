@@ -60,9 +60,9 @@ async fn send_bug_report_posts_linear_issue_create_mutation() {
         .iter()
         .all(|request| request.starts_with("POST /graphql HTTP/1.1")));
     assert!(lower.contains("authorization: test-api-key"));
-    assert!(joined.contains("HoustonBugReportLabel"));
+    assert!(joined.contains("SquadBugReportLabel"));
     assert!(joined.contains("\"labelName\":\"User Bug\""));
-    assert!(joined.contains("HoustonBugReportCreate"));
+    assert!(joined.contains("SquadBugReportCreate"));
     assert!(joined.contains("\"teamId\":\"team-id\""));
     assert!(joined.contains("\"labelIds\":[\"label-id\"]"));
     assert!(

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 import { SkillIcon } from "./skill-icon";
 import { IntegrationLogos } from "./integration-logos";
 

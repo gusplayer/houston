@@ -1,18 +1,18 @@
-# @houston-ai/core
+# @squad/core
 
 Foundation layer for Houston UI. 36 shadcn/ui components, design tokens, CSS animations, and utilities.
 
 ## Install
 
 ```bash
-pnpm add @houston-ai/core
+pnpm add @squad/core
 ```
 
 ## Usage
 
 ```tsx
-import { Button, Badge, Card, Tooltip } from "@houston-ai/core"
-import "@houston-ai/core/src/globals.css"
+import { Button, Badge, Card, Tooltip } from "@squad/core"
+import "@squad/core/src/globals.css"
 
 <Button variant="default">Run Agent</Button>
 <Badge>3 tasks</Badge>

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { mergeFeedItem } from "@houston-ai/chat";
-import type { FeedItem } from "@houston-ai/chat";
+import { mergeFeedItem } from "@squad/chat";
+import type { FeedItem } from "@squad/chat";
 
 /**
  * Feed store — nested by agent path, then by session key.

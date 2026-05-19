@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { ProviderPicker } from "../../shell/provider-picker";
-import { HoustonCreditsTopUpDialog } from "../../houston-credits-topup-dialog";
+import { SquadCreditsTopUpDialog } from "../../squad-credits-topup-dialog";
 import { useWorkspaceStore } from "../../../stores/workspaces";
 import { useUIStore } from "../../../stores/ui";
-import { useHoustonCreditsStore } from "../../../stores/houston-credits";
-import { Button } from "@houston-ai/core";
+import { useSquadCreditsStore } from "../../../stores/squad-credits";
+import { Button } from "@squad/core";
 
 export function ProviderSection() {
   const { t } = useTranslation(["settings", "providers"]);
@@ -13,7 +13,7 @@ export function ProviderSection() {
   const currentWorkspace = useWorkspaceStore((s) => s.current);
   const updateProvider = useWorkspaceStore((s) => s.updateProvider);
   const addToast = useUIStore((s) => s.addToast);
-  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
+  const creditsBalance = useSquadCreditsStore((s) => s.balance);
 
   if (!currentWorkspace) return null;
 
@@ -22,15 +22,15 @@ export function ProviderSection() {
     const provName =
       provider === "openai"
         ? "OpenAI"
-        : provider === "houston-credits"
-          ? "Houston Credits"
+        : provider === "squad-credits"
+          ? "Squad Credits"
           : "Anthropic";
     addToast({
       title: t("settings:toasts.providerSwitched", { provider: provName, model }),
     });
   };
 
-  const usingCredits = currentWorkspace.provider === "houston-credits";
+  const usingCredits = currentWorkspace.provider === "squad-credits";
 
   return (
     <section>
@@ -61,7 +61,7 @@ export function ProviderSection() {
           </Button>
         </div>
       )}
-      <HoustonCreditsTopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
+      <SquadCreditsTopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
     </section>
   );
 }

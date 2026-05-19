@@ -1,17 +1,17 @@
-# @houston-ai/skills
+# @squad/skills
 
 Skills management UI backed by Houston skill files. Browse installed skills, view details, search and install from the community marketplace.
 
 ## Install
 
 ```bash
-pnpm add @houston-ai/skills
+pnpm add @squad/skills
 ```
 
 ## Usage
 
 ```tsx
-import { SkillsGrid } from "@houston-ai/skills"
+import { SkillsGrid } from "@squad/skills"
 
 <SkillsGrid
   skills={installedSkills}
@@ -35,7 +35,7 @@ import { SkillsGrid } from "@houston-ai/skills"
 ## Peer Dependencies
 
 - React 19+
-- @houston-ai/core
+- @squad/core
 
 ---
 

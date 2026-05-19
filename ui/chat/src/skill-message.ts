@@ -1,21 +1,21 @@
 /**
  * Skill-invocation message marker.
  *
- * When a user runs a Houston Skill the selected Skill is shown above
+ * When a user runs a Squad Skill the selected Skill is shown above
  * the composer; the message body sent to Claude is wrapped in an
  * HTML-comment marker carrying the Skill's display metadata so the
  * chat renderer can show a card (instead of the raw prompt) for both
  * the live message and reloaded history.
  *
  * The marker is intentionally framework-agnostic: parsing lives in
- * `@houston-ai/chat` so any consumer (desktop app, mobile, future
+ * `@squad/chat` so any consumer (desktop app, mobile, future
  * embedded chats) can decode + render the same way without inheriting
  * the desktop's skill/agent code.
  *
  * Format (single line, rest of body is the explicit prompt Claude
  * follows):
  *
- *     <!--houston:skill {"skill":"...","fields":[...],...}-->
+ *     <!--squad:skill {"skill":"...","fields":[...],...}-->
  *
  *     Use the X skill...
  */
@@ -25,9 +25,9 @@ import {
   type AttachmentReference,
 } from "./attachment-message.ts";
 
-const MARKER_RE = /^<!--houston:skill (\{[\s\S]*?\})-->\s*\n?\n?/;
+const MARKER_RE = /^<!--squad:skill (\{[\s\S]*?\})-->\s*\n?\n?/;
 // Legacy marker preserved so chat history written before the rename keeps rendering as a card.
-const LEGACY_MARKER_RE = /^<!--houston:action (\{[\s\S]*?\})-->\s*\n?\n?/;
+const LEGACY_MARKER_RE = /^<!--squad:action (\{[\s\S]*?\})-->\s*\n?\n?/;
 
 export interface SkillInvocationField {
   label: string;

@@ -5,7 +5,7 @@ use super::linear_graphql::post_graphql;
 use super::BugReportPayload;
 
 const ISSUE_CREATE_MUTATION: &str = r#"
-mutation HoustonBugReportCreate($input: IssueCreateInput!) {
+mutation SquadBugReportCreate($input: IssueCreateInput!) {
   issueCreate(input: $input) {
     success
     issue {
@@ -18,7 +18,7 @@ mutation HoustonBugReportCreate($input: IssueCreateInput!) {
 "#;
 
 const LABEL_QUERY: &str = r#"
-query HoustonBugReportLabel($teamId: String!, $labelName: String!) {
+query SquadBugReportLabel($teamId: String!, $labelName: String!) {
   team(id: $teamId) {
     labels(first: 10, filter: { name: { eq: $labelName } }) {
       nodes {

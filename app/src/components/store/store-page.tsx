@@ -14,7 +14,7 @@ import {
   EmptyHeader,
   EmptyTitle,
   Input,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import type { StoreListing } from "../../lib/types";
 import { MOCK_COMMUNITY_AGENTS } from "./mock-catalog";
@@ -43,19 +43,19 @@ export function StorePage() {
   // Set when a deep-link agent id is not in the catalog. Drives the fallback dialog.
   const [unknownAgentId, setUnknownAgentId] = useState<string | null>(null);
 
-  // The set of real Houston-published agent IDs comes straight from the
+  // The set of real Squad-published agent IDs comes straight from the
   // engine catalog. Anything else here is a mock community preview.
-  const houstonIds = useMemo(
+  const squadIds = useMemo(
     () => new Set(storeCatalog.map((l) => l.id)),
     [storeCatalog],
   );
 
   const merged: StoreListing[] = useMemo(() => {
-    const houston = storeCatalog.map((l) => ({
+    const squad = storeCatalog.map((l) => ({
       ...l,
-      source: (l.source ?? "houston") as StoreListing["source"],
+      source: (l.source ?? "squad") as StoreListing["source"],
     }));
-    return [...houston, ...MOCK_COMMUNITY_AGENTS];
+    return [...squad, ...MOCK_COMMUNITY_AGENTS];
   }, [storeCatalog]);
 
   const visible = useMemo(
@@ -66,24 +66,24 @@ export function StorePage() {
         pricing: "all",
         category,
         sort: "trending",
-        houstonIds,
+        squadIds,
       }),
-    [merged, query, source, category, houstonIds],
+    [merged, query, source, category, squadIds],
   );
 
   const openListing = useCallback(
     (l: StoreListing) => {
       setActive(l);
-      setActiveIsHouston(houstonIds.has(l.id));
+      setActiveIsHouston(squadIds.has(l.id));
     },
-    [houstonIds],
+    [squadIds],
   );
 
   const handleMissingAgent = useCallback((agentId: string) => {
     setUnknownAgentId(agentId);
   }, []);
 
-  // Connect `houston://store/agent/<id>` (stored on useUIStore.storeAgentId)
+  // Connect `squad://store/agent/<id>` (stored on useUIStore.storeAgentId)
   // to the dialog state. The hook clears storeAgentId after handling so the effect cannot loop.
   useStoreDeepLink({ merged, onMatch: openListing, onMissing: handleMissingAgent });
 
@@ -135,7 +135,7 @@ export function StorePage() {
                 <StoreCard
                   key={listing.id}
                   listing={listing}
-                  isHouston={houstonIds.has(listing.id)}
+                  isHouston={squadIds.has(listing.id)}
                   onSelect={openListing}
                 />
               ))}

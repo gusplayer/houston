@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { ExternalLink, Download, Loader2 } from "lucide-react";
 import {
   Empty, EmptyHeader, EmptyTitle, EmptyDescription,
-} from "@houston-ai/core";
-import { HoustonLogo } from "../shell/experience-card";
+} from "@squad/core";
+import { SquadLogo } from "../shell/experience-card";
 
 export function LoadingState() {
   const { t } = useTranslation("integrations");
@@ -20,7 +20,7 @@ export function LoadingState() {
 
   return (
     <Empty className="border-0">
-      <HoustonLogo size={48} className="mb-2 animate-pulse" />
+      <SquadLogo size={48} className="mb-2 animate-pulse" />
       <EmptyHeader>
         <EmptyTitle>{t("loading.title")}</EmptyTitle>
         <EmptyDescription>
@@ -41,7 +41,7 @@ export function LoadingState() {
 /**
  * Composio CLI is not installed yet. Ask the user to install it.
  * The install step is a one-time ~80 MB download from Composio's
- * official installer, Houston shells out to it under the hood.
+ * official installer, Squad shells out to it under the hood.
  */
 export function NotInstalledState({
   onInstall,

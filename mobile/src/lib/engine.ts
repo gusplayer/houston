@@ -1,4 +1,4 @@
-// Singleton HoustonClient + EngineWebSocket.
+// Singleton SquadClient + EngineWebSocket.
 //
 // Pattern: the app boots with no client (unpaired), then the pairing
 // flow writes `{baseUrl, engineToken}` to Preferences and calls
@@ -14,10 +14,10 @@
 // then sees a half-working app until they refresh.
 
 import { useSyncExternalStore } from "react";
-import { HoustonClient, EngineWebSocket } from "@houston-ai/engine-client";
+import { SquadClient, EngineWebSocket } from "@squad/engine-client";
 import type { PairedEngine } from "./storage";
 
-let client: HoustonClient | null = null;
+let client: SquadClient | null = null;
 let ws: EngineWebSocket | null = null;
 let paired: PairedEngine | null = null;
 
@@ -34,7 +34,7 @@ function notifyReadiness(): void {
 }
 
 export function initEngine(p: PairedEngine): void {
-  client = new HoustonClient({ baseUrl: p.baseUrl, token: p.engineToken });
+  client = new SquadClient({ baseUrl: p.baseUrl, token: p.engineToken });
   ws = new EngineWebSocket(client);
   paired = p;
   ws.connect();
@@ -49,7 +49,7 @@ export function stopEngine(): void {
   notifyReadiness();
 }
 
-export function getEngine(): HoustonClient {
+export function getEngine(): SquadClient {
   if (!client) throw new Error("engine not initialized — finish pairing first");
   return client;
 }

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "@houston-ai/core";
+import { Button } from "@squad/core";
 import { User } from "lucide-react";
 import { useSession } from "../../../hooks/use-session";
 import { signOut } from "../../../lib/auth";

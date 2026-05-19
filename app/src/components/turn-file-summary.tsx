@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { ChevronDownIcon, Lightbulb, Play, ScrollText } from "lucide-react";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 import { tauriFiles } from "../lib/tauri";
 import type { JobDescriptionTarget } from "../stores/ui";
 import { useAgentStore } from "../stores/agents";

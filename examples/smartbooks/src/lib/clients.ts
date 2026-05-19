@@ -13,7 +13,7 @@
  * separate "workbooks" folder. The workbook IS the app.
  */
 
-import type { ProjectFile } from "@houston-ai/engine-client";
+import type { ProjectFile } from "@squad/engine-client";
 import { getClient } from "./engine";
 
 export interface Client {

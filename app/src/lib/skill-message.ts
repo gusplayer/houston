@@ -1,14 +1,14 @@
 /**
  * App-side helpers for the encoded "user ran a Skill" chat message.
  *
- * Decoding + types are owned by `@houston-ai/chat` so the desktop and
+ * Decoding + types are owned by `@squad/chat` so the desktop and
  * mobile UIs render the same card. This file keeps the encoder and the
  * Claude-prompt assembler — pieces only the desktop needs since mobile
  * doesn't currently send Skills, only display them.
  *
  * Persisted format (single line + body):
  *
- *     <!--houston:skill {"skill":"...","message":"..."}-->
+ *     <!--squad:skill {"skill":"...","message":"..."}-->
  *
  *     Use the X skill.
  *
@@ -20,7 +20,7 @@ import {
   type AttachmentReference,
   type SkillInvocation,
   type SkillInvocationField,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 import type { SkillSummary } from "./types";
 import { humanizeSkillName } from "./humanize-skill-name";
 
@@ -29,7 +29,7 @@ export type { SkillInvocation, SkillInvocationField };
 /** Re-export so existing app callers don't need to know the new home. */
 export const decodeSkillMessage = decodeSkillMessageFromChat;
 
-const MARKER_PREFIX = "<!--houston:skill ";
+const MARKER_PREFIX = "<!--squad:skill ";
 const MARKER_SUFFIX = "-->";
 
 /**

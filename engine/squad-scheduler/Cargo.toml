@@ -1,0 +1,17 @@
+[package]
+name = "squad-scheduler"
+version = "0.4.19"
+edition = "2021"
+description = "Heartbeat and cron scheduling for AI agent desktop apps"
+license = "MIT"
+repository = "https://github.com/getsquad/squad"
+
+[dependencies]
+squad-events = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+chrono = { workspace = true }
+cron = "0.15"
+anyhow = { workspace = true }
+tracing = { workspace = true }

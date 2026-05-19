@@ -1,6 +1,6 @@
 // Root. On boot:
 //   1. Read any paired-engine record from localStorage.
-//   2. If paired, initialise the HoustonClient + WS.
+//   2. If paired, initialise the SquadClient + WS.
 //   3. Route gate: unpaired → /pair; paired → / (missions).
 
 import { useEffect, useState } from "react";
@@ -83,7 +83,7 @@ function BootGate({ children }: { children: React.ReactNode }) {
   if (!ready) {
     return (
       <div className="flex h-full items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Starting Houston…</p>
+        <p className="text-sm text-muted-foreground">Starting Squad…</p>
       </div>
     );
   }

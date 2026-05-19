@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChatPanel, type FeedItem } from "@houston-ai/chat";
-import { HoustonAvatar, cn, resolveAgentColor } from "@houston-ai/core";
+import { ChatPanel, type FeedItem } from "@squad/chat";
+import { SquadAvatar, cn, resolveAgentColor } from "@squad/core";
 import {
   useConnectedToolkits,
   useConnections,
@@ -409,7 +409,7 @@ export function TryMission({
       right={
         <div className="flex h-full min-h-0 flex-col">
           <header className="flex shrink-0 items-center gap-3 border-b border-black/5 pb-4">
-            <HoustonAvatar
+            <SquadAvatar
               color={resolveAgentColor(assistantColor)}
               diameter={32}
               running={isActive}

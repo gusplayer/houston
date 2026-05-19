@@ -17,7 +17,7 @@ export function showErrorToast(command: string, message: string): void {
   });
 
   addToast({
-    title: "Houston, we have a problem!",
+    title: "Squad, we have a problem!",
     description: message,
     variant: "error",
     action: {

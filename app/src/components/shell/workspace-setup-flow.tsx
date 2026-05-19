@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
-import { Button, Input } from "@houston-ai/core";
+import { Button, Input } from "@squad/core";
 import { ProviderPicker } from "./provider-picker";
 
 interface Props {
@@ -88,7 +88,7 @@ export function WorkspaceSetupFlow({ mode, onComplete }: Props) {
           <p className="text-sm text-muted-foreground">
             <Trans
               i18nKey="setup:provider.description"
-              defaults="Houston uses <emph>your own</emph> subscription. We never see your credentials."
+              defaults="Squad uses <emph>your own</emph> subscription. We never see your credentials."
               components={{
                 emph: <strong className="text-foreground font-medium" />,
               }}

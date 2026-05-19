@@ -14,7 +14,7 @@ import {
   EmptyHeader,
   EmptyTitle,
   EmptyDescription,
-} from "@houston-ai/core"
+} from "@squad/core"
 import { Plus } from "lucide-react"
 import type { Skill, CommunitySkill, RepoSkill } from "./types"
 import { SkillRow } from "./skill-row"

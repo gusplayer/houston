@@ -5,7 +5,7 @@ import * as jsxRuntime from "react/jsx-runtime";
 import type { AgentTab, AgentDefinition, TabProps } from "../lib/types";
 
 // Expose React on window so IIFE agent bundles can access it via globals
-(window as any).Houston = { React, ReactDOM, jsxRuntime };
+(window as any).Squad = { React, ReactDOM, jsxRuntime };
 import ChatTab from "../components/tabs/chat-tab";
 import BoardTab from "../components/tabs/board-tab";
 import FilesTab from "../components/tabs/files-tab";
@@ -49,7 +49,7 @@ export function resolveTabComponent(
   }
 
   // Custom component from bundle (tier 2) — lazy with cache
-  // Bundles are IIFE format that access React via window.Houston globals.
+  // Bundles are IIFE format that access React via window.Squad globals.
   // We read the JS, evaluate it via <script>, and read exports from window.
   if (tab.customComponent && agentDef.path) {
     const cacheKey = `${agentDef.path}:${tab.customComponent}`;

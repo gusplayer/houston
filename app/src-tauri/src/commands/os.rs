@@ -28,17 +28,17 @@ pub fn check_claude_cli() -> bool {
 /// the secret) or present in the environment (dev). The brain-step provider
 /// picker hides the Houston Credits card when this returns false.
 #[tauri::command]
-pub fn houston_credits_available() -> bool {
-    option_env!("HOUSTON_CREDITS_KEY")
+pub fn squad_credits_available() -> bool {
+    option_env!("SQUAD_CREDITS_KEY")
         .map(|s| !s.is_empty())
         .unwrap_or(false)
-        || std::env::var("HOUSTON_CREDITS_KEY")
+        || std::env::var("SQUAD_CREDITS_KEY")
             .map(|s| !s.is_empty())
             .unwrap_or(false)
 }
 
 fn expand(p: &str) -> PathBuf {
-    houston_tauri::paths::expand_tilde(&PathBuf::from(p))
+    squad_tauri::paths::expand_tilde(&PathBuf::from(p))
 }
 
 // -- Directory Picker --

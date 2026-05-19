@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, cn } from "@houston-ai/core";
+import { Button, cn } from "@squad/core";
 import { Check, X } from "lucide-react";
 import { learningNeedsExpansion } from "../../lib/learning-preview";
 import { LearningPreview } from "./learning-card-preview";

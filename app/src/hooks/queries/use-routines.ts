@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { NewRoutine, RoutineUpdate } from "@houston-ai/engine-client";
+import type { NewRoutine, RoutineUpdate } from "@squad/engine-client";
 import { queryKeys } from "../../lib/query-keys";
 import { tauriRoutines } from "../../lib/tauri";
 

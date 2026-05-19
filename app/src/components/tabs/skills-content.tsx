@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { CommunitySkill, RepoSkill } from "@houston-ai/skills";
-import { AddSkillDialog } from "@houston-ai/skills";
+import type { CommunitySkill, RepoSkill } from "@squad/skills";
+import { AddSkillDialog } from "@squad/skills";
 import {
   Button,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
   Spinner,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { Plus } from "lucide-react";
 import { SkillCard } from "../skill-card";
 import type { SkillSummary } from "../../lib/types";

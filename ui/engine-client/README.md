@@ -1,4 +1,4 @@
-# @houston-ai/engine-client
+# @squad/engine-client
 
 TypeScript SDK for the [Houston Engine](../../knowledge-base/engine-protocol.md).
 Consumed by the Houston desktop app, Houston Mobile, and third-party
@@ -7,13 +7,13 @@ integrations.
 ## Install
 
 ```bash
-pnpm add @houston-ai/engine-client
+pnpm add @squad/engine-client
 ```
 
 ## Usage
 
 ```ts
-import { HoustonClient, EngineWebSocket } from "@houston-ai/engine-client";
+import { HoustonClient, EngineWebSocket } from "@squad/engine-client";
 
 const engine = new HoustonClient({
   baseUrl: "http://127.0.0.1:53871",
@@ -32,7 +32,7 @@ const unsub = ws.on("event", (env) => {
 ws.connect();
 ```
 
-Desktop-app-specific bootstrap (reads `window.__HOUSTON_ENGINE__` injected
+Desktop-app-specific bootstrap (reads `window.__SQUAD_ENGINE__` injected
 by the Tauri supervisor) lives at `app/src/lib/engine.ts`.
 
 ## Type parity

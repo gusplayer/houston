@@ -9,8 +9,8 @@ import {
   EmptyTitle,
   ToastContainer,
   type Toast,
-} from "@houston-ai/core";
-import { TabBar } from "@houston-ai/layout";
+} from "@squad/core";
+import { TabBar } from "@squad/layout";
 import { useActivity } from "../../hooks/queries";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
@@ -21,13 +21,13 @@ import { IntegrationsView } from "../tabs/integrations-view";
 import { SettingsView } from "../settings/settings-view";
 import { StorePage } from "../store/store-page";
 import { Sidebar } from "./sidebar";
-import { HoustonLogo } from "./experience-card";
+import { SquadLogo } from "./experience-card";
 import { CreateAgentDialog } from "./create-workspace-dialog";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
 import { MissionSearchInput } from "../mission-search-input";
 import { UiTour } from "./ui-tour";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 
 interface WorkspaceShellProps {
   toasts: Toast[];
@@ -150,7 +150,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                               }, 50);
                             }}
                           >
-                            <HoustonLogo size={16} />
+                            <SquadLogo size={16} />
                             {t("shell:tabActions.newMission")}
                           </Button>
                         )}

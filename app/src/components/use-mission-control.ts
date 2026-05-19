@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { KanbanItem } from "@houston-ai/board";
-import type { FeedItem } from "@houston-ai/chat";
+import type { KanbanItem } from "@squad/board";
+import type { FeedItem } from "@squad/chat";
 import { useFeedStore } from "../stores/feeds";
 import {
   getSessionStatusKey,

@@ -37,7 +37,7 @@ interface UIState {
    * Set when the user completes M3 Try and clicks "Tutorial complete";
    * cleared when the user dismisses the final tour step. */
   uiTourActive: boolean;
-  /** Agent id requested by a `houston://store/agent/<id>` deep link. When
+  /** Agent id requested by a `squad://store/agent/<id>` deep link. When
    * non-null, the Store page should switch to view-mode "store" and open
    * the detail dialog for this agent. Cleared by the Store page once it
    * has handled the request (either by opening the listing or by surfacing

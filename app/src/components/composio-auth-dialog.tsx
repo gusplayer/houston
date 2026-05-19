@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { Loader2, ExternalLink } from "lucide-react";
 import type { ComposioAuthState } from "../hooks/use-composio-auth";
 

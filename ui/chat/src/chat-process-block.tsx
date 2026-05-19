@@ -3,9 +3,9 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-  HoustonHelmet,
+  SquadHelmet,
   cn,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { ChevronDownIcon } from "lucide-react";
 import { Shimmer } from "./ai-elements/shimmer";
 import {
@@ -69,7 +69,7 @@ export function ChatProcessBlock({
       <CollapsibleTrigger
         className="inline-flex max-w-full items-center gap-1.5 text-xs text-muted-foreground/65 transition-colors hover:text-muted-foreground"
       >
-        <HoustonHelmet color="currentColor" size={13} />
+        <SquadHelmet color="currentColor" size={13} />
         <span className="min-w-0 truncate text-left">
           {isActive ? <Shimmer duration={1}>{l.active}</Shimmer> : l.complete}
         </span>

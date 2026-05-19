@@ -1,18 +1,18 @@
-# @houston-ai/chat
+# @squad/chat
 
 Full-featured AI chat interface. Streaming markdown, grouped technical details, prompt input -- one component or pick individual pieces.
 
 ## Install
 
 ```bash
-pnpm add @houston-ai/chat
+pnpm add @squad/chat
 ```
 
 ## Usage
 
 ```tsx
-import { ChatPanel } from "@houston-ai/chat"
-import "@houston-ai/chat/src/styles.css"
+import { ChatPanel } from "@squad/chat"
+import "@squad/chat/src/styles.css"
 
 <ChatPanel
   sessionKey={session.id}
@@ -44,7 +44,7 @@ The AI Elements are composable -- use `ChatPanel` for the batteries-included exp
 ## Peer Dependencies
 
 - React 19+
-- @houston-ai/core
+- @squad/core
 
 ---
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ToastContainer, type Toast } from "@houston-ai/core";
+import { ToastContainer, type Toast } from "@squad/core";
 import { analytics } from "../../lib/analytics";
 import { useUIStore } from "../../stores/ui";
 import { useWorkspaceStore } from "../../stores/workspaces";

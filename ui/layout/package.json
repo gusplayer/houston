@@ -1,5 +1,5 @@
 {
-  "name": "@houston-ai/layout",
+  "name": "@squad/layout",
   "version": "0.4.19",
   "type": "module",
   "main": "src/index.ts",
@@ -10,7 +10,7 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@houston-ai/core": "workspace:*"
+    "@squad/core": "workspace:*"
   },
   "dependencies": {
     "lucide-react": "^0.577.0",

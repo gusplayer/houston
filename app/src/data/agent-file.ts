@@ -1,8 +1,8 @@
 /**
- * Shared helpers for reading/writing typed JSON files under `.houston/<type>/<type>.json`.
+ * Shared helpers for reading/writing typed JSON files under `.squad/<type>/<type>.json`.
  *
  * Read/write go through `tauriAgent` (in `lib/tauri.ts`) so they respect the
- * `VITE_HOUSTON_USE_ENGINE_SERVER` flag — same code runs over Tauri IPC today
+ * `VITE_SQUAD_USE_ENGINE_SERVER` flag — same code runs over Tauri IPC today
  * and over the engine REST route tomorrow.
  */
 
@@ -22,13 +22,13 @@ function getValidator(name: string, schema: Schema): ValidateFunction {
   return v;
 }
 
-/** Relative path convention: `.houston/<name>/<name>.json`. */
+/** Relative path convention: `.squad/<name>/<name>.json`. */
 export function relPath(name: string): string {
-  return `.houston/${name}/${name}.json`;
+  return `.squad/${name}/${name}.json`;
 }
 
 /**
- * Read + parse `.houston/<name>/<name>.json`. Returns `fallback` when the file
+ * Read + parse `.squad/<name>/<name>.json`. Returns `fallback` when the file
  * is missing or empty. Validates against the JSON Schema and logs (but doesn't
  * throw) on mismatch — validation failures should surface data bugs, not block
  * the UI.
@@ -58,7 +58,7 @@ export async function readAgentJson<T>(
   return parsed as T;
 }
 
-/** Serialize + atomically write `.houston/<name>/<name>.json`. */
+/** Serialize + atomically write `.squad/<name>/<name>.json`. */
 export async function writeAgentJson<T>(
   agentPath: string,
   name: string,

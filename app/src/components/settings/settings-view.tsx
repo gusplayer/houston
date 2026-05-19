@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Spinner } from "@houston-ai/core";
+import { Spinner } from "@squad/core";
 import { User, Smartphone, Folder, Bot, Bug, Zap } from "lucide-react";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import {

@@ -1,4 +1,4 @@
-import { Spinner } from "@houston-ai/core";
+import { Spinner } from "@squad/core";
 import type { SkillSummary } from "../lib/types";
 import { SkillCard } from "./skill-card";
 import { humanizeSkillName } from "../lib/humanize-skill-name";

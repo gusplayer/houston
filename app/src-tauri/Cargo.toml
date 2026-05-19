@@ -1,10 +1,10 @@
 [package]
-name = "houston-app"
+name = "squad-app"
 version = "0.4.19"
 edition = "2021"
 
 [lib]
-name = "houston_app"
+name = "squad_app"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -21,14 +21,14 @@ serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 dirs = "5"
 chrono = { version = "0.4", features = ["serde"] }
-houston-tauri = { path = "../houston-tauri" }
+squad-tauri = { path = "../squad-tauri" }
 tauri-plugin-notification = "2"
 tauri-plugin-updater = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-sentry = "0.5"
 sentry = "0.42"
 keyring = { version = "3", features = ["apple-native", "windows-native"] }
-houston-ui-events = { path = "../../engine/houston-ui-events" }
+squad-ui-events = { path = "../../engine/squad-ui-events" }
 reqwest = { version = "0.12", features = ["json", "rustls-tls", "blocking"], default-features = false }
 url = "2"
 tracing = { workspace = true }
@@ -36,9 +36,9 @@ tracing-subscriber = { workspace = true }
 tracing-appender = { workspace = true }
 
 # Windows + Linux only: the OS protocol handler launches a fresh
-# `houston-app.exe` for every `houston://` URL it receives (Start-menu
-# launches go to `C:\Program Files\Houston\…`, protocol-handler launches
-# go to the 8.3 short form `C:\PROGRA~1\Houston\…`). Without
+# `squad-app.exe` for every `squad://` URL it receives (Start-menu
+# launches go to `C:\Program Files\Squad\…`, protocol-handler launches
+# go to the 8.3 short form `C:\PROGRA~1\Squad\…`). Without
 # single-instance the second exe holds an orphan webview while the
 # primary sits on the login screen forever, never receiving the OAuth
 # callback. The `deep-link` feature makes the second-instance argv
@@ -56,7 +56,7 @@ tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
 # previous storage adapter silently swallowed it — sessions worked
 # in-memory but never persisted to disk, so every app close forced a
 # fresh sign-in. We now write the session to a per-user DPAPI-encrypted
-# file under `%LOCALAPPDATA%\com.houston.app\auth\<key>.dpapi` instead.
+# file under `%LOCALAPPDATA%\com.squad.app\auth\<key>.dpapi` instead.
 # DPAPI binds the ciphertext to the Windows user account so a copied
 # file is useless to another user. See `src/auth.rs` storage module.
 [target."cfg(target_os = \"windows\")".dependencies]
