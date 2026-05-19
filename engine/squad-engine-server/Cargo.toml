@@ -28,6 +28,7 @@ futures-util = "0.3"
 squad-engine-protocol = { version = "0.4.0", path = "../squad-engine-protocol" }
 squad-engine-core = { version = "0.4.0", path = "../squad-engine-core" }
 squad-projects = { workspace = true }
+squad-git = { workspace = true }
 squad-composio = { workspace = true }
 squad-claude-installer = { workspace = true }
 squad-cli-bundle = { workspace = true }

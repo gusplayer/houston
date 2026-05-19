@@ -7,6 +7,7 @@ use axum::{
 };
 use squad_engine_core::CoreError;
 use squad_engine_protocol::{ErrorBody, ErrorCode, ErrorDetail};
+use squad_git::GitError;
 use squad_projects::ProjectError;
 
 pub struct ApiError(pub CoreError);
@@ -30,6 +31,23 @@ impl From<ProjectError> for ApiError {
             ProjectError::BadRequest(m) => CoreError::BadRequest(m),
             ProjectError::Io(m) => CoreError::Internal(format!("project io: {m}")),
             ProjectError::Json(m) => CoreError::Internal(format!("project json: {m}")),
+        };
+        Self(core)
+    }
+}
+
+impl From<GitError> for ApiError {
+    fn from(e: GitError) -> Self {
+        let core = match e {
+            GitError::NotARepo(p) => CoreError::BadRequest(format!("not a git repository: {p}")),
+            GitError::GitMissing => {
+                CoreError::Unavailable("git binary not found on PATH".into())
+            }
+            GitError::CommandFailed { code, stderr } => {
+                CoreError::BadRequest(format!("git failed (exit {code}): {stderr}"))
+            }
+            GitError::Io(m) => CoreError::Internal(format!("git io: {m}")),
+            GitError::Parse(m) => CoreError::Internal(format!("git parse: {m}")),
         };
         Self(core)
     }

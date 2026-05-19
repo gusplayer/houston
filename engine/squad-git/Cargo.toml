@@ -1,0 +1,16 @@
+[package]
+name = "squad-git"
+version = "0.4.19"
+edition = "2021"
+description = "Git operations for Squad — shells out to the git CLI"
+license = "MIT"
+repository = "https://github.com/getsquad/squad"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = "2"
+tracing = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
