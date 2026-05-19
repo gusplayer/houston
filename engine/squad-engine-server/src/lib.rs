@@ -25,6 +25,7 @@ pub fn build_router(state: Arc<ServerState>) -> Router {
         .route("/version", get(routes::health::version))
         .route("/ws", get(ws::ws_upgrade))
         .merge(routes::workspaces::router())
+        .merge(routes::projects::router())
         .merge(routes::preferences::router())
         .merge(routes::conversations::router())
         .merge(routes::providers::router())

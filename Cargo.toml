@@ -18,6 +18,7 @@ members = [
     "engine/squad-engine-core",
     "engine/squad-engine-protocol",
     "engine/squad-engine-server",
+    "engine/squad-projects",
     "app/src-tauri",
 ]
 
@@ -49,3 +50,4 @@ squad-claude-installer = { version = "0.4.19", path = "engine/squad-claude-insta
 squad-engine-core = { version = "0.4.19", path = "engine/squad-engine-core" }
 squad-engine-protocol = { version = "0.4.19", path = "engine/squad-engine-protocol" }
 squad-engine-server = { version = "0.4.19", path = "engine/squad-engine-server" }
+squad-projects = { version = "0.4.19", path = "engine/squad-projects" }

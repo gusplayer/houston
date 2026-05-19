@@ -7,12 +7,31 @@ use axum::{
 };
 use squad_engine_core::CoreError;
 use squad_engine_protocol::{ErrorBody, ErrorCode, ErrorDetail};
+use squad_projects::ProjectError;
 
 pub struct ApiError(pub CoreError);
 
 impl From<CoreError> for ApiError {
     fn from(e: CoreError) -> Self {
         Self(e)
+    }
+}
+
+impl From<ProjectError> for ApiError {
+    fn from(e: ProjectError) -> Self {
+        let core = match e {
+            ProjectError::NotFound(id) => CoreError::NotFound(format!("project {id}")),
+            ProjectError::DuplicateName(name) => {
+                CoreError::Conflict(format!("project named {name:?} already exists"))
+            }
+            ProjectError::DuplicateRepoPath(p) => {
+                CoreError::Conflict(format!("project with repoPath {p:?} already exists"))
+            }
+            ProjectError::BadRequest(m) => CoreError::BadRequest(m),
+            ProjectError::Io(m) => CoreError::Internal(format!("project io: {m}")),
+            ProjectError::Json(m) => CoreError::Internal(format!("project json: {m}")),
+        };
+        Self(core)
     }
 }
 

@@ -5822,6 +5822,7 @@ dependencies = [
  "squad-engine-core",
  "squad-engine-protocol",
  "squad-file-watcher",
+ "squad-projects",
  "squad-skills",
  "squad-terminal-manager",
  "squad-tunnel",
@@ -5860,6 +5861,19 @@ dependencies = [
  "squad-ui-events",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "squad-projects"
+version = "0.4.19"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
