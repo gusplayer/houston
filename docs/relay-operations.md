@@ -1,21 +1,21 @@
 # Relay operations
 
-The Houston relay (`houston-relay/`) is a single Cloudflare Worker + Durable Object that brokers mobile ↔ desktop traffic and serves the mobile PWA bundle from the same origin. This doc covers deployment, secret management, and health checks.
+The Squad relay (`squad-relay/`) is a single Cloudflare Worker + Durable Object that brokers mobile ↔ desktop traffic and serves the mobile PWA bundle from the same origin. This doc covers deployment, secret management, and health checks.
 
 ## Deploying
 
 Staging:
 ```
 cd mobile && pnpm build
-cd ../houston-relay && pnpm dlx wrangler deploy --env staging
-# → tunnel-staging.gethouston.ai
+cd ../squad-relay && pnpm dlx wrangler deploy --env staging
+# → tunnel-staging.getsquad.ai
 ```
 
 Production:
 ```
 cd mobile && pnpm build
-cd ../houston-relay && pnpm dlx wrangler deploy
-# → tunnel.gethouston.ai
+cd ../squad-relay && pnpm dlx wrangler deploy
+# → tunnel.getsquad.ai
 ```
 
 Production uses the top-level env; `--env ""` is the explicit form when switching between envs in the same session. `workers_dev = false` is set so the free `*.workers.dev` subdomain is disabled — all traffic enters through the custom domain.
@@ -24,7 +24,7 @@ Because the PWA is served via the Worker's `[assets]` binding pointing at `../mo
 
 ## DNS
 
-Both `tunnel.gethouston.ai` and `tunnel-staging.gethouston.ai` are registered as Cloudflare Custom Domains (`custom_domain = true` in `wrangler.toml`). Wrangler auto-provisions the proxied DNS record and certificate. First deploy of a new environment may take ~60s for DNS propagation.
+Both `tunnel.getsquad.ai` and `tunnel-staging.getsquad.ai` are registered as Cloudflare Custom Domains (`custom_domain = true` in `wrangler.toml`). Wrangler auto-provisions the proxied DNS record and certificate. First deploy of a new environment may take ~60s for DNS propagation.
 
 ## Required secrets
 
@@ -67,7 +67,7 @@ Watch `/e/:tunnelId/status` for a quick health view: `{connected, inflight, mobi
 5. Agent finishes; desktop activity flips to "Needs You"; phone chat header stops showing "typing…".
 6. Close phone tab + reopen → no re-pair needed, sessions intact.
 7. Sleep the Mac (lid close). Phone sees requests fail with 503. Wake Mac; tunnel reconnects within ~30s; phone refetches automatically on reconnect.
-8. Restart the Mac and reopen Houston. Phone works with the existing localStorage token once the tunnel reconnects.
+8. Restart the Mac and reopen Squad. Phone works with the existing localStorage token once the tunnel reconnects.
 9. Settings → Disconnect all phones. Existing phone requests 401; scanning the new QR pairs again.
 
 Failure in any step blocks release.
@@ -75,7 +75,7 @@ Failure in any step blocks release.
 ## Observability
 
 - Live logs: `wrangler tail` streams every Worker invocation.
-- Metrics: Cloudflare dashboard → Workers → `houston-relay` → Analytics.
+- Metrics: Cloudflare dashboard → Workers → `squad-relay` → Analytics.
 - Durable Object requests: same dashboard, DO tab.
 
 ## Local development
@@ -83,8 +83,8 @@ Failure in any step blocks release.
 Point the engine at a local relay instead of production:
 
 ```
-cd houston-relay && pnpm dlx wrangler dev    # → http://localhost:8787
-cd ../app && HOUSTON_TUNNEL_URL=http://localhost:8787 pnpm tauri dev
+cd squad-relay && pnpm dlx wrangler dev    # → http://localhost:8787
+cd ../app && SQUAD_TUNNEL_URL=http://localhost:8787 pnpm tauri dev
 ```
 
-The engine auto-switches WS scheme from `wss://` to `ws://` when `HOUSTON_TUNNEL_URL` uses `http://`.
+The engine auto-switches WS scheme from `wss://` to `ws://` when `SQUAD_TUNNEL_URL` uses `http://`.

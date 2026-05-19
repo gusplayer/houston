@@ -1,12 +1,12 @@
-# Contributing to Houston
+# Contributing to Squad
 
-Thanks for your interest in contributing to Houston!
+Thanks for your interest in contributing to Squad!
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/gethouston/houston.git
-cd houston
+git clone https://github.com/getsquad/squad.git
+cd squad
 pnpm install
 cargo check --workspace
 ```
@@ -14,7 +14,7 @@ cargo check --workspace
 ## Development
 
 ```bash
-# Run the Houston app
+# Run the Squad app
 cd app && pnpm tauri dev
 
 # Run the showcase
@@ -32,13 +32,13 @@ cargo test --workspace
 
 ## Structure
 
-- `ui/` — React packages (@houston-ai/*)
-- `engine/` — Rust crates (houston-*) — frontend-agnostic backend
-- `app/` — Houston App (Tauri desktop)
-- `mobile/` — Houston Mobile companion
+- `ui/` — React packages (@squad/*)
+- `engine/` — Rust crates (squad-*) — frontend-agnostic backend
+- `app/` — Squad App (Tauri desktop)
+- `mobile/` — Squad Mobile companion
 - `desktop-mobile-bridge/` — Cloudflare Worker pairing App + Mobile
-- `store/` — Houston Store (agent registry)
-- `website/` — gethouston.ai landing
+- `store/` — Squad Store (agent registry)
+- `website/` — getsquad.ai landing
 - `always-on/` · `teams/` · `cloud/` — future hosted products (placeholders)
 
 ## Pull Requests

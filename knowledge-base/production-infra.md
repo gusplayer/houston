@@ -43,7 +43,7 @@ Event names + props are allowlisted in `AnalyticsEventName` / `AnalyticsProperty
 **Analytics in `app/` only** — never in `ui/`. Library boundary rule applies.
 
 ### PostHog dashboards
-Create one dashboard: **Houston Growth + Reliability**. Every tile filters `is_debug != true`.
+Create one dashboard: **Squad Growth + Reliability**. Every tile filters `is_debug != true`.
 
 1. **DAU:** unique users, event `app_active`, interval day
 2. **WAU:** unique users, event `app_active`, interval week
@@ -76,8 +76,8 @@ PostHog → BigQuery plugin → target GCP project (burns credits). SQL-queryabl
 
 ## Auth (`@supabase/supabase-js` + Google SSO)
 
-- **Session storage:** CI releases use macOS Keychain / Windows Credential Manager via the `keyring` crate (`app/src-tauri/src/auth.rs`). Local builds use browser storage scoped per worktree to avoid macOS Keychain prompts from changing local signatures. Override with `HOUSTON_AUTH_STORAGE=keychain` or `HOUSTON_AUTH_STORAGE=browser`.
-- **Flow:** One-click Google sign-in → system browser → OAuth redirect to `houston://auth-callback` → `tauri-plugin-deep-link` forwards to frontend → Supabase PKCE exchange → session persisted in configured auth storage. Full diagram + code pointers: `knowledge-base/auth.md`.
+- **Session storage:** CI releases use macOS Keychain / Windows Credential Manager via the `keyring` crate (`app/src-tauri/src/auth.rs`). Local builds use browser storage scoped per worktree to avoid macOS Keychain prompts from changing local signatures. Override with `SQUAD_AUTH_STORAGE=keychain` or `SQUAD_AUTH_STORAGE=browser`.
+- **Flow:** One-click Google sign-in → system browser → OAuth redirect to `squad://auth-callback` → `tauri-plugin-deep-link` forwards to frontend → Supabase PKCE exchange → session persisted in configured auth storage. Full diagram + code pointers: `knowledge-base/auth.md`.
 - **Gating:** `isAuthConfigured()` checks whether `SUPABASE_URL` + `SUPABASE_ANON_KEY` are baked in. Unconfigured builds skip the sign-in screen entirely.
 - **PostHog merge:** On sign-in, `analytics.alias(userId, { email })` merges anonymous install_id history to the identified user and sets `email` / `email_domain` person properties; on sign-out, `analytics.reset()` returns to anonymous.
 
@@ -140,24 +140,24 @@ Mac and Windows run in parallel because they only need the empty draft `prep` cr
 
 ## macOS Universal (arm64 + Intel)
 
-Houston ships ONE DMG that runs natively on Apple Silicon AND Intel. Same app, same download, same update channel.
+Squad ships ONE DMG that runs natively on Apple Silicon AND Intel. Same app, same download, same update channel.
 
 ### How it works
-- `release.yml` builds `houston-engine` TWICE — once per real triple (`aarch64-apple-darwin`, `x86_64-apple-darwin`).
-- `build.rs` stages both as per-triple sidecars: `src-tauri/binaries/houston-engine-aarch64-apple-darwin` + `-x86_64-apple-darwin`. Tauri universal build requires per-triple sidecars (NOT a pre-lipo'd fat binary).
+- `release.yml` builds `squad-engine` TWICE — once per real triple (`aarch64-apple-darwin`, `x86_64-apple-darwin`).
+- `build.rs` stages both as per-triple sidecars: `src-tauri/binaries/squad-engine-aarch64-apple-darwin` + `-x86_64-apple-darwin`. Tauri universal build requires per-triple sidecars (NOT a pre-lipo'd fat binary).
 - `tauri-action` invoked with `--target universal-apple-darwin`. It runs cargo twice, then `lipo`s the outputs into one fat `.app`. Bundle lands at `target/universal-apple-darwin/release/bundle/`.
 - Verification step runs `lipo -info` on the embedded engine sidecar and fails the release if either slice is missing.
-- `latest.json` ships FOUR platform keys (`darwin-aarch64`, `darwin-aarch64-app`, `darwin-x86_64`, `darwin-x86_64-app`) all pointing at the same tarball + signature. Intel users on older Houston installs check `darwin-x86_64` — if that key is absent they NEVER see the update prompt.
+- `latest.json` ships FOUR platform keys (`darwin-aarch64`, `darwin-aarch64-app`, `darwin-x86_64`, `darwin-x86_64-app`) all pointing at the same tarball + signature. Intel users on older Squad installs check `darwin-x86_64` — if that key is absent they NEVER see the update prompt.
 - `bundle.macOS.minimumSystemVersion = 10.15` in `tauri.conf.json` — required for Intel Macs old enough to matter.
 
 ### Engine-only release
-`.github/workflows/engine-release.yml` (tag `engine-v*`) builds `houston-engine` standalone for Linux (arm64 + x86_64 musl) and macOS (arm64 + Intel). Four artifacts total.
+`.github/workflows/engine-release.yml` (tag `engine-v*`) builds `squad-engine` standalone for Linux (arm64 + x86_64 musl) and macOS (arm64 + Intel). Four artifacts total.
 
 ### Local universal build
 ```bash
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-cargo build --release --target aarch64-apple-darwin -p houston-engine-server
-cargo build --release --target x86_64-apple-darwin -p houston-engine-server
+cargo build --release --target aarch64-apple-darwin -p squad-engine-server
+cargo build --release --target x86_64-apple-darwin -p squad-engine-server
 cd app && pnpm tauri build --target universal-apple-darwin
 ```
 Output: `target/universal-apple-darwin/release/bundle/{macos,dmg}/`.
@@ -167,3 +167,5 @@ Output: `target/universal-apple-darwin/release/bundle/{macos,dmg}/`.
 
 ### Do NOT break Intel without warning
 Removing an arch from `release.yml` (or dropping `darwin-x86_64*` keys from `latest.json`) strands every Intel user silently. Migrate with a deprecation release first.
+
+

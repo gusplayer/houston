@@ -1,6 +1,6 @@
 # Skills
 
-A Skill is a reusable procedure stored as a markdown file with YAML frontmatter. Houston shows them in the picker, the chat empty state, and the per-agent Skills tab.
+A Skill is a reusable procedure stored as a markdown file with YAML frontmatter. Squad shows them in the picker, the chat empty state, and the per-agent Skills tab.
 
 ## File layout
 
@@ -10,8 +10,8 @@ A Skill is a reusable procedure stored as a markdown file with YAML frontmatter.
                                      # auto-created by engine on `list_skills`
 ```
 
-Houston Store agent packages may also include `.agents/skills/*`.
-Install copies the package to `~/.houston/agents/<id>/`; creating a
+Squad Store agent packages may also include `.agents/skills/*`.
+Install copies the package to `~/.squad/agents/<id>/`; creating a
 workspace agent from that definition copies those packaged skills into
 the user's agent root so Skills appear in chat immediately. The picker
 only selects the workflow; the chat composer stays visible so the user
@@ -22,7 +22,7 @@ The body is a regular markdown file Claude Code uses as the procedure when the S
 
 ## Frontmatter schema
 
-Source of truth: `engine/houston-skills/src/lib.rs` (`SkillSummary`). Parsed by `serde_yml`, so anything valid YAML works.
+Source of truth: `engine/squad-skills/src/lib.rs` (`SkillSummary`). Parsed by `serde_yml`, so anything valid YAML works.
 
 ```yaml
 ---
@@ -62,7 +62,7 @@ Step-by-step instructions Claude follows when the Skill runs.
 
 ## Render pipeline
 
-1. **Engine** parses SKILL.md frontmatter via `serde_yml` (`engine/houston-skills/src/format.rs`). Unknown fields are silently ignored — old skills with `icon:` / `starter_prompt:` still parse.
+1. **Engine** parses SKILL.md frontmatter via `serde_yml` (`engine/squad-skills/src/format.rs`). Unknown fields are silently ignored — old skills with `icon:` / `starter_prompt:` still parse.
 2. Engine returns the full `SkillSummaryResponse` on `GET /v1/skills`.
 3. **App** (`useSkills` query → `tauri.ts` → `engine-client`) maps the snake/camel-case wire shape back to app's `SkillSummary`.
 4. **Skill cards** use `app/src/components/skill-card.tsx` across the chat empty state, picker, and Skills tab. Keep these in sync by reusing the component, not recreating card markup.
@@ -82,7 +82,7 @@ Step-by-step instructions Claude follows when the Skill runs.
 Engine owns the resilience: successful searches are cached in-memory, outbound
 requests are globally spaced, and stale cached results are returned during a
 temporary 429/network failure. App search callers handle remaining failures
-inline in the Add Skills UI; they should not show global "Houston problem" bug
+inline in the Add Skills UI; they should not show global "Squad problem" bug
 toasts for marketplace search misses.
 
 ## Skill invocation marker (chat persistence)
@@ -90,7 +90,7 @@ toasts for marketplace search misses.
 When the user runs a Skill, the persisted user_message body is:
 
 ```
-<!--houston:skill {"skill":"research-company","displayName":"Research a company","image":"...","description":"...","integrations":["tavily"],"fields":[],"message":"Focus on pricing.","attachments":[]}-->
+<!--squad:skill {"skill":"research-company","displayName":"Research a company","image":"...","description":"...","integrations":["tavily"],"fields":[],"message":"Focus on pricing.","attachments":[]}-->
 
 Use the research-company skill.
 
@@ -100,7 +100,7 @@ Focus on pricing.
 - The HTML-comment marker is inert text to Claude (it ignores it) but carries everything the chat renderer needs to draw the card. Single source of truth = single persisted body.
 - The marker `message` is the user's optional composer text. The body is the Claude-facing prompt and always starts with `Use the <skill> skill.`.
 - If files were uploaded with the Skill, `attachments` carries `{name,path}` entries. The renderer shows only the count badge; the Claude-facing body still contains the `[User attached these files...]` path block.
-- Decoder lives in `@houston-ai/chat`'s `skill-message.ts` so desktop AND mobile render the same card from the same payload. The decoder also accepts a legacy `<!--houston:action ...-->` prefix so chat history persisted before the rename keeps rendering as a card.
+- Decoder lives in `@squad/chat`'s `skill-message.ts` so desktop AND mobile render the same card from the same payload. The decoder also accepts legacy `<!--houston:skill ...-->` and `<!--houston:action ...-->` prefixes so chat history persisted before the rebrand keeps rendering as a card.
 - Encoder (`encodeSkillMessage`) + Claude-prompt assembler (`buildSkillClaudePrompt`) live in `app/src/lib/skill-message.ts` — only the desktop sends Skills today.
 
 ## Attachment message marker (chat persistence)
@@ -109,7 +109,7 @@ Regular messages with uploaded files follow the same "single persisted body"
 pattern as Skills:
 
 ```
-<!--houston:attachments {"message":"Summarize this","files":[{"name":"brief.pdf","path":"/Users/.../brief.pdf"}]}-->
+<!--squad:attachments {"message":"Summarize this","files":[{"name":"brief.pdf","path":"/Users/.../brief.pdf"}]}-->
 
 Summarize this
 
@@ -119,37 +119,37 @@ Summarize this
 
 - The model receives the same path block as before, so file access behavior does not change.
 - The UI decodes the marker and renders the user text plus a compact paperclip badge ("1 file attached" / "N files attached"). Absolute paths are never displayed.
-- Decoder + shared badge renderer live in `@houston-ai/chat` (`attachment-message.ts`, `user-attachment-message.tsx`). Desktop encoder lives in `app/src/lib/attachment-message.ts`.
+- Decoder + shared badge renderer live in `@squad/chat` (`attachment-message.ts`, `user-attachment-message.tsx`). Desktop encoder lives in `app/src/lib/attachment-message.ts`.
 
 ## Authoring a Skill via Claude
 
 When the user asks "create a skill that does X", Claude should:
 1. Pick a slug (kebab-case, descriptive).
-2. Write `~/.houston/workspaces/<Workspace>/<Agent>/.agents/skills/<slug>/SKILL.md` with the full frontmatter schema above.
+2. Write `~/.squad/workspaces/<Workspace>/<Agent>/.agents/skills/<slug>/SKILL.md` with the full frontmatter schema above.
 3. Set `description` carefully — it's the trigger phrase Claude itself will use for tool matching later.
 4. Default to `featured: yes` for new Skills until proven otherwise (so the user actually finds them).
 5. Include an `image` slug — pick a relevant Fluent 3D emoji (browse the assets folder).
 6. Body: at least an `## Instructions` or `## Procedure` section.
 
-### Naming rules — non-technical users only
+### Naming rules — developer-facing but still readable
 
-The user never sees the `name` slug — they see `humanize(name)` (e.g. `"Research company"` from `"research-company"`). Houston's audience is non-technical founders who have never opened a terminal. Pick slugs that **humanize cleanly into a phrase a founder would say in chat**.
+The user never sees the raw `name` slug — they see `humanize(name)` (e.g. `"Research company"` from `"research-company"`). Squad's audience is developers and engineering teams, so industry jargon and CLI-flavoured terms ARE fair game (`grep`, `lint`, `bisect`, `triage`, `sast`, `e2e`). But the picker, card titles, and chat history are still surface UI — pick slugs that read as a clear phrase, not a config key.
 
-- ✅ `review-a-contract` → "Review a contract"
-- ✅ `is-this-name-free` → "Is this name free"
-- ✅ `prepare-the-delaware-annual-filing` → "Prepare the Delaware annual filing"
-- ❌ `respond-to-a-dsr-without-missing-the-clock` ("DSR" is jargon)
-- ❌ `pre-fill-an-enterprise-security-questionnaire` (verb is unnatural; humanizes oddly)
-- ❌ `assemble-a-first-hire-offer-packet` ("packet" is internal jargon)
+- ✅ `review-a-pr` → "Review a PR"
+- ✅ `bisect-a-flaky-test` → "Bisect a flaky test"
+- ✅ `prepare-the-release-notes` → "Prepare the release notes"
+- ❌ `pr-rev` (too compressed, reads as random characters)
+- ❌ `cfg-sync-mod` (looks like a function name, not a workflow)
+- ❌ `do-the-thing` (says nothing about what it does)
 
 **Rules:**
 
-1. **No insider acronyms** in the slug. NDA is fine (universally known); MSA, DSR, CIIAA, ASC, ARR, GAAP, KPI are not. If the underlying concept needs an industry term, put it in the `description` (where it's still searchable) or in the body, not the slug.
+1. **Use the team's vocabulary, not internal codewords.** PR, CI, OAuth, repro, RCA, SLO, ADR are fine — devs read them daily. One-team-only acronyms (`PROJ-7`, `Cerberus`, `gridmaster`) are not; put those in `description` or the body where they're still searchable.
 2. **2 to 6 words** when humanized. Long phrases hurt readability in cards.
-3. **Verb-led, founder-voice** ("Draft an NDA", "Check my deadlines"), not internal taxonomy ("Document drafter", "Deadline tracker").
+3. **Verb-led, action-shaped** ("Draft a changelog entry", "Reproduce the 500", "Open a follow-up issue"), not internal taxonomy ("Document drafter", "Bug-tracker tool", "Issue agent").
 4. **No `display_name` override.** The schema does not have one. The slug *is* the name. If a slug doesn't humanize cleanly, rename it; don't paper over it.
-5. **`description`** carries the user-facing one-liner shown on the card. Lead with what the user gets, then any constraint ("Drafts only, you sign"). Avoid file paths, JSON keys, tool names (Composio, Firecrawl), config field names, scope enums.
-6. **Body** is for the AI. Procedural detail (file paths, schemas, JSON shapes) is fine and necessary — it's what makes the procedure work. But anywhere the body tells the AI what to *say to the user* ("Summarize to user…", "respond:", clarifying questions), the wording must be plain English: never name files, paths, configs, or other skills' slugs.
+5. **`description`** carries the user-facing one-liner shown on the card. Lead with what the developer gets, then any constraint ("Draft only; opens a draft PR you push"). Avoid raw file paths, JSON keys, internal tool names (Composio, Firecrawl), config field names, scope enums.
+6. **Body** is for the AI. Procedural detail (file paths, schemas, JSON shapes, exact CLI invocations) is fine and necessary — it's what makes the procedure work. Anywhere the body tells the AI what to *say back to the user* ("Summarize to user…", "respond:", clarifying questions), keep the wording plain and concrete: describe the change, the file, the impact — don't name internal config keys or other skills' slugs.
 
 Cross-references between skills live inside bodies, never in user-facing wording. When you rename a primitive slug, update every cross-reference.
 
@@ -177,12 +177,12 @@ The engine applies the rename per workspace on the next sync. If only the old sl
 
 | What | Where |
 |------|-------|
-| Schema (Rust) | [`engine/houston-skills/src/lib.rs`](../engine/houston-skills/src/lib.rs) |
-| Parser / serializer | [`engine/houston-skills/src/format.rs`](../engine/houston-skills/src/format.rs) |
-| Engine DTO | [`engine/houston-engine-core/src/skills.rs`](../engine/houston-engine-core/src/skills.rs) |
+| Schema (Rust) | [`engine/squad-skills/src/lib.rs`](../engine/squad-skills/src/lib.rs) |
+| Parser / serializer | [`engine/squad-skills/src/format.rs`](../engine/squad-skills/src/format.rs) |
+| Engine DTO | [`engine/squad-engine-core/src/skills.rs`](../engine/squad-engine-core/src/skills.rs) |
 | TS wire types | [`ui/engine-client/src/types.ts`](../ui/engine-client/src/types.ts) |
 | App shared hook | [`app/src/components/use-agent-chat-panel.tsx`](../app/src/components/use-agent-chat-panel.tsx) |
 | Selected Skill chip | [`app/src/components/selected-skill-chip.tsx`](../app/src/components/selected-skill-chip.tsx) |
 | Card on user message | [`app/src/components/user-skill-message.tsx`](../app/src/components/user-skill-message.tsx) (desktop) and [`mobile/src/components/user-skill-message.tsx`](../mobile/src/components/user-skill-message.tsx) |
 | Marker codec | [`ui/chat/src/skill-message.ts`](../ui/chat/src/skill-message.ts) (decode) and [`app/src/lib/skill-message.ts`](../app/src/lib/skill-message.ts) (encode) |
-| System prompt template | [`app/src-tauri/src/houston_prompt/skills_memory.rs`](../app/src-tauri/src/houston_prompt/skills_memory.rs) (`SELF_IMPROVEMENT_GUIDANCE`) |
+| System prompt template | [`app/src-tauri/src/squad_prompt/skills_memory.rs`](../app/src-tauri/src/squad_prompt/skills_memory.rs) (`SELF_IMPROVEMENT_GUIDANCE`) |

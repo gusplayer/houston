@@ -1,8 +1,8 @@
-# Houston Engine — Wire Protocol
+# Squad Engine — Wire Protocol
 
-Source of truth for the HTTP + WebSocket contract spoken by `houston-engine`
+Source of truth for the HTTP + WebSocket contract spoken by `squad-engine`
 and every client (desktop, mobile, CLI, third-party). Rust types live in
-`engine/houston-engine-protocol`; TS types live in
+`engine/squad-engine-protocol`; TS types live in
 `ui/engine-client/src/types.ts`. The Rust side wins conflicts.
 
 ## Versioning
@@ -10,8 +10,8 @@ and every client (desktop, mobile, CLI, third-party). Rust types live in
 | Field | Value |
 |---|---|
 | Protocol major | `1` (constant `PROTOCOL_VERSION`) |
-| Engine version | crate `houston-engine-server` version |
-| Version header | `X-Houston-Engine-Version: <semver>` on every response |
+| Engine version | crate `squad-engine-server` version |
+| Version header | `X-Squad-Engine-Version: <semver>` on every response |
 | Breaking changes | require protocol major bump + client version guard |
 
 Clients refuse to talk to an engine whose major `v` exceeds what they know.
@@ -22,7 +22,7 @@ Clients refuse to talk to an engine whose major `v` exceeds what they know.
 - **WebSocket** at `/v1/ws` — server-push events + lightweight client requests.
 
 Loopback deploys bind `127.0.0.1:<random>`; remote deploys must opt in via
-`HOUSTON_BIND_ALL=1`.
+`SQUAD_BIND_ALL=1`.
 
 ### CORS
 
@@ -35,7 +35,7 @@ origin can call the engine as long as they carry a valid token.
 Keep it this way — the WKWebView in the desktop app is cross-origin to
 `127.0.0.1:<port>`, and trimming the allow-list has caused PUT/PATCH
 preflights to fail (e.g. `setPreference` returning "Load failed" in
-Safari/WKWebView). See `engine/houston-engine-server/src/lib.rs`.
+Safari/WKWebView). See `engine/squad-engine-server/src/lib.rs`.
 
 ## Auth
 
@@ -43,12 +43,12 @@ Bearer token. Three accepted locations (server checks all):
 
 - `Authorization: Bearer <token>` — required for REST, preferred for WS in native clients.
 - `?token=<token>` — convenience for CLIs and browsers that cannot set WS headers.
-- `Sec-WebSocket-Protocol: houston-bearer.<token>` — fallback for browser WS.
+- `Sec-WebSocket-Protocol: squad-bearer.<token>` — fallback for browser WS.
 
 Token generation: the binary auto-generates a 48-char alphanumeric token on
-first run unless `HOUSTON_ENGINE_TOKEN` is set. It is written (mode 0600) to
-`~/.houston/engine.json`. The desktop supervisor reads that file before
-injecting `window.__HOUSTON_ENGINE__`.
+first run unless `SQUAD_ENGINE_TOKEN` is set. It is written (mode 0600) to
+`~/.squad/engine.json`. The desktop supervisor reads that file before
+injecting `window.__SQUAD_ENGINE__`.
 
 ## REST conventions
 
@@ -74,10 +74,10 @@ HTTP status maps 1:1 (see `engine-server/src/routes/error.rs`).
 
 ### Current routes
 
-Full surface live. Every mutating route emits matching `HoustonEvent` on
+Full surface live. Every mutating route emits matching `SquadEvent` on
 broadcast bus. 16 route modules wired in
-[`houston-engine-server/src/lib.rs`](../engine/houston-engine-server/src/lib.rs).
-Integration tests in `engine/houston-engine-server/tests/` — one file per
+[`squad-engine-server/src/lib.rs`](../engine/squad-engine-server/src/lib.rs).
+Integration tests in `engine/squad-engine-server/tests/` — one file per
 module.
 
 **Health**
@@ -147,13 +147,13 @@ not user-facing copy.
 | PATCH | `/v1/agents/routine-runs/:id` | Update |
 | GET/PUT | `/v1/agents/config` | Read/write project config |
 
-**Agent files** (typed `.houston/` + project file browser)
+**Agent files** (typed `.squad/` + project file browser)
 | Method | Path | Description |
 |---|---|---|
 | GET/DELETE | `/v1/agents/files` | List / delete project file |
 | POST | `/v1/agents/files/read` | Read typed data file |
 | POST | `/v1/agents/files/write` | Write typed data file (emits event) |
-| POST | `/v1/agents/files/seed-schemas` | Seed `.houston/<type>/<type>.schema.json` |
+| POST | `/v1/agents/files/seed-schemas` | Seed `.squad/<type>/<type>.schema.json` |
 | POST | `/v1/agents/files/migrate` | Run idempotent migrations |
 | POST | `/v1/agents/files/read-project` | Read project file |
 | POST | `/v1/agents/files/rename` | Rename |
@@ -195,7 +195,7 @@ not user-facing copy.
 |---|---|---|
 | GET | `/v1/store/catalog` | Curated listing. Uses release-bundled `store/catalog.json` when available; remote API fallback remains for future hosted Store. |
 | GET | `/v1/store/search?q=` | Search catalog |
-| POST | `/v1/store/installs` | Install by `{repo, agentId}`. `repo: "houston-store/<id>"` installs bundled package incl. skills. GitHub repo form remains supported. |
+| POST | `/v1/store/installs` | Install by `{repo, agentId}`. `repo: "squad-store/<id>"` installs bundled package incl. skills. GitHub repo form remains supported. |
 | DELETE | `/v1/store/installs/:agent_id` | Uninstall |
 | POST | `/v1/agents/install-from-github` | One-off install by URL |
 | POST | `/v1/agents/check-updates` | Which installed agents have new versions |
@@ -262,7 +262,7 @@ create request, and 500MB per scope.
 | POST | `/v1/tunnel/pairing` | Return stable phone-access QR payload (`<tunnelId>-<accessSecret>`) |
 | POST | `/v1/tunnel/reset-access` | Rotate phone-access QR secret and revoke all device tokens |
 
-See [`docs/mobile-architecture.md`](../docs/mobile-architecture.md) for the full flow — desktop engine opens an outbound WS to the Houston relay, which proxies mobile HTTP+WS AND serves the PWA bundle from the same origin. Phone pairing is durable: laptop sleep/shutdown keeps the same tunnel identity and phone tokens; only Settings → Disconnect all phones rotates the QR secret.
+See [`docs/mobile-architecture.md`](../docs/mobile-architecture.md) for the full flow — desktop engine opens an outbound WS to the Squad relay, which proxies mobile HTTP+WS AND serves the PWA bundle from the same origin. Phone pairing is durable: laptop sleep/shutdown keeps the same tunnel identity and phone tokens; only Settings → Disconnect all phones rotates the QR secret.
 
 **Watcher**
 | Method | Path | Description |
@@ -284,7 +284,7 @@ Every WS frame is an `EngineEnvelope`:
 }
 ```
 
-- `kind: "event"` → `payload` is a `HoustonEvent` (same enum the frontend already consumes) or a `LagMarker` (`{type:"Lag", dropped: N}`).
+- `kind: "event"` → `payload` is a `SquadEvent` (same enum the frontend already consumes) or a `LagMarker` (`{type:"Lag", dropped: N}`).
 - `kind: "req"` → client request. `{op:"sub"|"unsub", topics:[...]}`. Per-topic filtering is wired — subscribing to `"*"` gets the firehose; subscribing to specific topics limits what the forwarder sends.
 - `kind: "res"` → server response to a prior `req` (future use).
 - `kind: "ping" | "pong"` → keep-alive. Server emits a `ping` every 20s.
@@ -317,7 +317,7 @@ forwarder sends — essential for remote clients where bandwidth matters.
 
 ## Auditing conformance
 
-- `engine/houston-engine-server/tests/` — in-process HTTP + WS assertions.
+- `engine/squad-engine-server/tests/` — in-process HTTP + WS assertions.
 - `ui/engine-client/src/types.ts` — mirrors the Rust DTOs by hand until a
   codegen tool (`ts-rs` or `specta`) is adopted. CI should fail if shapes
   drift.
@@ -351,12 +351,12 @@ events for that key may have been dropped — refetch with
 
 `POST /v1/agents/:path/sessions` accepts an optional `systemPrompt`
 field. When omitted, the engine falls back to whatever the embedding
-app passed in via `HOUSTON_APP_SYSTEM_PROMPT` at subprocess spawn. The
+app passed in via `SQUAD_APP_SYSTEM_PROMPT` at subprocess spawn. The
 engine has no hardcoded product copy — it only assembles generic
 per-agent context from disk (working directory, mode overrides,
 skills index, integrations). Final prompt =
 `<product_prompt>\n\n---\n\n<agent_context>`. Onboarding sessions use
-`HOUSTON_APP_ONBOARDING_PROMPT` as an additional suffix.
+`SQUAD_APP_ONBOARDING_PROMPT` as an additional suffix.
 
 ### Feed-item streaming needs a reducer
 
@@ -380,10 +380,10 @@ route is the escape hatch.
 Browsers can't set `Authorization` on WebSocket upgrades. Use
 `?token=<token>` on the WS URL instead. The engine accepts all three
 (`Authorization` header, `?token=`, `Sec-WebSocket-Protocol:
-houston-bearer.<token>`).
+squad-bearer.<token>`).
 
 ### Reference implementation
 
 [`examples/smartbooks/`](../examples/smartbooks/) — a complete custom
-frontend consumer of the engine, ~400 lines of TSX, zero `@houston-ai/*`
+frontend consumer of the engine, ~400 lines of TSX, zero `@squad/*`
 UI deps. Treat as a copy-paste template.

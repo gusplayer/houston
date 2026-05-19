@@ -1,15 +1,15 @@
-# Houston Engine Server — Operator Guide
+# Squad Engine Server — Operator Guide
 
-`houston-engine` is the binary that speaks `knowledge-base/engine-protocol.md`.
-Everything Houston can do on a laptop it can do on a VPS — the desktop app
+`squad-engine` is the binary that speaks `knowledge-base/engine-protocol.md`.
+Everything Squad can do on a laptop it can do on a VPS — the desktop app
 spawns this binary as a subprocess and talks to it the same way a remote
 client would.
 
 ## Binary
 
-- Crate: `engine/houston-engine-server`
-- Bin target: `houston-engine`
-- Build: `cargo build --release -p houston-engine-server --bin houston-engine`
+- Crate: `engine/squad-engine-server`
+- Bin target: `squad-engine`
+- Build: `cargo build --release -p squad-engine-server --bin squad-engine`
 
 ## Runtime config
 
@@ -17,21 +17,21 @@ All via environment variables.
 
 | Var | Default | Purpose |
 |---|---|---|
-| `HOUSTON_BIND` | `127.0.0.1:0` | `ip:port`. Random local port by default. |
-| `HOUSTON_BIND_ALL` | unset | Must be `1` to bind `0.0.0.0`. Safety net against accidental public exposure. |
-| `HOUSTON_ENGINE_TOKEN` | auto | Bearer token clients must send. 48-char alphanumeric if unset. |
-| `HOUSTON_HOME` | `~/.houston` | DB, logs, `engine.json`, workspaces. |
-| `HOUSTON_DOCS` | `$HOUSTON_HOME/workspaces` | Workspaces filesystem root. |
-| `HOUSTON_APP_SYSTEM_PROMPT` | `""` | Product-layer system prompt. Prepended to every session when the caller doesn't supply its own. Set by the embedding app (e.g. Houston desktop) at subprocess spawn. Engine treats it as an opaque string — no hardcoded product copy in engine source. |
-| `HOUSTON_APP_ONBOARDING_PROMPT` | `""` | Product-layer onboarding suffix. Appended after the system prompt on first-run sessions (`POST /v1/agents/:path/sessions/onboarding`). |
-| `HOUSTON_NO_PARENT_WATCHDOG` | unset | Set to `1` to disable the stdin-EOF → exit watchdog (see "Parent watchdog" below). Required when running under systemd/docker where no supervisor holds the stdin pipe. |
-| `RUST_LOG` | `info,houston=debug` | `tracing` filter. |
+| `SQUAD_BIND` | `127.0.0.1:0` | `ip:port`. Random local port by default. |
+| `SQUAD_BIND_ALL` | unset | Must be `1` to bind `0.0.0.0`. Safety net against accidental public exposure. |
+| `SQUAD_ENGINE_TOKEN` | auto | Bearer token clients must send. 48-char alphanumeric if unset. |
+| `SQUAD_HOME` | `~/.squad` | DB, logs, `engine.json`, workspaces. |
+| `SQUAD_DOCS` | `$SQUAD_HOME/workspaces` | Workspaces filesystem root. |
+| `SQUAD_APP_SYSTEM_PROMPT` | `""` | Product-layer system prompt. Prepended to every session when the caller doesn't supply its own. Set by the embedding app (e.g. Squad desktop) at subprocess spawn. Engine treats it as an opaque string — no hardcoded product copy in engine source. |
+| `SQUAD_APP_ONBOARDING_PROMPT` | `""` | Product-layer onboarding suffix. Appended after the system prompt on first-run sessions (`POST /v1/agents/:path/sessions/onboarding`). |
+| `SQUAD_NO_PARENT_WATCHDOG` | unset | Set to `1` to disable the stdin-EOF → exit watchdog (see "Parent watchdog" below). Required when running under systemd/docker where no supervisor holds the stdin pipe. |
+| `RUST_LOG` | `info,squad=debug` | `tracing` filter. |
 
 ## Startup handshake
 
 On bind the binary:
 
-1. Writes `$HOUSTON_HOME/engine.json` (chmod 0600) with:
+1. Writes `$SQUAD_HOME/engine.json` (chmod 0600) with:
    ```json
    {
      "version": "0.4.0",
@@ -43,7 +43,7 @@ On bind the binary:
    ```
 2. Emits one line to **stdout**:
    ```
-   HOUSTON_ENGINE_LISTENING port=53871 token=<full-token>
+   SQUAD_ENGINE_LISTENING port=53871 token=<full-token>
    ```
 
 The desktop supervisor (`app/src-tauri/src/engine_supervisor.rs`) parses
@@ -82,13 +82,13 @@ Restart policy: exponential backoff 500ms → 30s cap on child crash.
 
 ### Parent watchdog
 
-`engine/houston-engine-server/src/main.rs::spawn_parent_watchdog` runs a
+`engine/squad-engine-server/src/main.rs::spawn_parent_watchdog` runs a
 blocking read on stdin. On EOF (parent pipe closed), the process exits.
 Gating:
 
 - Disabled when stdin is a TTY (i.e. you're running the binary by hand
   for debugging). `IsTerminal::is_terminal()` check.
-- Disabled when `HOUSTON_NO_PARENT_WATCHDOG=1` is set. Use this under
+- Disabled when `SQUAD_NO_PARENT_WATCHDOG=1` is set. Use this under
   systemd, docker, or any supervisor that owns lifecycle some other
   way.
 
@@ -117,9 +117,9 @@ See `always-on/README.md` for the VPS path.
 ## Rolling upgrades
 
 1. Pull new binary.
-2. `systemctl restart houston-engine` (or `docker compose up -d`).
+2. `systemctl restart squad-engine` (or `docker compose up -d`).
 3. Clients with open WS reconnect automatically (exponential backoff in
-   `@houston-ai/engine-client`).
+   `@squad/engine-client`).
 4. Major protocol bump → clients get 426 Upgrade Required (Phase 2 task).
 
 ## Troubleshooting
@@ -131,8 +131,8 @@ See `always-on/README.md` for the VPS path.
 - **Desktop never launches** → supervisor did not see banner in 5s. Check
   child stderr; binary missing from sidecar bundle?
 - **Engine exits immediately on manual run / under non-Tauri supervisor** →
-  parent watchdog sees no writer on stdin. Set `HOUSTON_NO_PARENT_WATCHDOG=1`
-  or redirect stdin from a pipe that stays open (`cat | houston-engine`).
+  parent watchdog sees no writer on stdin. Set `SQUAD_NO_PARENT_WATCHDOG=1`
+  or redirect stdin from a pipe that stays open (`cat | squad-engine`).
 - **CORS `Load failed` in WKWebView** → rebuild the engine. The old
   allow_methods list omitted PUT/PATCH; current code uses `Any` + `*`
   wildcard. Stale sidecar binary is the usual cause.

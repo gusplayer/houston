@@ -1,10 +1,10 @@
 # Bundled CLIs — codex, composio, claude-code
 
-Houston ships two upstream CLIs inside the signed/notarized desktop
+Squad ships two upstream CLIs inside the signed/notarized desktop
 bundle (`.app` on macOS, `.msi` on Windows) and runtime-downloads a
-third. The goal is zero terminal exposure for non-technical users —
-they install Houston, click in, and the chat agent works without ever
-opening a shell.
+third. The goal is zero terminal setup for developers using the
+desktop app — they install Squad, click in, and the chat agent works
+without needing to install or pin provider CLIs themselves.
 
 ## What ships where
 
@@ -12,7 +12,7 @@ opening a shell.
 
 | CLI         | License       | Distribution      | Where it lives                                                        |
 |-------------|---------------|-------------------|------------------------------------------------------------------------|
-| codex       | Apache-2.0    | Bundled (universal) | `Houston.app/Contents/Resources/bin/codex` — single Mach-O fat binary |
+| codex       | Apache-2.0    | Bundled (universal) | `Squad.app/Contents/Resources/bin/codex` — single Mach-O fat binary |
 | composio    | MIT           | Bundled (per-arch)  | `Resources/bin/composio-aarch64/`, `Resources/bin/composio-x86_64/`   |
 | claude-code | PROPRIETARY   | Runtime download    | `~/.local/bin/claude`                                                  |
 
@@ -23,7 +23,7 @@ opening a shell.
 | codex       | Apache-2.0    | Bundled (single arch)              | `<install>\resources\bin\codex.exe` — downloaded + zstd-decoded from upstream            |
 | composio    | MIT           | **Built from source (fork)**       | `<install>\resources\bin\composio-x86_64\composio.exe`                                   |
 | claude-code | PROPRIETARY   | Runtime download                   | `%LOCALAPPDATA%\Programs\claude\claude.exe`                                              |
-| git-bash    | GPL-2.0       | Bundled (compressed, decoded in-process) | `%LOCALAPPDATA%\Programs\Houston\runtime\git-bash-<arch>\usr\bin\bash.exe` (extracted on first launch) |
+| git-bash    | GPL-2.0       | Bundled (compressed, decoded in-process) | `%LOCALAPPDATA%\Programs\Squad\runtime\git-bash-<arch>\usr\bin\bash.exe` (extracted on first launch) |
 
 Four notes on Windows:
 
@@ -34,9 +34,11 @@ Four notes on Windows:
 
 2. **composio** is BUILT FROM SOURCE on the Windows runner. Upstream
    `ComposioHQ/composio` does not yet ship Windows artifacts (issue
-   #3057, closed: "use WSL for now"). Houston builds composio.exe on
+   #3057, closed: "use WSL for now"). Squad builds composio.exe on
    every release using a pinned commit on a forked repo
-   (`gethouston/composio`, branch `houston-windows-support`) that adds:
+   (`gethouston/composio`, branch `houston-windows-support` — the fork
+   was set up under the upstream Houston org and is still the
+   single-point-of-truth) that adds:
    - Windows targets (`bun-windows-x64-modern` etc.) to
      `TARGET_MAP` in `build-binary-cross.ts`.
    - `win32-x64` + `win32-arm64` entries in
@@ -53,7 +55,7 @@ Four notes on Windows:
 
 3. **claude-code** ships native Windows binaries (`win32-x64`,
    `win32-arm64`) directly from Anthropic's distribution manifest. The
-   runtime installer (`houston-claude-installer`) detects platform via
+   runtime installer (`squad-claude-installer`) detects platform via
    `host_platform_key()`, resolves the matching URL + SHA-256 from the
    bundled `cli-deps.json`, and writes to
    `%LOCALAPPDATA%\Programs\claude\claude.exe` (matching the upstream
@@ -63,7 +65,7 @@ Four notes on Windows:
    arch) under `resources\bin\git-bash-<arch>.7z.exe`. Claude Code's
    `claude.exe` refuses to run without `bash.exe` + the msys2 POSIX
    runtime, so the engine extracts the archive on first launch into
-   `%LOCALAPPDATA%\Programs\Houston\runtime\git-bash-<arch>\` and
+   `%LOCALAPPDATA%\Programs\Squad\runtime\git-bash-<arch>\` and
    exports `CLAUDE_CODE_GIT_BASH_PATH` for every later claude.exe
    spawn. **Extraction is done in-process** by `sevenz-rust2`,
    skipping the SFX's PE stub and decoding the embedded 7z payload
@@ -193,7 +195,7 @@ Mach-O ends up unsigned, ad-hoc-signed, or missing hardened runtime.
 
 ## Runtime resolution
 
-`engine/houston-cli-bundle/` is the resolver crate. Public functions:
+`engine/squad-cli-bundle/` is the resolver crate. Public functions:
 
 - `bundled_bin_dir() -> Option<PathBuf>` — top of the bundle dir, or
   `None` outside a recognizable .app/MSI layout.
@@ -205,11 +207,11 @@ Mach-O ends up unsigned, ad-hoc-signed, or missing hardened runtime.
   accessors.
 
 Detection is structural — we walk parent dirs of `current_exe()`
-checking for `Houston.app/Contents/MacOS/<exe>` (macOS) or a sibling
+checking for `Squad.app/Contents/MacOS/<exe>` (macOS) or a sibling
 `resources/bin/` (Windows). No env vars; works even when launched from
 Spotlight, Dock, or Finder.
 
-`engine/houston-terminal-manager/src/claude_path.rs` prepends the
+`engine/squad-terminal-manager/src/claude_path.rs` prepends the
 bundled paths to the resolved login-shell PATH so subprocess
 spawns of `claude`/`codex`/`composio` find the bundled copies before
 anything on the user's PATH.
@@ -223,16 +225,16 @@ the UI can report "installed" while login says "not installed".
 
 ## Lifecycle — auto-install + auto-upgrade
 
-`engine/houston-engine-server/src/main.rs` spawns two background tasks at
+`engine/squad-engine-server/src/main.rs` spawns two background tasks at
 boot:
 
-1. `houston_composio::lifecycle::ensure_and_upgrade` — emits
+1. `squad_composio::lifecycle::ensure_and_upgrade` — emits
    `ComposioCliReady` immediately when bundled is present (production).
    For dev / unbundled builds, runs the upstream `curl | bash` installer
-   into `~/.composio` and runs `composio upgrade` on Houston version
+   into `~/.composio` and runs `composio upgrade` on Squad version
    bumps.
 
-2. `houston_claude_installer::ensure_and_upgrade` — reads
+2. `squad_claude_installer::ensure_and_upgrade` — reads
    `cli-deps.json` for the pinned `claude-code` version and:
    - If installed at the pinned version → emit `ClaudeCliReady`.
    - Else → stream-download with sha256 verification, atomic rename
@@ -257,9 +259,9 @@ Mirrors `/v1/composio/*`:
 three status fields beyond provider + CLI name:
 
 - `installSource: "bundled" | "managed" | "path" | "missing"` —
-  Houston's view of where the binary came from. Renders as a chip in
+  Squad's view of where the binary came from. Renders as a chip in
   the provider settings UI.
-- `cliPath: string | null` — absolute path Houston will spawn.
+- `cliPath: string | null` — absolute path Squad will spawn.
   Surfaces in diagnostics.
 - `authState: "authenticated" | "unauthenticated" | "unknown"` —
   tri-state provider auth. `unknown` means the CLI status probe failed
@@ -275,8 +277,9 @@ Bundled CLIs add ~700 MB to `Resources/`:
 - composio-x86_64:  ~190 MB
 
 DMG compression brings the user-facing download to ~350-450 MB. This is
-a deliberate trade — the target user is non-technical and would not
-successfully run a separate installer for each provider CLI.
+a deliberate trade — the target user is a developer who wants to install
+once and start working, not chase down separate installers for each
+provider CLI.
 
 ## Adding a new bundled CLI
 
@@ -285,7 +288,7 @@ successfully run a separate installer for each provider CLI.
 2. Update `scripts/fetch-cli-deps.sh` if the archive layout differs from
    the existing patterns (single binary vs. multi-file Bun-style bundle).
 3. Run `./scripts/fetch-cli-deps.sh both` and pin the printed checksums.
-4. Add a resolver in `houston-cli-bundle::lib.rs`
+4. Add a resolver in `squad-cli-bundle::lib.rs`
    (`bundled_<name>_path()`).
 5. If the CLI needs to be on PATH for agents to invoke it, add the
    directory to `bundled_path_entries()`.
@@ -296,10 +299,10 @@ successfully run a separate installer for each provider CLI.
 1. Add an entry to `cli-deps.json` with `bundled: false`,
    `install_target` (file path), per-platform URLs, and pinned
    sha256 checksums.
-2. Mirror the `houston-claude-installer` crate structure (or extend it
+2. Mirror the `squad-claude-installer` crate structure (or extend it
    if the auth + version-marker pattern is identical).
 3. Wire into `main.rs::spawn_cli_lifecycles`.
-4. Add `<Name>CliInstalling/Ready/Failed` events to `HoustonEvent` and
+4. Add `<Name>CliInstalling/Ready/Failed` events to `SquadEvent` and
    route them in `engine_protocol::event_topic`.
 5. Add `/v1/<name>/*` REST routes mirroring `routes/claude.rs`.
 
@@ -309,7 +312,9 @@ The Windows composio binary is built from a fork of upstream
 ComposioHQ/composio with three patches that upstream hasn't taken yet
 (see issue #3057). The fork lives at
 `https://github.com/gethouston/composio.git` on branch
-`houston-windows-support`. Houston pins the HEAD SHA in
+`houston-windows-support` — both the URL and branch name are inherited
+from the upstream Houston project and intentionally kept as-is so we
+don't break the build by chasing a rename. Squad pins the HEAD SHA in
 `cli-deps.json#composio.build."windows-x64".source_sha` and the fetch
 script verifies it after every clone.
 
@@ -322,7 +327,7 @@ Workflow when bumping composio versions:
    - `feat(cli-keyring): native Windows Credential Manager backend (bun:ffi)`
    - (any subsequent patch adding new Windows behavior)
 2. Push the rebased branch.
-3. In Houston, update `cli-deps.json`:
+3. In Squad, update `cli-deps.json`:
    ```bash
    ./scripts/bump-cli.sh composio <NEW_VERSION>
    ```
@@ -334,10 +339,10 @@ Workflow when bumping composio versions:
    the longer the gap between the fork and upstream the more painful
    rebases get.
 
-The fork is the deliberate single-point-of-truth for Houston-side
-Windows support: it's small, the patches are mechanical, and it
-doesn't introduce a vendoring layer (composio source isn't checked
-into Houston). Upstream taking the patches deletes this section.
+The fork is the deliberate single-point-of-truth for Windows support:
+it's small, the patches are mechanical, and it doesn't introduce a
+vendoring layer (composio source isn't checked into Squad). Upstream
+taking the patches deletes this section.
 
 ## Windows signing — deferred
 
@@ -345,8 +350,9 @@ The Windows MSI ships UNSIGNED in v1. Users see Microsoft Defender
 SmartScreen warning ("Windows protected your PC — Don't run / More
 info → Run anyway") on first install. Plan:
 
-1. SignPath Foundation (free OSS code signing) is approved for Houston
-   per `project_windows_signing` memory.
+1. SignPath Foundation (free OSS code signing) was approved for the
+   upstream Houston project per `project_windows_signing` memory; the
+   Squad fork inherits that approval.
 2. Wire `signpath-foundation/signpath-action@v1` into the
    `build-windows` job between `tauri-action` and the upload step.
 3. Submit the MSI + bundled `.exe` files for signing, wait for
@@ -364,7 +370,7 @@ updater signature IS produced and uploaded for Windows builds (see
 `build-windows`'s "Extend latest.json with Windows updater entry"
 step) and the in-app updater verifies against the public key
 embedded at build time — same signing key as the macOS .app.tar.gz
-flow. So Windows users on older Houston versions get the same
+flow. So Windows users on older Squad versions get the same
 auto-update prompt as macOS users, just with a SmartScreen warning
 when the new MSI runs until SignPath integration ships.
 
@@ -382,15 +388,15 @@ when the new MSI runs until SignPath integration ships.
   side: bundle resources, MSI target, WiX config, WebView2 install
   mode.
 - `app/src-tauri/build.rs` — ensures the staging dir exists for `pnpm tauri dev`.
-- `engine/houston-cli-bundle/` — resolver crate (Windows-aware).
-- `engine/houston-claude-installer/` — runtime download crate
+- `engine/squad-cli-bundle/` — resolver crate (Windows-aware).
+- `engine/squad-claude-installer/` — runtime download crate
   (Windows install dir at `%LOCALAPPDATA%\Programs\claude\`).
-- `engine/houston-composio/src/install.rs` — bundle-aware composio
+- `engine/squad-composio/src/install.rs` — bundle-aware composio
   resolver (Windows surfaces a clear "bundled-only" error in dev mode).
-- `engine/houston-engine-core/src/provider.rs` — `InstallSource` enum + status.
-- `engine/houston-terminal-manager/src/claude_path.rs` — PATH
+- `engine/squad-engine-core/src/provider.rs` — `InstallSource` enum + status.
+- `engine/squad-terminal-manager/src/claude_path.rs` — PATH
   augmentation, Windows-specific install dirs +
   `.exe`/`.cmd`/`.bat` extension probing.
-- `engine/houston-engine-server/src/routes/claude.rs` — `/v1/claude/*`.
+- `engine/squad-engine-server/src/routes/claude.rs` — `/v1/claude/*`.
 - `.github/workflows/release.yml` — `build-macos` + `build-windows`
   jobs, fetch + verify steps.
