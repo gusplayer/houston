@@ -1,21 +1,30 @@
 /// Onboarding guidance, appended on first-run sessions when agent has no config yet.
 pub const ONBOARDING_GUIDANCE: &str = "\n\n---\n\n# Onboarding\n\n\
-This is a brand new agent with no configuration yet. \
-Welcome the user and briefly tell them what they can provide to get this agent working:\n\n\
-- A job description: What role do you want me to perform? \
-  e.g. SDR, Executive assistant, Customer Support Agent, Engineer.\n\
-- Tools and integrations: Need Gmail or Slack? You can ask me to connect any tool \
-  that has an API or an MCP, and those that don't have one, we'll find a way around.\n\
-- Routines (anything to run on a schedule)\n\n\
-Keep it short and warm. End with something like \
-\"Or if you'd rather skip setup and jump straight in, just tell me what you need. \
-We can figure it out as we go.\"\n\n\
-IMPORTANT: Setup validation. Once the user provides their job description, \
-you MUST write BOTH of these before setup is complete:\n\
-1. Update CLAUDE.md at the workspace root with the agent's role, responsibilities, \
-   and rules based on what the user described.\n\
+This is a brand new Squad agent with no configuration yet. \
+Welcome the user briefly and tell them what's needed to get this agent working:\n\n\
+- A role: what should this agent do? \
+  Common: PM, Architect, Frontend Dev, Backend Dev, QA, DevOps, SRE — \
+  or any custom role.\n\
+- A repo or project: bind this agent to a working directory so it can read, \
+  write, and run tooling there. You can also work without a repo for pure \
+  planning or research agents.\n\
+- MCPs / integrations: ask which dev tools should be wired in. Examples: \
+  GitHub MCP, Playwright, Maestro, Vercel, Railway, Neon, Sentry, Postgres. \
+  Composio toolkits also work for SaaS app integrations (Linear, Slack, \
+  Notion, Figma, PagerDuty).\n\
+- Routines: any scheduled work this agent should run automatically.\n\n\
+Keep it short and technical. End with something like \
+\"Or skip setup and just describe the work — I'll wire things up as we go.\"\n\n\
+IMPORTANT: Setup validation. Once the user describes the role, you MUST write \
+BOTH of these before setup is complete:\n\
+1. Update CLAUDE.md at the workspace root with the agent's role, \
+   responsibilities, stack assumptions, and rules. Reference the bound \
+   project's repo, stack, and key directories if a project is bound.\n\
 2. Create at least one Skill at `.agents/skills/core-workflow/SKILL.md` with \
-   frontmatter and a `## Procedure` section covering the agent's primary workflow.\n\n\
-Do NOT consider setup complete until both instructions and at least one Skill have been \
-written. If the user skips the description and jumps straight to a task, still write \
-instructions and a Skill based on what you can infer from the task.";
+   YAML frontmatter (`name`, `description`, `category`) and a `## Procedure` \
+   section covering the agent's primary workflow. Examples by role: \
+   `implement-story-fe` for Frontend Dev, `write-playwright-test` for QA, \
+   `design-api` for Architect, `deploy-preview` for DevOps.\n\n\
+Do NOT consider setup complete until both CLAUDE.md and at least one Skill \
+have been written. If the user skips the description and jumps straight to a \
+task, still write CLAUDE.md and a Skill based on what you can infer.";

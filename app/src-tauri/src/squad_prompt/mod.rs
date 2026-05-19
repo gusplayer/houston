@@ -1,9 +1,9 @@
-//! Houston product prompts, the authoritative identity copy for the Houston
+//! Squad product prompts, the authoritative identity copy for the Squad
 //! desktop app.
 //!
 //! These strings are the product layer. The engine is prompt-agnostic: it
 //! assembles per-agent context from disk, while this module defines how the
-//! Houston desktop agent behaves and speaks.
+//! Squad desktop agent behaves and speaks.
 
 mod base;
 mod integrations;
@@ -18,7 +18,7 @@ pub use routines::ROUTINES_GUIDANCE;
 pub use skills_memory::SELF_IMPROVEMENT_GUIDANCE;
 
 /// Build the composite system prompt the engine uses as its fallback.
-/// Order: base identity, skills/memory guidance, routines guidance, Composio guidance.
+/// Order: base identity, skills/memory guidance, routines guidance, integrations guidance.
 pub fn system_prompt() -> String {
     format!(
         "{SQUAD_SYSTEM_PROMPT}\n\n---\n\n{SELF_IMPROVEMENT_GUIDANCE}\n\n---\n\n{ROUTINES_GUIDANCE}{COMPOSIO_GUIDANCE}"
@@ -38,14 +38,14 @@ mod tests {
     fn system_prompt_contains_new_interaction_gates() {
         let prompt = system_prompt();
 
-        assert!(prompt.contains("# Houston Context"));
+        assert!(prompt.contains("# Squad Context"));
         assert!(prompt.contains("# Interaction Procedure"));
         assert!(prompt.contains("# Load Relevant Guidance"));
         assert!(prompt.contains("Classify the request"));
         assert!(prompt.contains("Required integrations"));
         assert!(prompt.contains("Routine request"));
         assert!(prompt.contains(
-            "Ask for explicit approval before work that will change persistent user data"
+            "Ask for explicit approval before work that will push to a remote"
         ));
     }
 
@@ -88,5 +88,24 @@ mod tests {
         assert!(
             prompt.contains("Ask for approval before creating, enabling, or changing a Routine")
         );
+    }
+
+    #[test]
+    fn dev_voice_replaces_non_technical_framing() {
+        let prompt = system_prompt();
+
+        assert!(prompt.contains("senior engineer companion"));
+        assert!(prompt.contains("software engineer"));
+        assert!(!prompt.contains("non-technical"));
+        assert!(!prompt.contains("not technical"));
+    }
+
+    #[test]
+    fn integrations_cover_mcp_and_composio() {
+        let prompt = system_prompt();
+
+        assert!(prompt.contains("MCPs (Model Context Protocol)"));
+        assert!(prompt.contains("Composio toolkits"));
+        assert!(prompt.contains(".squad/agents/<id>/mcps.json"));
     }
 }
