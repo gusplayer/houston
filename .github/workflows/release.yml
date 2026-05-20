@@ -1,4 +1,4 @@
-# Houston macOS Release Workflow
+# Squad macOS Release Workflow
 #
 # Triggered by pushing a version tag (e.g. `git tag v0.3.0 && git push --tags`).
 #
@@ -103,7 +103,7 @@ jobs:
             }
 
             {
-              echo "## Houston v$VERSION"
+              echo "## Squad v$VERSION"
               section "Features"  "feat"
               section "Fixes"     "fix"
               section "Docs"      "docs"
@@ -114,7 +114,7 @@ jobs:
               # doesn't reliably replace a running .app.
               echo "### Before you upgrade"
               echo ""
-              echo "- Quit Houston before installing. macOS doesn't always replace a running app. If in doubt: \`rm -rf /Applications/Houston.app\` and drag the new copy in."
+              echo "- Quit Squad before installing. macOS doesn't always replace a running app. If in doubt: \`rm -rf /Applications/Squad.app\` and drag the new copy in."
               echo ""
               if [ -n "$COMPARE" ]; then
                 echo "$COMPARE"
@@ -132,7 +132,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           gh release create "$GITHUB_REF_NAME" \
-            --title "Houston v$VERSION" \
+            --title "Squad v$VERSION" \
             --notes-file release-notes.md \
             --draft
 
@@ -191,6 +191,7 @@ jobs:
           restore-keys: ${{ runner.os }}-cargo-universal-
 
       - name: Write Apple API key to disk
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APPLE_API_KEY_CONTENT }}" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPLE_API_KEY }}.p8
@@ -259,19 +260,20 @@ jobs:
       # tauri-action's deep sign won't disturb (it skips files inside
       # nested Resources/ subdirs entirely).
       - name: Import Apple Developer ID for pre-signing bundled CLIs
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
           set -euo pipefail
-          KEYCHAIN_PATH="$RUNNER_TEMP/houston-presign.keychain-db"
+          KEYCHAIN_PATH="$RUNNER_TEMP/squad-presign.keychain-db"
           KEYCHAIN_PWD=$(openssl rand -base64 32)
 
           security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
 
-          CERT_FILE="$RUNNER_TEMP/houston-cert.p12"
+          CERT_FILE="$RUNNER_TEMP/squad-cert.p12"
           echo "$APPLE_CERTIFICATE" | base64 --decode > "$CERT_FILE"
           security import "$CERT_FILE" -P "$APPLE_CERTIFICATE_PASSWORD" \
             -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
@@ -289,6 +291,7 @@ jobs:
           rm -f "$CERT_FILE"
 
       - name: Pre-sign bundled CLI binaries (Developer ID + hardened runtime + timestamp)
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         env:
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
         run: |
@@ -308,25 +311,25 @@ jobs:
       #
       # Tauri's universal-apple-darwin build invokes cargo once per real
       # triple (aarch64 + x86_64) and expects per-triple sidecars at
-      # `src-tauri/binaries/houston-engine-<triple>`. `build.rs` copies them
+      # `src-tauri/binaries/squad-engine-<triple>`. `build.rs` copies them
       # there, but it needs the underlying binary to exist for the triple
       # cargo is currently compiling for. So we build BOTH up front.
       #
       # Shipping an Intel-only or arm64-only engine would break half of our
       # Mac users — so a missing triple fails hard here rather than producing
       # a silently-broken DMG.
-      - name: Build houston-engine sidecar (aarch64 + x86_64) + lipo universal
+      - name: Build squad-engine sidecar (aarch64 + x86_64) + lipo universal
         run: |
           set -euo pipefail
           for TRIPLE in aarch64-apple-darwin x86_64-apple-darwin; do
-            echo "=== Building houston-engine for $TRIPLE ==="
-            cargo build --release --target "$TRIPLE" -p houston-engine-server
-            test -x "target/$TRIPLE/release/houston-engine" \
+            echo "=== Building squad-engine for $TRIPLE ==="
+            cargo build --release --target "$TRIPLE" -p squad-engine-server
+            test -x "target/$TRIPLE/release/squad-engine" \
               || { echo "::error::engine binary missing for $TRIPLE"; exit 1; }
           done
 
           # Tauri's `--target universal-apple-darwin` bundler looks for a
-          # SINGLE fat binary at `binaries/houston-engine-universal-apple-darwin`.
+          # SINGLE fat binary at `binaries/squad-engine-universal-apple-darwin`.
           # `build.rs` stages per-triple binaries during the per-arch cargo
           # invocations (aarch64 + x86_64), but there's no cargo target for
           # "universal-apple-darwin" — so nothing stages the fat one.
@@ -335,16 +338,16 @@ jobs:
           echo "=== Lipo universal sidecar ==="
           mkdir -p app/src-tauri/binaries
           lipo -create \
-            target/aarch64-apple-darwin/release/houston-engine \
-            target/x86_64-apple-darwin/release/houston-engine \
-            -output app/src-tauri/binaries/houston-engine-universal-apple-darwin
-          chmod +x app/src-tauri/binaries/houston-engine-universal-apple-darwin
-          lipo -info app/src-tauri/binaries/houston-engine-universal-apple-darwin
+            target/aarch64-apple-darwin/release/squad-engine \
+            target/x86_64-apple-darwin/release/squad-engine \
+            -output app/src-tauri/binaries/squad-engine-universal-apple-darwin
+          chmod +x app/src-tauri/binaries/squad-engine-universal-apple-darwin
+          lipo -info app/src-tauri/binaries/squad-engine-universal-apple-darwin
 
           ls -la \
-            target/aarch64-apple-darwin/release/houston-engine \
-            target/x86_64-apple-darwin/release/houston-engine \
-            app/src-tauri/binaries/houston-engine-universal-apple-darwin
+            target/aarch64-apple-darwin/release/squad-engine \
+            target/x86_64-apple-darwin/release/squad-engine \
+            app/src-tauri/binaries/squad-engine-universal-apple-darwin
 
       # Build only — no release creation (no tagName).
       # tauri-action handles certificate import, code signing, .app notarization + stapling.
@@ -353,7 +356,7 @@ jobs:
       # binaries are fat (arm64 + x86_64). Tauri invokes cargo twice under
       # the hood — once per real triple — and lipos the outputs. Our engine
       # sidecar is handled the same way via the per-triple
-      # `binaries/houston-engine-<triple>` files staged by `build.rs`.
+      # `binaries/squad-engine-<triple>` files staged by `build.rs`.
       # Bundle output lands under `target/universal-apple-darwin/release/bundle/`.
       - name: Build Tauri app (universal)
         uses: tauri-apps/tauri-action@v0
@@ -417,6 +420,7 @@ jobs:
           echo "  .sig:        $SIG"
 
       - name: Verify .app signing and notarization
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         run: |
           echo "=== Code signature ==="
           codesign -vvv --deep --strict "${{ steps.artifacts.outputs.app }}"
@@ -424,7 +428,7 @@ jobs:
           echo "=== Notarization staple ==="
           xcrun stapler validate "${{ steps.artifacts.outputs.app }}"
 
-      # Explicit assertions on the bundled `houston-engine` sidecar.
+      # Explicit assertions on the bundled `squad-engine` sidecar.
       # `--deep` above validates all embedded binaries, but a regression in
       # tauri-action could silently ship an ad-hoc-signed or
       # hardened-runtime-less sidecar — Gatekeeper would then quarantine-kill
@@ -442,6 +446,7 @@ jobs:
       # layout. Any failure is fatal — a release where the bundled CLI
       # works for half of users is worse than no release.
       - name: Verify bundled CLI invariants
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         run: |
           set -euo pipefail
           APP="${{ steps.artifacts.outputs.app }}"
@@ -498,13 +503,14 @@ jobs:
           echo "=== Bundled CLI checks passed ==="
 
       - name: Verify engine sidecar signing
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         run: |
           APP="${{ steps.artifacts.outputs.app }}"
 
           # Tauri strips the triple suffix on bundle; fall back to glob if it doesn't.
-          SIDECAR="$APP/Contents/MacOS/houston-engine"
+          SIDECAR="$APP/Contents/MacOS/squad-engine"
           if [ ! -f "$SIDECAR" ]; then
-            SIDECAR=$(find "$APP/Contents" -type f -name 'houston-engine*' ! -name '*.dSYM*' | head -1)
+            SIDECAR=$(find "$APP/Contents" -type f -name 'squad-engine*' ! -name '*.dSYM*' | head -1)
           fi
 
           if [ -z "$SIDECAR" ] || [ ! -x "$SIDECAR" ]; then
@@ -551,6 +557,7 @@ jobs:
           echo "=== Sidecar checks passed ==="
 
       - name: Notarize DMG
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         timeout-minutes: 25
         run: |
           DMG="${{ steps.artifacts.outputs.dmg }}"
@@ -578,6 +585,7 @@ jobs:
           done
 
       - name: Verify complete signing chain
+        if: ${{ secrets.APPLE_CERTIFICATE != '' }}
         run: |
           DMG="${{ steps.artifacts.outputs.dmg }}"
 
@@ -720,12 +728,12 @@ jobs:
   #      `composio.build."windows-<arch>"` block for the pin and the
   #      `$build_comment` for why upstream can't ship Windows yet.
   #      git-bash-<arch>.7z.exe (PortableGit SFX) is also staged so the
-  #      first-launch extractor in houston-engine-core::git_bash gives
+  #      first-launch extractor in squad-engine-core::git_bash gives
   #      Claude Code its bash.exe dependency without user setup.
-  #   2. Build the houston-engine sidecar for the matrix target.
-  #      Tauri's externalBin picks it up at `binaries/houston-engine.exe`
+  #   2. Build the squad-engine sidecar for the matrix target.
+  #      Tauri's externalBin picks it up at `binaries/squad-engine.exe`
   #      (build.rs::stage_engine_sidecar names it
-  #      `houston-engine-<target>.exe` per Tauri's per-target convention).
+  #      `squad-engine-<target>.exe` per Tauri's per-target convention).
   #   3. Run `pnpm tauri build --target <matrix.target>` to produce the
   #      MSI under `target/<matrix.target>/release/bundle/msi/*.msi`.
   #   4. Upload the per-arch MSI + .sig to the draft release. `finalize`
@@ -856,7 +864,7 @@ jobs:
       # fork — windows-x64 from branch houston-windows-support,
       # windows-arm64 from branch houston-windows-arm64 with the
       # bun:ffi fallback patch), and git-bash-<arch>.7z.exe (PortableGit
-      # SFX, extracted on first launch by houston-engine-core::git_bash).
+      # SFX, extracted on first launch by squad-engine-core::git_bash).
       # The fetch script handles `pnpm install` + `tsdown` +
       # `bun build:binary:cross` for the composio fork; full build is
       # ~3-5 minutes on a warm runner.
@@ -881,17 +889,17 @@ jobs:
 
       # Build the engine sidecar for the matrix target BEFORE
       # `tauri build`. build.rs::stage_engine_sidecar copies it to
-      # `app/src-tauri/binaries/houston-engine-<target>.exe` which is
+      # `app/src-tauri/binaries/squad-engine-<target>.exe` which is
       # what Tauri's externalBin pattern expects.
-      - name: Build houston-engine sidecar (${{ matrix.target }})
+      - name: Build squad-engine sidecar (${{ matrix.target }})
         shell: bash
         run: |
           set -euo pipefail
-          cargo build --release --target ${{ matrix.target }} -p houston-engine-server
-          test -x "target/${{ matrix.target }}/release/houston-engine.exe" \
+          cargo build --release --target ${{ matrix.target }} -p squad-engine-server
+          test -x "target/${{ matrix.target }}/release/squad-engine.exe" \
             || { echo "::error::engine binary missing for ${{ matrix.target }}"; exit 1; }
           echo "Sidecar size:"
-          ls -lah target/${{ matrix.target }}/release/houston-engine.exe
+          ls -lah target/${{ matrix.target }}/release/squad-engine.exe
 
       - name: Build Tauri app (Windows MSI)
         uses: tauri-apps/tauri-action@v0
@@ -1023,8 +1031,8 @@ jobs:
           # Walk every *.msi.sig and append a Tauri-updater entry. The
           # MSI bundler embeds the target triple in the filename so we
           # can derive the platform key directly. Naming examples:
-          #   Houston_0.4.9_x64_en-US.msi.sig    → windows-x86_64
-          #   Houston_0.4.9_arm64_en-US.msi.sig  → windows-aarch64
+          #   Squad_0.4.9_x64_en-US.msi.sig    → windows-x86_64
+          #   Squad_0.4.9_arm64_en-US.msi.sig  → windows-aarch64
           shopt -s nullglob
           sigs=("$tmpdir"/*.msi.sig)
           if [ ${#sigs[@]} -eq 0 ]; then
@@ -1079,7 +1087,7 @@ jobs:
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${GITHUB_REF_NAME}"
           DMG_URL=$(gh release view "$GITHUB_REF_NAME" --json assets --jq '[.assets[] | select(.name | endswith(".dmg")) | .url] | first // empty')
 
-          # First ~700 chars of the release-notes body, skipping the leading "## Houston X.Y.Z" header line.
+          # First ~700 chars of the release-notes body, skipping the leading "## Squad X.Y.Z" header line.
           NOTES_PREVIEW=$(tail -n +2 release-notes.md | head -c 700)
           if [ "$(wc -c < release-notes.md)" -gt 700 ]; then
             NOTES_PREVIEW="${NOTES_PREVIEW}…"
@@ -1102,9 +1110,9 @@ jobs:
             --arg notes "$NOTES_PREVIEW" \
             --argjson actions "$ACTIONS" \
             '{
-              text: ("Houston v" + $ver + " is ready to test"),
+              text: ("Squad v" + $ver + " is ready to test"),
               blocks: [
-                { type: "header", text: { type: "plain_text", text: ("Houston v" + $ver + " is ready to test"), emoji: true } },
+                { type: "header", text: { type: "plain_text", text: ("Squad v" + $ver + " is ready to test"), emoji: true } },
                 { type: "context", elements: [ { type: "mrkdwn", text: "Draft release · grab the DMG and try it before we publish" } ] },
                 { type: "section", text: { type: "mrkdwn", text: $notes } },
                 { type: "actions", elements: $actions }
