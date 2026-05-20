@@ -30,6 +30,10 @@ interface UIState {
   /** Whether the mission chat panel is open (hides tab bar for full-height panel) */
   missionPanelOpen: boolean;
   jobDescriptionTarget: JobDescriptionTarget | null;
+  /** Currently-open conversation per agent. Persisted in the store so
+   * navigating away from the agent (Settings, another agent, …) and back
+   * preserves the open chat. Keyed by agent folder path. */
+  selectedConversationByAgent: Record<string, string | null>;
   /** Pin the first-run tutorial UI in front of the workspace shell. Set true
    * while the orchestrator is mid-flight, cleared on graduation or skip. */
   tutorialActive: boolean;
@@ -60,6 +64,7 @@ interface UIState {
   setTutorialActive: (active: boolean) => void;
   setUiTourActive: (active: boolean) => void;
   setStoreAgentId: (id: string | null) => void;
+  setSelectedConversation: (agentPath: string, id: string | null) => void;
 }
 
 let toastCounter = 0;
@@ -81,6 +86,7 @@ export const useUIStore = create<UIState>((set) => ({
   tutorialActive: false,
   uiTourActive: false,
   storeAgentId: null,
+  selectedConversationByAgent: {},
 
   setViewMode: (viewMode) => set({ viewMode }),
   setAssistantPanelOpen: (assistantPanelOpen) => set({ assistantPanelOpen }),
@@ -130,4 +136,11 @@ export const useUIStore = create<UIState>((set) => ({
   setTutorialActive: (tutorialActive) => set({ tutorialActive }),
   setUiTourActive: (uiTourActive) => set({ uiTourActive }),
   setStoreAgentId: (storeAgentId) => set({ storeAgentId }),
+  setSelectedConversation: (agentPath, id) =>
+    set((s) => {
+      const next = { ...s.selectedConversationByAgent };
+      if (id === null) delete next[agentPath];
+      else next[agentPath] = id;
+      return { selectedConversationByAgent: next };
+    }),
 }));

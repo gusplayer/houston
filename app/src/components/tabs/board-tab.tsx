@@ -125,10 +125,22 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
     [agent.name, agentModes, rawItems],
   );
 
-  // Read and consume pending selection from Mission Control
+  // Read and consume pending selection from Mission Control. The
+  // currently-open conversation is persisted per-agent in the UI store
+  // so navigating away from this agent (Settings, another agent, …)
+  // and returning preserves the open chat — board-tab's local React
+  // state would be wiped on unmount.
   const pendingId = useUIStore((s) => s.activityPanelId);
   const clearPending = useUIStore((s) => s.setActivityPanelId);
-  const [selectedId, setSelectedId] = useState<string | null>(pendingId);
+  const agentPath = agent.folderPath;
+  const selectedId = useUIStore(
+    (s) => s.selectedConversationByAgent[agentPath] ?? null,
+  );
+  const setSelectedConversation = useUIStore((s) => s.setSelectedConversation);
+  const setSelectedId = useCallback(
+    (id: string | null) => setSelectedConversation(agentPath, id),
+    [agentPath, setSelectedConversation],
+  );
   useEffect(() => {
     if (pendingId) {
       // Only navigate if the user isn't already viewing a conversation
@@ -136,7 +148,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
       if (!selectedId && !missionPanelOpen) setSelectedId(pendingId);
       clearPending(null);
     }
-  }, [pendingId, clearPending, selectedId, missionPanelOpen]);
+  }, [pendingId, clearPending, selectedId, missionPanelOpen, setSelectedId]);
 
   // Per-agent session key for the currently selected card. Drives the
   // panel hook's action routing (mid-conversation send vs new
