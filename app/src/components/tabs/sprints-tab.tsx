@@ -12,7 +12,7 @@ import {
   useUpdateStory,
   useDeleteStory,
 } from "../../hooks/queries";
-import type { Story, StoryStatus } from "@squad/engine-client";
+import type { Story, StoryStatus, StoryPhase } from "@squad/engine-client";
 
 const STORY_COLUMNS: StoryStatus[] = ["todo", "in_progress", "in_review", "done"];
 
@@ -32,13 +32,39 @@ const PRIORITY_COLORS: Record<string, string> = {
   low: "text-muted-foreground",
 };
 
+const STORY_PHASES: StoryPhase[] = [
+  "discovery",
+  "analysis",
+  "planning",
+  "coding",
+  "review",
+  "qa",
+  "deploy",
+  "deliver",
+];
+
+// Phase dot color — only the dot is colored; chip text stays muted.
+// Keeps the UI grayscale-first per the design system guidance.
+const PHASE_DOT_COLORS: Record<StoryPhase, string> = {
+  discovery: "bg-blue-500",
+  analysis: "bg-cyan-500",
+  planning: "bg-indigo-500",
+  coding: "bg-violet-500",
+  review: "bg-amber-500",
+  qa: "bg-pink-500",
+  deploy: "bg-emerald-500",
+  deliver: "bg-teal-500",
+};
+
 function StoryCard({
   story,
   onStatusChange,
+  onPhaseChange,
   onDelete,
 }: {
   story: Story;
   onStatusChange: (id: string, status: StoryStatus) => void;
+  onPhaseChange: (id: string, phase: StoryPhase) => void;
   onDelete: (id: string) => void;
 }) {
   const { t } = useTranslation("agents");
@@ -58,6 +84,12 @@ function StoryCard({
             {story.title}
           </p>
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            {story.phase && (
+              <span className="text-[10px] px-1 rounded bg-accent text-accent-foreground inline-flex items-center gap-1">
+                <span className={cn("size-1.5 rounded-full", PHASE_DOT_COLORS[story.phase])} />
+                {t(`sprints.phases.${story.phase}`)}
+              </span>
+            )}
             {story.epic && (
               <span className="text-[10px] px-1 rounded bg-accent text-accent-foreground">{story.epic}</span>
             )}
@@ -77,24 +109,48 @@ function StoryCard({
         </div>
       </div>
       {expanded && (
-        <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/50">
-          <Select
-            value={story.status}
-            onValueChange={(v) => onStatusChange(story.id, v as StoryStatus)}
-          >
-            <SelectTrigger className="h-6 text-[10px] flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(Object.keys(STATUS_LABELS) as StoryStatus[]).map((s) => (
-                <SelectItem key={s} value={s} className="text-[10px]">{STATUS_LABELS[s]}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-1 mt-2 pt-2 border-t border-border/50">
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground w-12 shrink-0">{t("sprints.statusLabel")}</span>
+            <Select
+              value={story.status}
+              onValueChange={(v) => onStatusChange(story.id, v as StoryStatus)}
+            >
+              <SelectTrigger className="h-6 text-[10px] flex-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(STATUS_LABELS) as StoryStatus[]).map((s) => (
+                  <SelectItem key={s} value={s} className="text-[10px]">{STATUS_LABELS[s]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground w-12 shrink-0">{t("sprints.phaseLabel")}</span>
+            <Select
+              value={story.phase ?? ""}
+              onValueChange={(v) => onPhaseChange(story.id, v as StoryPhase)}
+            >
+              <SelectTrigger className="h-6 text-[10px] flex-1">
+                <SelectValue placeholder={t("sprints.noPhase")} />
+              </SelectTrigger>
+              <SelectContent>
+                {STORY_PHASES.map((p) => (
+                  <SelectItem key={p} value={p} className="text-[10px]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className={cn("size-1.5 rounded-full", PHASE_DOT_COLORS[p])} />
+                      {t(`sprints.phases.${p}`)}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 px-1 text-[10px] text-muted-foreground hover:text-destructive"
+            className="h-6 px-1 text-[10px] text-muted-foreground hover:text-destructive self-end"
             onClick={() => onDelete(story.id)}
           >
             {t("sprints.delete")}
@@ -118,6 +174,7 @@ export default function SprintsTab({ agent }: TabProps) {
   const deleteStory = useDeleteStory(path);
 
   const [selectedSprintId, setSelectedSprintId] = useState<string | "backlog">("backlog");
+  const [phaseFilter, setPhaseFilter] = useState<StoryPhase | "all">("all");
   const [showNewStory, setShowNewStory] = useState<StoryStatus | null>(null);
   const [newStoryTitle, setNewStoryTitle] = useState("");
   const [showNewSprint, setShowNewSprint] = useState(false);
@@ -131,7 +188,8 @@ export default function SprintsTab({ agent }: TabProps) {
         s.status === status &&
         (selectedSprintId === "backlog"
           ? !s.sprintId
-          : s.sprintId === selectedSprintId),
+          : s.sprintId === selectedSprintId) &&
+        (phaseFilter === "all" || s.phase === phaseFilter),
     );
 
   async function handleAddStory(status: StoryStatus) {
@@ -141,6 +199,9 @@ export default function SprintsTab({ agent }: TabProps) {
       status,
       sprintId: displaySprintId ?? undefined,
       priority: "medium",
+      // If a phase filter is active, new stories inherit it so they
+      // appear in the current view. Otherwise start in discovery.
+      phase: phaseFilter === "all" ? "discovery" : phaseFilter,
     });
     setNewStoryTitle("");
     setShowNewStory(null);
@@ -148,6 +209,10 @@ export default function SprintsTab({ agent }: TabProps) {
 
   async function handleStatusChange(id: string, status: StoryStatus) {
     await updateStory.mutateAsync({ id, patch: { status } });
+  }
+
+  async function handlePhaseChange(id: string, phase: StoryPhase) {
+    await updateStory.mutateAsync({ id, patch: { phase } });
   }
 
   async function handleCreateSprint() {
@@ -167,7 +232,7 @@ export default function SprintsTab({ agent }: TabProps) {
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      {/* Sprint selector */}
+      {/* Sprint + phase selectors */}
       <div className="flex items-center gap-2 px-4 py-2 border-b border-border shrink-0">
         <Select value={selectedSprintId} onValueChange={setSelectedSprintId}>
           <SelectTrigger className="h-7 text-xs w-44">
@@ -181,6 +246,23 @@ export default function SprintsTab({ agent }: TabProps) {
                 {s.status === "active" && (
                   <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1">{t("sprints.active")}</Badge>
                 )}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={phaseFilter} onValueChange={(v) => setPhaseFilter(v as StoryPhase | "all")}>
+          <SelectTrigger className="h-7 text-xs w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="text-xs">{t("sprints.allPhases")}</SelectItem>
+            {STORY_PHASES.map((p) => (
+              <SelectItem key={p} value={p} className="text-xs">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className={cn("size-1.5 rounded-full", PHASE_DOT_COLORS[p])} />
+                  {t(`sprints.phases.${p}`)}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -306,6 +388,7 @@ export default function SprintsTab({ agent }: TabProps) {
                     key={story.id}
                     story={story}
                     onStatusChange={(id, status) => void handleStatusChange(id, status)}
+                    onPhaseChange={(id, phase) => void handlePhaseChange(id, phase)}
                     onDelete={(id) => void deleteStory.mutateAsync(id)}
                   />
                 ))}

@@ -138,7 +138,21 @@
     "cancel": "Cancelar",
     "storyTitle": "Título da história",
     "add": "Adicionar",
-    "delete": "Excluir"
+    "delete": "Excluir",
+    "statusLabel": "Status",
+    "phaseLabel": "Fase",
+    "noPhase": "Sem fase",
+    "allPhases": "Todas as fases",
+    "phases": {
+      "discovery": "Descoberta",
+      "analysis": "Análise",
+      "planning": "Planejamento",
+      "coding": "Desenvolvimento",
+      "review": "Revisão",
+      "qa": "QA",
+      "deploy": "Implantação",
+      "deliver": "Entrega"
+    }
   },
   "mcp": {
     "title": "Servidores MCP",

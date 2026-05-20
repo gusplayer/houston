@@ -138,7 +138,21 @@
     "cancel": "Cancel",
     "storyTitle": "Story title",
     "add": "Add",
-    "delete": "Delete"
+    "delete": "Delete",
+    "statusLabel": "Status",
+    "phaseLabel": "Phase",
+    "noPhase": "No phase",
+    "allPhases": "All phases",
+    "phases": {
+      "discovery": "Discovery",
+      "analysis": "Analysis",
+      "planning": "Planning",
+      "coding": "Coding",
+      "review": "Review",
+      "qa": "QA",
+      "deploy": "Deploy",
+      "deliver": "Deliver"
+    }
   },
   "mcp": {
     "title": "MCP Servers",

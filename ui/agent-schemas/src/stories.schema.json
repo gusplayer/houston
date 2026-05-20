@@ -15,6 +15,15 @@
         "enum": ["backlog", "todo", "in_progress", "in_review", "done", "cancelled"],
         "description": "Story lifecycle state."
       },
+      "phase": {
+        "type": "string",
+        "enum": ["discovery", "analysis", "planning", "coding", "review", "qa", "deploy", "deliver"],
+        "description": "SDLC phase. Orthogonal to status: a story can be in_progress in the coding phase. Each phase typically has a different expert agent assigned."
+      },
+      "assigned_agent_id": {
+        "type": ["string", "null"],
+        "description": "Agent expert who owns this story in its current phase. When phase changes, this is typically reassigned."
+      },
       "sprint_id": {
         "type": ["string", "null"],
         "description": "ID of the sprint this story belongs to. Null = backlog."

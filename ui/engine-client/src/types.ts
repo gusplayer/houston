@@ -635,16 +635,32 @@ export interface Sprint {
 export type StoryStatus = "backlog" | "todo" | "in_progress" | "in_review" | "done" | "cancelled";
 export type StoryPriority = "low" | "medium" | "high" | "critical";
 
+/**
+ * SDLC phase — where this story sits in the dev pipeline.
+ * Orthogonal to `status` (status = progress within the phase).
+ */
+export type StoryPhase =
+  | "discovery"
+  | "analysis"
+  | "planning"
+  | "coding"
+  | "review"
+  | "qa"
+  | "deploy"
+  | "deliver";
+
 export interface Story {
   id: string;
   title: string;
   description?: string;
   status: StoryStatus;
+  phase?: StoryPhase;
   sprintId?: string | null;
   epic?: string | null;
   priority?: StoryPriority;
   points?: number | null;
   assignee?: string | null;
+  assignedAgentId?: string | null;
   labels?: string[];
   prUrl?: string | null;
   createdAt: string;
