@@ -222,7 +222,7 @@ function InlineModelSelector({
     }
     const update = () => {
       const rect = triggerRef.current!.getBoundingClientRect();
-      const dropdownMaxH = 288; // matches max-h-72
+      const dropdownMaxH = 384; // matches max-h-96
       const spaceBelow = window.innerHeight - rect.bottom;
       const openUpward = spaceBelow < dropdownMaxH && rect.top > spaceBelow;
       setCoords({
@@ -233,11 +233,13 @@ function InlineModelSelector({
       });
     };
     update();
+    // Only reposition on resize. We deliberately don't listen for scroll
+    // events: Radix Dialog locks body scroll, the dropdown is position:fixed,
+    // and listening on scroll with capture:true would fire on every wheel
+    // event inside the dropdown itself — jankying its internal scrolling.
     window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, true);
     return () => {
       window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update, true);
     };
   }, [open]);
 
@@ -280,7 +282,7 @@ function InlineModelSelector({
       {open && coords && createPortal(
         <div
           ref={dropdownRef}
-          className="max-h-72 overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-1 space-y-0.5 shadow-lg"
+          className="max-h-96 overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-1 space-y-0.5 shadow-lg"
           style={{
             position: "fixed",
             top: coords.openUpward ? undefined : coords.top,
