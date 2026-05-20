@@ -123,6 +123,12 @@ export function useUpdateChecker() {
   }, [relaunchInstalledApp, runCheck]);
 
   useEffect(() => {
+    // Skip auto-updater in dev: the GitHub releases endpoint isn't
+    // configured yet, so every check fails with "Load failed" which
+    // surfaces as a global error toast via window.onunhandledrejection.
+    // Production builds still auto-update normally.
+    if (import.meta.env.DEV) return;
+
     runCheck();
     intervalRef.current = setInterval(runCheck, CHECK_INTERVAL_MS);
     return () => {
