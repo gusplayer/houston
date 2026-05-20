@@ -71,7 +71,14 @@ export default function RepoTab(_: TabProps) {
     if (picked) setNewPath(picked);
   }
 
-  const localBranches = branches?.filter((b) => !b.isRemote) ?? [];
+  // Show locals first (current at the top), then remotes. The engine
+  // returns both via `for-each-ref refs/heads/ refs/remotes/`. Remotes
+  // only show up here if the user has run `git fetch` at least once.
+  const sortedBranches = [...(branches ?? [])].sort((a, b) => {
+    if (a.isCurrent !== b.isCurrent) return a.isCurrent ? -1 : 1;
+    if (a.isRemote !== b.isRemote) return a.isRemote ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
   const currentBranch = gitStatus?.branch ?? "";
 
   return (
@@ -227,23 +234,32 @@ export default function RepoTab(_: TabProps) {
             </div>
 
             {/* Branches */}
-            {localBranches.length > 0 && (
+            {sortedBranches.length > 0 && (
               <div className="px-3 py-2 border-b border-border">
                 <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                   {t("repo.branches")}
                 </p>
-                {localBranches.map((b) => (
-                  <div
-                    key={b.name}
-                    className={cn(
-                      "flex items-center gap-1.5 py-0.5 px-1 rounded text-xs",
-                      b.isCurrent && "bg-accent text-accent-foreground",
-                    )}
-                  >
-                    <GitBranch className="size-3 shrink-0 text-muted-foreground" />
-                    <span className="truncate">{b.name}</span>
-                  </div>
-                ))}
+                <div className="max-h-40 overflow-auto">
+                  {sortedBranches.map((b) => (
+                    <div
+                      key={`${b.isRemote ? "r" : "l"}:${b.name}`}
+                      className={cn(
+                        "flex items-center gap-1.5 py-0.5 px-1 rounded text-xs",
+                        b.isCurrent && "bg-accent text-accent-foreground",
+                      )}
+                    >
+                      <GitBranch
+                        className={cn(
+                          "size-3 shrink-0",
+                          b.isRemote ? "text-muted-foreground/50" : "text-muted-foreground",
+                        )}
+                      />
+                      <span className={cn("truncate", b.isRemote && "text-muted-foreground")}>
+                        {b.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
