@@ -143,6 +143,8 @@
     "phaseLabel": "Phase",
     "noPhase": "No phase",
     "allPhases": "All phases",
+    "kanbanView": "Kanban",
+    "pipelineView": "Pipeline",
     "phases": {
       "discovery": "Discovery",
       "analysis": "Analysis",

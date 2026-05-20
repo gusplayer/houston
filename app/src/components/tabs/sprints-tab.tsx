@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, ChevronDown, Flag, Circle, GitPullRequest } from "lucide-react";
+import { Plus, ChevronDown, Flag, Circle, GitPullRequest, Columns3, Workflow } from "lucide-react";
 import { Button, Badge, Spinner, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@squad/core";
 import type { TabProps } from "../../lib/types";
 import {
@@ -43,8 +43,6 @@ const STORY_PHASES: StoryPhase[] = [
   "deliver",
 ];
 
-// Phase dot color — only the dot is colored; chip text stays muted.
-// Keeps the UI grayscale-first per the design system guidance.
 const PHASE_DOT_COLORS: Record<StoryPhase, string> = {
   discovery: "bg-blue-500",
   analysis: "bg-cyan-500",
@@ -55,6 +53,16 @@ const PHASE_DOT_COLORS: Record<StoryPhase, string> = {
   deploy: "bg-emerald-500",
   deliver: "bg-teal-500",
 };
+
+type ViewMode = "kanban" | "pipeline";
+
+// Next phase in the SDLC. Returns null when already at deliver — that's
+// the terminal state and stories that finish there should stay done.
+function nextPhase(phase: StoryPhase): StoryPhase | null {
+  const i = STORY_PHASES.indexOf(phase);
+  if (i < 0 || i >= STORY_PHASES.length - 1) return null;
+  return STORY_PHASES[i + 1];
+}
 
 function StoryCard({
   story,
@@ -175,6 +183,7 @@ export default function SprintsTab({ agent }: TabProps) {
 
   const [selectedSprintId, setSelectedSprintId] = useState<string | "backlog">("backlog");
   const [phaseFilter, setPhaseFilter] = useState<StoryPhase | "all">("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [showNewStory, setShowNewStory] = useState<StoryStatus | null>(null);
   const [newStoryTitle, setNewStoryTitle] = useState("");
   const [showNewSprint, setShowNewSprint] = useState(false);
@@ -182,32 +191,51 @@ export default function SprintsTab({ agent }: TabProps) {
 
   const displaySprintId = selectedSprintId === "backlog" ? null : selectedSprintId;
 
+  const inSelectedSprint = (s: Story) =>
+    selectedSprintId === "backlog" ? !s.sprintId : s.sprintId === selectedSprintId;
+
+  const matchesPhaseFilter = (s: Story) =>
+    phaseFilter === "all" || s.phase === phaseFilter;
+
   const columnStories = (status: StoryStatus): Story[] =>
     (allStories ?? []).filter(
-      (s) =>
-        s.status === status &&
-        (selectedSprintId === "backlog"
-          ? !s.sprintId
-          : s.sprintId === selectedSprintId) &&
-        (phaseFilter === "all" || s.phase === phaseFilter),
+      (s) => s.status === status && inSelectedSprint(s) && matchesPhaseFilter(s),
     );
 
-  async function handleAddStory(status: StoryStatus) {
+  const pipelineCell = (phase: StoryPhase, status: StoryStatus): Story[] =>
+    (allStories ?? []).filter(
+      (s) => s.phase === phase && s.status === status && inSelectedSprint(s),
+    );
+
+  async function handleAddStory(status: StoryStatus, phase?: StoryPhase) {
     if (!newStoryTitle.trim()) return;
     await createStory.mutateAsync({
       title: newStoryTitle.trim(),
       status,
       sprintId: displaySprintId ?? undefined,
       priority: "medium",
-      // If a phase filter is active, new stories inherit it so they
-      // appear in the current view. Otherwise start in discovery.
-      phase: phaseFilter === "all" ? "discovery" : phaseFilter,
+      phase: phase ?? (phaseFilter === "all" ? "discovery" : phaseFilter),
     });
     setNewStoryTitle("");
     setShowNewStory(null);
   }
 
+  // Auto-handoff: completing the work in one phase advances the story to
+  // the next phase with status reset to "todo". `deliver` is terminal —
+  // a delivered story stays done.
   async function handleStatusChange(id: string, status: StoryStatus) {
+    const story = allStories?.find((s) => s.id === id);
+    if (
+      status === "done" &&
+      story?.phase &&
+      nextPhase(story.phase) !== null
+    ) {
+      await updateStory.mutateAsync({
+        id,
+        patch: { phase: nextPhase(story.phase)!, status: "todo" },
+      });
+      return;
+    }
     await updateStory.mutateAsync({ id, patch: { status } });
   }
 
@@ -232,7 +260,7 @@ export default function SprintsTab({ agent }: TabProps) {
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      {/* Sprint + phase selectors */}
+      {/* Toolbar */}
       <div className="flex items-center gap-2 px-4 py-2 border-b border-border shrink-0">
         <Select value={selectedSprintId} onValueChange={setSelectedSprintId}>
           <SelectTrigger className="h-7 text-xs w-44">
@@ -251,22 +279,24 @@ export default function SprintsTab({ agent }: TabProps) {
           </SelectContent>
         </Select>
 
-        <Select value={phaseFilter} onValueChange={(v) => setPhaseFilter(v as StoryPhase | "all")}>
-          <SelectTrigger className="h-7 text-xs w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-xs">{t("sprints.allPhases")}</SelectItem>
-            {STORY_PHASES.map((p) => (
-              <SelectItem key={p} value={p} className="text-xs">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className={cn("size-1.5 rounded-full", PHASE_DOT_COLORS[p])} />
-                  {t(`sprints.phases.${p}`)}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {viewMode === "kanban" && (
+          <Select value={phaseFilter} onValueChange={(v) => setPhaseFilter(v as StoryPhase | "all")}>
+            <SelectTrigger className="h-7 text-xs w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">{t("sprints.allPhases")}</SelectItem>
+              {STORY_PHASES.map((p) => (
+                <SelectItem key={p} value={p} className="text-xs">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className={cn("size-1.5 rounded-full", PHASE_DOT_COLORS[p])} />
+                    {t(`sprints.phases.${p}`)}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         {selectedSprintId !== "backlog" && (
           <Button
@@ -292,7 +322,33 @@ export default function SprintsTab({ agent }: TabProps) {
           </Button>
         )}
 
-        <div className="ml-auto flex gap-1">
+        <div className="ml-auto flex items-center gap-1">
+          {/* View toggle */}
+          <div className="inline-flex rounded-md border border-border overflow-hidden">
+            <button
+              className={cn(
+                "h-7 px-2 text-xs flex items-center gap-1 transition-colors",
+                viewMode === "kanban" ? "bg-accent text-accent-foreground" : "bg-background text-muted-foreground hover:text-foreground",
+              )}
+              onClick={() => setViewMode("kanban")}
+              title={t("sprints.kanbanView")}
+            >
+              <Columns3 className="size-3" />
+              <span>{t("sprints.kanbanView")}</span>
+            </button>
+            <button
+              className={cn(
+                "h-7 px-2 text-xs flex items-center gap-1 transition-colors border-l border-border",
+                viewMode === "pipeline" ? "bg-accent text-accent-foreground" : "bg-background text-muted-foreground hover:text-foreground",
+              )}
+              onClick={() => setViewMode("pipeline")}
+              title={t("sprints.pipelineView")}
+            >
+              <Workflow className="size-3" />
+              <span>{t("sprints.pipelineView")}</span>
+            </button>
+          </div>
+
           <Button
             size="sm"
             variant="ghost"
@@ -328,75 +384,135 @@ export default function SprintsTab({ agent }: TabProps) {
         </div>
       )}
 
-      {/* Kanban columns */}
-      <div className="flex flex-1 min-h-0 overflow-x-auto">
-        {STORY_COLUMNS.map((status) => {
-          const cards = columnStories(status);
-          return (
-            <div key={status} className="flex flex-col w-56 shrink-0 border-r border-border last:border-r-0">
-              <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border shrink-0">
-                <span className="text-xs font-medium">{STATUS_LABELS[status]}</span>
-                {cards.length > 0 && (
-                  <Badge variant="secondary" className="text-[10px] h-4 px-1">{cards.length}</Badge>
-                )}
-                <button
-                  className="ml-auto text-muted-foreground hover:text-foreground"
-                  onClick={() => setShowNewStory(status)}
-                >
-                  <Plus className="size-3.5" />
-                </button>
-              </div>
+      {/* Kanban view */}
+      {viewMode === "kanban" && (
+        <div className="flex flex-1 min-h-0 overflow-x-auto">
+          {STORY_COLUMNS.map((status) => {
+            const cards = columnStories(status);
+            return (
+              <div key={status} className="flex flex-col w-56 shrink-0 border-r border-border last:border-r-0">
+                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border shrink-0">
+                  <span className="text-xs font-medium">{STATUS_LABELS[status]}</span>
+                  {cards.length > 0 && (
+                    <Badge variant="secondary" className="text-[10px] h-4 px-1">{cards.length}</Badge>
+                  )}
+                  <button
+                    className="ml-auto text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowNewStory(status)}
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </div>
 
-              <div className="flex flex-col gap-1.5 p-2 flex-1 overflow-auto">
-                {/* Quick-add input */}
-                {showNewStory === status && (
-                  <div className="flex flex-col gap-1">
-                    <input
-                      className="w-full h-7 rounded-md border border-border bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                      placeholder={t("sprints.storyTitle")}
-                      value={newStoryTitle}
-                      onChange={(e) => setNewStoryTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") void handleAddStory(status);
-                        if (e.key === "Escape") setShowNewStory(null);
-                      }}
-                      autoFocus
-                    />
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        className="h-6 text-[10px] flex-1"
-                        onClick={() => void handleAddStory(status)}
-                        disabled={!newStoryTitle.trim()}
-                      >
-                        {t("sprints.add")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 text-[10px]"
-                        onClick={() => setShowNewStory(null)}
-                      >
-                        {t("sprints.cancel")}
-                      </Button>
+                <div className="flex flex-col gap-1.5 p-2 flex-1 overflow-auto">
+                  {showNewStory === status && (
+                    <div className="flex flex-col gap-1">
+                      <input
+                        className="w-full h-7 rounded-md border border-border bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+                        placeholder={t("sprints.storyTitle")}
+                        value={newStoryTitle}
+                        onChange={(e) => setNewStoryTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") void handleAddStory(status);
+                          if (e.key === "Escape") setShowNewStory(null);
+                        }}
+                        autoFocus
+                      />
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          className="h-6 text-[10px] flex-1"
+                          onClick={() => void handleAddStory(status)}
+                          disabled={!newStoryTitle.trim()}
+                        >
+                          {t("sprints.add")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 text-[10px]"
+                          onClick={() => setShowNewStory(null)}
+                        >
+                          {t("sprints.cancel")}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {cards.map((story) => (
-                  <StoryCard
-                    key={story.id}
-                    story={story}
-                    onStatusChange={(id, status) => void handleStatusChange(id, status)}
-                    onPhaseChange={(id, phase) => void handlePhaseChange(id, phase)}
-                    onDelete={(id) => void deleteStory.mutateAsync(id)}
-                  />
-                ))}
+                  {cards.map((story) => (
+                    <StoryCard
+                      key={story.id}
+                      story={story}
+                      onStatusChange={(id, status) => void handleStatusChange(id, status)}
+                      onPhaseChange={(id, phase) => void handlePhaseChange(id, phase)}
+                      onDelete={(id) => void deleteStory.mutateAsync(id)}
+                    />
+                  ))}
+                </div>
               </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pipeline view: 8 phase rows × 4 status columns */}
+      {viewMode === "pipeline" && (
+        <div className="flex-1 min-h-0 overflow-auto">
+          <div className="min-w-[56rem]">
+            {/* Header row: phase column + 4 status columns */}
+            <div className="grid grid-cols-[10rem_repeat(4,minmax(11rem,1fr))] sticky top-0 z-10 bg-background border-b border-border">
+              <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-muted-foreground border-r border-border">
+                {t("sprints.phaseLabel")}
+              </div>
+              {STORY_COLUMNS.map((s) => (
+                <div key={s} className="px-3 py-2 text-xs font-medium border-r border-border last:border-r-0">
+                  {STATUS_LABELS[s]}
+                </div>
+              ))}
             </div>
-          );
-        })}
-      </div>
+
+            {STORY_PHASES.map((phase) => {
+              const totalInPhase = STORY_COLUMNS.reduce(
+                (acc, s) => acc + pipelineCell(phase, s).length,
+                0,
+              );
+              return (
+                <div
+                  key={phase}
+                  className="grid grid-cols-[10rem_repeat(4,minmax(11rem,1fr))] border-b border-border last:border-b-0"
+                >
+                  <div className="flex items-center gap-2 px-3 py-2 border-r border-border bg-muted/10">
+                    <span className={cn("size-2 rounded-full", PHASE_DOT_COLORS[phase])} />
+                    <span className="text-xs font-medium">{t(`sprints.phases.${phase}`)}</span>
+                    {totalInPhase > 0 && (
+                      <Badge variant="secondary" className="ml-auto text-[10px] h-4 px-1">{totalInPhase}</Badge>
+                    )}
+                  </div>
+                  {STORY_COLUMNS.map((status) => {
+                    const cards = pipelineCell(phase, status);
+                    return (
+                      <div
+                        key={status}
+                        className="flex flex-col gap-1.5 p-2 border-r border-border last:border-r-0 min-h-[5rem]"
+                      >
+                        {cards.map((story) => (
+                          <StoryCard
+                            key={story.id}
+                            story={story}
+                            onStatusChange={(id, status) => void handleStatusChange(id, status)}
+                            onPhaseChange={(id, p) => void handlePhaseChange(id, p)}
+                            onDelete={(id) => void deleteStory.mutateAsync(id)}
+                          />
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
