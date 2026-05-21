@@ -4,6 +4,7 @@ import {
   LayoutGrid,
   Search,
   Code,
+  Code2,
   Wand2,
   FileText,
   Users,
@@ -18,6 +19,12 @@ import {
   BookOpen,
   Wrench,
   Brain,
+  Crown,
+  Smartphone,
+  Server,
+  Palette,
+  CheckCircle2,
+  Cog,
   type LucideIcon,
 } from "lucide-react";
 import squadIcon from "../../assets/squad-icon.svg";
@@ -30,6 +37,7 @@ const iconMap: Record<string, LucideIcon> = {
   LayoutGrid,
   Search,
   Code,
+  Code2,
   Wand2,
   FileText,
   Users,
@@ -45,6 +53,13 @@ const iconMap: Record<string, LucideIcon> = {
   Wrench,
   Brain,
   Sparkles,
+  // Team library roles (G.1):
+  Crown,
+  Smartphone,
+  Server,
+  Palette,
+  CheckCircle2,
+  Cog,
 };
 
 /** Returns perceived luminance 0–1 for a hex color */
