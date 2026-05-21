@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, ChevronDown, Flag, Circle, GitPullRequest, Columns3, Workflow, Users, User } from "lucide-react";
-import { Button, Badge, Spinner, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SquadAvatar, resolveAgentColor } from "@squad/core";
+import { Button, Badge, Spinner, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@squad/core";
 import type { TabProps, Agent } from "../../lib/types";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import { useAgentStore } from "../../stores/agents";
+import { AgentStateAvatar } from "../agent-state-avatar";
 import {
   useSprints,
   useCreateSprint,
@@ -121,8 +122,8 @@ function StoryCard({
               <GitPullRequest className="size-3 text-muted-foreground" />
             )}
             {assignee && (
-              <span className="ml-auto inline-flex items-center" title={assignee.name}>
-                <SquadAvatar color={resolveAgentColor(assignee.color)} diameter={16} />
+              <span className="ml-auto inline-flex items-center">
+                <AgentStateAvatar agent={assignee} diameter={18} />
               </span>
             )}
           </div>
@@ -188,7 +189,7 @@ function StoryCard({
                 {agents.map((a) => (
                   <SelectItem key={a.id} value={a.id} className="text-[10px]">
                     <span className="inline-flex items-center gap-1.5">
-                      <SquadAvatar color={resolveAgentColor(a.color)} diameter={14} />
+                      <AgentStateAvatar agent={a} diameter={14} />
                       {a.name}
                     </span>
                   </SelectItem>
@@ -473,7 +474,7 @@ export default function SprintsTab(_: TabProps) {
                       {agents.map((a) => (
                         <SelectItem key={a.id} value={a.id} className="text-[10px]">
                           <span className="inline-flex items-center gap-1.5">
-                            <SquadAvatar color={resolveAgentColor(a.color)} diameter={14} />
+                            <AgentStateAvatar agent={a} diameter={14} />
                             {a.name}
                           </span>
                         </SelectItem>
