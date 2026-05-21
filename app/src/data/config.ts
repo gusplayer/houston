@@ -8,6 +8,12 @@ export interface Config {
   provider?: "anthropic" | "openai";
   model?: string;
   effort?: "low" | "medium" | "high";
+  /**
+   * Workspace project IDs this agent is bound to. Empty or unset means
+   * the agent sees all workspace projects (CTO mode). Used by the Repo
+   * tab to scope which projects this agent can switch between.
+   */
+  projectIds?: string[];
   [extra: string]: unknown;
 }
 

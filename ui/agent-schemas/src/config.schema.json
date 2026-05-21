@@ -7,7 +7,12 @@
     "name": { "type": "string" },
     "provider": { "type": "string", "enum": ["anthropic", "openai"] },
     "model": { "type": "string" },
-    "effort": { "type": "string", "enum": ["low", "medium", "high"] }
+    "effort": { "type": "string", "enum": ["low", "medium", "high"] },
+    "projectIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Workspace project IDs this agent is bound to. Empty or unset = sees all workspace projects (CTO mode)."
+    }
   },
   "additionalProperties": true
 }

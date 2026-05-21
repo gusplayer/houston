@@ -125,7 +125,13 @@
     "emptyDiff": "Diff vazio",
     "clean": "Limpo",
     "branches": "Branches",
-    "commits": "Commits"
+    "commits": "Commits",
+    "manageBindings": "Vínculos",
+    "noBindings": "Nenhum projeto vinculado a este agente",
+    "ctoMode": "Modo CTO",
+    "ctoModeAction": "Mudar para modo CTO",
+    "bindingsTitle": "Vincular projetos a este agente",
+    "bindingsHelp": "Selecione os projetos em que este agente irá trabalhar. Deixe todos desmarcados para o modo CTO (vê todos os projetos do workspace)."
   },
   "sprints": {
     "backlog": "Backlog",

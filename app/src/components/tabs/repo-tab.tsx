@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { GitBranch, GitCommit, Plus, RefreshCw, FolderOpen } from "lucide-react";
+import { GitBranch, GitCommit, Plus, RefreshCw, FolderOpen, Link2 } from "lucide-react";
 import {
   Button,
   Badge,
@@ -22,25 +23,67 @@ import {
   useGitBranches,
   useGitDiff,
 } from "../../hooks/queries";
-import { tauriAgents } from "../../lib/tauri";
+import { tauriAgents, tauriConfig } from "../../lib/tauri";
+import { queryKeys } from "../../lib/query-keys";
 
-export default function RepoTab(_: TabProps) {
+export default function RepoTab({ agent }: TabProps) {
   const { t } = useTranslation("agents");
   const workspace = useWorkspaceStore((s) => s.current);
   const wid = workspace?.id;
+  const agentPath = agent.folderPath;
+  const qc = useQueryClient();
 
   const { data: projects, isLoading: projectsLoading } = useProjects(wid);
   const createProject = useCreateProject(wid);
 
+  // Per-agent project binding. If `projectIds` is non-empty, this agent
+  // only sees those projects in the dropdown (the "specialist" model).
+  // Empty / unset means it sees every workspace project (the "CTO" /
+  // generalist model — current default behaviour).
+  const { data: agentConfig } = useQuery({
+    queryKey: queryKeys.config(agentPath),
+    queryFn: () => tauriConfig.read(agentPath),
+    enabled: !!agentPath,
+  });
+  const boundIds = agentConfig?.projectIds ?? [];
+  const isCtoMode = boundIds.length === 0;
+  const visibleProjects = useMemo(() => {
+    if (!projects) return [];
+    if (isCtoMode) return projects;
+    return projects.filter((p) => boundIds.includes(p.id));
+  }, [projects, boundIds, isCtoMode]);
+
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
   const [showNewProjectForm, setShowNewProjectForm] = useState(false);
+  const [showBindings, setShowBindings] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPath, setNewPath] = useState("");
   const [newStack, setNewStack] = useState("");
   const [selectedCommitSha, setSelectedCommitSha] = useState<string | undefined>(undefined);
 
-  const projectId = selectedProjectId ?? projects?.[0]?.id;
+  // If the selected project becomes invisible (binding changed), clear it.
+  useEffect(() => {
+    if (selectedProjectId && !visibleProjects.find((p) => p.id === selectedProjectId)) {
+      setSelectedProjectId(undefined);
+    }
+  }, [selectedProjectId, visibleProjects]);
+
+  const projectId = selectedProjectId ?? visibleProjects[0]?.id;
   const project = projects?.find((p) => p.id === projectId);
+
+  async function toggleBinding(pid: string) {
+    const current = agentConfig?.projectIds ?? [];
+    const next = current.includes(pid)
+      ? current.filter((x) => x !== pid)
+      : [...current, pid];
+    await tauriConfig.write(agentPath, { ...(agentConfig ?? {}), projectIds: next });
+    qc.invalidateQueries({ queryKey: queryKeys.config(agentPath) });
+  }
+
+  async function clearBindings() {
+    await tauriConfig.write(agentPath, { ...(agentConfig ?? {}), projectIds: [] });
+    qc.invalidateQueries({ queryKey: queryKeys.config(agentPath) });
+  }
 
   const { data: gitStatus, isLoading: statusLoading, refetch: refetchStatus } = useGitStatus(wid, projectId, { refetchInterval: 10_000 });
   const { data: commits, isLoading: logLoading } = useGitLog(wid, projectId);
@@ -87,13 +130,13 @@ export default function RepoTab(_: TabProps) {
       <div className="flex items-center gap-2 px-4 py-2 border-b border-border shrink-0">
         {projectsLoading ? (
           <Spinner className="size-4" />
-        ) : projects && projects.length > 0 ? (
+        ) : visibleProjects.length > 0 ? (
           <Select value={projectId ?? ""} onValueChange={setSelectedProjectId}>
             <SelectTrigger className="h-7 text-xs w-48">
               <SelectValue placeholder={t("repo.selectProject")} />
             </SelectTrigger>
             <SelectContent>
-              {projects.map((p) => (
+              {visibleProjects.map((p) => (
                 <SelectItem key={p.id} value={p.id} className="text-xs">
                   {p.name}
                 </SelectItem>
@@ -101,7 +144,14 @@ export default function RepoTab(_: TabProps) {
             </SelectContent>
           </Select>
         ) : (
-          <span className="text-xs text-muted-foreground">{t("repo.noProjects")}</span>
+          <span className="text-xs text-muted-foreground">
+            {projects && projects.length > 0 ? t("repo.noBindings") : t("repo.noProjects")}
+          </span>
+        )}
+        {isCtoMode && (
+          <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
+            {t("repo.ctoMode")}
+          </Badge>
         )}
         <Button
           size="sm"
@@ -112,6 +162,22 @@ export default function RepoTab(_: TabProps) {
           <Plus className="size-3 mr-1" />
           {t("repo.addProject")}
         </Button>
+        {projects && projects.length > 0 && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 px-2 text-xs"
+            onClick={() => setShowBindings((v) => !v)}
+          >
+            <Link2 className="size-3 mr-1" />
+            {t("repo.manageBindings")}
+            {!isCtoMode && (
+              <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1">
+                {boundIds.length}
+              </Badge>
+            )}
+          </Button>
+        )}
         {projectId && (
           <Button
             size="sm"
@@ -123,6 +189,47 @@ export default function RepoTab(_: TabProps) {
           </Button>
         )}
       </div>
+
+      {/* Bindings management */}
+      {showBindings && projects && projects.length > 0 && (
+        <div className="flex flex-col gap-2 px-4 py-3 border-b border-border bg-muted/30 shrink-0">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium">{t("repo.bindingsTitle")}</p>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-[10px] text-muted-foreground"
+              onClick={() => void clearBindings()}
+              disabled={isCtoMode}
+            >
+              {t("repo.ctoModeAction")}
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            {t("repo.bindingsHelp")}
+          </p>
+          <div className="flex flex-col gap-1">
+            {projects.map((p) => {
+              const bound = boundIds.includes(p.id);
+              return (
+                <label
+                  key={p.id}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-accent cursor-pointer text-xs"
+                >
+                  <input
+                    type="checkbox"
+                    checked={bound}
+                    onChange={() => void toggleBinding(p.id)}
+                    className="size-3"
+                  />
+                  <span className="font-medium">{p.name}</span>
+                  <span className="text-[10px] text-muted-foreground truncate">{p.repoPath}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* New project form */}
       {showNewProjectForm && (
