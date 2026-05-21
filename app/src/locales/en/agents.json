@@ -151,6 +151,11 @@
     "allPhases": "All phases",
     "kanbanView": "Kanban",
     "pipelineView": "Pipeline",
+    "assigneeLabel": "Owner",
+    "unassigned": "Unassigned",
+    "phaseOwners": "Phase Owners",
+    "phaseOwnersTitle": "Who owns each phase",
+    "phaseOwnersHelp": "When a story moves into a phase, it's auto-assigned to that phase's owner. Leave unassigned and the current owner stays.",
     "phases": {
       "discovery": "Discovery",
       "analysis": "Analysis",

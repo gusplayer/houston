@@ -151,6 +151,11 @@
     "allPhases": "Todas las fases",
     "kanbanView": "Kanban",
     "pipelineView": "Pipeline",
+    "assigneeLabel": "Dueño",
+    "unassigned": "Sin asignar",
+    "phaseOwners": "Dueños de fase",
+    "phaseOwnersTitle": "Quién es dueño de cada fase",
+    "phaseOwnersHelp": "Cuando una historia entra a una fase, se asigna automáticamente al dueño de esa fase. Si está sin asignar, el dueño actual se mantiene.",
     "phases": {
       "discovery": "Descubrimiento",
       "analysis": "Análisis",
