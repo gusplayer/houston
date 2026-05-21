@@ -15,6 +15,10 @@ export interface Workspace {
   provider?: string;
   /** Default model for this workspace (e.g. "sonnet", "gpt-5.5"). */
   model?: string;
+  /** Absolute filesystem path of the workspace folder, populated by the
+   * engine. Used to scope workspace-level data (sprints, stories,
+   * projects) to the right directory. */
+  path?: string;
 }
 
 /** Tab definition in an agent config */

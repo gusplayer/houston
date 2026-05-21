@@ -7,10 +7,18 @@ function now() {
   return new Date().toISOString();
 }
 
+// Sprints/stories used to live under each agent's `.squad/sprints/` +
+// `.squad/stories/`. With F.2 they live at the workspace root so every
+// agent in the workspace works against the same Kanban. `rootPath` here
+// is the workspace folder's absolute path (workspace.path on the engine
+// Workspace type) — the actual JSON I/O is the same, only the root
+// changes. The engine's read_agent_file / write_agent_file endpoints
+// don't validate the root must be an agent, so we reuse them.
+
 // ─── Sprints ──────────────────────────────────────────────────────────
 
-async function readSprints(agentPath: string): Promise<Sprint[]> {
-  const raw = await tauriAgent.readFile(agentPath, ".squad/sprints/sprints.json");
+async function readSprints(rootPath: string): Promise<Sprint[]> {
+  const raw = await tauriAgent.readFile(rootPath, ".squad/sprints/sprints.json");
   if (!raw) return [];
   try {
     return JSON.parse(raw) as Sprint[];
@@ -19,23 +27,23 @@ async function readSprints(agentPath: string): Promise<Sprint[]> {
   }
 }
 
-async function writeSprints(agentPath: string, sprints: Sprint[]): Promise<void> {
-  await tauriAgent.writeFile(agentPath, ".squad/sprints/sprints.json", JSON.stringify(sprints, null, 2));
+async function writeSprints(rootPath: string, sprints: Sprint[]): Promise<void> {
+  await tauriAgent.writeFile(rootPath, ".squad/sprints/sprints.json", JSON.stringify(sprints, null, 2));
 }
 
-export function useSprints(agentPath: string | undefined) {
+export function useSprints(rootPath: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.sprints(agentPath ?? ""),
-    queryFn: () => readSprints(agentPath!),
-    enabled: !!agentPath,
+    queryKey: queryKeys.sprints(rootPath ?? ""),
+    queryFn: () => readSprints(rootPath!),
+    enabled: !!rootPath,
   });
 }
 
-export function useCreateSprint(agentPath: string | undefined) {
+export function useCreateSprint(rootPath: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: Pick<Sprint, "name" | "goal" | "startDate" | "endDate">) => {
-      const sprints = await readSprints(agentPath!);
+      const sprints = await readSprints(rootPath!);
       const newSprint: Sprint = {
         id: crypto.randomUUID(),
         name: input.name,
@@ -46,41 +54,41 @@ export function useCreateSprint(agentPath: string | undefined) {
         createdAt: now(),
         updatedAt: now(),
       };
-      await writeSprints(agentPath!, [...sprints, newSprint]);
+      await writeSprints(rootPath!, [...sprints, newSprint]);
       return newSprint;
     },
-    onSuccess: () => { if (agentPath) qc.invalidateQueries({ queryKey: queryKeys.sprints(agentPath) }); },
+    onSuccess: () => { if (rootPath) qc.invalidateQueries({ queryKey: queryKeys.sprints(rootPath) }); },
   });
 }
 
-export function useUpdateSprint(agentPath: string | undefined) {
+export function useUpdateSprint(rootPath: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<Sprint> }) => {
-      const sprints = await readSprints(agentPath!);
-      await writeSprints(agentPath!, sprints.map((s) =>
+      const sprints = await readSprints(rootPath!);
+      await writeSprints(rootPath!, sprints.map((s) =>
         s.id === id ? { ...s, ...patch, updatedAt: now() } : s,
       ));
     },
-    onSuccess: () => { if (agentPath) qc.invalidateQueries({ queryKey: queryKeys.sprints(agentPath) }); },
+    onSuccess: () => { if (rootPath) qc.invalidateQueries({ queryKey: queryKeys.sprints(rootPath) }); },
   });
 }
 
-export function useDeleteSprint(agentPath: string | undefined) {
+export function useDeleteSprint(rootPath: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const sprints = await readSprints(agentPath!);
-      await writeSprints(agentPath!, sprints.filter((s) => s.id !== id));
+      const sprints = await readSprints(rootPath!);
+      await writeSprints(rootPath!, sprints.filter((s) => s.id !== id));
     },
-    onSuccess: () => { if (agentPath) qc.invalidateQueries({ queryKey: queryKeys.sprints(agentPath) }); },
+    onSuccess: () => { if (rootPath) qc.invalidateQueries({ queryKey: queryKeys.sprints(rootPath) }); },
   });
 }
 
 // ─── Stories ─────────────────────────────────────────────────────────
 
-async function readStories(agentPath: string): Promise<Story[]> {
-  const raw = await tauriAgent.readFile(agentPath, ".squad/stories/stories.json");
+async function readStories(rootPath: string): Promise<Story[]> {
+  const raw = await tauriAgent.readFile(rootPath, ".squad/stories/stories.json");
   if (!raw) return [];
   try {
     return JSON.parse(raw) as Story[];
@@ -89,56 +97,56 @@ async function readStories(agentPath: string): Promise<Story[]> {
   }
 }
 
-async function writeStories(agentPath: string, stories: Story[]): Promise<void> {
-  await tauriAgent.writeFile(agentPath, ".squad/stories/stories.json", JSON.stringify(stories, null, 2));
+async function writeStories(rootPath: string, stories: Story[]): Promise<void> {
+  await tauriAgent.writeFile(rootPath, ".squad/stories/stories.json", JSON.stringify(stories, null, 2));
 }
 
-export function useStories(agentPath: string | undefined) {
+export function useStories(rootPath: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.stories(agentPath ?? ""),
-    queryFn: () => readStories(agentPath!),
-    enabled: !!agentPath,
+    queryKey: queryKeys.stories(rootPath ?? ""),
+    queryFn: () => readStories(rootPath!),
+    enabled: !!rootPath,
   });
 }
 
-export function useCreateStory(agentPath: string | undefined) {
+export function useCreateStory(rootPath: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: Omit<Story, "id" | "createdAt" | "updatedAt">) => {
-      const stories = await readStories(agentPath!);
+      const stories = await readStories(rootPath!);
       const newStory: Story = {
         ...input,
         id: crypto.randomUUID(),
         createdAt: now(),
         updatedAt: now(),
       };
-      await writeStories(agentPath!, [...stories, newStory]);
+      await writeStories(rootPath!, [...stories, newStory]);
       return newStory;
     },
-    onSuccess: () => { if (agentPath) qc.invalidateQueries({ queryKey: queryKeys.stories(agentPath) }); },
+    onSuccess: () => { if (rootPath) qc.invalidateQueries({ queryKey: queryKeys.stories(rootPath) }); },
   });
 }
 
-export function useUpdateStory(agentPath: string | undefined) {
+export function useUpdateStory(rootPath: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<Story> }) => {
-      const stories = await readStories(agentPath!);
-      await writeStories(agentPath!, stories.map((s) =>
+      const stories = await readStories(rootPath!);
+      await writeStories(rootPath!, stories.map((s) =>
         s.id === id ? { ...s, ...patch, updatedAt: now() } : s,
       ));
     },
-    onSuccess: () => { if (agentPath) qc.invalidateQueries({ queryKey: queryKeys.stories(agentPath) }); },
+    onSuccess: () => { if (rootPath) qc.invalidateQueries({ queryKey: queryKeys.stories(rootPath) }); },
   });
 }
 
-export function useDeleteStory(agentPath: string | undefined) {
+export function useDeleteStory(rootPath: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const stories = await readStories(agentPath!);
-      await writeStories(agentPath!, stories.filter((s) => s.id !== id));
+      const stories = await readStories(rootPath!);
+      await writeStories(rootPath!, stories.filter((s) => s.id !== id));
     },
-    onSuccess: () => { if (agentPath) qc.invalidateQueries({ queryKey: queryKeys.stories(agentPath) }); },
+    onSuccess: () => { if (rootPath) qc.invalidateQueries({ queryKey: queryKeys.stories(rootPath) }); },
   });
 }

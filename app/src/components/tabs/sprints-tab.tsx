@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Plus, ChevronDown, Flag, Circle, GitPullRequest, Columns3, Workflow } from "lucide-react";
 import { Button, Badge, Spinner, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@squad/core";
 import type { TabProps } from "../../lib/types";
+import { useWorkspaceStore } from "../../stores/workspaces";
 import {
   useSprints,
   useCreateSprint,
@@ -169,9 +170,13 @@ function StoryCard({
   );
 }
 
-export default function SprintsTab({ agent }: TabProps) {
+export default function SprintsTab(_: TabProps) {
   const { t } = useTranslation("agents");
-  const path = agent.folderPath;
+  // F.2: sprints/stories are workspace-scoped, not per-agent. Every
+  // agent in the workspace points at the same JSON files at the
+  // workspace root so the team shares one Kanban.
+  const workspace = useWorkspaceStore((s) => s.current);
+  const path = workspace?.path;
 
   const { data: sprints, isLoading: sprintsLoading } = useSprints(path);
   const { data: allStories, isLoading: storiesLoading } = useStories(path);

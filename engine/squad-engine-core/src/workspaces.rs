@@ -20,6 +20,13 @@ pub struct Workspace {
     pub provider: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
+    /// Absolute filesystem path of this workspace's folder, populated by
+    /// the engine on read. Used by the frontend for workspace-scoped
+    /// data files (sprints, stories, projects, …) so the same
+    /// `read_agent_file`/`write_agent_file` plumbing can target the
+    /// workspace root.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -51,13 +58,21 @@ fn now_iso() -> String {
     chrono::Utc::now().to_rfc3339()
 }
 
+/// Populate the `path` field with the absolute workspace directory so the
+/// frontend can scope sprints/stories/etc. to a workspace root.
+fn with_path(root: &Path, mut ws: Workspace) -> Workspace {
+    ws.path = Some(root.join(&ws.name).to_string_lossy().to_string());
+    ws
+}
+
 pub fn read_all(root: &Path) -> CoreResult<Vec<Workspace>> {
     let path = json_path(root);
     if !path.exists() {
         return Ok(Vec::new());
     }
     let contents = fs::read_to_string(&path)?;
-    serde_json::from_str(&contents).map_err(Into::into)
+    let raw: Vec<Workspace> = serde_json::from_str(&contents)?;
+    Ok(raw.into_iter().map(|w| with_path(root, w)).collect())
 }
 
 fn write_all(root: &Path, workspaces: &[Workspace]) -> CoreResult<()> {
@@ -90,6 +105,7 @@ pub fn create(root: &Path, req: CreateWorkspace) -> CoreResult<Workspace> {
         created_at: now_iso(),
         provider: req.provider,
         model: req.model,
+        path: None,
     };
     let ws_dir = root.join(&req.name);
     fs::create_dir_all(ws_dir.join(".squad"))?;
@@ -99,7 +115,7 @@ pub fn create(root: &Path, req: CreateWorkspace) -> CoreResult<Workspace> {
     }
     workspaces.push(ws.clone());
     write_all(root, &workspaces)?;
-    Ok(ws)
+    Ok(with_path(root, ws))
 }
 
 pub fn rename(root: &Path, id: &str, req: RenameWorkspace) -> CoreResult<Workspace> {
@@ -128,7 +144,7 @@ pub fn rename(root: &Path, id: &str, req: RenameWorkspace) -> CoreResult<Workspa
     ws.name = req.new_name;
     let updated = ws.clone();
     write_all(root, &workspaces)?;
-    Ok(updated)
+    Ok(with_path(root, updated))
 }
 
 pub fn delete(root: &Path, id: &str) -> CoreResult<()> {
@@ -163,7 +179,7 @@ pub fn update_provider(root: &Path, id: &str, req: UpdateProvider) -> CoreResult
     }
     let updated = ws.clone();
     write_all(root, &workspaces)?;
-    Ok(updated)
+    Ok(with_path(root, updated))
 }
 
 #[cfg(test)]

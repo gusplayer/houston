@@ -67,6 +67,10 @@ export interface Workspace {
   createdAt: string;
   provider?: string;
   model?: string;
+  /** Absolute filesystem path of the workspace folder. Populated by the
+   * engine so the frontend can scope workspace-level data (sprints,
+   * stories, projects) to the right directory. */
+  path?: string;
 }
 
 export interface CreateWorkspace {
