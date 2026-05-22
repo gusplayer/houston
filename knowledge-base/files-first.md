@@ -9,7 +9,14 @@ If app-specific → `.squad/`.
 ## Layout
 
 ```
-~/.squad/workspaces/{Workspace}/{Agent}/
+~/.squad/workspaces/{Workspace}/
+  .squad/
+    projects.json                workspace-scoped repo bindings (squad-projects)
+    sprints/sprints.json         workspace-scoped Sprints (F.2)
+    stories/stories.json         workspace-scoped Stories (F.2)
+    phase-ownership/
+      phase-ownership.json       phase → owning agent id (F.3)
+  {Agent}/
   .squad/
     agent.json                  AgentMeta (id, manifest_id, created_at, last_opened_at)
     activity/
@@ -21,6 +28,10 @@ If app-specific → `.squad/`.
       routine_runs.json + .schema.json
     config/
       config.json + .schema.json
+      # config.projectIds: string[]  per-agent project binding (F.1).
+      # Empty/unset = CTO mode (sees every workspace project).
+    mcps/
+      mcps.json + .schema.json   per-agent MCP server config (B.1)
     learnings/
       learnings.json + .schema.json   ({id, text, created_at})
       # Legacy `.squad/memory/learnings.md` auto-migrated on startup
@@ -75,6 +86,16 @@ from being retried by the provider that rejected it.
 
 ## Atomic writes
 All writes: temp file + rename. Path-traversal safe via `squad-agent-files::safe_relative`.
+
+## Repo-tracked files (outside `~/.squad/`)
+A few schemas live **in the user's repo**, versioned alongside the code so cloning the repo is enough to share configuration:
+
+```
+<repo>/.squad/
+  team/team.json                portable team manifest (H.1 / H.2)
+```
+
+The team manifest lists role agents (Maya, Diego, Peter…) the repo expects. `RecruitTeamDialog` reads it on open and pre-selects those roles; `Export team` in the Repo tab writes it. The engine's `read_agent_file` / `write_agent_file` endpoints don't validate that the root is an agent, so the same plumbing addresses both `~/.squad/**` and repo trees. See `knowledge-base/team-library.md` for the full team metaphor.
 
 ## Activity statuses
 `queue` · `running` · `needs_you` · `done` · `cancelled`
