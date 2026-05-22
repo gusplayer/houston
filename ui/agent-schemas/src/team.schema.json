@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TeamManifest",
+  "description": "A repo-level team manifest. Lists the role agents this repo expects so a developer cloning it can hire the same team in one click. Lives at <repo>/.squad/team.json — versioned alongside the code.",
+  "type": "object",
+  "required": ["version", "agents"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version. Bump only on breaking changes."
+    },
+    "agents": {
+      "type": "array",
+      "description": "Roles this repo's team needs. Order is the suggested hire order.",
+      "items": {
+        "type": "object",
+        "required": ["role"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Built-in role agent id (e.g. 'mobile-lead-agent', 'cto-agent')."
+          },
+          "name": {
+            "type": "string",
+            "description": "Override the default name. Empty string or omitted = use the role's built-in name."
+          },
+          "color": {
+            "type": "string",
+            "description": "Override the default avatar color. Squad palette id or hex."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional free-text note from whoever wrote the manifest — onboarding tips, contact, etc."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Zap } from "lucide-react";
-import { Badge, Button } from "@houston-ai/core";
+import { Badge, Button } from "@squad/core";
 import { useWorkspaceStore } from "../../../stores/workspaces";
-import { useHoustonCreditsStore } from "../../../stores/houston-credits";
-import { HOUSTON_CREDITS_INFO, FREE_CREDITS_LIMIT, LOW_CREDITS_THRESHOLD } from "../../../lib/providers";
-import { HoustonCreditsTopUpDialog } from "../../houston-credits-topup-dialog";
+import { useSquadCreditsStore } from "../../../stores/squad-credits";
+import { SQUAD_CREDITS_INFO, FREE_CREDITS_LIMIT, LOW_CREDITS_THRESHOLD } from "../../../lib/providers";
+import { SquadCreditsTopUpDialog } from "../../squad-credits-topup-dialog";
 
 export function UsageSection() {
   const { t } = useTranslation(["settings", "providers"]);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const currentWorkspace = useWorkspaceStore((s) => s.current);
-  const balance = useHoustonCreditsStore((s) => s.balance);
+  const balance = useSquadCreditsStore((s) => s.balance);
 
   if (!currentWorkspace) return null;
 
-  const usingCredits = currentWorkspace.provider === HOUSTON_CREDITS_INFO.id;
+  const usingCredits = currentWorkspace.provider === SQUAD_CREDITS_INFO.id;
 
   return (
     <section>
@@ -31,7 +31,7 @@ export function UsageSection() {
         <OwnProviderCard provider={currentWorkspace.provider ?? ""} />
       )}
 
-      <HoustonCreditsTopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
+      <SquadCreditsTopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
     </section>
   );
 }
@@ -68,7 +68,7 @@ function CreditsUsageCard({
               <Zap className="size-4 text-foreground" />
             </div>
             <div>
-              <p className="text-sm font-medium">{HOUSTON_CREDITS_INFO.name}</p>
+              <p className="text-sm font-medium">{SQUAD_CREDITS_INFO.name}</p>
               <p className="text-xs text-muted-foreground">{t("providers:credits.subtitle")}</p>
             </div>
           </div>

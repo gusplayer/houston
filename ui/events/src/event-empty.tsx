@@ -3,7 +3,7 @@ import {
   EmptyHeader,
   EmptyTitle,
   EmptyDescription,
-} from "@houston-ai/core"
+} from "@squad/core"
 
 export interface EventEmptyProps {
   /** @deprecated use `description` instead */

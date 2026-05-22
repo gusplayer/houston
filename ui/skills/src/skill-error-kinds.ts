@@ -3,7 +3,7 @@
  * skill-related routes. UI matches on these to render plain-English
  * copy without parsing error message strings.
  *
- * Source of truth: `engine/houston-engine-core/src/skills.rs` — keep
+ * Source of truth: `engine/squad-engine-core/src/skills.rs` — keep
  * the union below in sync with the `SkillError` → `CoreError::Labeled`
  * mapping there.
  */
@@ -24,7 +24,7 @@ export type SkillErrorKind =
 
 /**
  * Pull the typed `kind` off any thrown value. Works whether the
- * caller threw a `HoustonEngineError` (which exposes `.kind` via a
+ * caller threw a `SquadEngineError` (which exposes `.kind` via a
  * getter on `error.details.kind`) or a plain `{ kind }` object.
  *
  * Returns `undefined` when the error isn't typed — callers should

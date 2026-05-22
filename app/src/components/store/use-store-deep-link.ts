@@ -3,7 +3,7 @@ import { useUIStore } from "../../stores/ui";
 import type { StoreListing } from "../../lib/types";
 
 interface Options {
-  /** Merged Houston + community catalog the Store page renders. */
+  /** Merged Squad + community catalog the Store page renders. */
   merged: StoreListing[];
   /** Called when the deep-link target is found in `merged`. */
   onMatch: (listing: StoreListing) => void;

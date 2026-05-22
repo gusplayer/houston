@@ -1,4 +1,4 @@
-// Routine types — mirrors Houston's new file-backed Routine model.
+// Routine types — mirrors Squad's new file-backed Routine model.
 
 export interface Routine {
   id: string

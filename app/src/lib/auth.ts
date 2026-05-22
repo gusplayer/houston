@@ -18,7 +18,7 @@ function applySessionToCache(session: Session | null): void {
 // HTTPS bridge instead of a raw deep link so the user lands on a polished
 // "Sign-in complete, you can close this tab" page after Google. The bridge
 // at gethouston.ai/auth/callback then forwards the PKCE code into the
-// `houston://auth-callback?code=...` deep link so macOS / Windows hand
+// `squad://auth-callback?code=...` deep link so macOS / Windows hand
 // it to the running app. See website/src/auth/callback/index.html.
 const REDIRECT_URI = "https://gethouston.ai/auth/callback/";
 
@@ -31,7 +31,7 @@ let pendingProvider: "google" | "azure" | null = null;
  * Kick off an OAuth flow for the given provider. Supabase generates a
  * fresh PKCE verifier (stored in Keychain via our storage adapter),
  * returns an auth URL, and we open it in the user's system browser.
- * After consent the browser redirects to `houston://auth-callback?code=...`,
+ * After consent the browser redirects to `squad://auth-callback?code=...`,
  * which the deep-link handler in Rust forwards to `installDeepLinkListener`.
  *
  * Idempotent — re-calling kicks off a brand-new PKCE flow, which is
@@ -59,7 +59,7 @@ async function signInWithProvider(
       // gets the ID token but no way to refresh, and the session goes
       // stale on the first reload. Matches Supabase's documented azure
       // default. We deliberately don't request `profile` / `User.Read`
-      // since Houston only needs the email + sub claims for sign-in.
+      // since Squad only needs the email + sub claims for sign-in.
       ...(provider === "azure"
         ? {
             scopes: "openid email offline_access",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Button } from "@houston-ai/core";
-import { HoustonLogo } from "../shell/experience-card";
+import { Button } from "@squad/core";
+import { SquadLogo } from "../shell/experience-card";
 import { onAuthError, signInWithGoogle } from "../../lib/auth";
 import { reportBug } from "../../lib/bug-report";
 import { logger } from "../../lib/logger";
@@ -84,9 +84,9 @@ export function SignInScreen() {
   return (
     <div className="h-screen flex flex-col items-center justify-center bg-background text-foreground px-6">
       <div className="flex flex-col items-center gap-6 max-w-sm w-full">
-        <HoustonLogo size={48} />
+        <SquadLogo size={48} />
         <div className="text-center">
-          <h1 className="text-2xl font-semibold">Welcome to Houston</h1>
+          <h1 className="text-2xl font-semibold">Welcome to Squad</h1>
           <p className="text-sm text-muted-foreground mt-2">
             Sign in to save your agents and keep everything in sync.
           </p>
@@ -153,19 +153,19 @@ function prettifyAuthError(raw: string): string {
     return "That email is already signed in with another provider. Use the original sign-in option, or contact support to merge accounts.";
   }
   if (msg.includes("aadsts50020") || msg.includes("does not exist in tenant")) {
-    return "Your Microsoft account isn't allowed in this Houston workspace. Try a different account, or ask your admin to invite it.";
+    return "Your Microsoft account isn't allowed in this Squad workspace. Try a different account, or ask your admin to invite it.";
   }
   if (msg.includes("aadsts700016") || msg.includes("application with identifier")) {
-    return "Microsoft sign-in isn't fully configured for Houston yet. Please contact support.";
+    return "Microsoft sign-in isn't fully configured for Squad yet. Please contact support.";
   }
   if (msg.includes("aadsts65001") || msg.includes("consent")) {
-    return "Microsoft needs admin consent before this account can sign in. Ask your IT admin to approve Houston, then try again.";
+    return "Microsoft needs admin consent before this account can sign in. Ask your IT admin to approve Squad, then try again.";
   }
   if (msg.includes("redirect") && msg.includes("invalid")) {
     return "The sign-in callback URL isn't allow-listed. Please contact support.";
   }
   if (msg.includes("provider") && msg.includes("not enabled")) {
-    return "This sign-in option isn't turned on for Houston yet. Try the other provider.";
+    return "This sign-in option isn't turned on for Squad yet. Try the other provider.";
   }
   if (msg.includes("authorization code")) {
     return "Sign-in didn't complete cleanly. Please try again.";

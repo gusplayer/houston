@@ -5,7 +5,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@houston-ai/core"
+} from "@squad/core"
 import { Trash2, Check, Pencil } from "lucide-react"
 import type { KanbanItem } from "./types"
 

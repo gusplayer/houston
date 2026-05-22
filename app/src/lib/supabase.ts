@@ -81,12 +81,12 @@ const browserStorage = {
 
 const authStorageConfig = resolveAuthStorageConfig({
   storageMode:
-    typeof __HOUSTON_AUTH_STORAGE_MODE__ !== "undefined"
-      ? __HOUSTON_AUTH_STORAGE_MODE__
+    typeof __SQUAD_AUTH_STORAGE_MODE__ !== "undefined"
+      ? __SQUAD_AUTH_STORAGE_MODE__
       : "browser",
   storageScope:
-    typeof __HOUSTON_AUTH_STORAGE_SCOPE__ !== "undefined"
-      ? __HOUSTON_AUTH_STORAGE_SCOPE__
+    typeof __SQUAD_AUTH_STORAGE_SCOPE__ !== "undefined"
+      ? __SQUAD_AUTH_STORAGE_SCOPE__
       : "",
 });
 

@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stories",
+  "description": "List of stories (tasks) for a dev agent. Stories can belong to a sprint.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "title", "status"],
+    "properties": {
+      "id": { "type": "string" },
+      "title": { "type": "string" },
+      "description": { "type": "string" },
+      "status": {
+        "type": "string",
+        "enum": ["backlog", "todo", "in_progress", "in_review", "done", "cancelled"],
+        "description": "Story lifecycle state."
+      },
+      "phase": {
+        "type": "string",
+        "enum": ["discovery", "analysis", "planning", "coding", "review", "qa", "deploy", "deliver"],
+        "description": "SDLC phase. Orthogonal to status: a story can be in_progress in the coding phase. Each phase typically has a different expert agent assigned."
+      },
+      "assigned_agent_id": {
+        "type": ["string", "null"],
+        "description": "Agent expert who owns this story in its current phase. When phase changes, this is typically reassigned."
+      },
+      "sprint_id": {
+        "type": ["string", "null"],
+        "description": "ID of the sprint this story belongs to. Null = backlog."
+      },
+      "epic": {
+        "type": ["string", "null"],
+        "description": "Free-text epic label, e.g. 'Auth Hardening' or 'Perf Sprint'."
+      },
+      "priority": {
+        "type": "string",
+        "enum": ["low", "medium", "high", "critical"],
+        "default": "medium"
+      },
+      "points": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Story points estimate."
+      },
+      "assignee": {
+        "type": ["string", "null"],
+        "description": "Agent name or human identifier."
+      },
+      "labels": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "pr_url": { "type": ["string", "null"] },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" }
+    },
+    "additionalProperties": false
+  }
+}

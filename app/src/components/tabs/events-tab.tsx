@@ -4,7 +4,7 @@ import {
   EmptyHeader,
   EmptyTitle,
   EmptyDescription,
-} from "@houston-ai/core";
+} from "@squad/core";
 import type { TabProps } from "../../lib/types";
 
 export default function EventsTab(_props: TabProps) {

@@ -1,14 +1,19 @@
 # Changelog
 
-All notable changes to Houston will be documented in this file.
+All notable changes to Squad will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Houston ships as a bundle: the **app** follows the top-level semver
+Squad ships as a bundle: the **app** follows the top-level semver
 (`0.3.x`), the **engine** has its own crate-level semver (`0.4.x`)
 paired with a `PROTOCOL_VERSION` (currently `1`). Entries below that
 only touch the engine note the engine crate version in parentheses.
+
+> Squad is a fork of [Houston](https://gethouston.ai). Historical
+> changelog entries below describe the upstream Houston release
+> history and are kept verbatim for context. New Squad-specific
+> entries will be added under `[Unreleased]` going forward.
 
 ## [Unreleased]
 

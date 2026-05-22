@@ -8,7 +8,7 @@ script that generates it — every future statement picks up the change.
 
 **What this example proves:** the engine is frontend-agnostic. Any
 React/Vue/Svelte/native app can talk to `houston-engine` over HTTP+WS
-using `@houston-ai/engine-client`. No Tauri, no Houston App look, no
+using `@squad/engine-client`. No Tauri, no Houston App look, no
 coupling to the desktop shell.
 
 ---
@@ -33,8 +33,8 @@ The AI is the compiler, not the runtime.
 
 ## Stack
 
-- Vite + React 19 — hand-rolled CSS, zero `@houston-ai/*` UI packages
-- `@houston-ai/engine-client` — the only Houston dependency
+- Vite + React 19 — hand-rolled CSS, zero `@squad/*` UI packages
+- `@squad/engine-client` — the only Houston dependency
 - Python scripts seeded into the agent on first run (extraction +
   workpaper generation via `openpyxl`)
 
@@ -225,7 +225,7 @@ or revert with `git`.
 ```
 +--------------------+         HTTP + WebSocket         +---------------------+
 |  SmartBooks (this) |  <------------------------------> |   houston-engine    |
-|  React + Vite      |   @houston-ai/engine-client SDK  |  (Rust, axum)       |
+|  React + Vite      |   @squad/engine-client SDK  |  (Rust, axum)       |
 +--------------------+                                   +----------+----------+
                                                                     |
                                                             spawns subprocess
@@ -352,7 +352,7 @@ Copy this whole directory, rename the workspace/agent in
 [src/lib/seed.ts](src/lib/seed.ts) for whatever tools your agent needs,
 restyle. That's the whole template.
 
-For richer integrations, study the `@houston-ai/engine-client` surface
+For richer integrations, study the `@squad/engine-client` surface
 — it exposes every REST route and the WebSocket event bus. The engine
 is frontend-agnostic by design; you don't have to look or feel like
 Houston at all.

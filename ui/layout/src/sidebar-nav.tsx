@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 
 export interface SidebarNavItemProps {
   icon: ReactNode;

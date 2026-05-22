@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Download } from "lucide-react";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 import type { StoreListing } from "../../lib/types";
 import { IntegrationLogos } from "../integration-logos";
 import { RatingStars } from "./rating-stars";
@@ -13,7 +13,7 @@ import {
 interface Props {
   listing: StoreListing;
   onSelect: (listing: StoreListing) => void;
-  /** True if the listing is a real Houston-published agent. */
+  /** True if the listing is a real Squad-published agent. */
   isHouston?: boolean;
 }
 
@@ -30,7 +30,7 @@ export function StoreCard({ listing, onSelect, isHouston }: Props) {
   const visible = integrations.slice(0, MAX_INTEGRATIONS);
   const overflow = integrations.length - visible.length;
   const publisherName = listing.publisher?.name ?? listing.author;
-  const source = isHouston ? "houston" : listing.source ?? "community";
+  const source = isHouston ? "squad" : listing.source ?? "community";
   const isPaid = listing.pricing?.kind === "paid";
 
   return (

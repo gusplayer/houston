@@ -19,6 +19,9 @@ interface UIState {
   authRequired: string | null;
   toasts: ToastItem[];
   createAgentDialogOpen: boolean;
+  /** G.3 — Recruit Team dialog. Multi-select role agents and create
+   * them all at once for a one-click team setup. */
+  recruitTeamDialogOpen: boolean;
   /** Callback registered by the board tab to open the new-mission panel */
   onStartMission: (() => void) | null;
   /** Extra create actions registered by the board tab (e.g. "New Planning Session"). */
@@ -30,6 +33,10 @@ interface UIState {
   /** Whether the mission chat panel is open (hides tab bar for full-height panel) */
   missionPanelOpen: boolean;
   jobDescriptionTarget: JobDescriptionTarget | null;
+  /** Currently-open conversation per agent. Persisted in the store so
+   * navigating away from the agent (Settings, another agent, …) and back
+   * preserves the open chat. Keyed by agent folder path. */
+  selectedConversationByAgent: Record<string, string | null>;
   /** Pin the first-run tutorial UI in front of the workspace shell. Set true
    * while the orchestrator is mid-flight, cleared on graduation or skip. */
   tutorialActive: boolean;
@@ -37,7 +44,7 @@ interface UIState {
    * Set when the user completes M3 Try and clicks "Tutorial complete";
    * cleared when the user dismisses the final tour step. */
   uiTourActive: boolean;
-  /** Agent id requested by a `houston://store/agent/<id>` deep link. When
+  /** Agent id requested by a `squad://store/agent/<id>` deep link. When
    * non-null, the Store page should switch to view-mode "store" and open
    * the detail dialog for this agent. Cleared by the Store page once it
    * has handled the request (either by opening the listing or by surfacing
@@ -51,6 +58,7 @@ interface UIState {
   addToast: (toast: Omit<ToastItem, "id">) => void;
   dismissToast: (id: string) => void;
   setCreateAgentDialogOpen: (open: boolean) => void;
+  setRecruitTeamDialogOpen: (open: boolean) => void;
   setOnStartMission: (cb: (() => void) | null) => void;
   setBoardActions: (actions: Array<{ id: string; label: string; onClick: () => void }>) => void;
   setAgentMissionSearchQuery: (agentPath: string, query: string) => void;
@@ -60,6 +68,7 @@ interface UIState {
   setTutorialActive: (active: boolean) => void;
   setUiTourActive: (active: boolean) => void;
   setStoreAgentId: (id: string | null) => void;
+  setSelectedConversation: (agentPath: string, id: string | null) => void;
 }
 
 let toastCounter = 0;
@@ -72,6 +81,7 @@ export const useUIStore = create<UIState>((set) => ({
   authRequired: null,
   toasts: [],
   createAgentDialogOpen: false,
+  recruitTeamDialogOpen: false,
   onStartMission: null,
   boardActions: [],
   agentMissionSearchQueries: {},
@@ -81,6 +91,7 @@ export const useUIStore = create<UIState>((set) => ({
   tutorialActive: false,
   uiTourActive: false,
   storeAgentId: null,
+  selectedConversationByAgent: {},
 
   setViewMode: (viewMode) => set({ viewMode }),
   setAssistantPanelOpen: (assistantPanelOpen) => set({ assistantPanelOpen }),
@@ -108,6 +119,8 @@ export const useUIStore = create<UIState>((set) => ({
 
   setCreateAgentDialogOpen: (createAgentDialogOpen) =>
     set({ createAgentDialogOpen }),
+  setRecruitTeamDialogOpen: (recruitTeamDialogOpen) =>
+    set({ recruitTeamDialogOpen }),
 
   setOnStartMission: (onStartMission) => set({ onStartMission }),
   setBoardActions: (boardActions) => set({ boardActions }),
@@ -130,4 +143,11 @@ export const useUIStore = create<UIState>((set) => ({
   setTutorialActive: (tutorialActive) => set({ tutorialActive }),
   setUiTourActive: (uiTourActive) => set({ uiTourActive }),
   setStoreAgentId: (storeAgentId) => set({ storeAgentId }),
+  setSelectedConversation: (agentPath, id) =>
+    set((s) => {
+      const next = { ...s.selectedConversationByAgent };
+      if (id === null) delete next[agentPath];
+      else next[agentPath] = id;
+      return { selectedConversationByAgent: next };
+    }),
 }));

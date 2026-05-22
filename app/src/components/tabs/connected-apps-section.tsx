@@ -72,7 +72,7 @@ interface AppInfo {
 }
 
 function composioAppUrl(toolkit: string): string {
-  // Route through Composio's marketing site with the Houston-tagged
+  // Route through Composio's marketing site with the Squad-tagged
   // fragment instead of `dashboard.composio.dev/~/connect/apps/<toolkit>`.
   // The bare-dashboard URL relies on `~` resolving to the user's default
   // workspace, which was observed not to work for at least one alpha

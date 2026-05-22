@@ -15,6 +15,10 @@ export interface Workspace {
   provider?: string;
   /** Default model for this workspace (e.g. "sonnet", "gpt-5.5"). */
   model?: string;
+  /** Absolute filesystem path of the workspace folder, populated by the
+   * engine. Used to scope workspace-level data (sprints, stories,
+   * projects) to the right directory. */
+  path?: string;
 }
 
 /** Tab definition in an agent config */
@@ -35,10 +39,10 @@ export interface AgentTab {
   chip?: string;
 }
 
-/** Agent category for Houston Store filtering.
+/** Agent category for Squad Store filtering.
  *
  * TODO: narrow to a union once the engine-client `StoreListing` type also
- * narrows (`@houston-ai/engine-client/src/types.ts` currently types
+ * narrows (`@squad/engine-client/src/types.ts` currently types
  * `category: string`). Today's Store sidebar exposes only four buckets —
  * `"business" | "marketing" | "operations" | "people"` — but built-in
  * agent configs use `"productivity"` and the engine-client cross-package
@@ -50,11 +54,11 @@ export type AgentCategory = string;
 export interface AgentMode {
   id: string;              // e.g. "execution", "planning"
   name: string;            // Display name, e.g. "Coder", "Planner"
-  promptFile: string;      // Mode name → reads .houston/prompts/modes/{promptFile}.md
+  promptFile: string;      // Mode name → reads .squad/prompts/modes/{promptFile}.md
   createLabel: string;     // Button label, e.g. "New Mission"
 }
 
-/** The agent config (houston.json schema) */
+/** The agent config (squad.json schema) */
 export interface AgentConfig {
   id: string;
   name: string;
@@ -64,7 +68,7 @@ export interface AgentConfig {
   image?: string;          // Image URL for store card
   color?: string;          // Brand color override
   category?: AgentCategory;
-  author?: string;         // e.g. "Houston" for official, user name for community
+  author?: string;         // e.g. "Squad" for official, user name for community
   tags?: string[];         // Searchable tags
   integrations?: string[]; // Composio toolkit slugs used by bundled agents
   tabs: AgentTab[];
@@ -80,7 +84,7 @@ export interface AgentConfig {
 export interface AgentDefinition {
   config: AgentConfig;
   source: "builtin" | "installed";
-  path?: string;           // For installed: ~/.houston/agents/{id}/
+  path?: string;           // For installed: ~/.squad/agents/{id}/
   bundleUrl?: string;      // For custom React: URL to bundle.js
 }
 
@@ -88,7 +92,7 @@ export interface AgentDefinition {
 export interface Agent {
   id: string;
   name: string;
-  folderPath: string;      // ~/.houston/workspaces/{WorkspaceName}/{AgentName}/
+  folderPath: string;      // ~/.squad/workspaces/{WorkspaceName}/{AgentName}/
   configId: string;      // Points to an AgentConfig
   color?: string;        // User-chosen color for avatar
   createdAt: string;
@@ -175,7 +179,7 @@ export interface FileEntry {
   size: number;
 }
 
-/** A listing from the Houston Store registry */
+/** A listing from the Squad Store registry */
 export interface StoreListing {
   id: string;
   name: string;
@@ -191,11 +195,11 @@ export interface StoreListing {
   version?: string;
   content_hash?: string;
   bundled?: boolean;
-  /** Origin of the listing. Real Houston-published agents come from the
-   * engine catalog (no source set or "houston"). Community entries come
+  /** Origin of the listing. Real Squad-published agents come from the
+   * engine catalog (no source set or "squad"). Community entries come
    * from third-party repos. "mock" is used by design previews. */
-  source?: "houston" | "community" | "mock";
-  /** True if the publisher has been verified by Houston. */
+  source?: "squad" | "community" | "mock";
+  /** True if the publisher has been verified by Squad. */
   verified?: boolean;
   /** Average user rating, 0-5 with one decimal. */
   rating?: number;

@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "McpServers",
+  "description": "Per-agent MCP server configuration. Passed as --mcp-config to Claude Code on each session.",
+  "type": "object",
+  "properties": {
+    "mcpServers": {
+      "type": "object",
+      "description": "Map of server name → server config.",
+      "additionalProperties": {
+        "$ref": "#/definitions/McpServerConfig"
+      }
+    }
+  },
+  "required": ["mcpServers"],
+  "definitions": {
+    "McpServerConfig": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Executable to run (e.g. 'npx', 'node', 'python')."
+        },
+        "args": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Arguments passed to the command."
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Extra environment variables for this server process."
+        },
+        "url": {
+          "type": "string",
+          "description": "SSE or HTTP URL for remote MCP servers (alternative to command/args)."
+        }
+      }
+    }
+  }
+}

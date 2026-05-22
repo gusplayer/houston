@@ -1,4 +1,4 @@
-# Claude Session Protocol — Houston
+# Claude Session Protocol — Squad
 
 Caveman style. Progressive discovery. Load on demand.
 
@@ -42,15 +42,15 @@ Off only if user says "stop caveman" or "normal mode".
 
 ## System at a glance (read once at session start)
 
-Houston = desktop app + standalone engine + open library of agents.
+Squad = desktop app + standalone engine + open library of agents.
 
 - **`app/`** — Tauri 2 desktop. React frontend, small Rust binary that spawns the engine as a sidecar subprocess and talks to it over HTTP/WS. OS-native glue only (file pickers, reveal-in-finder, logs). No domain logic.
-- **`engine/`** — Rust crates. `houston-engine-core` = runtime/domain. `houston-engine-protocol` = wire types. `houston-engine-server` = axum HTTP+WS binary (`houston-engine`). `houston-agent-files`, `houston-skills`, `houston-sessions`, `houston-file-watcher`, etc. are leaf crates. Frontend-agnostic: no Tauri, no React.
-- **`ui/`** — `@houston-ai/*` React packages (chat, board, layout, engine-client, …). Props-only, no store imports. `@houston-ai/engine-client` is the TS front door to the engine.
-- **User data** — `~/.houston/`: DB, logs, `engine.json`, and `workspaces/<Workspace>/<Agent>/`. Each agent has `.houston/` data files + `CLAUDE.md` + `.agents/skills/`.
-- **Wire contract** — every domain call is a `fetch` or WS frame in `@houston-ai/engine-client`. There are NO `invoke("list_workspaces", …)` style Tauri commands for domain; those were all deleted.
-- **Reactivity** — engine emits `HoustonEvent`s; desktop subscribes to the WS `*` firehose; TanStack Query invalidation in `app/src/hooks/use-agent-invalidation.ts` maps events → query keys. File watcher catches direct agent writes.
-- **Voice** — agents' target user is NON-technical. The product system prompt forbids mentioning files/JSON/configs/CLIs when talking to the user. Lives in `app/src-tauri/src/houston_prompt.rs` (Houston app), NOT in the engine. Engine is prompt-agnostic; app hands it over at spawn via `HOUSTON_APP_SYSTEM_PROMPT`.
+- **`engine/`** — Rust crates. `squad-engine-core` = runtime/domain. `squad-engine-protocol` = wire types. `squad-engine-server` = axum HTTP+WS binary (`squad-engine`). `squad-agent-files`, `squad-skills`, `squad-sessions`, `squad-file-watcher`, etc. are leaf crates. Frontend-agnostic: no Tauri, no React.
+- **`ui/`** — `@squad/*` React packages (chat, board, layout, engine-client, …). Props-only, no store imports. `@squad/engine-client` is the TS front door to the engine.
+- **User data** — `~/.squad/`: DB, logs, `engine.json`, and `workspaces/<Workspace>/<Agent>/`. Each agent has `.squad/` data files + `CLAUDE.md` + `.agents/skills/`.
+- **Wire contract** — every domain call is a `fetch` or WS frame in `@squad/engine-client`. There are NO `invoke("list_workspaces", …)` style Tauri commands for domain; those were all deleted.
+- **Reactivity** — engine emits `SquadEvent`s; desktop subscribes to the WS `*` firehose; TanStack Query invalidation in `app/src/hooks/use-agent-invalidation.ts` maps events → query keys. File watcher catches direct agent writes.
+- **Voice** — agents target developers and engineering teams. The product system prompt assumes a technical audience: file paths, configs, CLIs, and code are fair game. Lives in `app/src-tauri/src/squad_prompt.rs` (Squad app), NOT in the engine. Engine is prompt-agnostic; app hands it over at spawn via `SQUAD_APP_SYSTEM_PROMPT`.
 
 Before touching anything: run PHASE 1 (load `knowledge-base/architecture.md` + any KBs relevant to scope).
 
@@ -63,15 +63,16 @@ Bug? Don't guess → `/debug`
 Need specific knowledge? Load on demand:
 - Repo shape, products, engine story → `knowledge-base/architecture.md`
 - Colors, typography, components, animation → `knowledge-base/design-system.md`
-- `.houston/` layout, schemas, reactivity → `knowledge-base/files-first.md`
+- `.squad/` layout, schemas, reactivity → `knowledge-base/files-first.md`
 - Skills on disk + UI, picker, invocation marker → `knowledge-base/skills.md`
 - Agent manifest, tiers, sidebar, workspaces → `knowledge-base/agent-manifest.md`
+- Team library (Alex, Maya, Diego…), per-agent project binding, workspace stories, phase ownership, agent-state avatar, team manifest export/import → `knowledge-base/team-library.md`
 - Store marketplace: in-app page, deep links, website pages, mock community agents, deferred infra → `knowledge-base/store-marketplace.md`
 - Engine wire protocol (REST + WS) → `knowledge-base/engine-protocol.md`
-- `houston-engine` binary ops → `knowledge-base/engine-server.md`
+- `squad-engine` binary ops → `knowledge-base/engine-server.md`
 - Bundled CLIs (codex universal, composio per-arch) + runtime claude-code installer → `knowledge-base/cli-bundling.md`
 - Windows testing loop from a Mac (UTM VM, SSH bridge, cross-compile, log fetch) → `knowledge-base/windows-testing.md`
-- Custom frontend on `houston-engine` (integration reference) → `examples/smartbooks/README.md`
+- Custom frontend on `squad-engine` (integration reference) → `examples/smartbooks/README.md`
 - Mobile PWA (tunnel, pairing, reactivity) → `docs/mobile-architecture.md` + `docs/relay-operations.md`
 - Updater, analytics, Sentry, env vars, CI → `knowledge-base/production-infra.md`
 - Supabase auth, Google SSO, Keychain → `knowledge-base/auth.md`
@@ -137,7 +138,7 @@ Ask: "Ready to commit? (yes/no/skip)" **STOP.** Yes → stage specific files, co
 |------|----|------|------------|
 | ui/ | `pnpm typecheck` | — | — |
 | engine/ | — | `cargo test --workspace` | `cargo build --workspace` |
-| engine/ Win check | — | `cargo check --target x86_64-pc-windows-gnu -p houston-engine-server` (needs mingw-w64) | — |
+| engine/ Win check | — | `cargo check --target x86_64-pc-windows-gnu -p squad-engine-server` (needs mingw-w64) | — |
 | app/ | `cd app && pnpm tsc --noEmit` | `cd app/src-tauri && cargo check` | `cd app && pnpm tauri build` |
 | app/ Win MSI | — | — | `cd app && pnpm tauri build --target x86_64-pc-windows-msvc` (needs Windows host or `xwin` SDK) |
 | app/ i18n | `cd app && pnpm check-locales` | — | — |
@@ -146,9 +147,9 @@ Ask: "Ready to commit? (yes/no/skip)" **STOP.** Yes → stage specific files, co
 
 ### Engine sidecar staleness (dev only)
 
-`pnpm tauri dev` spawns the engine as a subprocess from `app/src-tauri/binaries/houston-engine-<triple>`, which `build.rs` stages from `target/{debug,release}/houston-engine`. Tauri does NOT rebuild the engine on its own — frontend HMR works fine but the sidecar is whatever binary was last compiled.
+`pnpm tauri dev` spawns the engine as a subprocess from `app/src-tauri/binaries/squad-engine-<triple>`, which `build.rs` stages from `target/{debug,release}/squad-engine`. Tauri does NOT rebuild the engine on its own — frontend HMR works fine but the sidecar is whatever binary was last compiled.
 
-**Rule**: any time a PR touches `engine/**` (including merges that bring engine changes from `main`), run `cargo build -p houston-engine-server` BEFORE the next `pnpm tauri dev` and restart it. Symptoms of a stale sidecar: 404s on routes that exist in the current source, missing event types, schema mismatches. Production users never hit this — release CI builds the engine from scratch on every tag.
+**Rule**: any time a PR touches `engine/**` (including merges that bring engine changes from `main`), run `cargo build -p squad-engine-server` BEFORE the next `pnpm tauri dev` and restart it. Symptoms of a stale sidecar: 404s on routes that exist in the current source, missing event types, schema mismatches. Production users never hit this — release CI builds the engine from scratch on every tag.
 
 ---
 
@@ -165,18 +166,18 @@ Ask: "Ready to commit? (yes/no/skip)" **STOP.** Yes → stage specific files, co
 
 ### Engine boundary
 - `engine/` = frontend-agnostic. No Tauri. No React. No webview assumption.
-- Tauri-specific code → `app/houston-tauri/` (the adapter).
+- Tauri-specific code → `app/squad-tauri/` (the adapter).
 
 ### AI-native reactivity
-- Every `.houston/` data surface must react to file changes regardless of who wrote (user via UI, agent via file write, external edit).
-- All `.houston/` fetching → TanStack Query + event invalidation. No load-on-mount-only.
+- Every `.squad/` data surface must react to file changes regardless of who wrote (user via UI, agent via file write, external edit).
+- All `.squad/` fetching → TanStack Query + event invalidation. No load-on-mount-only.
 - Agent writes emit events. File watcher catches bypass writes. Both architecturally required.
 - Never build "agent can do X but UI won't show until refresh."
 
 ### Internationalization (frontend)
-- Houston ships **en / es / pt**. Every user-facing string flows through `t()` from `react-i18next`. No literal English in JSX text, props, placeholders, aria-labels, toast titles, error messages, or `<Empty>` defaults.
+- Squad ships **en / es / pt**. Every user-facing string flows through `t()` from `react-i18next`. No literal English in JSX text, props, placeholders, aria-labels, toast titles, error messages, or `<Empty>` defaults.
 - New screen / new strings → pick the right namespace under `app/src/locales/<lang>/<ns>.json` (or create one + register in `app/src/lib/i18n.ts` + augment `app/src/types/react-i18next.d.ts`). en is source of truth; es and pt mirror the structure.
-- **`ui/@houston-ai/*` stays i18n-agnostic** per the library boundary. Components take optional `labels?` props with English defaults; the consumer in `app/` passes `t()` results in. Don't import `react-i18next` in `ui/`.
+- **`ui/@squad/*` stays i18n-agnostic** per the library boundary. Components take optional `labels?` props with English defaults; the consumer in `app/` passes `t()` results in. Don't import `react-i18next` in `ui/`.
 - Variables: `t("key", { name })`, never string concat. Plurals: `count` API with `_one` / `_other` keys. Embedded markup: `<Trans components={{...}}>`.
 - **No em dashes (`—`)** in user-facing copy. Commas or sentence breaks. Validator enforces this.
 - Spanish = Latin-American neutral (computador, tú). Portuguese = Brazilian (você).
@@ -186,8 +187,8 @@ Ask: "Ready to commit? (yes/no/skip)" **STOP.** Yes → stage specific files, co
 
 ### Internal code = no backwards compat
 - Types, APIs, Rust modules, TS fns: change = change. No "just in case" keeps.
-- **User data = different.** Canonical location is `~/.houston/**` (workspaces live at `~/.houston/workspaces/`). Shape/layout changes inside `~/.houston/<agent>/.houston/**` need an **idempotent migration** in `houston_agent_files::migrate_agent_data`. Never break existing users.
-- **Legacy `~/Documents/Houston/**`** — earlier versions used this path. We do NOT auto-migrate from there; if a user upgrades they may need to copy their workspaces manually. When introducing further root moves, propose a migration story before executing.
+- **User data = different.** Canonical location is `~/.squad/**` (workspaces live at `~/.squad/workspaces/`). Shape/layout changes inside `~/.squad/<agent>/.squad/**` need an **idempotent migration** in `squad_agent_files::migrate_agent_data`. Never break existing users.
+- **Legacy `~/Documents/Houston/**`** — earlier versions of the upstream Houston app used this path. We do NOT auto-migrate from there. When introducing further root moves, propose a migration story before executing.
 
 ### Tests mandatory
 Every feature gets tests. No exceptions. Tests don't count toward 200-line limit.
@@ -228,7 +229,7 @@ Interactive elements visible without hovering. Hover may enhance, never gate.
 200 lines/file (excluding tests). CSS 500. **NEVER compress to fit.** Extract modules.
 
 ### Search before building
-shadcn/ui registry, @houston-ai showcase, existing components, npm — before writing from scratch.
+shadcn/ui registry, @squad showcase, existing components, npm — before writing from scratch.
 
 ### Be critical, not agreeable
 Never "You're absolutely right!" if better approach exists. Say it.

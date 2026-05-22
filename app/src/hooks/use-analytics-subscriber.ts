@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import type { HoustonEvent } from "@houston-ai/core";
-import { subscribeHoustonEvents } from "../lib/events";
+import type { SquadEvent } from "@squad/core";
+import { subscribeSquadEvents } from "../lib/events";
 import { analytics, classifyAnalyticsError } from "../lib/analytics";
 
 /**
- * Subscribes to the HoustonEvent firehose and fires analytics for events
+ * Subscribes to the SquadEvent firehose and fires analytics for events
  * that originate from the backend (assistant replies, session failures,
  * backend errors) — i.e. anything that has no obvious call site in the
  * React code.
@@ -15,7 +15,7 @@ export function useAnalyticsSubscriber() {
   const repliesRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    const unlisten = subscribeHoustonEvents((p: HoustonEvent) => {
+    const unlisten = subscribeSquadEvents((p: SquadEvent) => {
       switch (p.type) {
         case "FeedItem": {
           // Activation signal: user got a finalized assistant reply.

@@ -5,7 +5,7 @@
  * + colored accent. Switch on the right. The whole row is clickable; the
  * switch stops propagation so toggling doesn't open the editor.
  */
-import { cn, Switch } from "@houston-ai/core"
+import { cn, Switch } from "@squad/core"
 import type { Routine, RoutineRun } from "./types"
 import { cronToPreset, presetSummary, cronToOptions } from "./schedule-cron-utils"
 import { nextFire, describeNextFire } from "./next-fire"

@@ -5,7 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@houston-ai/core";
+} from "@squad/core";
 
 export interface WorkspaceSwitcherProps {
   workspaces: { id: string; name: string }[];

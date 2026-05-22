@@ -1,6 +1,6 @@
 {
   "welcome": {
-    "title": "Bem-vindo ao Houston",
+    "title": "Bem-vindo ao Squad",
     "tagline": "Realize o impossível.",
     "getStarted": "Começar"
   },
@@ -11,18 +11,18 @@
   },
   "provider": {
     "title": "Conecte sua IA",
-    "description": "O Houston usa <emph>sua própria</emph> assinatura. Nunca vemos suas credenciais.",
+    "description": "O Squad usa <emph>sua própria</emph> assinatura. Nunca vemos suas credenciais.",
     "finishPage": "Começar",
     "finishDialog": "Criar espaço de trabalho"
   },
   "tutorial": {
-    "brand": "Houston",
+    "brand": "Squad",
     "counter": "Missão {{current}} de {{total}}",
     "eyebrow": "Missão {{number}}",
     "upNext": "A seguir",
     "welcome": {
-      "title": "Bem-vindo ao Houston",
-      "tagline": "O Houston é onde você constrói Agentes que funcionam com as mesmas ferramentas que você usa para trabalhar.",
+      "title": "Bem-vindo ao Squad",
+      "tagline": "O Squad é onde você constrói Agentes que funcionam com as mesmas ferramentas que você usa para trabalhar.",
       "stepsTitle": "O tutorial vai guiar você para criar seu primeiro agente:",
       "steps": {
         "meet": "Conheça seu assistente",
@@ -54,14 +54,14 @@
       },
       "brain": {
         "title": "Dê um cérebro",
-        "body": "Seu assistente precisa de um provedor de IA para pensar e escrever. O Houston usa sua própria assinatura.",
+        "body": "Seu assistente precisa de um provedor de IA para pensar e escrever. O Squad usa sua própria assinatura.",
         "continue": "Criar meu assistente",
         "creating": "Criando",
-        "continueHint": "O Houston vai criar seu assistente e abrir a próxima missão."
+        "continueHint": "O Squad vai criar seu assistente e abrir a próxima missão."
       },
       "tools": {
         "title": "Dê as suas próprias ferramentas",
-        "body": "O Houston se conecta ao seu e-mail, calendário e mais de 1000 apps através do seu provedor de integrações. Por padrão usamos o Composio. Entre uma vez para seu assistente poder trabalhar com seus apps reais.",
+        "body": "O Squad se conecta ao seu e-mail, calendário e mais de 1000 apps através do seu provedor de integrações. Por padrão usamos o Composio. Entre uma vez para seu assistente poder trabalhar com seus apps reais.",
         "cardTitle": "Provedor de integrações",
         "cardBody": "Entre para seu assistente usar seus apps. Provedor padrão: Composio.",
         "cardSignedInBody": "Seu assistente já pode usar seus apps",
@@ -85,7 +85,7 @@
         },
         "chip": "Planeja meu próximo dia de trabalho",
         "composerHint": "Clique para começar a missão.",
-        "continueChip": "Entre no Houston",
+        "continueChip": "Entre no Squad",
         "skipTutorial": "Pular tutorial",
         "changeBrain": "Trocar cérebro"
       }

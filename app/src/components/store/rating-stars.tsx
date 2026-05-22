@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Star } from "lucide-react";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 
 interface Props {
   /** Rating from 0 to 5, fractional allowed (e.g. 4.7). */

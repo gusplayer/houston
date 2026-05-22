@@ -1,19 +1,19 @@
 /**
- * Base hook for subscribing to houston-tauri backend events.
+ * Base hook for subscribing to squad-tauri backend events.
  *
  * Uses a ref-based handler pattern to avoid the race condition in
- * useHoustonEvent (where handler recreation tears down and re-registers
+ * useSquadEvent (where handler recreation tears down and re-registers
  * the listener, causing missed events).
  *
  * Apps pass their own `listen` function from `@tauri-apps/api/event`
- * so @houston-ai/core doesn't need a build-time dependency on Tauri.
+ * so @squad/core doesn't need a build-time dependency on Tauri.
  *
  * Handles the core events (FeedItem, SessionStatus, Toast) and calls
  * an optional `onEvent` callback for app-specific event handling.
  */
 
 import { useEffect, useRef } from "react";
-import type { HoustonEvent } from "../types";
+import type { SquadEvent } from "../types";
 
 /** Tauri listen function signature. */
 export type TauriListenFn = <T>(
@@ -33,11 +33,11 @@ export interface SessionEventsHandlers {
   /** Returns the active (agentPath, sessionKey) pair for desktop-dupe filtering. */
   getActiveSession?: () => { agentPath: string; sessionKey: string } | null;
   /** Called for app-specific events not handled by the base hook. */
-  onEvent?: (event: HoustonEvent) => void;
+  onEvent?: (event: SquadEvent) => void;
 }
 
 /**
- * Subscribe to "houston-event" from the Rust backend.
+ * Subscribe to "squad-event" from the Rust backend.
  *
  * Core events handled:
  * - FeedItem → calls `onFeedItem(agent_path, session_key, item)`, with desktop-dupe filtering
@@ -51,7 +51,7 @@ export function useSessionEvents(handlers: SessionEventsHandlers): void {
   ref.current = handlers;
 
   useEffect(() => {
-    const unlisten = ref.current.listen<HoustonEvent>("houston-event", (event) => {
+    const unlisten = ref.current.listen<SquadEvent>("squad-event", (event) => {
       const h = ref.current;
       const payload = event.payload;
 

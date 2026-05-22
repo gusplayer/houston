@@ -1,6 +1,6 @@
 /**
- * Wire types mirroring `engine/houston-engine-protocol/src/lib.rs` and
- * domain DTOs from `engine/houston-engine-core`.
+ * Wire types mirroring `engine/squad-engine-protocol/src/lib.rs` and
+ * domain DTOs from `engine/squad-engine-core`.
  *
  * Until we wire up a Rust→TS code generator (`ts-rs` or `specta`) these
  * are maintained by hand. Keep them in sync — the Rust side is the
@@ -67,6 +67,10 @@ export interface Workspace {
   createdAt: string;
   provider?: string;
   model?: string;
+  /** Absolute filesystem path of the workspace folder. Populated by the
+   * engine so the frontend can scope workspace-level data (sprints,
+   * stories, projects) to the right directory. */
+  path?: string;
 }
 
 export interface CreateWorkspace {
@@ -329,9 +333,9 @@ export interface CommunitySkill {
 // ---------- Providers / preferences ----------
 
 /**
- * Where Houston found the CLI binary backing a provider. Surfaced so
- * the UI can label whether the user is talking to a copy Houston shipped
- * (`bundled`), one Houston downloaded for them (`managed`), one already
+ * Where Squad found the CLI binary backing a provider. Surfaced so
+ * the UI can label whether the user is talking to a copy Squad shipped
+ * (`bundled`), one Squad downloaded for them (`managed`), one already
  * on their PATH (`path`), or nothing at all (`missing`).
  *
  * Mirrors the Rust `houston_engine_core::provider::InstallSource` enum
@@ -359,7 +363,7 @@ export interface PreferenceValue {
  * Known preference keys. Free-form strings are still allowed — this alias
  * just documents the well-known keys and gives consumers completion.
  *
- * Keep in sync with `houston-engine-core::preferences` constants.
+ * Keep in sync with `squad-engine-core::preferences` constants.
  */
 export type KnownPreferenceKey =
   | "timezone"
@@ -553,6 +557,131 @@ export interface AttachmentManifest extends AttachmentUploadResult {
   mime?: string | null;
   objectPath: string;
   createdAt: string;
+}
+
+// ---------- Projects ----------
+
+export interface Project {
+  id: string;
+  name: string;
+  repoPath: string;
+  repoRemote?: string | null;
+  stack?: string | null;
+  defaultBranch?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProject {
+  name: string;
+  repoPath: string;
+  repoRemote?: string;
+  stack?: string;
+  defaultBranch?: string;
+}
+
+export interface UpdateProject {
+  name?: string;
+  repoPath?: string;
+  repoRemote?: string | null;
+  stack?: string | null;
+  defaultBranch?: string | null;
+}
+
+// ---------- Git ----------
+
+export interface FileChange {
+  path: string;
+  status: string;
+  oldPath?: string | null;
+}
+
+export interface GitStatus {
+  branch: string;
+  ahead: number;
+  behind: number;
+  staged: FileChange[];
+  unstaged: FileChange[];
+  untracked: string[];
+  clean: boolean;
+}
+
+export interface Commit {
+  sha: string;
+  shortSha: string;
+  authorName: string;
+  authorEmail: string;
+  date: string;
+  subject: string;
+}
+
+export interface Branch {
+  name: string;
+  isCurrent: boolean;
+  isRemote: boolean;
+}
+
+// ---------- Sprints + Stories ----------
+
+export type SprintStatus = "planning" | "active" | "completed" | "cancelled";
+
+export interface Sprint {
+  id: string;
+  name: string;
+  goal?: string;
+  status: SprintStatus;
+  startDate?: string | null;
+  endDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StoryStatus = "backlog" | "todo" | "in_progress" | "in_review" | "done" | "cancelled";
+export type StoryPriority = "low" | "medium" | "high" | "critical";
+
+/**
+ * SDLC phase — where this story sits in the dev pipeline.
+ * Orthogonal to `status` (status = progress within the phase).
+ */
+export type StoryPhase =
+  | "discovery"
+  | "analysis"
+  | "planning"
+  | "coding"
+  | "review"
+  | "qa"
+  | "deploy"
+  | "deliver";
+
+export interface Story {
+  id: string;
+  title: string;
+  description?: string;
+  status: StoryStatus;
+  phase?: StoryPhase;
+  sprintId?: string | null;
+  epic?: string | null;
+  priority?: StoryPriority;
+  points?: number | null;
+  assignee?: string | null;
+  assignedAgentId?: string | null;
+  labels?: string[];
+  prUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------- MCP ----------
+
+export interface McpServerConfig {
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+}
+
+export interface McpConfig {
+  mcpServers: Record<string, McpServerConfig>;
 }
 
 // ---------- Composio ----------

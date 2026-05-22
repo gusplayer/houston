@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Badge, HoustonAvatar, cn, resolveAgentColor } from "@houston-ai/core";
+import { Badge, SquadAvatar, cn, resolveAgentColor } from "@squad/core";
 
 interface AgentSidebarIconProps {
   color?: string;
@@ -13,7 +13,7 @@ export function AgentSidebarIcon({
   runningLabel,
 }: AgentSidebarIconProps) {
   const avatar = (
-    <HoustonAvatar color={resolveAgentColor(color)} diameter={20} />
+    <SquadAvatar color={resolveAgentColor(color)} diameter={20} />
   );
 
   if (!running) return avatar;

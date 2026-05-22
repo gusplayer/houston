@@ -5,7 +5,7 @@ import {
   CollapsibleContent,
   ScrollArea,
   cn,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { useProgressSteps } from "./use-progress-steps";
 import { feedItemsToMessages } from "./feed-to-messages";
 import type { FeedItem } from "./types";

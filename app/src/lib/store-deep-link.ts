@@ -10,10 +10,10 @@ let installed = false;
 /**
  * Listen for `store://deep-link` events emitted by the Rust deep-link
  * dispatcher (`app/src-tauri/src/auth.rs::dispatch_deep_link`) for any
- * `houston://store/...` URL.
+ * `squad://store/...` URL.
  *
  * Supported URL shapes:
- *   - `houston://store/agent/<agent-id>` — switch the workspace shell to
+ *   - `squad://store/agent/<agent-id>` — switch the workspace shell to
  *     the Store view and open the detail dialog for that agent. The
  *     Store page (`store-page.tsx`) reads `storeAgentId` from the UI
  *     store and reacts to it.
@@ -66,7 +66,7 @@ export function handleStoreUrl(rawUrl: string): void {
   }
 
   // URL hosts and pathnames are parsed differently across browsers for
-  // custom schemes — be permissive on the path. For `houston://store/agent/<id>`:
+  // custom schemes — be permissive on the path. For `squad://store/agent/<id>`:
   //   - parsed.host === "store"
   //   - parsed.pathname === "/agent/<id>"
   // Split and filter empties so leading-slash quirks don't break the match.

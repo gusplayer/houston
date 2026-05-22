@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { HoustonEvent } from "@houston-ai/core";
+import type { SquadEvent } from "@squad/core";
 import { queryKeys } from "../lib/query-keys";
-import { subscribeHoustonEvents } from "../lib/events";
+import { subscribeSquadEvents } from "../lib/events";
 
 /**
  * Maps agent-change events from Rust (both Tauri command emissions
@@ -14,7 +14,7 @@ export function useAgentInvalidation() {
   const qc = useQueryClient();
 
   useEffect(() => {
-    const unlisten = subscribeHoustonEvents((p: HoustonEvent) => {
+    const unlisten = subscribeSquadEvents((p: SquadEvent) => {
       console.log("[invalidation] event:", p.type, "data" in p ? (p as { data: { agent_path?: string } }).data?.agent_path : "");
 
       switch (p.type) {
@@ -46,6 +46,12 @@ export function useAgentInvalidation() {
           break;
         case "LearningsChanged":
           qc.invalidateQueries({ queryKey: queryKeys.learnings(p.data.agent_path) });
+          break;
+        case "SprintsChanged":
+          qc.invalidateQueries({ queryKey: queryKeys.sprints(p.data.agent_path) });
+          break;
+        case "StoriesChanged":
+          qc.invalidateQueries({ queryKey: queryKeys.stories(p.data.agent_path) });
           break;
         // SessionStatus triggers activity invalidation (agent finished → status changed)
         case "SessionStatus":

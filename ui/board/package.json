@@ -1,5 +1,5 @@
 {
-  "name": "@houston-ai/board",
+  "name": "@squad/board",
   "version": "0.4.19",
   "type": "module",
   "main": "src/index.ts",
@@ -10,9 +10,9 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@houston-ai/core": "workspace:*",
-    "@houston-ai/chat": "workspace:*",
-    "@houston-ai/layout": "workspace:*"
+    "@squad/core": "workspace:*",
+    "@squad/chat": "workspace:*",
+    "@squad/layout": "workspace:*"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",

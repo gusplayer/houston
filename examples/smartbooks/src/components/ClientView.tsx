@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { topics } from "@houston-ai/engine-client";
-import type { ProjectFile } from "@houston-ai/engine-client";
+import { topics } from "@squad/engine-client";
+import type { ProjectFile } from "@squad/engine-client";
 import type { Client, Workbook } from "../lib/clients";
 import {
   buildProcessPrompt,
@@ -14,7 +14,7 @@ import {
 } from "../lib/clients";
 import type { AgentConfig } from "../lib/config";
 import { getClient, getWs } from "../lib/engine";
-import type { HoustonEvent } from "../lib/feed";
+import type { SquadEvent } from "../lib/feed";
 import { Workpaper } from "./Workpaper";
 
 interface Props {
@@ -68,7 +68,7 @@ export function ClientView({
     const ws = getWs();
     ws.subscribe([topics.agent(agent.agentPath)]);
     const off = ws.onEvent((raw) => {
-      const ev = raw as HoustonEvent;
+      const ev = raw as SquadEvent;
       if (ev.type !== "FilesChanged") return;
       const data = ev.data as { agent_path: string };
       if (data.agent_path !== agent.agentPath) return;

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { SkillDetailPage } from "@houston-ai/skills";
+import { SkillDetailPage } from "@squad/skills";
 import type { TabProps, AgentMode } from "../../lib/types";
 import { tauriAgent, tauriConfig } from "../../lib/tauri";
 import { queryKeys } from "../../lib/query-keys";
@@ -22,7 +22,7 @@ function usePromptFile(agentPath: string, fileName: string) {
   return useQuery({
     queryKey: [...queryKeys.instructions(agentPath), "prompt", fileName],
     queryFn: () =>
-      tauriAgent.readFile(agentPath, `.houston/prompts/${fileName}`).catch(() => ""),
+      tauriAgent.readFile(agentPath, `.squad/prompts/${fileName}`).catch(() => ""),
     enabled: !!agentPath,
   });
 }
@@ -30,7 +30,7 @@ function usePromptFile(agentPath: string, fileName: string) {
 function useSavePromptFile(agentPath: string, fileName: string) {
   return useCallback(
     async (content: string) => {
-      await tauriAgent.writeFile(agentPath, `.houston/prompts/${fileName}`, content);
+      await tauriAgent.writeFile(agentPath, `.squad/prompts/${fileName}`, content);
     },
     [agentPath, fileName],
   );

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Input } from "@houston-ai/core";
+import { Input } from "@squad/core";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { AgentDefinition, StoreListing } from "../../lib/types";
@@ -33,7 +33,7 @@ export function StoreStep({
   const filteredAgents = useMemo(
     () =>
       agents.filter((d) => {
-        if (d.source === "installed" && d.config.author === "Houston") {
+        if (d.source === "installed" && d.config.author === "Squad") {
           return false;
         }
         if (storeIds.has(d.config.id)) return false;

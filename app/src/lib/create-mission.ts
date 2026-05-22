@@ -19,7 +19,7 @@ function nowIso(): string {
 
 /**
  * Minimal Conversation shape consumed by createMission. Loosely based on
- * the legacy `@houston-ai/sync-protocol` type; kept local so the desktop
+ * the legacy `@squad/sync-protocol` type; kept local so the desktop
  * compiles without the deleted package.
  */
 export interface Conversation {

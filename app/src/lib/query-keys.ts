@@ -32,4 +32,23 @@ export const queryKeys = {
   connections: () => ["connections"] as const,
   composioApps: () => ["composio-apps"] as const,
   connectedToolkits: () => ["connected-toolkits"] as const,
+
+  // Agent-scoped dev workflow data
+  sprints: (agentPath: string) => ["sprints", agentPath] as const,
+  stories: (agentPath: string) => ["stories", agentPath] as const,
+
+  // Agent-scoped MCP config
+  mcpConfig: (agentPath: string) => ["mcp-config", agentPath] as const,
+
+  // Workspace-scoped phase ownership (which agent owns each SDLC phase)
+  phaseOwnership: (workspacePath: string) => ["phase-ownership", workspacePath] as const,
+
+  // Workspace-scoped projects
+  projects: (workspaceId: string) => ["projects", workspaceId] as const,
+  // Project-scoped git queries
+  gitStatus: (workspaceId: string, projectId: string) => ["git-status", workspaceId, projectId] as const,
+  gitLog: (workspaceId: string, projectId: string) => ["git-log", workspaceId, projectId] as const,
+  gitBranches: (workspaceId: string, projectId: string) => ["git-branches", workspaceId, projectId] as const,
+  gitDiff: (workspaceId: string, projectId: string, from?: string, to?: string) =>
+    ["git-diff", workspaceId, projectId, from ?? "", to ?? ""] as const,
 };

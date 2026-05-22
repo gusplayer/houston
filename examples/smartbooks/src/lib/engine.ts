@@ -1,21 +1,21 @@
 /**
- * Singleton HoustonClient wired to the config in localStorage.
+ * Singleton SquadClient wired to the config in localStorage.
  *
- * The client is the ONLY dependency on Houston — the rest of the app is
+ * The client is the ONLY dependency on Squad — the rest of the app is
  * plain React. This is the whole point of the example: drop this file and
  * you can talk to the engine from any web runtime (custom desktop shell,
  * mobile PWA, internal admin tool, whatever).
  */
 
-import { HoustonClient, EngineWebSocket } from "@houston-ai/engine-client";
+import { SquadClient, EngineWebSocket } from "@squad/engine-client";
 import type { EngineConfig } from "./config";
 
-let _client: HoustonClient | null = null;
+let _client: SquadClient | null = null;
 let _ws: EngineWebSocket | null = null;
 let _activeConfig: EngineConfig | null = null;
 
-export function connectEngine(cfg: EngineConfig): HoustonClient {
-  _client = new HoustonClient(cfg);
+export function connectEngine(cfg: EngineConfig): SquadClient {
+  _client = new SquadClient(cfg);
   _activeConfig = cfg;
   // WS lazily created on first getWs() call.
   if (_ws) {
@@ -25,7 +25,7 @@ export function connectEngine(cfg: EngineConfig): HoustonClient {
   return _client;
 }
 
-export function getClient(): HoustonClient {
+export function getClient(): SquadClient {
   if (!_client) {
     throw new Error("Engine not connected. Call connectEngine() first.");
   }

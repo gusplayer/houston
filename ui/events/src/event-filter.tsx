@@ -1,4 +1,4 @@
-import { cn, Badge } from "@houston-ai/core"
+import { cn, Badge } from "@squad/core"
 import type { EventType } from "./types"
 import { EVENT_TYPE_LABELS } from "./types"
 

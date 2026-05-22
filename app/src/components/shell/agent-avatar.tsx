@@ -4,6 +4,7 @@ import {
   LayoutGrid,
   Search,
   Code,
+  Code2,
   Wand2,
   FileText,
   Users,
@@ -18,11 +19,17 @@ import {
   BookOpen,
   Wrench,
   Brain,
+  Crown,
+  Smartphone,
+  Server,
+  Palette,
+  CheckCircle2,
+  Cog,
   type LucideIcon,
 } from "lucide-react";
-import houstonIcon from "../../assets/houston-icon.svg";
-import houstonIconWhite from "../../assets/houston-icon-white.svg";
-import { resolveAgentColor } from "@houston-ai/core";
+import squadIcon from "../../assets/squad-icon.svg";
+import squadIconWhite from "../../assets/squad-icon-white.svg";
+import { resolveAgentColor } from "@squad/core";
 import type { AgentConfig } from "../../lib/types";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -30,6 +37,7 @@ const iconMap: Record<string, LucideIcon> = {
   LayoutGrid,
   Search,
   Code,
+  Code2,
   Wand2,
   FileText,
   Users,
@@ -45,6 +53,13 @@ const iconMap: Record<string, LucideIcon> = {
   Wrench,
   Brain,
   Sparkles,
+  // Team library roles (G.1):
+  Crown,
+  Smartphone,
+  Server,
+  Palette,
+  CheckCircle2,
+  Cog,
 };
 
 /** Returns perceived luminance 0–1 for a hex color */
@@ -62,10 +77,10 @@ export function isLightColor(hex?: string): boolean {
   return luminance(hex) >= 0.5;
 }
 
-/** Pick the right Houston logo SVG for a background color */
-export function getHoustonLogo(bgColor?: string): string {
-  if (!bgColor) return houstonIcon;
-  return isLightColor(bgColor) ? houstonIcon : houstonIconWhite;
+/** Pick the right Squad logo SVG for a background color */
+export function getSquadLogo(bgColor?: string): string {
+  if (!bgColor) return squadIcon;
+  return isLightColor(bgColor) ? squadIcon : squadIconWhite;
 }
 
 export function getAgentIcon(name?: string): LucideIcon {
@@ -112,9 +127,9 @@ export function AgentAvatar({ config, size = "md" }: AgentAvatarProps) {
   );
 }
 
-/** Houston helmet that inherits text color via currentColor.
- *  Use this everywhere instead of <img src={houstonIcon}>. */
-export function HoustonLogo({ size = 20, className = "" }: { size?: number; className?: string }) {
+/** Squad helmet that inherits text color via currentColor.
+ *  Use this everywhere instead of <img src={squadIcon}>. */
+export function SquadLogo({ size = 20, className = "" }: { size?: number; className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -133,11 +148,11 @@ export function HoustonLogo({ size = 20, className = "" }: { size?: number; clas
   );
 }
 
-/** Pulsing Houston logo — universal loading indicator for all agents */
-export function HoustonThinkingIndicator() {
+/** Pulsing Squad logo — universal loading indicator for all agents */
+export function SquadThinkingIndicator() {
   return (
     <div className="py-2 flex items-center gap-2">
-      <HoustonLogo size={20} className="animate-pulse" />
+      <SquadLogo size={20} className="animate-pulse" />
     </div>
   );
 }

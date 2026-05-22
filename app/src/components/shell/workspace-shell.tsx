@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Compass, Plus } from "lucide-react";
+import { Compass, Plus, Users } from "lucide-react";
 import {
   Button,
   Empty,
@@ -9,8 +9,8 @@ import {
   EmptyTitle,
   ToastContainer,
   type Toast,
-} from "@houston-ai/core";
-import { TabBar } from "@houston-ai/layout";
+} from "@squad/core";
+import { TabBar } from "@squad/layout";
 import { useActivity } from "../../hooks/queries";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
@@ -21,13 +21,14 @@ import { IntegrationsView } from "../tabs/integrations-view";
 import { SettingsView } from "../settings/settings-view";
 import { StorePage } from "../store/store-page";
 import { Sidebar } from "./sidebar";
-import { HoustonLogo } from "./experience-card";
+import { SquadLogo } from "./experience-card";
 import { CreateAgentDialog } from "./create-workspace-dialog";
+import { RecruitTeamDialog } from "./recruit-team-dialog";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
 import { MissionSearchInput } from "../mission-search-input";
 import { UiTour } from "./ui-tour";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 
 interface WorkspaceShellProps {
   toasts: Toast[];
@@ -44,6 +45,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const boardActions = useUIStore((s) => s.boardActions);
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
   const setCreateAgentDialogOpen = useUIStore((s) => s.setCreateAgentDialogOpen);
+  const setRecruitTeamDialogOpen = useUIStore((s) => s.setRecruitTeamDialogOpen);
   const agentMissionSearchQuery = useUIStore((s) =>
     currentAgent ? s.agentMissionSearchQueries[currentAgent.folderPath] ?? "" : "",
   );
@@ -150,7 +152,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                               }, 50);
                             }}
                           >
-                            <HoustonLogo size={16} />
+                            <SquadLogo size={16} />
                             {t("shell:tabActions.newMission")}
                           </Button>
                         )}
@@ -186,13 +188,23 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                       <EmptyTitle>{t("agents:empty.title")}</EmptyTitle>
                       <EmptyDescription>{t("agents:empty.description")}</EmptyDescription>
                     </EmptyHeader>
-                    <Button
-                      className="mt-4 rounded-full"
-                      onClick={() => setCreateAgentDialogOpen(true)}
-                    >
-                      <Plus className="h-4 w-4" />
-                      {t("shell:newAgent.dialogTitle")}
-                    </Button>
+                    <div className="mt-4 flex items-center gap-2">
+                      <Button
+                        className="rounded-full"
+                        onClick={() => setRecruitTeamDialogOpen(true)}
+                      >
+                        <Users className="h-4 w-4" />
+                        {t("shell:recruit.entryAction")}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="rounded-full"
+                        onClick={() => setCreateAgentDialogOpen(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                        {t("shell:newAgent.dialogTitle")}
+                      </Button>
+                    </div>
                   </Empty>
                 </div>
               )}
@@ -207,6 +219,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
           </div>
         </Sidebar>
         <CreateAgentDialog />
+        <RecruitTeamDialog />
         <AgentUpdateBanner />
         <ToastContainer toasts={toasts} onDismiss={onDismissToast} />
       </div>

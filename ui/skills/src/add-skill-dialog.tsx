@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@houston-ai/core"
+} from "@squad/core"
 import type { CommunitySkill, RepoSkill } from "./types"
 import { StoreView } from "./add-skill-dialog-store-view"
 import type { StoreViewLabels } from "./add-skill-dialog-store-labels"

@@ -10,7 +10,7 @@ import {
   EmptyTitle,
   EmptyDescription,
   Button,
-} from "@houston-ai/core"
+} from "@squad/core"
 import { Plus } from "lucide-react"
 import type { Routine, RoutineRun } from "./types"
 import { RoutineRow } from "./routine-row"

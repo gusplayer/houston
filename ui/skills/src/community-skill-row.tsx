@@ -1,5 +1,5 @@
 import type { CommunitySkill } from "./types"
-import { cn } from "@houston-ai/core"
+import { cn } from "@squad/core"
 import { Plus, Loader2, Check } from "lucide-react"
 
 export interface CommunitySkillRowProps {

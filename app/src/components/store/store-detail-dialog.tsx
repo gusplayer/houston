@@ -8,7 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@houston-ai/core";
+} from "@squad/core";
 import type { StoreListing } from "../../lib/types";
 import { IntegrationLogos } from "../integration-logos";
 import { RatingStars } from "./rating-stars";
@@ -24,11 +24,11 @@ interface Props {
   open: boolean;
   listing: StoreListing | null;
   onOpenChange: (open: boolean) => void;
-  /** True for real Houston-published agents from the engine catalog. */
+  /** True for real Squad-published agents from the engine catalog. */
   isHouston: boolean;
-  /** Called when the user confirms install for a non-Houston, non-mock agent. */
+  /** Called when the user confirms install for a non-Squad, non-mock agent. */
   onInstall: (listing: StoreListing) => Promise<void>;
-  /** Called for real Houston agents that install directly. */
+  /** Called for real Squad agents that install directly. */
   onInstallHouston: (listing: StoreListing) => Promise<void>;
 }
 
@@ -49,7 +49,7 @@ export function StoreDetailDialog({
   const publisher = listing.publisher?.name ?? listing.author;
   const github =
     listing.publisher?.github_url ?? `https://github.com/${listing.repo}`;
-  const source = isHouston ? "houston" : listing.source ?? "community";
+  const source = isHouston ? "squad" : listing.source ?? "community";
 
   const handlePrimary = async () => {
     if (isMock) return;

@@ -1,16 +1,16 @@
 import "./styles/globals.css";
-import type { Toast } from "@houston-ai/core";
+import type { Toast } from "@squad/core";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { tauriSystem } from "./lib/tauri";
-import { useHoustonInit } from "./hooks/use-houston-init";
+import { useSquadInit } from "./hooks/use-squad-init";
 import { useSessionEvents } from "./hooks/use-session-events";
 import { useAgentInvalidation } from "./hooks/use-agent-invalidation";
 import { useAnalyticsSubscriber } from "./hooks/use-analytics-subscriber";
 import { useWorkspaceStore } from "./stores/workspaces";
 import { useAgentStore } from "./stores/agents";
-import { useHoustonCreditsStore } from "./stores/houston-credits";
+import { useSquadCreditsStore } from "./stores/squad-credits";
 import { useUIStore } from "./stores/ui";
 import { useConnections, useComposioApps } from "./hooks/queries";
 import { analytics } from "./lib/analytics";
@@ -25,11 +25,11 @@ import { WorkspaceShell } from "./components/shell/workspace-shell";
 import { shouldAllowNativeContextMenu } from "./lib/context-menu";
 
 export default function App() {
-  useHoustonInit();
+  useSquadInit();
   useSessionEvents();
   useAgentInvalidation();
   useAnalyticsSubscriber();
-  const initCredits = useHoustonCreditsStore((s) => s.init);
+  const initCredits = useSquadCreditsStore((s) => s.init);
   useEffect(() => { void initCredits(); }, [initCredits]);
   // Prefetch Composio data on launch so the integrations tab opens instantly.
   useConnections();
@@ -49,7 +49,7 @@ export default function App() {
   // React Strict-Mode without stacking handlers.
   //   - Auth listener: handles Supabase OAuth callbacks. No-op when auth
   //     isn't configured (SUPABASE_URL empty in local dev).
-  //   - Store listener: handles `houston://store/agent/<id>` to switch to
+  //   - Store listener: handles `squad://store/agent/<id>` to switch to
   //     the Store view and open the detail dialog. Always installed
   //     because the Store works without Supabase being configured.
   useEffect(() => {

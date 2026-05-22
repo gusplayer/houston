@@ -1,4 +1,4 @@
-// Chat-related types extracted from Houston's type system.
+// Chat-related types extracted from Squad's type system.
 // Only the types needed by chat components are included here.
 
 export type FeedItem =

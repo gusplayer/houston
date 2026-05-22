@@ -1,47 +1,47 @@
 <p align="center">
-  <a href="https://gethouston.ai">
-    <strong>Houston</strong>
+  <a href="https://getsquad.ai">
+    <strong>Squad</strong>
   </a>
 </p>
 
 <p align="center">
-  <strong>The open source platform for AI-native products.</strong><br>
+  <strong>The open source platform for AI-native dev workflows.</strong><br>
   One desktop app. Pre-built AI agents that work from day one.<br>
   Real tools. 1000+ integrations. Free forever.
 </p>
 
 <p align="center">
-  <a href="https://gethouston.ai">gethouston.ai</a> ·
-  <a href="https://gethouston.ai/vision/">Vision</a> ·
-  <a href="https://gethouston.ai/learn/">Learn</a> ·
-  <a href="https://gethouston.ai/startups/">For Startups</a> ·
+  <a href="https://getsquad.ai">getsquad.ai</a> ·
+  <a href="https://getsquad.ai/vision/">Vision</a> ·
+  <a href="https://getsquad.ai/learn/">Learn</a> ·
+  <a href="https://getsquad.ai/startups/">For Teams</a> ·
   <a href="https://forms.gle/ac24qrKSufYvfudt8">Join the waiting list</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/gethouston/houston/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-0d0d0d" alt="MIT License"></a>
-  <a href="https://github.com/gethouston/houston/stargazers"><img src="https://img.shields.io/github/stars/gethouston/houston?color=0d0d0d" alt="Stars"></a>
+  <a href="https://github.com/getsquad/squad/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-0d0d0d" alt="MIT License"></a>
+  <a href="https://github.com/getsquad/squad/stargazers"><img src="https://img.shields.io/github/stars/getsquad/squad?color=0d0d0d" alt="Stars"></a>
 </p>
 
 ---
 
-## What Houston is
+## What Squad is
 
-**For everyone** — a free desktop app with AI agents that do real work. Bookkeeping, outreach, research, scheduling. Install agents from the store and start working. No terminal. No prompt engineering.
+**For developers** — a free desktop app with AI agents that do real work. Code review, refactoring, research, automation. Install agents from the store and start working. Built for engineers who want AI as a teammate, not a toy.
 
-**For founders** — the platform where you build AI-native products for your customers. Define your agents, Houston handles the workspace, the chat, the board, the integrations. You bring the domain expertise. [Read more](https://gethouston.ai/startups/).
+**For dev teams** — the platform where you build AI-native workflows for your team. Define your agents, Squad handles the workspace, the chat, the board, the integrations. You bring the domain expertise. [Read more](https://getsquad.ai/startups/).
 
-> **Read the vision:** [Ship the impossible](https://gethouston.ai/vision/)
+> **Read the vision:** [Ship the impossible](https://getsquad.ai/vision/)
 
 ---
 
 ## Quick start
 
-### Run the Houston app
+### Run the Squad app
 
 ```bash
-git clone https://github.com/gethouston/houston.git
-cd houston
+git clone https://github.com/getsquad/squad.git
+cd squad
 pnpm install
 cd app && pnpm tauri dev
 ```
@@ -50,7 +50,7 @@ cd app && pnpm tauri dev
 
 Create two files:
 
-**houston.json**
+**squad.json**
 ```json
 {
   "id": "bookkeeper",
@@ -74,9 +74,9 @@ You categorize transactions, reconcile accounts, and flag anomalies.
 Ask which period the user wants before starting.
 ```
 
-Push to GitHub. In Houston, click **New Agent > GitHub**, paste your repo URL. Done.
+Push to GitHub. In Squad, click **New Agent > GitHub**, paste your repo URL. Done.
 
-The [Learn guide](https://gethouston.ai/learn/) covers the full details in five short chapters.
+The [Learn guide](https://getsquad.ai/learn/) covers the full details in five short chapters.
 
 ### Share a workspace template
 
@@ -87,10 +87,10 @@ my-workspace/
 ├── workspace.json
 └── agents/
     ├── bookkeeper/
-    │   ├── houston.json
+    │   ├── squad.json
     │   └── CLAUDE.md
     └── tax-reviewer/
-        ├── houston.json
+        ├── squad.json
         └── CLAUDE.md
 ```
 
@@ -103,17 +103,17 @@ my-workspace/
 }
 ```
 
-In Houston, click **New Workspace > Import from GitHub**, paste the repo URL. Houston creates the workspace with all agents ready to use.
+In Squad, click **New Workspace > Import from GitHub**, paste the repo URL. Squad creates the workspace with all agents ready to use.
 
 ---
 
 ## How the app works
 
-Houston organizes work into **Workspaces** and **Agents**:
+Squad organizes work into **Workspaces** and **Agents**:
 
 - **Workspace** — a group of agents (like a team or project).
 - **Agent** — an AI agent instance. Chat, kanban board, skills, files, integrations.
-- **Agent Definition** — a `houston.json` that defines what an agent looks like and does.
+- **Agent Definition** — a `squad.json` that defines what an agent looks like and does.
 
 ```
 Workspace ("Tax Practice")
@@ -132,7 +132,7 @@ Three tiers:
 
 | Tier | What you write | What you get |
 |------|---------------|-------------|
-| **JSON-only** | `houston.json` + `CLAUDE.md` | Tabs, prompt, icon. Uses built-in components. |
+| **JSON-only** | `squad.json` + `CLAUDE.md` | Tabs, prompt, icon. Uses built-in components. |
 | **Custom React** | Add `bundle.js` | Custom React components as tabs. |
 | **Workspace template** | `workspace.json` + agents folder | Multiple agents, one import. |
 
@@ -145,23 +145,23 @@ Three tiers:
 Organized as **6 end-user products + 3 code libraries**.
 
 ```
-houston/
-├── app/                     Houston App — desktop (Tauri 2)
+squad/
+├── app/                     Squad App — desktop (Tauri 2)
 │   ├── src/                 React frontend
 │   ├── src-tauri/           Tauri binary
-│   └── houston-tauri/       Tauri adapter (applies Engine to desktop)
-├── mobile/                  Houston Mobile companion
+│   └── squad-tauri/         Tauri adapter (applies Engine to desktop)
+├── mobile/                  Squad Mobile companion
 ├── desktop-mobile-bridge/   Cloudflare Worker — pairs Desktop ↔ Mobile
-├── store/                   Houston Store — agent registry
-├── website/                 Houston Website — gethouston.ai
-├── always-on/               Houston Always On — VPS deploy (Dockerfile + compose + systemd)
-├── teams/                   Houston Teams (TBD — hosted multi-tenant)
+├── store/                   Squad Store — agent registry
+├── website/                 Squad Website — getsquad.ai
+├── always-on/               Squad Always On — VPS deploy (Dockerfile + compose + systemd)
+├── teams/                   Squad Teams (TBD — hosted multi-tenant)
 │
-├── ui/                      Houston UI — @houston-ai/* React packages
-├── engine/                  Houston Engine — Rust crates (frontend-agnostic)
-├── cloud/                   Houston Cloud (TBD — managed Engine hosting)
+├── ui/                      Squad UI — @squad/* React packages
+├── engine/                  Squad Engine — Rust crates (frontend-agnostic)
+├── cloud/                   Squad Cloud (TBD — managed Engine hosting)
 │
-└── examples/                Reference consumers of houston-engine
+└── examples/                Reference consumers of squad-engine
     └── smartbooks/            Bookkeeping app built on a custom React frontend
 ```
 
@@ -169,15 +169,15 @@ See `knowledge-base/architecture.md` for crate-level detail + current gaps.
 
 ---
 
-## Build on Houston Engine (custom frontends)
+## Build on Squad Engine (custom frontends)
 
 The engine is frontend-agnostic. You don't have to ship inside the
-Houston App — any web or native runtime can drive it over HTTP +
-WebSocket using [`@houston-ai/engine-client`](ui/engine-client/).
+Squad App — any web or native runtime can drive it over HTTP +
+WebSocket using [`@squad/engine-client`](ui/engine-client/).
 
 **Working example: [SmartBooks](examples/smartbooks/)** — a
 bookkeeping product with its own brand, its own UX, and zero
-`@houston-ai/*` UI deps. ~400 lines of TSX, one npm package, renders
+`@squad/*` UI deps. ~400 lines of TSX, one npm package, renders
 a live transactions table + a multi-sheet Excel workpaper. Soft
 workflow: the user asks for a new column, Claude edits the Python
 script, every future upload picks up the change. Clone it, rename
@@ -196,17 +196,17 @@ Full walkthrough + architecture diagram + custom-frontend gotchas in
 
 ## Resources
 
-- **[gethouston.ai](https://gethouston.ai)** — landing page
-- **[For Startups](https://gethouston.ai/startups/)** — build AI-native products on Houston
-- **[Vision essay](https://gethouston.ai/vision/)** — Ship the impossible
-- **[Learn guide](https://gethouston.ai/learn/)** — five chapters on building agents
+- **[getsquad.ai](https://getsquad.ai)** — landing page
+- **[For Teams](https://getsquad.ai/startups/)** — build AI-native workflows on Squad
+- **[Vision essay](https://getsquad.ai/vision/)** — Ship the impossible
+- **[Learn guide](https://getsquad.ai/learn/)** — five chapters on building agents
 - **[Join the waiting list](https://forms.gle/ac24qrKSufYvfudt8)** — get notified when the app ships
 
 ---
 
 ## Contributing
 
-Houston is open source under MIT. Issues and PRs welcome.
+Squad is open source under MIT. Issues and PRs welcome.
 
 ---
 

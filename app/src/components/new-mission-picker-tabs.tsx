@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { cn } from "@houston-ai/core";
+import { cn } from "@squad/core";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PickerTab } from "./new-mission-picker-tab-model";
 

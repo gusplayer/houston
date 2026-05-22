@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 
-import { HoustonLogo } from "./experience-card";
+import { SquadLogo } from "./experience-card";
 import { useLocalePreference } from "../../hooks/use-locale-preference";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "../../lib/i18n";
 
@@ -73,7 +73,7 @@ function LanguageOverlay({
       className="fixed inset-0 z-[999999] flex items-center justify-center bg-background p-6 font-sans text-foreground"
     >
       <div className="flex w-full max-w-sm flex-col items-center gap-8 rounded-2xl border border-black/10 bg-background px-8 py-10 shadow-[0_4px_4px_rgba(0,0,0,0.04),0_4px_80px_8px_rgba(0,0,0,0.04),0_0_1px_rgba(0,0,0,0.62)]">
-        <HoustonLogo size={56} />
+        <SquadLogo size={56} />
 
         <div className="text-center">
           <h1

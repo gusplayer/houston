@@ -39,10 +39,10 @@ UI is grayscale. Color ONLY for:
 Never decorative color.
 
 ### Agent avatars
-Use `HoustonAvatar` from `@houston-ai/core` for agent avatar badges. Resting
+Use `SquadAvatar` from `@squad/core` for agent avatar badges. Resting
 state = no border, gray background softly mixed with the agent color, colored
 helmet glyph. Running state = same badge inside the comet glow. Resolve stored
-semantic ids with `resolveAgentColor` from `@houston-ai/core`, not app-local
+semantic ids with `resolveAgentColor` from `@squad/core`, not app-local
 helpers, so desktop and mobile render same palette.
 
 ## Brand theming
@@ -88,10 +88,10 @@ Grid: leading (attach) | primary (text) | trailing (send).
 White bg, `border-black/5`, `rounded-xl`, hover shadow. Running state = `card-running-glow` animation border.
 
 ## Empty states
-`Empty` from `@houston-ai/core`. Big `text-2xl font-semibold` title + description + optional action. No icon-in-box. Container must be `flex flex-col` for `flex-1 justify-center`.
+`Empty` from `@squad/core`. Big `text-2xl font-semibold` title + description + optional action. No icon-in-box. Container must be `flex flex-col` for `flex-1 justify-center`.
 
 ## Progress panel
-`ProgressPanel` from `@houston-ai/chat`. Agent calls `update_progress({steps})`. States: pending (empty circle) / active (spinner + highlight) / done (green check). Header: "X of Y steps complete". Renders right-side alongside ChatPanel.
+`ProgressPanel` from `@squad/chat`. Agent calls `update_progress({steps})`. States: pending (empty circle) / active (spinner + highlight) / done (green check). Header: "X of Y steps complete". Renders right-side alongside ChatPanel.
 
 ## Layout
 

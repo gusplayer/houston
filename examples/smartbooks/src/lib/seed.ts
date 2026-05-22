@@ -489,7 +489,7 @@ if __name__ == "__main__":
 export const README_MD = `# Bookkeeper — SmartBooks agent
 
 This agent was created by the SmartBooks custom frontend talking to
-\`houston-engine\`. Everything under \`.houston/\` and \`scripts/\` is
+\`squad-engine\`. Everything under \`.squad/\` and \`scripts/\` is
 owned by the agent. The app never touches this directory directly — it
 just sends prompts and reads outputs.
 

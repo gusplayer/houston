@@ -1,8 +1,8 @@
 /* Import the Houston design system — all tokens, animations, base styles */
-@import "@houston-ai/core/src/globals.css";
+@import "@squad/core/src/globals.css";
 
 /* Tailwind v4 skips `node_modules/` by default, so utility classes used
-   inside @houston-ai/* workspace packages (`hidden`, `sr-only`, …)
+   inside @squad/* workspace packages (`hidden`, `sr-only`, …)
    never land in the final mobile CSS. Without these the chat
    composer's hidden <input type="file"> renders native iOS controls.
    Point the scanner at each package source explicitly. */

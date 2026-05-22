@@ -1,0 +1,16 @@
+[package]
+name = "squad-db"
+version = "0.4.19"
+edition = "2021"
+description = "SQLite database layer for AI agent desktop apps"
+license = "MIT"
+repository = "https://github.com/getsquad/squad"
+
+[dependencies]
+libsql = "0.6"
+chrono = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+dirs = "5"

@@ -1,4 +1,4 @@
-import type { FileChangeEntry, ToolEntry } from "@houston-ai/chat";
+import type { FileChangeEntry, ToolEntry } from "@squad/chat";
 
 export type SemanticUpdateKind = "instructions" | "skills" | "learnings";
 export type FileUpdateKind = "created" | "modified";
@@ -31,7 +31,7 @@ function shortName(name: string): string {
 /**
  * Path separators on Windows are `\`; on macOS / Linux they're `/`. The
  * engine emits absolute paths in the native separator of the host
- * (`C:\Users\jul\.houston\…\perfil.md` on Windows, `/Users/jul/…` on Mac),
+ * (`C:\Users\jul\.squad\…\perfil.md` on Windows, `/Users/jul/…` on Mac),
  * so any code that did `path.split("/").pop()` to get a filename
  * returned the WHOLE path on Windows — that's why the "New files"
  * section never rendered correctly and CLAUDE.md / SKILL.md never
@@ -60,7 +60,7 @@ function classifyPath(path: string, agentPath: string): SemanticUpdateKind | nul
   const fileName = fileNameOf(relative);
 
   if (fileName === "claude.md" || fileName === "agents.md") return "instructions";
-  if (relative === ".houston/learnings/learnings.json") return "learnings";
+  if (relative === ".squad/learnings/learnings.json") return "learnings";
   if (relative.includes("/.agents/skills/") || relative.includes("/.claude/skills/")) {
     return "skills";
   }

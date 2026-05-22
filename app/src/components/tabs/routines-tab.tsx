@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RoutinesGrid, RoutineEditor } from "@houston-ai/routines";
-import type { RoutineFormData, RoutineRun } from "@houston-ai/routines";
+import { RoutinesGrid, RoutineEditor } from "@squad/routines";
+import type { RoutineFormData, RoutineRun } from "@squad/routines";
 import {
   useRoutines,
   useRoutineRuns,

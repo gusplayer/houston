@@ -1,16 +1,16 @@
 # Auth (Supabase + Google SSO)
 
-One-click Google sign-in on first launch. CI release tokens live in macOS Keychain / Windows Credential Manager, never localStorage or disk. Local builds use browser storage scoped per worktree to avoid macOS Keychain prompts from changing local signatures. Identifies users in PostHog, lays the foundation for Houston Cloud.
+One-click Google sign-in on first launch. CI release tokens live in macOS Keychain / Windows Credential Manager, never localStorage or disk. Local builds use browser storage scoped per worktree to avoid macOS Keychain prompts from changing local signatures. Identifies users in PostHog, lays the foundation for Squad Cloud.
 
 ## The flow (PKCE)
 
 1. User clicks **Continue with Google** in `SignInScreen`.
-2. Frontend calls `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: "houston://auth-callback", skipBrowserRedirect: true } })`.
+2. Frontend calls `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: "squad://auth-callback", skipBrowserRedirect: true } })`.
 3. Supabase generates a PKCE code_verifier, writes it to the configured auth storage adapter, returns an auth URL.
 4. Frontend opens the URL in the user's system browser via `tauriSystem.openUrl()`.
 5. User completes Google consent.
-6. Google redirects to Supabase → Supabase redirects to `houston://auth-callback?code=<code>`.
-7. macOS delivers the URL to the running Houston via `tauri-plugin-deep-link`.
+6. Google redirects to Supabase → Supabase redirects to `squad://auth-callback?code=<code>`.
+7. macOS delivers the URL to the running Squad via `tauri-plugin-deep-link`.
 8. Rust handler in `app/src-tauri/src/auth.rs::emit_deep_link` forwards the URL on a Tauri event (`auth://deep-link`).
 9. Frontend listener in `app/src/lib/auth.ts::installDeepLinkListener` extracts `code`, calls `supabase.auth.exchangeCodeForSession(code)` — Supabase reads the verifier from configured auth storage, exchanges, writes the session back.
 10. `supabase.auth.onAuthStateChange` fires → `useSession()` re-queries → `App.tsx` dismisses `SignInScreen` → sidebar footer `UserMenu` + Settings → Account section appear.
@@ -20,15 +20,15 @@ One-click Google sign-in on first launch. CI release tokens live in macOS Keycha
 
 | Piece | Where |
 |---|---|
-| Session JSON (access_token, refresh_token, user) | CI releases: Keychain entry `com.houston.app.auth` / `houston-auth` |
-| PKCE code verifier | CI releases: Keychain entry `com.houston.app.auth` / `sb-…-auth-token-code-verifier` (Supabase-managed key) |
+| Session JSON (access_token, refresh_token, user) | CI releases: Keychain entry `com.squad.app.auth` / `squad-auth` |
+| PKCE code verifier | CI releases: Keychain entry `com.squad.app.auth` / `sb-…-auth-token-code-verifier` (Supabase-managed key) |
 | Storage adapter | CI releases: `app/src/lib/supabase.ts::keychainStorage` → Tauri commands `auth_get_item` / `auth_set_item` / `auth_remove_item` in `auth.rs` |
-| Local storage | Browser storage with worktree-scoped key `houston-auth-local-<hash>` |
+| Local storage | Browser storage with worktree-scoped key `squad-auth-local-<hash>` |
 | Rust dep | `keyring = "3"` with `apple-native` + `windows-native` features |
 
 CI releases never touch localStorage. If Keychain is locked or unavailable, the in-memory session on the current run still works; nothing persists across launches. Degraded mode, not failure.
 
-Local builds are different on purpose: Supabase uses browser storage with a worktree-scoped key (`houston-auth-local-<hash>`) and the Rust startup path does not read the persisted Keychain user id. macOS can treat every rebuild or worktree as a different app for Keychain access and show repeated password prompts. CI builds keep Keychain storage. Override with `HOUSTON_AUTH_STORAGE=keychain` or `HOUSTON_AUTH_STORAGE=browser`.
+Local builds are different on purpose: Supabase uses browser storage with a worktree-scoped key (`squad-auth-local-<hash>`) and the Rust startup path does not read the persisted Keychain user id. macOS can treat every rebuild or worktree as a different app for Keychain access and show repeated password prompts. CI builds keep Keychain storage. Override with `SQUAD_AUTH_STORAGE=keychain` or `SQUAD_AUTH_STORAGE=browser`.
 
 ## Gating + offline behavior
 
@@ -45,9 +45,9 @@ Local builds are different on purpose: Supabase uses browser storage with a work
 
 ## Engine identity plumbing
 
-- At engine spawn (`app/src-tauri/src/lib.rs`), CI-release builds read the persisted Supabase session from Keychain and pass `HOUSTON_APP_USER_ID` as an env var to the subprocess. Local builds skip this Keychain read. Engine treats the value as an opaque string.
+- At engine spawn (`app/src-tauri/src/lib.rs`), CI-release builds read the persisted Supabase session from Keychain and pass `SQUAD_APP_USER_ID` as an env var to the subprocess. Local builds skip this Keychain read. Engine treats the value as an opaque string.
 - The env var is only set when the user was already signed in on a prior launch and the build uses Keychain auth storage. First-run signed-in users don't get the env var until the next app restart — engine doesn't need it yet; server-side use is future work.
-- `HoustonEvent` envelope does NOT carry `user_id` today — deferred until there's a server-side consumer that needs it. When that lands, wrap `HoustonEvent` in an envelope struct in `engine/houston-ui-events` rather than adding `user_id` to each variant.
+- `SquadEvent` envelope does NOT carry `user_id` today — deferred until there's a server-side consumer that needs it. When that lands, wrap `SquadEvent` in an envelope struct in `engine/squad-ui-events` rather than adding `user_id` to each variant.
 
 ## Required secrets
 
@@ -96,19 +96,19 @@ create trigger on_auth_user_created after insert on auth.users
 ## What's deliberately out of scope
 
 - Apple SSO, email magic-link, phone OTP. Surface a "More sign-in options coming soon" microcopy line today; add providers later in Supabase dashboard.
-- Server-side Rust emitting PostHog events directly — frontend covers Houston's event surface.
-- Houston Cloud API endpoints — this is the identity foundation, not the product surface.
+- Server-side Rust emitting PostHog events directly — frontend covers Squad's event surface.
+- Squad Cloud API endpoints — this is the identity foundation, not the product surface.
 - Mobile (Capacitor) — Supabase JS works there too; deep-link scheme registered separately per platform.
 - In-app NPS — PostHog has it built in; configure later.
 - Teams / orgs, Stripe billing — future Supabase schema extensions.
 
 ## Provider CLI re-auth (Claude Code / Codex)
 
-Separate from Houston account auth. Claude Code and Codex keep their own CLI
-sessions. When those sessions expire mid-chat, `houston-terminal-manager`
+Separate from Squad account auth. Claude Code and Codex keep their own CLI
+sessions. When those sessions expire mid-chat, `squad-terminal-manager`
 classifies auth-shaped stderr/stdout (`401`, `unauthorized`, `not authenticated`,
-expired OAuth/API-key messages) and `houston-agents-conversations` emits
-`HoustonEvent::AuthRequired`. Desktop listens in `use-session-events.ts`, sets
+expired OAuth/API-key messages) and `squad-agents-conversations` emits
+`SquadEvent::AuthRequired`. Desktop listens in `use-session-events.ts`, sets
 `authRequired`, and `ProviderReconnectCard` renders inside chat via
 `ChatPanel.afterMessages`. The card opens `claude auth login --claudeai` or
 `codex login` through `/v1/providers/:name/login` and polls provider status
@@ -134,7 +134,7 @@ Treat that shape as a prompt to run `claude auth status`, not as logout by
 itself. Emit `AuthRequired` only when the status probe confirms
 `unauthenticated`.
 
-Never mutate `~/.codex/config.toml` to make Codex read Houston agent
+Never mutate `~/.codex/config.toml` to make Codex read Squad agent
 instructions. Agent directories already expose `CLAUDE.md` through an
 `AGENTS.md` symlink, and global Codex config writes can land under the active
 TOML table and break Codex startup.

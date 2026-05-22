@@ -4,14 +4,14 @@ import {
   ChatPanel,
   decodeAttachmentMessage,
   UserAttachmentMessage,
-} from "@houston-ai/chat";
-import type { FeedItem } from "@houston-ai/chat";
+} from "@squad/chat";
+import type { FeedItem } from "@squad/chat";
 import {
   Empty,
   EmptyHeader,
   EmptyTitle,
   EmptyDescription,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { useFeedStore } from "../../stores/feeds";
 import { useUIStore } from "../../stores/ui";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -29,9 +29,9 @@ import {
 } from "../composio-link-card";
 import { analytics } from "../../lib/analytics";
 import type { TabProps } from "../../lib/types";
-import { useHoustonCreditsStore } from "../../stores/houston-credits";
-import { HoustonCreditsBanner, HoustonCreditsFooterPill } from "../houston-credits-banner";
-import { HoustonThinkingIndicator } from "../shell/experience-card";
+import { useSquadCreditsStore } from "../../stores/squad-credits";
+import { SquadCreditsBanner, SquadCreditsFooterPill } from "../squad-credits-banner";
+import { SquadThinkingIndicator } from "../shell/experience-card";
 import { ChatModelSelector } from "../chat-model-selector";
 import { useChatDisplayLabels } from "../use-chat-display-labels";
 import { getDefaultModel } from "../../lib/providers";
@@ -186,13 +186,13 @@ export default function ChatTab({ agent }: TabProps) {
     [connectedSet],
   );
 
-  const creditsDecrement = useHoustonCreditsStore((s) => s.decrement);
-  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
+  const creditsDecrement = useSquadCreditsStore((s) => s.decrement);
+  const creditsBalance = useSquadCreditsStore((s) => s.balance);
 
   const sendNow = useCallback(
     async (text: string, files: File[]) => {
       if (sendingRef.current) return;
-      if (effectiveProvider === "houston-credits" && (creditsBalance ?? 1) <= 0) return;
+      if (effectiveProvider === "squad-credits" && (creditsBalance ?? 1) <= 0) return;
       sendingRef.current = true;
       setIsLoading(true);
       let started = false;
@@ -204,7 +204,7 @@ export default function ChatTab({ agent }: TabProps) {
           modelOverride: chatModel ?? undefined,
         });
         started = true;
-        if (effectiveProvider === "houston-credits") {
+        if (effectiveProvider === "squad-credits") {
           void creditsDecrement();
         }
         pushFeedItem(agentPath, sessionKey, { feed_type: "user_message", data: prompt });
@@ -287,7 +287,7 @@ export default function ChatTab({ agent }: TabProps) {
             signalKey={authSignalKey ?? undefined}
           />
         }
-        thinkingIndicator={<HoustonThinkingIndicator />}
+        thinkingIndicator={<SquadThinkingIndicator />}
         placeholder={t("composer.placeholder")}
         value={composerText}
         onValueChange={setComposerText}
@@ -301,9 +301,9 @@ export default function ChatTab({ agent }: TabProps) {
         queuedLabels={queuedLabels}
         footer={
           <div className="flex flex-col gap-2 w-full">
-            <HoustonCreditsBanner />
+            <SquadCreditsBanner />
             <div className="flex items-center gap-2">
-              <HoustonCreditsFooterPill />
+              <SquadCreditsFooterPill />
               <ChatModelSelector
                 provider={effectiveProvider}
                 model={effectiveModel}

@@ -4,7 +4,7 @@ import { logger } from "./logger";
 /**
  * Open a link the agent emitted in chat. Two shapes land here:
  *
- *   1. Absolute URLs — `https://...`, `http://...`, `mailto:...`, `houston://...`,
+ *   1. Absolute URLs — `https://...`, `http://...`, `mailto:...`, `squad://...`,
  *      `composio.dev/#houston_toolkit=...`, etc. These go to the system
  *      browser via `tauriSystem.openUrl`.
  *
@@ -39,7 +39,7 @@ export function openAgentHref(href: string, agentPath: string): void {
 function looksLikeUrl(value: string): boolean {
   if (value.startsWith("//")) return true;
   // Scheme: a leading run of letters / digits / + - . followed by `:`.
-  // Catches http, https, mailto, file, houston (deep-link), composio://,
+  // Catches http, https, mailto, file, squad (deep-link), composio://,
   // etc. without false-positiving on Windows-style `C:\...` paths
   // because `C:` is followed by `\`, not by a non-`/`-non-`\` payload
   // — we additionally require a `/` immediately after the colon OR
@@ -51,7 +51,7 @@ function looksLikeUrl(value: string): boolean {
   // path separator immediately after the colon. Treat as path, not URL.
   if (rest.startsWith("\\")) return false;
   // `c:/foo` is ambiguous — could be a Windows path or a single-letter
-  // custom scheme. We side with "path" because no real Houston-emitted
+  // custom scheme. We side with "path" because no real Squad-emitted
   // scheme is one letter.
   if (rest.startsWith("/") && schemeMatch[1].length === 1) return false;
   return true;

@@ -1,5 +1,5 @@
 {
-  "name": "@houston-ai/agent-schemas",
+  "name": "@squad/agent-schemas",
   "version": "0.3.2",
   "private": true,
   "type": "module",

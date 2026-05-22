@@ -10,8 +10,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Agent } from "@houston-ai/engine-client";
-import { HoustonAvatar, resolveAgentColor } from "@houston-ai/core";
+import type { Agent } from "@squad/engine-client";
+import { SquadAvatar, resolveAgentColor } from "@squad/core";
 
 interface Props {
   open: boolean;
@@ -78,7 +78,7 @@ export function NewMissionSheet({ open, onClose, agents }: Props) {
                       className="touchable w-full flex items-center gap-3 py-3 text-left hover:bg-accent/60 rounded-lg px-2"
                       onClick={() => pickAgent(a)}
                     >
-                      <HoustonAvatar color={resolveAgentColor(a.color)} diameter={40} />
+                      <SquadAvatar color={resolveAgentColor(a.color)} diameter={40} />
                       <p className="truncate text-sm font-medium flex-1">
                         {a.name}
                       </p>

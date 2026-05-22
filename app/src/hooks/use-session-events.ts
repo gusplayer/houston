@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
-import type { HoustonEvent } from "@houston-ai/core";
-import type { FeedItem } from "@houston-ai/chat";
+import type { SquadEvent } from "@squad/core";
+import type { FeedItem } from "@squad/chat";
 import { useFeedStore } from "../stores/feeds";
 import { useUIStore } from "../stores/ui";
 import { useWorkspaceStore } from "../stores/workspaces";
 import { useAgentStore } from "../stores/agents";
 import { useSessionStatusStore } from "../stores/session-status";
-import { subscribeHoustonEvents, listenOsEvent } from "../lib/events";
+import { subscribeSquadEvents, listenOsEvent } from "../lib/events";
 import { logger } from "../lib/logger";
 import { hasToolRuntimeError } from "../components/tool-runtime-feed";
 import {
@@ -17,7 +17,7 @@ import {
 } from "./session-notifications";
 
 /**
- * Subscribe to "houston-event" from the Rust backend.
+ * Subscribe to "squad-event" from the Rust backend.
  * Handles FeedItem, SessionStatus, Toast, AuthRequired, and native notifications.
  *
  * NOTE: Data invalidation is handled by useWorkspaceInvalidation (TanStack Query).
@@ -50,7 +50,7 @@ export function useSessionEvents() {
       Notification.requestPermission();
     }
 
-    const unlisten = subscribeHoustonEvents((payload: HoustonEvent) => {
+    const unlisten = subscribeSquadEvents((payload: SquadEvent) => {
       const h = handlersRef.current;
 
       switch (payload.type) {
@@ -94,7 +94,7 @@ export function useSessionEvents() {
           if (status === "completed") {
             const workspace = h.getWorkspace();
             const agent = h.getAgent();
-            const workspaceName = workspace?.name ?? "Houston";
+            const workspaceName = workspace?.name ?? "Squad";
             const agentName = agent?.name ?? "Agent";
             let nav: { agentId: string; activityId: string } | undefined;
 

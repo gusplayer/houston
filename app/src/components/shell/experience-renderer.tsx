@@ -1,5 +1,5 @@
 import { Suspense, useMemo } from "react";
-import { Spinner } from "@houston-ai/core";
+import { Spinner } from "@squad/core";
 import { resolveTabComponent } from "../../agents/tab-resolver";
 import { tauriAgent, tauriFiles, tauriChat } from "../../lib/tauri";
 import type { AgentDefinition, Agent, AgentTab, CustomTabProps } from "../../lib/types";

@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2, LogIn, LogOut, Zap } from "lucide-react";
-import { Spinner, ConfirmDialog, cn } from "@houston-ai/core";
+import { Spinner, ConfirmDialog, cn } from "@squad/core";
 import { tauriProvider, type ProviderStatus } from "../../lib/tauri";
-import { osHoustonCreditsAvailable } from "../../lib/os-bridge";
+import { osSquadCreditsAvailable } from "../../lib/os-bridge";
 import {
   PROVIDERS,
   COMING_SOON_PROVIDERS,
-  HOUSTON_CREDITS_INFO,
+  SQUAD_CREDITS_INFO,
   type ProviderInfo,
   type ComingSoonProviderInfo,
 } from "../../lib/providers";
 import { useUIStore } from "../../stores/ui";
-import { useHoustonCreditsStore } from "../../stores/houston-credits";
+import { useSquadCreditsStore } from "../../stores/squad-credits";
 import { analytics } from "../../lib/analytics";
 
 interface Props {
@@ -31,7 +31,7 @@ export function ProviderPicker({ value, onSelect }: Props) {
   const [confirmSignOutFor, setConfirmSignOutFor] = useState<ProviderInfo | null>(null);
   const [creditsAvailable, setCreditsAvailable] = useState(false);
   const addToast = useUIStore((s) => s.addToast);
-  const creditsBalance = useHoustonCreditsStore((s) => s.balance);
+  const creditsBalance = useSquadCreditsStore((s) => s.balance);
 
   const prevStatuses = useRef<Record<string, ProviderStatus>>({});
   const loadStatuses = useCallback(async () => {
@@ -56,7 +56,7 @@ export function ProviderPicker({ value, onSelect }: Props) {
 
   useEffect(() => {
     loadStatuses();
-    osHoustonCreditsAvailable().then(setCreditsAvailable).catch(() => {});
+    osSquadCreditsAvailable().then(setCreditsAvailable).catch(() => {});
   }, [loadStatuses]);
 
   // Poll while a sign-in is in flight so the card flips as soon as the
@@ -126,10 +126,10 @@ export function ProviderPicker({ value, onSelect }: Props) {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {creditsAvailable && (
-          <HoustonCreditsPickerCard
-            active={value === HOUSTON_CREDITS_INFO.id}
+          <SquadCreditsPickerCard
+            active={value === SQUAD_CREDITS_INFO.id}
             balance={creditsBalance}
-            onClick={() => onSelect(HOUSTON_CREDITS_INFO.id, HOUSTON_CREDITS_INFO.model)}
+            onClick={() => onSelect(SQUAD_CREDITS_INFO.id, SQUAD_CREDITS_INFO.model)}
           />
         )}
         {PROVIDERS.map((prov) => {
@@ -260,7 +260,7 @@ function ComingSoonLogo({ provider }: { provider: ComingSoonProviderInfo }) {
   }
 }
 
-function HoustonCreditsPickerCard({
+function SquadCreditsPickerCard({
   active,
   balance,
   onClick,

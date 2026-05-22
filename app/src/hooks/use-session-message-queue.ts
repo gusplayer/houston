@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { QueuedChatMessage as QueuedChatMessageView } from "@houston-ai/chat";
+import type { QueuedChatMessage as QueuedChatMessageView } from "@squad/chat";
 import {
   combineQueuedMessageFiles,
   combineQueuedMessageText,

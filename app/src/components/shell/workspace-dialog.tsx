@@ -8,7 +8,7 @@ import {
   DialogTitle,
   Spinner,
   cn,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { analytics } from "../../lib/analytics";
 import { tauriStore } from "../../lib/tauri";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";

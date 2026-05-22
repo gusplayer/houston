@@ -2,23 +2,23 @@ mod auth;
 mod bug_report;
 mod commands;
 mod engine_supervisor;
-mod houston_prompt;
+mod squad_prompt;
 mod logging;
 
 use engine_supervisor::{
     resolve_engine_binary, spawn_supervisor, wait_until_healthy, EngineHandshake,
     SupervisorCallbacks,
 };
-use houston_tauri::houston_db::Database;
-use houston_tauri::state::AppState;
-use houston_ui_events::HoustonEvent;
+use squad_tauri::squad_db::Database;
+use squad_tauri::state::AppState;
+use squad_ui_events::SquadEvent;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use tauri::{Emitter, Manager};
 
 /// Tauri-managed state holding the latest engine handshake so the frontend
 /// can pull it on demand via `get_engine_handshake` — wins the race when
-/// the one-shot `houston-engine-ready` event fires before the webview's
+/// the one-shot `squad-engine-ready` event fires before the webview's
 /// `listen()` registers.
 #[derive(Default)]
 struct EngineHandshakeState(Mutex<Option<EngineHandshake>>);
@@ -52,10 +52,10 @@ impl SupervisorCallbacks for TauriSupervisorCallbacks {
             "baseUrl": handshake.base_url(),
             "token": handshake.token,
         });
-        let _ = self.handle.emit("houston-engine-restarted", payload);
+        let _ = self.handle.emit("squad-engine-restarted", payload);
         let _ = self.handle.emit(
-            "houston-event",
-            HoustonEvent::CompletionToast {
+            "squad-event",
+            SquadEvent::CompletionToast {
                 title: "Engine reconnected".into(),
                 issue_id: None,
             },
@@ -64,11 +64,11 @@ impl SupervisorCallbacks for TauriSupervisorCallbacks {
 }
 
 pub fn run() {
-    // Initialize logging before anything else. `houston_dir()` flips to
-    // `~/.dev-houston/` in debug builds so `pnpm tauri dev` stays isolated
-    // from an installed release of Houston.
-    let houston = houston_tauri::houston_db::db::houston_dir();
-    logging::init(&houston);
+    // Initialize logging before anything else. `squad_dir()` flips to
+    // `~/.dev-squad/` in debug builds so `pnpm tauri dev` stays isolated
+    // from an installed release of Squad.
+    let squad = squad_tauri::squad_db::db::squad_dir();
+    logging::init(&squad);
 
     // Sentry: initialize before the builder so it catches panics in plugin inits.
     // The guard must live for the lifetime of the app to flush events on shutdown.
@@ -91,18 +91,18 @@ pub fn run() {
     // Single-instance plugin — MUST be registered before the deep-link
     // plugin on Windows / Linux so its second-instance argv-forwarding
     // is the one the deep-link plugin attaches to. Without this, every
-    // `houston://auth-callback?...` from the Google OAuth flow launches
-    // a fresh houston-app.exe (the OS protocol handler does this by
-    // design — Start-menu launches resolve to `C:\Program Files\Houston\…`
+    // `squad://auth-callback?...` from the Google OAuth flow launches
+    // a fresh squad-app.exe (the OS protocol handler does this by
+    // design — Start-menu launches resolve to `C:\Program Files\Squad\…`
     // and protocol-handler launches resolve to the 8.3 short form
-    // `C:\PROGRA~1\Houston\…`, both visible as separate engine spawns
+    // `C:\PROGRA~1\Squad\…`, both visible as separate engine spawns
     // in `backend.log` on the bad path) while the primary instance
     // sits on the login screen waiting for an event that never arrives.
     //
     // The callback below also raises the primary window so the user
     // sees the auth state transition (browser → app) immediately.
     //
-    // No-op on macOS — NSWorkspace delivers `houston://` URLs to the
+    // No-op on macOS — NSWorkspace delivers `squad://` URLs to the
     // running app natively, no second instance is ever spawned.
     #[cfg(any(target_os = "windows", target_os = "linux"))]
     {
@@ -130,11 +130,11 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
-            // Deep-link dispatcher. Routes incoming `houston://` URLs to
+            // Deep-link dispatcher. Routes incoming `squad://` URLs to
             // the right frontend event channel based on host:
-            //   - `houston://store/agent/<id>` -> `store://deep-link`
+            //   - `squad://store/agent/<id>` -> `store://deep-link`
             //     (opens the Store detail dialog for that agent).
-            //   - `houston://auth-callback?code=...` (and any unrecognized
+            //   - `squad://auth-callback?code=...` (and any unrecognized
             //     URL) -> `auth://deep-link` (Supabase PKCE exchange runs in
             //     JS so the verifier stays in Keychain-backed storage
             //     end-to-end).
@@ -150,10 +150,10 @@ pub fn run() {
 
             // Resolve the user's shell PATH early so provider checks work
             // in release builds (macOS .app bundles get a minimal PATH).
-            houston_tauri::houston_terminal_manager::claude_path::init();
+            squad_tauri::squad_terminal_manager::claude_path::init();
 
-            let houston = houston_tauri::houston_db::db::houston_dir();
-            let db_path = houston.join("db").join("houston.db");
+            let squad = squad_tauri::squad_db::db::squad_dir();
+            let db_path = squad.join("db").join("squad.db");
             let db = tauri::async_runtime::block_on(async {
                 Database::connect(&db_path)
                     .await
@@ -161,20 +161,20 @@ pub fn run() {
             });
 
             // One-time migration: earlier versions stored workspaces under
-            // `~/Documents/Houston/`. New default is `$HOUSTON_HOME/workspaces/`
-            // so everything Houston owns is under a single discoverable root.
+            // `~/Documents/Houston/`. New default is `$SQUAD_HOME/workspaces/`
+            // so everything Squad owns is under a single discoverable root.
             // Move the legacy directory if it exists and the new location is
             // empty. Idempotent on subsequent launches.
-            migrate_legacy_docs_dir(&houston);
+            migrate_legacy_docs_dir(&squad);
 
             // Eagerly run the intra-agent data-layout migration on every
             // agent the user already has. Previously this only fired the
             // first time a user started a session on each agent, which
             // meant upgraders who just BROWSED the Activity tab saw an
-            // empty board even though their `.houston/activity.json` was
+            // empty board even though their `.squad/activity.json` was
             // sitting next to it. Walk the workspaces dir here so existing
             // activities, routines, learnings show up immediately.
-            migrate_all_agents(&houston.join("workspaces"));
+            migrate_all_agents(&squad.join("workspaces"));
 
             // AppState keeps a DB handle for any OS-native lookup (log
             // reading, session search). Domain state now lives in the
@@ -185,47 +185,47 @@ pub fn run() {
                 scheduler: None,
             });
 
-            // --- Spawn houston-engine as a subprocess --------------------
+            // --- Spawn squad-engine as a subprocess --------------------
             //
             // All domain calls go through the engine over HTTP/WS. The
             // supervisor thread restarts it with exponential backoff on
-            // crash and emits a toast via `houston-event` on each reconnect.
+            // crash and emits a toast via `squad-event` on each reconnect.
             let resource_dir = app.path().resource_dir().ok();
             let binary = resolve_engine_binary(resource_dir.as_ref())
-                .expect("houston-engine binary missing — check externalBin bundling");
+                .expect("squad-engine binary missing — check externalBin bundling");
             tracing::info!("[engine] spawning {}", binary.display());
 
             let cb: Arc<TauriSupervisorCallbacks> = Arc::new(TauriSupervisorCallbacks {
                 handle: app.handle().clone(),
             });
-            // Product-layer prompts live in the `houston_prompt` module and are
+            // Product-layer prompts live in the `squad_prompt` module and are
             // exported to the engine via env vars. The engine treats these
-            // as opaque strings — it has no hardcoded Houston copy.
+            // as opaque strings — it has no hardcoded Squad copy.
             //
-            // Also pin HOUSTON_HOME + HOUSTON_DOCS so the engine uses the
+            // Also pin SQUAD_HOME + SQUAD_DOCS so the engine uses the
             // same data roots as the app. Workspaces live under
-            // `$HOUSTON_HOME/workspaces/` in both debug (`~/.dev-houston/`)
-            // and release (`~/.houston/`) — everything Houston writes is
+            // `$SQUAD_HOME/workspaces/` in both debug (`~/.dev-squad/`)
+            // and release (`~/.squad/`) — everything Squad writes is
             // rooted at a single discoverable location.
-            let docs_dir = houston.join("workspaces");
+            let docs_dir = squad.join("workspaces");
             let mut engine_env: Vec<(String, String)> = vec![
                 (
-                    "HOUSTON_APP_SYSTEM_PROMPT".into(),
-                    houston_prompt::system_prompt(),
+                    "SQUAD_APP_SYSTEM_PROMPT".into(),
+                    squad_prompt::system_prompt(),
                 ),
                 (
-                    "HOUSTON_APP_ONBOARDING_PROMPT".into(),
-                    houston_prompt::onboarding_prompt(),
+                    "SQUAD_APP_ONBOARDING_PROMPT".into(),
+                    squad_prompt::onboarding_prompt(),
                 ),
-                ("HOUSTON_HOME".into(), houston.display().to_string()),
-                ("HOUSTON_DOCS".into(), docs_dir.display().to_string()),
+                ("SQUAD_HOME".into(), squad.display().to_string()),
+                ("SQUAD_DOCS".into(), docs_dir.display().to_string()),
             ];
             if let Some(store_dir) = resource_dir
                 .as_ref()
                 .map(|dir| dir.join("store"))
                 .filter(|dir| dir.join("catalog.json").exists())
             {
-                engine_env.push(("HOUSTON_STORE_DIR".into(), store_dir.display().to_string()));
+                engine_env.push(("SQUAD_STORE_DIR".into(), store_dir.display().to_string()));
             }
             // If a Supabase session is already persisted in Keychain (user
             // signed in on a previous launch), stamp the subprocess with the
@@ -234,33 +234,33 @@ pub fn run() {
             // as an opaque string. Local/ad-hoc builds compile auth storage
             // in browser mode, so this returns before touching Keychain.
             if let Some(user_id) = auth::persisted_user_id() {
-                engine_env.push(("HOUSTON_APP_USER_ID".into(), user_id));
+                engine_env.push(("SQUAD_APP_USER_ID".into(), user_id));
             }
-            // Pass through `HOUSTON_TUNNEL_URL` for local relay dev
+            // Pass through `SQUAD_TUNNEL_URL` for local relay dev
             // (`wrangler dev` on localhost:8787). Production uses the
-            // engine's baked-in default (`tunnel.gethouston.ai`).
-            if let Ok(v) = std::env::var("HOUSTON_TUNNEL_URL") {
+            // engine's baked-in default (`tunnel.getsquad.ai`).
+            if let Ok(v) = std::env::var("SQUAD_TUNNEL_URL") {
                 if !v.is_empty() {
-                    engine_env.push(("HOUSTON_TUNNEL_URL".into(), v));
+                    engine_env.push(("SQUAD_TUNNEL_URL".into(), v));
                 }
             }
-            // Houston Credits trial key. Baked in at compile time via
+            // Squad Credits trial key. Baked in at compile time via
             // option_env! (release builds) or read at runtime (dev), and
             // forwarded to the engine so claude-code sessions with the
-            // virtual `houston-credits` provider use it as ANTHROPIC_API_KEY.
+            // virtual `squad-credits` provider use it as ANTHROPIC_API_KEY.
             // When unset (e.g. dev checkouts without the secret), the
-            // Houston Credits card stays hidden in the UI.
-            let houston_credits_key = option_env!("HOUSTON_CREDITS_KEY")
+            // Squad Credits card stays hidden in the UI.
+            let squad_credits_key = option_env!("SQUAD_CREDITS_KEY")
                 .map(str::to_string)
-                .or_else(|| std::env::var("HOUSTON_CREDITS_KEY").ok())
+                .or_else(|| std::env::var("SQUAD_CREDITS_KEY").ok())
                 .filter(|s| !s.is_empty());
-            if let Some(key) = houston_credits_key {
-                engine_env.push(("HOUSTON_CREDITS_KEY".into(), key));
+            if let Some(key) = squad_credits_key {
+                engine_env.push(("SQUAD_CREDITS_KEY".into(), key));
             }
             // 30s banner timeout: first-run Gatekeeper scan on a notarized
             // sidecar can take 15–20s on slow machines.
             let slot = spawn_supervisor(binary, Duration::from_secs(30), engine_env, cb)
-                .expect("failed to spawn houston-engine");
+                .expect("failed to spawn squad-engine");
             let handshake = {
                 let guard = slot.lock().expect("engine slot poisoned");
                 guard
@@ -283,25 +283,25 @@ pub fn run() {
 
             // Stash the handshake so the frontend can pull it via
             // `get_engine_handshake` — wins the race when the one-shot
-            // `houston-engine-ready` event fires before the webview's
+            // `squad-engine-ready` event fires before the webview's
             // `listen()` registers (common in dev + cold Vite).
             let handshake_state = EngineHandshakeState::default();
             *handshake_state.0.lock().unwrap() = Some(handshake.clone());
             app.manage(handshake_state);
 
             // Inject bootstrap so `app/src/lib/engine.ts::resolveConfig`
-            // picks it up before any HoustonClient call fires.
+            // picks it up before any SquadClient call fires.
             //
             // Two delivery paths because the webview + React may mount
             // BEFORE `setup()` finishes waiting on /v1/health:
             //   1. `window.eval` — fastest path, wins if the webview hasn't
             //      loaded the JS bundle yet.
-            //   2. `houston-engine-ready` Tauri event — the frontend's
+            //   2. `squad-engine-ready` Tauri event — the frontend's
             //      `EngineGate` awaits this before rendering the app, so a
             //      slow health check simply shows a splash instead of
             //      crashing the React tree.
             let init_script = format!(
-                "window.__HOUSTON_ENGINE__ = {{ baseUrl: \"{}\", token: \"{}\" }};",
+                "window.__SQUAD_ENGINE__ = {{ baseUrl: \"{}\", token: \"{}\" }};",
                 handshake.base_url(),
                 handshake.token.replace('"', "\\\"")
             );
@@ -314,7 +314,7 @@ pub fn run() {
                 "baseUrl": handshake.base_url(),
                 "token": handshake.token,
             });
-            if let Err(e) = app.emit("houston-engine-ready", ready_payload) {
+            if let Err(e) = app.emit("squad-engine-ready", ready_payload) {
                 tracing::error!("[engine] failed to emit ready event: {e}");
             }
 
@@ -342,7 +342,7 @@ pub fn run() {
             commands::os::reveal_agent,
             commands::terminal::open_terminal,
             commands::os::check_claude_cli,
-            commands::os::houston_credits_available,
+            commands::os::squad_credits_available,
             commands::update::current_app_bundle_path,
             commands::update::relaunch_app_from_path,
             // Logging (writes to local log files).
@@ -386,8 +386,8 @@ pub fn run() {
 }
 
 /// Walk every agent under `<workspaces>/<workspace>/<agent>/` and run
-/// `houston_agent_files::migrate_agent_data` on each. Idempotent — only
-/// does real work for agents whose `.houston/` is still in the legacy flat
+/// `squad_agent_files::migrate_agent_data` on each. Idempotent — only
+/// does real work for agents whose `.squad/` is still in the legacy flat
 /// layout or still has a `memory/learnings.md` that needs rewriting.
 ///
 /// Exists because the per-agent migration used to be gated behind
@@ -428,12 +428,12 @@ fn migrate_all_agents(workspaces_root: &std::path::Path) {
             if agent_name.starts_with('.') {
                 continue;
             }
-            // Only agents that already have a `.houston/` dir — otherwise
+            // Only agents that already have a `.squad/` dir — otherwise
             // we'd eagerly create one for every random folder in the tree.
-            if !agent_path.join(".houston").is_dir() {
+            if !agent_path.join(".squad").is_dir() {
                 continue;
             }
-            if let Err(e) = houston_tauri::houston_agent_files::migrate_agent_data(&agent_path) {
+            if let Err(e) = squad_tauri::squad_agent_files::migrate_agent_data(&agent_path) {
                 tracing::warn!(
                     "[migrate-agents] migrate_agent_data({}) failed: {e}",
                     agent_path.display()
@@ -443,7 +443,7 @@ fn migrate_all_agents(workspaces_root: &std::path::Path) {
     }
 }
 
-/// Move `~/Documents/Houston/` to `$houston/workspaces/` if:
+/// Move `~/Documents/Houston/` to `$squad/workspaces/` if:
 ///   - the legacy dir exists and has content (workspaces.json),
 ///   - the new location is empty or missing workspaces.json.
 ///
@@ -451,13 +451,13 @@ fn migrate_all_agents(workspaces_root: &std::path::Path) {
 /// first v0.4.2+ boot for anyone who previously ran v0.3.x/v0.4.0–v0.4.1.
 /// On any error we log + bail; the engine will still run against the new
 /// empty path. Original legacy dir is left in place as manual rollback.
-fn migrate_legacy_docs_dir(houston: &std::path::Path) {
+fn migrate_legacy_docs_dir(squad: &std::path::Path) {
     let home = match dirs::home_dir() {
         Some(h) => h,
         None => return,
     };
     let legacy = home.join("Documents").join("Houston");
-    let new_root = houston.join("workspaces");
+    let new_root = squad.join("workspaces");
 
     let legacy_manifest = legacy.join("workspaces.json");
     if !legacy_manifest.is_file() {

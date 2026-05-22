@@ -7,7 +7,7 @@
  * instead of leaking the raw path block into chat history.
  */
 
-const MARKER_RE = /^<!--houston:attachments (\{[\s\S]*?\})-->\s*\n?\n?/;
+const MARKER_RE = /^<!--squad:attachments (\{[\s\S]*?\})-->\s*\n?\n?/;
 
 export interface AttachmentReference {
   name: string;

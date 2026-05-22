@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, cn } from "@houston-ai/core";
+import { Button, cn } from "@squad/core";
 
 export interface UiTourStep {
   title: string;

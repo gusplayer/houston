@@ -1,5 +1,5 @@
 /**
- * FeedItem typing mirrored from `houston-terminal-manager::FeedItem`.
+ * FeedItem typing mirrored from `squad-terminal-manager::FeedItem`.
  *
  * Wire shape (serde): `{ feed_type: <snake_case>, data: <payload> }`.
  * We only render a few variants explicitly — the rest fall through to
@@ -20,8 +20,8 @@ export type FeedItem =
       data: { result: string; cost_usd?: number | null; duration_ms?: number | null };
     };
 
-/** HoustonEvent shape — engine-protocol::HoustonEvent. */
-export type HoustonEvent =
+/** SquadEvent shape — engine-protocol::SquadEvent. */
+export type SquadEvent =
   | {
       type: "FeedItem";
       data: { agent_path: string; session_key: string; item: FeedItem };

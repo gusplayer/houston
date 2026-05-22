@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   Button,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { RefreshCw } from "lucide-react";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 

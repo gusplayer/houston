@@ -9,15 +9,15 @@ import { useNavigate } from "react-router-dom";
 import { AlertTriangle, Plus, RefreshCw } from "lucide-react";
 import {
   Button,
-  HoustonAvatar,
+  SquadAvatar,
   resolveAgentColor,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@houston-ai/core";
-import type { Agent, ConversationEntry } from "@houston-ai/engine-client";
+} from "@squad/core";
+import type { Agent, ConversationEntry } from "@squad/engine-client";
 import { useAllConversations, useCurrentWorkspace } from "../hooks/use-conversations";
 import { useAgents } from "../hooks/use-agents";
 import { NewMissionSheet } from "./new-mission-sheet";
@@ -77,7 +77,7 @@ export function MissionControl() {
     <div className="flex min-h-full flex-col bg-background safe-top">
       <header className="flex items-center justify-between px-4 pt-5 pb-3">
         <div>
-          <h1 className="text-xl font-semibold leading-tight">Houston</h1>
+          <h1 className="text-xl font-semibold leading-tight">Squad</h1>
           <p className="text-xs text-muted-foreground">
             {ws?.name ?? "Loading…"}
           </p>
@@ -132,7 +132,7 @@ export function MissionControl() {
             <AlertTriangle className="size-8 text-amber-500 mb-3" />
             <p className="text-base font-medium">Can&rsquo;t reach your Mac</p>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              Make sure Houston is still open on your Mac, then tap retry.
+              Make sure Squad is still open on your Mac, then tap retry.
             </p>
             <button
               className="touchable mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground active:opacity-80"
@@ -225,7 +225,7 @@ function ConversationRow({
         className="touchable w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-accent active:bg-accent/70"
         onClick={onSelect}
       >
-        <HoustonAvatar
+        <SquadAvatar
           color={resolveAgentColor(agent?.color)}
           diameter={40}
           running={convo.status === "running"}

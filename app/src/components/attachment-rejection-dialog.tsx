@@ -8,12 +8,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { AlertTriangle } from "lucide-react";
 import type {
   AttachmentRejection,
   PrepareAttachments,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 import {
   formatBytes,
   splitComposerAttachments,

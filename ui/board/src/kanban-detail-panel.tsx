@@ -1,6 +1,6 @@
 import { forwardRef } from "react"
 import { XIcon, Loader2 } from "lucide-react"
-import { cn } from "@houston-ai/core"
+import { cn } from "@squad/core"
 
 const STATUS_LABEL: Record<string, string> = {
   running: "Running",
@@ -21,7 +21,7 @@ export interface KanbanDetailPanelProps {
   actions?: React.ReactNode
   /** Large avatar shown in the header */
   avatar?: React.ReactNode
-  /** Name displayed next to the avatar (e.g. "Houston") */
+  /** Name displayed next to the avatar (e.g. "Squad") */
   agentName?: string
   runningStatuses?: string[]
   statusLabels?: Record<string, string>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BugIcon, RotateCcwIcon, WrenchIcon } from "lucide-react";
-import { Button, Spinner } from "@houston-ai/core";
-import type { ToolRuntimeErrorEntry } from "@houston-ai/chat";
+import { Button, Spinner } from "@squad/core";
+import type { ToolRuntimeErrorEntry } from "@squad/chat";
 import { reportBug } from "../../lib/bug-report";
 import { getCurrentUserEmail } from "../../lib/current-user";
 import { useUIStore } from "../../stores/ui";

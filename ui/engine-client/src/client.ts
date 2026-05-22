@@ -1,13 +1,13 @@
 /**
- * `HoustonClient` — thin fetch wrapper keyed by `{baseUrl, token}`.
+ * `SquadClient` — thin fetch wrapper keyed by `{baseUrl, token}`.
  *
  * Usage:
  * ```ts
- * const engine = new HoustonClient({ baseUrl: "http://127.0.0.1:7777", token });
+ * const engine = new SquadClient({ baseUrl: "http://127.0.0.1:7777", token });
  * const workspaces = await engine.listWorkspaces();
  * ```
  *
- * One method per REST route. DTOs mirror `engine/houston-engine-core`.
+ * One method per REST route. DTOs mirror `engine/squad-engine-core`.
  */
 
 import type {
@@ -69,19 +69,26 @@ import type {
   VersionResponse,
   Workspace,
   WorktreeInfo,
+  Project,
+  CreateProject,
+  UpdateProject,
+  GitStatus,
+  Commit,
+  Branch,
+  McpConfig,
 } from "./types";
 import { planAttachmentUploadBatches } from "./attachments";
 
-export interface HoustonClientOptions {
+export interface SquadClientOptions {
   baseUrl: string;
   token: string;
 }
 
-export class HoustonClient {
+export class SquadClient {
   private readonly baseUrl: string;
   private readonly token: string;
 
-  constructor(opts: HoustonClientOptions) {
+  constructor(opts: SquadClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/$/, "");
     this.token = opts.token;
   }
@@ -146,9 +153,9 @@ export class HoustonClient {
     return (await res.json()) as T;
   }
 
-  private async toError(res: Response): Promise<HoustonEngineError> {
+  private async toError(res: Response): Promise<SquadEngineError> {
     const err = (await res.json().catch(() => null)) as ErrorBody | null;
-    return new HoustonEngineError(res.status, err);
+    return new SquadEngineError(res.status, err);
   }
 
   private seg(s: string): string {
@@ -214,7 +221,7 @@ export class HoustonClient {
     );
   }
 
-  // ---------- agent files (typed .houston data) ----------
+  // ---------- agent files (typed .squad data) ----------
 
   readAgentFile(agentPath: string, relPath: string): Promise<string> {
     return this.request<{ content: string }>("POST", "/agents/files/read", {
@@ -622,6 +629,55 @@ export class HoustonClient {
     return this.request("POST", "/watcher/stop");
   }
 
+  // ---------- projects ----------
+
+  listProjects(workspaceId: string): Promise<Project[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects`);
+  }
+  createProject(workspaceId: string, req: CreateProject): Promise<Project> {
+    return this.request("POST", `/workspaces/${workspaceId}/projects`, req);
+  }
+  getProject(workspaceId: string, projectId: string): Promise<Project> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}`);
+  }
+  updateProject(workspaceId: string, projectId: string, req: UpdateProject): Promise<Project> {
+    return this.request("PATCH", `/workspaces/${workspaceId}/projects/${projectId}`, req);
+  }
+  deleteProject(workspaceId: string, projectId: string): Promise<void> {
+    return this.request("DELETE", `/workspaces/${workspaceId}/projects/${projectId}`);
+  }
+
+  // ---------- git ----------
+
+  gitStatus(workspaceId: string, projectId: string): Promise<GitStatus> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/status`);
+  }
+  gitCurrentBranch(workspaceId: string, projectId: string): Promise<string> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/current-branch`);
+  }
+  gitLog(workspaceId: string, projectId: string, limit = 20): Promise<Commit[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/log?limit=${limit}`);
+  }
+  gitBranches(workspaceId: string, projectId: string): Promise<Branch[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/branches`);
+  }
+  gitDiff(workspaceId: string, projectId: string, from?: string, to?: string): Promise<string> {
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString();
+    return this.request("GET", `/workspaces/${workspaceId}/projects/${projectId}/git/diff${qs ? `?${qs}` : ""}`);
+  }
+
+  // ---------- mcp ----------
+
+  readMcpConfig(agentPath: string): Promise<McpConfig> {
+    return this.request("GET", `/agents/mcps?agentPath=${encodeURIComponent(agentPath)}`);
+  }
+  writeMcpConfig(agentPath: string, config: McpConfig): Promise<void> {
+    return this.request("PUT", `/agents/mcps?agentPath=${encodeURIComponent(agentPath)}`, config);
+  }
+
   // ---------- composio ----------
 
   composioStatus(): Promise<ComposioStatus> {
@@ -669,10 +725,10 @@ export class HoustonClient {
   }
 }
 
-export class HoustonEngineError extends Error {
+export class SquadEngineError extends Error {
   constructor(public status: number, public body: ErrorBody | null) {
     super(body?.error.message ?? `Engine error ${status}`);
-    this.name = "HoustonEngineError";
+    this.name = "SquadEngineError";
   }
 
   get code(): string | undefined {
@@ -683,7 +739,7 @@ export class HoustonEngineError extends Error {
    * Stable machine-readable tag set by the engine for typed errors
    * (e.g. `rate_limited`, `offline`, `already_installed`,
    * `repo_private`). UI matches on this to render plain-English copy
-   * instead of parsing `message`. See `engine/houston-engine-core/src/skills.rs`
+   * instead of parsing `message`. See `engine/squad-engine-core/src/skills.rs`
    * for the canonical kind list.
    */
   get kind(): string | undefined {
@@ -697,6 +753,6 @@ export class HoustonEngineError extends Error {
 }
 
 /** Type guard for engine errors. Convenient in catch blocks. */
-export function isHoustonEngineError(e: unknown): e is HoustonEngineError {
-  return e instanceof HoustonEngineError;
+export function isSquadEngineError(e: unknown): e is SquadEngineError {
+  return e instanceof SquadEngineError;
 }

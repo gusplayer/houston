@@ -8,14 +8,14 @@ is owned by Wave 2 / E₂ and not tracked here.
 
 | Target | Status | How verified |
 |--------|--------|--------------|
-| `aarch64-apple-darwin` | ✅ native | `cargo test --workspace --exclude houston-app --exclude houston-tauri` |
+| `aarch64-apple-darwin` | ✅ native | `cargo test --workspace --exclude squad-app --exclude squad-tauri` |
 | `x86_64-apple-darwin` | ✅ (inherits Darwin code paths) | — |
 | `x86_64-unknown-linux-gnu` | ✅ (inherits Unix code paths) | — |
-| `x86_64-pc-windows-gnu` | ✅ `cargo check` clean | `cargo check --target x86_64-pc-windows-gnu -p houston-engine-server` with `mingw-w64` toolchain |
+| `x86_64-pc-windows-gnu` | ✅ `cargo check` clean | `cargo check --target x86_64-pc-windows-gnu -p squad-engine-server` with `mingw-w64` toolchain |
 | `x86_64-pc-windows-msvc` | ⚠️ untested on macOS host — `ring`'s build script needs MSVC CRT headers (fetch via `xwin` or build on Windows) | — |
 
 The two Windows targets share the same Rust source. MSVC vs GNU differs
-only in CRT/linker — every `cfg(windows)` branch in Houston applies to
+only in CRT/linker — every `cfg(windows)` branch in Squad applies to
 both.
 
 ## Cross-platform primitives — in use
@@ -28,7 +28,7 @@ both.
   `std::os::windows::fs::symlink_file` / `symlink_dir` on Windows.
   Both branches wired in `agents_crud.rs`, `agents/prompt.rs`,
   `skills.rs`.
-- **PTY**: `portable-pty` (used in `houston-terminal-manager::manager`)
+- **PTY**: `portable-pty` (used in `squad-terminal-manager::manager`)
   — ConPTY-backed on Windows 10+, no code change needed.
 - **File watcher**: `notify` — native backends on each OS.
 
@@ -38,10 +38,10 @@ both.
 |------|------|------|---------|
 | Session cancel | `engine-core/src/sessions/mod.rs::cancel` | `kill -TERM <pid>` | `taskkill /PID <pid> /T /F` |
 | `engine.json` perms | `engine-server/src/main.rs::write_manifest` | `chmod 0o600` | inherits NTFS ACL from parent (sufficient; user dir is per-user) |
-| Composio installer | `houston-composio/src/install.rs::install` | `bash -c "curl \| bash"` | returns a clear error — auto-install not wired (see **gaps** below) |
-| Composio executable check | `houston-composio/src/install.rs::is_installed` | file + `+x` bit | file existence only (NTFS has no POSIX +x; Composio installer drops `composio.exe`) |
+| Composio installer | `squad-composio/src/install.rs::install` | `bash -c "curl \| bash"` | returns a clear error — auto-install not wired (see **gaps** below) |
+| Composio executable check | `squad-composio/src/install.rs::is_installed` | file + `+x` bit | file existence only (NTFS has no POSIX +x; Composio installer drops `composio.exe`) |
 | Composio CLI path | same | `~/.composio/composio` | `~/.composio/composio.exe` |
-| Login-shell PATH probe | `houston-terminal-manager/src/claude_path.rs` | `/bin/zsh -l -c 'echo $PATH'`, fallback `/bin/bash -l`, `-i` | skipped — inherited process PATH is already the user PATH |
+| Login-shell PATH probe | `squad-terminal-manager/src/claude_path.rs` | `/bin/zsh -l -c 'echo $PATH'`, fallback `/bin/bash -l`, `-i` | skipped — inherited process PATH is already the user PATH |
 | Common-install-dir probe | same | `~/.local/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `~/.cargo/bin`, `~/.composio`, nvm node dirs | `~\.cargo\bin`, `~\.composio`, `~\AppData\Roaming\npm`, `~\AppData\Local\Programs\claude` |
 | Command-exists check | same `is_command_available` | bare filename | bare + `.exe`/`.cmd`/`.bat`/`.ps1` variants |
 
@@ -74,7 +74,7 @@ both.
 
 - `app/` and `ui/` Windows support — owned by Wave 2 / E₂.
 - `.github/workflows/*` matrix — owned by Wave 2 / E₂.
-- `houston-composio::cli`, `::auth`, `::mcp` — these call `whoami`,
+- `squad-composio::cli`, `::auth`, `::mcp` — these call `whoami`,
   `open`, `security` (macOS `security(1)`), which will not work on
   Windows either. They compile (process spawns fail at runtime with a
   clear I/O error), but the features that depend on them are not
@@ -89,23 +89,24 @@ gaps:
 
 1. **Composio CLI install** — RESOLVED. Production Windows builds
    bundle composio.exe via the gethouston/composio fork (built from
-   source on the windows-latest runner). The dev-mode error message
-   stays as-is because there's no benefit to running composio
-   standalone outside a packaged Houston install. See
-   `knowledge-base/cli-bundling.md` for the build pipeline.
+   source on the windows-latest runner — fork name inherited from the
+   upstream Houston project, branch still `houston-windows-support`).
+   The dev-mode error message stays as-is because there's no benefit
+   to running composio standalone outside a packaged Squad install.
+   See `knowledge-base/cli-bundling.md` for the build pipeline.
 2. **Claude / Codex CLI discovery** — VALIDATED for x64. Codex ships
    native `codex-x86_64-pc-windows-msvc.exe` from openai/codex; we
    download + zstd-decode + bundle. Claude Code's distribution
    manifest exposes `win32-x64` + `win32-arm64` URLs which the
    runtime installer resolves automatically. The `COMMON_CLAUDE_DIRS`
    list still covers the npm + AppData scenarios.
-3. **nvm-windows** — STILL UNVALIDATED. Houston's bundled CLIs win
+3. **nvm-windows** — STILL UNVALIDATED. Squad's bundled CLIs win
    over PATH lookups in production, so this only matters for dev
    builds running unbundled.
 4. **Process-group kill** — UNCHANGED.
 5. **MSVC target build** — VERIFIED via the new `build-windows` CI
    job (`cargo build --release --target x86_64-pc-windows-msvc -p
-   houston-engine-server`). Mac-host cross-compile remains
+   squad-engine-server`). Mac-host cross-compile remains
    unsupported (no `xwin` SDK) and is not on the roadmap.
 
 One new gap introduced in Wave 2:

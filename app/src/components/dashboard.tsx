@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AIBoard } from "@houston-ai/board";
-import type { KanbanColumnConfig, NewPanelOpener } from "@houston-ai/board";
+import { AIBoard } from "@squad/board";
+import type { KanbanColumnConfig, NewPanelOpener } from "@squad/board";
 import {
   Empty,
   EmptyHeader,
   EmptyTitle,
   EmptyDescription,
   Button,
-} from "@houston-ai/core";
+} from "@squad/core";
 import { Plus } from "lucide-react";
 import { useAgentStore } from "../stores/agents";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
@@ -22,7 +22,7 @@ import { useAttachmentRejectionDialog } from "./attachment-rejection-dialog";
 import { useQueuedMessageLabels } from "./use-queued-message-labels";
 import type { Agent } from "../lib/types";
 import { useDetailPanelContainer } from "./shell/detail-panel-context";
-import { HoustonThinkingIndicator } from "./shell/experience-card";
+import { SquadThinkingIndicator } from "./shell/experience-card";
 import { AgentCardAvatar } from "./shell/agent-card-avatar";
 import { AgentPanelAvatar } from "./shell/agent-panel-avatar";
 import { MissionControlToolbar } from "./mission-control-toolbar";
@@ -325,7 +325,7 @@ export function Dashboard() {
               running={selectedItem?.status === "running"}
             />
           }
-          thinkingIndicator={<HoustonThinkingIndicator />}
+          thinkingIndicator={<SquadThinkingIndicator />}
           cardLabels={cardLabels}
           // Per-agent panel features pulled from the shared hook so
           // Mission Control's right panel matches the BoardTab right

@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@houston-ai/core";
+} from "@squad/core";
 import type { StoreListing } from "../../lib/types";
 import { IntegrationLogos } from "../integration-logos";
 
@@ -21,7 +21,7 @@ interface Props {
 }
 
 /**
- * Trust UI shown before installing a non-Houston agent. Lists which
+ * Trust UI shown before installing a non-Squad agent. Lists which
  * integrations it will request, links to source on GitHub, and forces
  * the user to confirm.
  *

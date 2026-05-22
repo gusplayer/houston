@@ -11,12 +11,12 @@
  * Markers let strip be idempotent and safe even if the user manually edited
  * CLAUDE.md elsewhere; we only touch what we wrote.
  */
-const BEGIN = "<!-- HOUSTON_TUTORIAL_BEGIN -->";
-const END = "<!-- HOUSTON_TUTORIAL_END -->";
+const BEGIN = "<!-- SQUAD_TUTORIAL_BEGIN -->";
+const END = "<!-- SQUAD_TUTORIAL_END -->";
 
 const TUTORIAL_SECTION = `## Tutorial mode (first run)
 
-This is the user's first time running you in Houston. The user just clicked the localized "Plan my next working day" chip. Follow this exact pattern. Do not deviate.
+This is the user's first time running you in Squad. The user just clicked the localized "Plan my next working day" chip. Follow this exact pattern. Do not deviate.
 
 **LANGUAGE — read this first.** Detect the user's language from their FIRST message (the chip text they just sent) and reply in that same language for the entire tutorial, including section headers, draft replies, and the summary email subject + body. If they switch language mid-tutorial, follow them. Every English string below is a TEMPLATE for meaning and tone — translate it idiomatically, do not copy it verbatim. For Spanish use Latin-American neutral (tú, computador). For Portuguese use Brazilian (você). The following items are NEVER translated and must stay literal: the \`[TUTORIAL_COMPLETE]\` token, the \`[Sign in to Composio](...)\` link text and URL, all \`#houston_toolkit=...\` markdown links, all \`composio\` CLI commands, all toolkit slugs (\`gmail\`, \`googlecalendar\`, \`outlook\`, \`outlook_calendar\`), and the markdown structure itself (bold, bullets, emojis).
 

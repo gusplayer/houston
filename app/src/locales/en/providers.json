@@ -7,7 +7,7 @@
     "signOutTitle": "Sign out of {{name}}"
   },
   "setup": {
-    "installHint": "Install the {{cli}} CLI on your machine. Houston will pick it up automatically.",
+    "installHint": "Install the {{cli}} CLI on your machine. Squad will pick it up automatically.",
     "installGuide": "Install guide",
     "signInWith": "Sign in with {{provider}}",
     "waiting": "Waiting for the sign-in to finish in your browser...",
@@ -16,7 +16,7 @@
   },
   "signOutConfirm": {
     "title": "Sign out of {{provider}}?",
-    "description": "Houston will stop using {{provider}} until you sign in again. Existing missions can still finish their current turn.",
+    "description": "Squad will stop using {{provider}} until you sign in again. Existing missions can still finish their current turn.",
     "confirm": "Sign out",
     "cancel": "Cancel"
   },
@@ -25,7 +25,7 @@
     "signOutFailed": "Couldn't sign out of {{provider}}"
   },
   "credits": {
-    "name": "Houston Credits",
+    "name": "Squad Credits",
     "subtitle": "Free trial",
     "badge": "Free",
     "connected": "Active",

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import type { CommunitySkill, RepoSkill, Skill } from "@houston-ai/skills";
+import type { CommunitySkill, RepoSkill, Skill } from "@squad/skills";
 import {
   useDeleteSkill,
   useInstallCommunitySkill,

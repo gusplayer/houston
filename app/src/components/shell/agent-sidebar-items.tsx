@@ -1,4 +1,4 @@
-import type { SidebarItem } from "@houston-ai/layout";
+import type { SidebarItem } from "@squad/layout";
 import type { Agent } from "../../lib/types";
 import { AgentSidebarColorMenu } from "./agent-sidebar-color-menu";
 import type { AgentActivitySummary } from "./agent-activity-summary-model";

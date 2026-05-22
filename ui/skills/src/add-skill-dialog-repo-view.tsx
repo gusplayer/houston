@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react"
-import { cn, Button, Spinner } from "@houston-ai/core"
+import { cn, Button, Spinner } from "@squad/core"
 import { AlertCircle, Search } from "lucide-react"
 import type { RepoSkill } from "./types"
 import type { RepoStage } from "./add-skill-dialog-repo-stage"

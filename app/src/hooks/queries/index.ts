@@ -27,3 +27,29 @@ export {
   useRemoveLearning,
   useUpdateLearning,
 } from "./use-learnings";
+export { useMcpConfig, useSaveMcpConfig } from "./use-mcps";
+export {
+  useSprints,
+  useCreateSprint,
+  useUpdateSprint,
+  useDeleteSprint,
+  useStories,
+  useCreateStory,
+  useUpdateStory,
+  useDeleteStory,
+} from "./use-sprints";
+export {
+  useProjects,
+  useCreateProject,
+  useUpdateProject,
+  useDeleteProject,
+  useGitStatus,
+  useGitLog,
+  useGitBranches,
+  useGitDiff,
+} from "./use-projects";
+export {
+  usePhaseOwnership,
+  useSavePhaseOwnership,
+} from "./use-phase-ownership";
+export type { PhaseOwnership } from "./use-phase-ownership";

@@ -7,7 +7,7 @@ import {
 import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { I18nextProvider } from "react-i18next";
-import { TooltipProvider } from "@houston-ai/core";
+import { TooltipProvider } from "@squad/core";
 import { queryClient } from "./lib/query-client";
 import App from "./App";
 import "./styles/globals.css";
@@ -20,7 +20,7 @@ import { showErrorToast } from "./lib/error-toast";
 import { analytics, classifyAnalyticsError } from "./lib/analytics";
 
 // Initialize file-based logging — patches console.error/warn to write to
-// ~/.houston/logs/frontend.log (or ~/.dev-houston/logs/frontend.log in dev).
+// ~/.squad/logs/frontend.log (or ~/.dev-squad/logs/frontend.log in dev).
 initFrontendLogging();
 
 // Global error handlers — surface ALL uncaught errors as toasts
@@ -89,7 +89,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 
 /**
  * Blocks the app from rendering until the Tauri supervisor emits
- * `houston-engine-ready` (or the injection raced in early). Hooks deep in
+ * `squad-engine-ready` (or the injection raced in early). Hooks deep in
  * the tree synchronously call `getEngine()` in their first useEffect, so
  * we MUST have the handshake before mounting <App />.
  */

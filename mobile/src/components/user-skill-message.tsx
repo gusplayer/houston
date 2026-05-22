@@ -12,7 +12,7 @@ import {
   UserAttachmentBadge,
   type SkillInvocation,
   resolveSkillImage,
-} from "@houston-ai/chat";
+} from "@squad/chat";
 
 interface Props {
   invocation: SkillInvocation;

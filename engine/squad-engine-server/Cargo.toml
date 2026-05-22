@@ -1,0 +1,49 @@
+[package]
+name = "squad-engine-server"
+version = "0.4.19"
+edition = "2021"
+description = "Houston Engine HTTP+WS server — axum binary speaking the Houston wire protocol"
+license = "MIT"
+repository = "https://github.com/getsquad/squad"
+
+[[bin]]
+name = "squad-engine"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.7", features = ["ws", "macros"] }
+tokio = { workspace = true }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace", "cors"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+sha2 = "0.10"
+base64 = "0.22"
+rand = "0.8"
+futures-util = "0.3"
+squad-engine-protocol = { version = "0.4.0", path = "../squad-engine-protocol" }
+squad-engine-core = { version = "0.4.0", path = "../squad-engine-core" }
+squad-projects = { workspace = true }
+squad-git = { workspace = true }
+squad-composio = { workspace = true }
+squad-claude-installer = { workspace = true }
+squad-cli-bundle = { workspace = true }
+squad-tunnel = { workspace = true }
+squad-db = { workspace = true }
+async-trait = { workspace = true }
+squad-skills = { workspace = true, features = ["remote"] }
+squad-ui-events = { workspace = true }
+squad-terminal-manager = { workspace = true }
+squad-file-watcher = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+reqwest = { version = "0.12", features = ["json"] }
+tokio-tungstenite = "0.24"
+tempfile = "3"
+urlencoding = "2"
+base64 = "0.22"

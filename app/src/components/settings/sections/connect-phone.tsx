@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Badge, Button, ConfirmDialog } from "@houston-ai/core";
+import { Badge, Button, ConfirmDialog } from "@squad/core";
 import { QRCodeSVG } from "qrcode.react";
 import { tauriTunnel } from "../../../lib/tauri";
 import { logger } from "../../../lib/logger";

@@ -78,8 +78,8 @@ export function osCheckClaudeCli(): Promise<boolean> {
   return invoke<boolean>("check_claude_cli");
 }
 
-/** Is the Houston Credits trial key bundled in this build? */
-export function osHoustonCreditsAvailable(): Promise<boolean> {
+/** Is the Squad Credits trial key bundled in this build? */
+export function osSquadCreditsAvailable(): Promise<boolean> {
   return invoke<boolean>("houston_credits_available");
 }
 
@@ -93,7 +93,7 @@ export function osRelaunchAppFromPath(appPath: string): Promise<void> {
   return invoke<void>("relaunch_app_from_path", { app_path: appPath });
 }
 
-/** Append a line to `~/Library/Application Support/houston/logs/frontend.log`. */
+/** Append a line to `~/Library/Application Support/squad/logs/frontend.log`. */
 export function osWriteFrontendLog(
   level: "error" | "warn" | "info" | "debug",
   message: string,
@@ -109,7 +109,7 @@ export function osReadRecentLogs(
   return invoke<{ backend: string; frontend: string }>("read_recent_logs", { lines });
 }
 
-/** Send a prepared bug report to Houston's native bug-report intake.
+/** Send a prepared bug report to Squad's native bug-report intake.
  * Resolves with the Linear issue identifier (e.g. "BUG-123") when known. */
 export function osReportBug(payload: unknown): Promise<string | null> {
   return invoke<string | null>("report_bug", { payload });

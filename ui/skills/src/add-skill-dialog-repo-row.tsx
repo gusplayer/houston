@@ -1,4 +1,4 @@
-import { cn } from "@houston-ai/core"
+import { cn } from "@squad/core"
 import { Check } from "lucide-react"
 import type { RepoSkill } from "./types"
 

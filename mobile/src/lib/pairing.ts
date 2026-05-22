@@ -1,4 +1,4 @@
-// Redeem a phone-access code with the Houston relay. The code is of the form
+// Redeem a phone-access code with the Squad relay. The code is of the form
 // `<tunnelId>-<accessSecret>` and comes from the desktop QR.
 //
 // Success: relay returns `{ok, engineToken, deviceLabel}`. We persist
@@ -9,15 +9,15 @@ import { initEngine } from "./engine";
 import { savePaired } from "./storage";
 
 export interface RelayConfig {
-  /** e.g. "https://tunnel.gethouston.ai" or "https://tunnel-staging.gethouston.ai" */
+  /** e.g. "https://tunnel.getsquad.ai" or "https://tunnel-staging.gethouston.ai" */
   baseUrl: string;
 }
 
-// Mirror of `engine/houston-engine-server/src/config.rs::DEFAULT_RELAY_URL`.
+// Mirror of `engine/squad-engine-server/src/config.rs::DEFAULT_RELAY_URL`.
 // Must stay in sync — mobile dials `{baseUrl}/pair/<code>`, engine's tunnel
 // client dials `{baseUrl}/e/<tunnelId>/register`. Both addresses live on
 // the same Worker, so the host string has to match.
-const DEFAULT_RELAY = "https://tunnel.gethouston.ai";
+const DEFAULT_RELAY = "https://tunnel.getsquad.ai";
 
 export function relayConfig(): RelayConfig {
   const env = (import.meta as unknown as { env?: Record<string, string> }).env;
@@ -26,7 +26,7 @@ export function relayConfig(): RelayConfig {
   };
 }
 
-/** Stable wire codes mirrored from `houston-relay/src/types.ts::PairErrorCode`.
+/** Stable wire codes mirrored from `squad-relay/src/types.ts::PairErrorCode`.
  * `network` is the one client-only value — fetch throw, not surfaced by
  * the server. `internal` is the default fallback when the server responds
  * with a non-OK but emits no recognized code. */
@@ -122,7 +122,7 @@ async function attemptRedeem(
     });
   } catch (e) {
     throw new PairError(
-      `Could not reach the Houston relay. ${e instanceof Error ? e.message : ""}`,
+      `Could not reach the Squad relay. ${e instanceof Error ? e.message : ""}`,
       0,
       "network",
     );
