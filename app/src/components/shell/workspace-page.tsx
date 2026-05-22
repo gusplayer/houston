@@ -19,6 +19,7 @@ import { useUIStore } from "../../stores/ui";
 import {
   useProjects,
   useCreateProject,
+  useUpdateProject,
   useDeleteProject,
   useProjectDocs,
   useSaveProjectDoc,
@@ -335,10 +336,18 @@ function PhaseOwners({ rootPath }: { rootPath: string | undefined }) {
 
 // ── Section: Projects ───────────────────────────────────────────────────
 
+/** Folder name pulled off the repoPath — useful as a sanity check when
+ * the user-given project name doesn't describe the repo (e.g. "Hola"
+ * pointing at .../komercia-mcp/). */
+function repoFolderName(repoPath: string): string {
+  return repoPath.replace(/\/+$/, "").split("/").pop() ?? repoPath;
+}
+
 function ProjectsSection({ workspaceId }: { workspaceId: string }) {
   const { t } = useTranslation(["shell", "agents"]);
   const { data: projects } = useProjects(workspaceId);
   const createProject = useCreateProject(workspaceId);
+  const updateProject = useUpdateProject(workspaceId);
   const deleteProject = useDeleteProject(workspaceId);
   const agents = useAgentStore((s) => s.agents);
   const agentDefs = useAgentCatalogStore((s) => s.agents);
@@ -348,6 +357,21 @@ function ProjectsSection({ workspaceId }: { workspaceId: string }) {
   const [path, setPath] = useState("");
   const [stack, setStack] = useState("");
   const [exporting, setExporting] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+
+  function startRename(id: string, currentName: string) {
+    setRenamingId(id);
+    setRenameValue(currentName);
+  }
+
+  async function commitRename(id: string) {
+    const trimmed = renameValue.trim();
+    if (trimmed && projects?.find((p) => p.id === id)?.name !== trimmed) {
+      await updateProject.mutateAsync({ id, patch: { name: trimmed } });
+    }
+    setRenamingId(null);
+  }
 
   async function pickDir() {
     const picked = await tauriAgents.pickDirectory().catch(() => null);
@@ -451,14 +475,43 @@ function ProjectsSection({ workspaceId }: { workspaceId: string }) {
       )}
 
       <div className="flex flex-col gap-2">
-        {(projects ?? []).map((p) => (
+        {(projects ?? []).map((p) => {
+          const folder = repoFolderName(p.repoPath);
+          const nameDiffersFromFolder = p.name.toLowerCase() !== folder.toLowerCase();
+          const isRenaming = renamingId === p.id;
+          return (
           <div
             key={p.id}
             className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border"
           >
             <FolderGit2 className="size-4 text-muted-foreground shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{p.name}</div>
+              {isRenaming ? (
+                <input
+                  autoFocus
+                  value={renameValue}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  onBlur={() => void commitRename(p.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void commitRename(p.id);
+                    if (e.key === "Escape") setRenamingId(null);
+                  }}
+                  className="w-full h-6 text-sm font-medium rounded border border-border bg-background px-1 focus:outline-none focus:ring-1 focus:ring-ring"
+                />
+              ) : (
+                <button
+                  onClick={() => startRename(p.id, p.name)}
+                  className="text-sm font-medium truncate text-left hover:text-muted-foreground transition-colors w-full"
+                  title={t("shell:workspace.renameProject")}
+                >
+                  {p.name}
+                  {nameDiffersFromFolder && (
+                    <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+                      ({folder})
+                    </span>
+                  )}
+                </button>
+              )}
               <div className="text-[10px] text-muted-foreground font-mono truncate">{p.repoPath}</div>
             </div>
             {p.stack && (
@@ -491,7 +544,8 @@ function ProjectsSection({ workspaceId }: { workspaceId: string }) {
               <Trash2 className="size-3" />
             </Button>
           </div>
-        ))}
+          );
+        })}
         {(projects ?? []).length === 0 && !showForm && (
           <div className="text-center py-8 text-xs text-muted-foreground">
             {t("agents:repo.noProjects")}

@@ -192,6 +192,7 @@
     "projects": "Proyectos",
     "projectsHint": "Repositorios vinculados a este workspace.",
     "deleteProject": "Quitar proyecto",
+    "renameProject": "Click para renombrar",
     "docsHint": "Edita la audiencia de cada doc en el tab Docs del agente."
   },
   "teamManifestBanner": {
