@@ -53,7 +53,8 @@
     "settings": "Configurações",
     "repo": "Repositório",
     "mcp": "MCP",
-    "sprints": "Sprints"
+    "sprints": "Sprints",
+    "docs": "Docs"
   },
   "configure": {
     "projectContext": {
@@ -140,6 +141,39 @@
     "exportSuccessBody_one": "Foi gravado {{count}} papel em .squad/team.json. Faça commit para compartilhar.",
     "exportSuccessBody_other": "Foram gravados {{count}} papéis em .squad/team.json. Faça commit para compartilhar.",
     "exportErrorTitle": "Não foi possível exportar a equipe"
+  },
+  "docs": {
+    "scopeWorkspace": "Workspace",
+    "scopeAgent": "{{name}}",
+    "scopeWorkspaceHint": "Compartilhado entre todos os agentes deste workspace",
+    "scopeAgentHint": "Apenas este agente vê",
+    "newDoc": "Novo doc",
+    "templates": "Modelos",
+    "blankDoc": "Doc em branco",
+    "empty": "Ainda não há docs",
+    "pickOrCreate": "Escolha ou crie um doc",
+    "titlePlaceholder": "Sem título",
+    "untitledTitle": "Sem título",
+    "bodyPlaceholder": "Escreva o doc em Markdown…",
+    "saving": "Salvando…",
+    "unsaved": "Alterações não salvas",
+    "saved": "Salvo",
+    "audienceLabel": "Público:",
+    "audienceAll": "Todos os agentes",
+    "audienceCount_one": "{{count}} papel",
+    "audienceCount_other": "{{count}} papéis",
+    "roleSingular": "1 papel",
+    "rolePlural_one": "{{count}} papel",
+    "rolePlural_other": "{{count}} papéis",
+    "roleLabel": {
+      "cto-agent": "Alex (CTO)",
+      "mobile-lead-agent": "Maya (Mobile)",
+      "backend-lead-agent": "Diego (Backend)",
+      "frontend-lead-agent": "Peter (Frontend)",
+      "designer-agent": "Carlo (Design)",
+      "qa-agent": "Maria (QA)",
+      "devops-agent": "Sam (DevOps)"
+    }
   },
   "sprints": {
     "backlog": "Backlog",

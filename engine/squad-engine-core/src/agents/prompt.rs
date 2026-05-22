@@ -211,7 +211,137 @@ pub fn build_agent_context(
         }
     }
 
+    // Project docs (I.1): workspace-scoped docs filtered by audience +
+    // per-agent private docs. The agent's role id comes from
+    // `<agent>/.squad/agent.json` so audience-tagged docs only land in
+    // the right roles' prompts (qa-criteria for Maria, review-criteria
+    // for Alex/leads).
+    let role_id = read_role_id(dir);
+    if let Some(workspace_dir) = dir.parent() {
+        for d in read_docs_in(workspace_dir) {
+            if d.body.trim().is_empty() {
+                continue;
+            }
+            let matches = d.audience.is_empty()
+                || role_id
+                    .as_deref()
+                    .map(|r| d.audience.iter().any(|a| a == r))
+                    .unwrap_or(false);
+            if matches {
+                parts.push(format!("# Project Doc — {}\n\n{}", d.title, d.body));
+            }
+        }
+    }
+    for d in read_docs_in(dir) {
+        if d.body.trim().is_empty() {
+            continue;
+        }
+        parts.push(format!("# Agent Doc — {}\n\n{}", d.title, d.body));
+    }
+
     parts.join("\n\n---\n\n")
+}
+
+// ── Project doc helpers ─────────────────────────────────────────────────
+
+struct DocEntry {
+    title: String,
+    audience: Vec<String>,
+    body: String,
+}
+
+/// Read the agent's role id from `<agent>/.squad/agent.json` so we can
+/// audience-filter workspace docs. Returns None if the file is missing
+/// or malformed; the caller treats that as "universal docs only".
+fn read_role_id(agent_dir: &Path) -> Option<String> {
+    let meta_path = agent_dir.join(".squad/agent.json");
+    let content = fs::read_to_string(&meta_path).ok()?;
+    let meta: serde_json::Value = serde_json::from_str(&content).ok()?;
+    meta.get("config_id")?.as_str().map(String::from)
+}
+
+/// Read all docs from `<root>/.squad/docs/` using the index.json maintained
+/// by the frontend. Quietly tolerates missing files, malformed JSON, and
+/// stale index entries.
+fn read_docs_in(root: &Path) -> Vec<DocEntry> {
+    let docs_dir = root.join(".squad/docs");
+    let index_path = docs_dir.join("index.json");
+
+    let Ok(index_raw) = fs::read_to_string(&index_path) else {
+        return Vec::new();
+    };
+    let Ok(index) = serde_json::from_str::<serde_json::Value>(&index_raw) else {
+        return Vec::new();
+    };
+    let Some(slugs) = index.get("slugs").and_then(|v| v.as_array()) else {
+        return Vec::new();
+    };
+
+    let mut out = Vec::new();
+    for slug_val in slugs {
+        let Some(slug) = slug_val.as_str() else {
+            continue;
+        };
+        let path = docs_dir.join(format!("{slug}.md"));
+        let Ok(raw) = fs::read_to_string(&path) else {
+            continue;
+        };
+        if raw.is_empty() {
+            continue;
+        }
+        out.push(parse_doc(&raw, slug));
+    }
+    out
+}
+
+/// Minimal YAML-ish frontmatter parser — keeps engine free of a YAML dep.
+/// Matches the frontend's `parseFrontmatter` in `lib/project-docs.ts`.
+fn parse_doc(raw: &str, slug: &str) -> DocEntry {
+    let mut title = slug.to_string();
+    let mut audience: Vec<String> = Vec::new();
+    let mut body = raw.to_string();
+
+    if let Some(rest) = raw.strip_prefix("---\n") {
+        if let Some(end_idx) = rest.find("\n---") {
+            let fm = &rest[..end_idx];
+            for line in fm.lines() {
+                let trimmed = line.trim();
+                if trimmed.is_empty() || trimmed.starts_with('#') {
+                    continue;
+                }
+                let Some((k, v)) = trimmed.split_once(':') else {
+                    continue;
+                };
+                let k = k.trim();
+                let v = v.trim();
+                if k == "title" {
+                    title = v.trim_matches(|c| c == '"' || c == '\'').to_string();
+                } else if k == "audience"
+                    && v.starts_with('[')
+                    && v.ends_with(']')
+                {
+                    audience = v[1..v.len() - 1]
+                        .split(',')
+                        .map(|s| {
+                            s.trim()
+                                .trim_matches(|c| c == '"' || c == '\'')
+                                .to_string()
+                        })
+                        .filter(|s| !s.is_empty())
+                        .collect();
+                }
+            }
+            // Strip frontmatter (including the trailing "---\n") from body.
+            let after = &rest[end_idx + 4..];
+            body = after.trim_start_matches('\n').to_string();
+        }
+    }
+
+    DocEntry {
+        title,
+        audience,
+        body,
+    }
 }
 
 #[cfg(test)]
@@ -294,5 +424,74 @@ mod tests {
         let d = TempDir::new().unwrap();
         let err = read_file(d.path(), "../etc/passwd", &["allowed.md"]).unwrap_err();
         assert!(err.contains("Unknown agent file"));
+    }
+
+    #[test]
+    fn parse_doc_extracts_title_audience_and_body() {
+        let raw = "---\ntitle: \"QA criteria\"\naudience: [\"qa-agent\", \"cto-agent\"]\n---\n\n# QA\n\nbody here";
+        let parsed = parse_doc(raw, "qa-criteria");
+        assert_eq!(parsed.title, "QA criteria");
+        assert_eq!(parsed.audience, vec!["qa-agent", "cto-agent"]);
+        assert!(parsed.body.starts_with("# QA"));
+    }
+
+    #[test]
+    fn parse_doc_handles_no_frontmatter() {
+        let raw = "# Architecture\n\nsystem design here";
+        let parsed = parse_doc(raw, "architecture");
+        assert_eq!(parsed.title, "architecture");
+        assert!(parsed.audience.is_empty());
+        assert_eq!(parsed.body, raw);
+    }
+
+    #[test]
+    fn build_agent_context_injects_workspace_docs_audience_filtered() {
+        // Workspace at /ws, agent at /ws/agent. Two docs: architecture
+        // is universal, qa-criteria targets qa-agent only. Build for a
+        // qa-agent → both included. Build for a cto-agent → only
+        // architecture.
+        let ws = TempDir::new().unwrap();
+        let agent_dir = ws.path().join("agent");
+        fs::create_dir_all(agent_dir.join(".squad")).unwrap();
+
+        // Workspace docs
+        let docs_dir = ws.path().join(".squad/docs");
+        fs::create_dir_all(&docs_dir).unwrap();
+        fs::write(
+            docs_dir.join("index.json"),
+            r#"{"slugs":["architecture","qa-criteria"]}"#,
+        )
+        .unwrap();
+        fs::write(
+            docs_dir.join("architecture.md"),
+            "---\ntitle: \"Architecture\"\n---\n\nuniversal body",
+        )
+        .unwrap();
+        fs::write(
+            docs_dir.join("qa-criteria.md"),
+            "---\ntitle: \"QA criteria\"\naudience: [\"qa-agent\"]\n---\n\nqa-only body",
+        )
+        .unwrap();
+
+        // Agent meta — qa role
+        fs::write(
+            agent_dir.join(".squad/agent.json"),
+            r#"{"id":"a1","config_id":"qa-agent","created_at":"2026-01-01T00:00:00Z"}"#,
+        )
+        .unwrap();
+
+        let out = build_agent_context(&agent_dir, None, None);
+        assert!(out.contains("universal body"));
+        assert!(out.contains("qa-only body"));
+
+        // Flip role: cto-agent should NOT see qa-criteria.
+        fs::write(
+            agent_dir.join(".squad/agent.json"),
+            r#"{"id":"a1","config_id":"cto-agent","created_at":"2026-01-01T00:00:00Z"}"#,
+        )
+        .unwrap();
+        let out = build_agent_context(&agent_dir, None, None);
+        assert!(out.contains("universal body"));
+        assert!(!out.contains("qa-only body"));
     }
 }

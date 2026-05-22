@@ -53,3 +53,8 @@ export {
   useSavePhaseOwnership,
 } from "./use-phase-ownership";
 export type { PhaseOwnership } from "./use-phase-ownership";
+export {
+  useProjectDocs,
+  useSaveProjectDoc,
+  useDeleteProjectDoc,
+} from "./use-project-docs";
