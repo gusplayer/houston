@@ -26,6 +26,7 @@ import { CreateAgentDialog } from "./create-workspace-dialog";
 import { RecruitTeamDialog } from "./recruit-team-dialog";
 import { TeamManifestBanner } from "./team-manifest-banner";
 import { WorkspacePage } from "./workspace-page";
+import { AgentProjectChip } from "./agent-project-chip";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
 import { MissionSearchInput } from "../mission-search-input";
@@ -112,6 +113,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                   <div data-tour-target="tabs">
                   <TabBar
                     title={currentAgent.name}
+                    titleChip={<AgentProjectChip agentPath={currentAgent.folderPath} />}
                     tabs={tabs.map((tab) => ({
                       id: tab.id,
                       label: t(`agents:tabLabels.${tab.id}`, { defaultValue: tab.label }),
