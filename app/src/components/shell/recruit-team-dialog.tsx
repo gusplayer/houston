@@ -17,7 +17,9 @@ import { useWorkspaceStore } from "../../stores/workspaces";
 import { useUIStore } from "../../stores/ui";
 import { useProjects } from "../../hooks/queries";
 import { recommendTeam, ROLE_IDS, type RoleId } from "../../lib/recommend-team";
+import { readTeamManifest, type TeamMember } from "../../lib/team-manifest";
 import { AgentAvatar } from "./agent-avatar";
+import type { Project } from "@squad/engine-client";
 
 /**
  * G.3 — the "magic moment" dialog. Shows the team library with
@@ -37,21 +39,56 @@ export function RecruitTeamDialog() {
 
   const [selected, setSelected] = useState<Set<RoleId>>(new Set());
   const [recommended, setRecommended] = useState<Set<RoleId>>(new Set());
+  // Roles + name/color overrides imported from a repo's `.squad/team.json`.
+  // Takes precedence over the stack-detected recommendation: the team the
+  // repo asked for is what the user gets.
+  const [manifestMembers, setManifestMembers] = useState<TeamMember[]>([]);
+  const [manifestSource, setManifestSource] = useState<Project | null>(null);
   const [hiring, setHiring] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Compute recommendations on open. Detection reads package.json + a
-  // few config files from each project — runs in parallel and cheap
-  // enough that we don't need to memo it.
+  // Detection pass: load manifests in parallel with the heuristic
+  // recommendation. Manifest beats heuristic when both exist.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    recommendTeam(projects ?? []).then((rec) => {
+
+    (async () => {
+      const list = projects ?? [];
+      // First manifest wins. If the workspace has multiple repos, the
+      // user can re-export the merged team from the Repo tab.
+      let foundManifest: { project: Project; members: TeamMember[] } | null = null;
+      for (const p of list) {
+        const m = await readTeamManifest(p.repoPath);
+        if (m && m.agents.length > 0) {
+          foundManifest = { project: p, members: m.agents };
+          break;
+        }
+      }
+
       if (cancelled) return;
+
+      if (foundManifest) {
+        setManifestSource(foundManifest.project);
+        setManifestMembers(foundManifest.members);
+        const ids = new Set(
+          foundManifest.members
+            .map((m) => m.role)
+            .filter((r): r is RoleId => (ROLE_IDS as readonly string[]).includes(r)),
+        );
+        setRecommended(ids);
+        setSelected(ids);
+        return;
+      }
+
+      const rec = await recommendTeam(list);
+      if (cancelled) return;
+      setManifestSource(null);
+      setManifestMembers([]);
       setRecommended(rec.recommended);
-      // Default the selection to whatever was recommended.
       setSelected(new Set(rec.recommended));
-    });
+    })();
+
     return () => {
       cancelled = true;
     };
@@ -61,10 +98,16 @@ export function RecruitTeamDialog() {
     if (!open) {
       setSelected(new Set());
       setRecommended(new Set());
+      setManifestSource(null);
+      setManifestMembers([]);
       setHiring(false);
       setError(null);
     }
   }, [open]);
+
+  const fromManifest = manifestMembers.length > 0;
+  /** Build a fast lookup for overrides when we hire from a manifest. */
+  const memberByRole = new Map(manifestMembers.map((m) => [m.role, m]));
 
   const roleDefs = ROLE_IDS.map((id) =>
     agentDefs.find((d) => d.config.id === id),
@@ -91,10 +134,15 @@ export function RecruitTeamDialog() {
       for (const roleId of selected) {
         const def = agentDefs.find((d) => d.config.id === roleId);
         if (!def) continue;
-        const color = AGENT_COLORS[i % AGENT_COLORS.length].id;
+        // Manifest overrides take priority over our default fall-throughs
+        // so a repo's `.squad/team.json` reproduces exactly the team the
+        // author committed (names + colors), not Squad's defaults.
+        const member = memberByRole.get(roleId);
+        const name = member?.name?.trim() || def.config.name;
+        const color = member?.color || AGENT_COLORS[i % AGENT_COLORS.length].id;
         await create(
           workspace.id,
-          def.config.name,
+          name,
           def.config.id,
           color,
           def.config.claudeMd,
@@ -115,9 +163,13 @@ export function RecruitTeamDialog() {
     <Dialog open={open} onOpenChange={(o) => { if (!o) setOpen(false); }}>
       <DialogContent className="sm:max-w-[720px] max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-3 border-b border-border">
-          <DialogTitle>{t("recruit.title")}</DialogTitle>
+          <DialogTitle>
+            {fromManifest ? t("recruit.titleFromManifest") : t("recruit.title")}
+          </DialogTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            {t("recruit.subtitle")}
+            {fromManifest
+              ? t("recruit.subtitleFromManifest", { repo: manifestSource?.name ?? "" })
+              : t("recruit.subtitle")}
           </p>
         </DialogHeader>
 
@@ -126,6 +178,10 @@ export function RecruitTeamDialog() {
             {roleDefs.map((def) => {
               const isSelected = selected.has(def.config.id as RoleId);
               const isRecommended = recommended.has(def.config.id as RoleId);
+              const member = memberByRole.get(def.config.id);
+              // The role's display name in this row: manifest override
+              // wins so a repo that renamed Maya → Lisa shows "Lisa" here.
+              const displayName = member?.name?.trim() || def.config.name;
               return (
                 <label
                   key={def.config.id}
@@ -145,12 +201,16 @@ export function RecruitTeamDialog() {
                   <AgentAvatar config={def.config} size="md" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm">{def.config.name}</span>
-                      {isRecommended && (
+                      <span className="font-semibold text-sm">{displayName}</span>
+                      {member ? (
+                        <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                          {t("recruit.fromManifest")}
+                        </Badge>
+                      ) : isRecommended ? (
                         <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
                           {t("recruit.recommended")}
                         </Badge>
-                      )}
+                      ) : null}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
                       {def.config.description}
