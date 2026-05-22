@@ -66,7 +66,8 @@ Need specific knowledge? Load on demand:
 - `.squad/` layout, schemas, reactivity → `knowledge-base/files-first.md`
 - Skills on disk + UI, picker, invocation marker → `knowledge-base/skills.md`
 - Agent manifest, tiers, sidebar, workspaces → `knowledge-base/agent-manifest.md`
-- Team library (Alex, Maya, Diego…), per-agent project binding, workspace stories, phase ownership, agent-state avatar, team manifest export/import → `knowledge-base/team-library.md`
+- Team library (Alex, Maya, Diego…), per-agent project binding, workspace stories, phase ownership, agent-state avatar, team manifest export/import, project docs, Workspace settings page → `knowledge-base/team-library.md`
+- One-time release setup: updater keypair, Apple signing, telemetry secrets → `knowledge-base/release-setup.md`
 - Store marketplace: in-app page, deep links, website pages, mock community agents, deferred infra → `knowledge-base/store-marketplace.md`
 - Engine wire protocol (REST + WS) → `knowledge-base/engine-protocol.md`
 - `squad-engine` binary ops → `knowledge-base/engine-server.md`
