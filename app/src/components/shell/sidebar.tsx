@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Blend, Settings, Store } from "lucide-react";
+import { LayoutDashboard, Blend, Settings, Store, Building2 } from "lucide-react";
 import { ConfirmDialog } from "@squad/core";
 import { AppSidebar, WorkspaceSwitcher } from "@squad/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -56,7 +56,8 @@ export function Sidebar({ children }: { children: ReactNode }) {
     viewMode === "dashboard" ||
     viewMode === "store" ||
     viewMode === "connections" ||
-    viewMode === "settings";
+    viewMode === "settings" ||
+    viewMode === "workspace";
 
   const handleWorkspaceSwitch = async (wsId: string) => {
     if (wsId === currentWorkspace?.id) return;
@@ -136,6 +137,12 @@ export function Sidebar({ children }: { children: ReactNode }) {
             icon: <Store className="h-4 w-4" />,
             onClick: () => setViewMode("store"),
             dataAttrs: { "data-tour-target": "nav-store" },
+          },
+          {
+            id: "workspace",
+            label: t("shell:sidebar.workspace"),
+            icon: <Building2 className="h-4 w-4" />,
+            onClick: () => setViewMode("workspace"),
           },
           {
             id: "connections",
