@@ -170,6 +170,17 @@
   "newAgent": {
     "dialogTitle": "Novo agente"
   },
+  "recruit": {
+    "entryAction": "Recrutar equipe",
+    "title": "Recrute sua equipe",
+    "subtitle": "Escolha os papéis que você quer. Os recomendados são inferidos dos seus projetos.",
+    "recommended": "Recomendado",
+    "selectedCount_one": "{{count}} selecionado",
+    "selectedCount_other": "{{count}} selecionados",
+    "hireAction_one": "Contratar {{count}}",
+    "hireAction_other": "Contratar {{count}}",
+    "cancel": "Cancelar"
+  },
   "engineGate": {
     "starting": "Iniciando o motor do Squad…"
   }

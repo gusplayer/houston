@@ -19,6 +19,9 @@ interface UIState {
   authRequired: string | null;
   toasts: ToastItem[];
   createAgentDialogOpen: boolean;
+  /** G.3 — Recruit Team dialog. Multi-select role agents and create
+   * them all at once for a one-click team setup. */
+  recruitTeamDialogOpen: boolean;
   /** Callback registered by the board tab to open the new-mission panel */
   onStartMission: (() => void) | null;
   /** Extra create actions registered by the board tab (e.g. "New Planning Session"). */
@@ -55,6 +58,7 @@ interface UIState {
   addToast: (toast: Omit<ToastItem, "id">) => void;
   dismissToast: (id: string) => void;
   setCreateAgentDialogOpen: (open: boolean) => void;
+  setRecruitTeamDialogOpen: (open: boolean) => void;
   setOnStartMission: (cb: (() => void) | null) => void;
   setBoardActions: (actions: Array<{ id: string; label: string; onClick: () => void }>) => void;
   setAgentMissionSearchQuery: (agentPath: string, query: string) => void;
@@ -77,6 +81,7 @@ export const useUIStore = create<UIState>((set) => ({
   authRequired: null,
   toasts: [],
   createAgentDialogOpen: false,
+  recruitTeamDialogOpen: false,
   onStartMission: null,
   boardActions: [],
   agentMissionSearchQueries: {},
@@ -114,6 +119,8 @@ export const useUIStore = create<UIState>((set) => ({
 
   setCreateAgentDialogOpen: (createAgentDialogOpen) =>
     set({ createAgentDialogOpen }),
+  setRecruitTeamDialogOpen: (recruitTeamDialogOpen) =>
+    set({ recruitTeamDialogOpen }),
 
   setOnStartMission: (onStartMission) => set({ onStartMission }),
   setBoardActions: (boardActions) => set({ boardActions }),
