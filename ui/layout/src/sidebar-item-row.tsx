@@ -87,7 +87,16 @@ export function SidebarItemRow({
           {item.icon && (
             <span className={sidebarItemRowClasses.icon}>{item.icon}</span>
           )}
-          <span className={sidebarItemRowClasses.name}>{item.name}</span>
+          {item.subtitle ? (
+            <span className="flex flex-col min-w-0 leading-tight">
+              <span className={sidebarItemRowClasses.name}>{item.name}</span>
+              <span className="text-[10px] text-muted-foreground truncate">
+                {item.subtitle}
+              </span>
+            </span>
+          ) : (
+            <span className={sidebarItemRowClasses.name}>{item.name}</span>
+          )}
         </button>
       )}
 
