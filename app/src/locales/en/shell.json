@@ -192,6 +192,7 @@
     "projects": "Projects",
     "projectsHint": "Repositories bound to this workspace.",
     "deleteProject": "Remove project",
+    "renameProject": "Click to rename",
     "docsHint": "Edit per-doc audience in the per-agent Docs tab."
   },
   "teamManifestBanner": {
