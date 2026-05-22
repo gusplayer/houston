@@ -2,6 +2,7 @@
   "sidebar": {
     "missionControl": "Mission Control",
     "store": "Store",
+    "workspace": "Workspace",
     "integrations": "Integrations",
     "settings": "Settings",
     "yourAgents": "Your Agents",
@@ -183,6 +184,15 @@
     "hireAction_one": "Hire {{count}}",
     "hireAction_other": "Hire {{count}}",
     "cancel": "Cancel"
+  },
+  "workspace": {
+    "noWorkspace": "No workspace selected",
+    "docs": "Docs",
+    "owners": "Phase Owners",
+    "projects": "Projects",
+    "projectsHint": "Repositories bound to this workspace.",
+    "deleteProject": "Remove project",
+    "docsHint": "Edit per-doc audience in the per-agent Docs tab."
   },
   "teamManifestBanner": {
     "text_one": "{{repo}} ships a team. {{count}} role to hire.",
