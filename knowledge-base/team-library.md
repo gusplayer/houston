@@ -21,7 +21,7 @@ app/src/lib/team-manifest.ts              H.1/H.2 — read/write team.json
 ui/agent-schemas/src/team.schema.json     manifest schema (v1)
 ```
 
-## The five mechanics
+## The six mechanics
 
 ### 1. Per-agent project binding (F.1)
 Each agent's `config.projectIds: string[]` decides which workspace projects are visible in the Repo tab. Empty array = **CTO mode** (sees all repos). Non-empty = specialist scope. Managed inline in the Repo tab toolbar (`🔗 Bindings`).
@@ -37,7 +37,39 @@ File: `<workspace>/.squad/phase-ownership/phase-ownership.json` — `Partial<Rec
 ### 4. Agent state avatar (F.4)
 `useAgentState(agentPath)` derives one of `working | needs_you | error | done | idle` from `useActivity` + `useSessionStatusStore`. `AgentStateAvatar` overlays a Discord-style dot in the bottom-right of the helmet — blue pulsing while running, amber when waiting on the user, red on error, emerald on done. Built so G.4 (sprite packs per role) can swap the helmet for a character without touching the state machine.
 
-### 5. Team manifest (H.1 + H.2)
+### 6. Project Docs (I.1)
+Project documentation that **all** agents in the workspace read, with optional per-role audience filtering. Two scopes:
+
+- **Workspace-global** — `<workspace>/.squad/docs/*.md` — every agent in the workspace sees these (subject to `audience` frontmatter).
+- **Per-agent private** — `<agent>/.squad/docs/*.md` — only that specific agent sees these.
+
+Each doc supports optional YAML-ish frontmatter:
+
+```markdown
+---
+title: "QA criteria"
+audience: ["qa-agent", "cto-agent"]
+---
+
+## Coverage targets
+- ...
+```
+
+`audience` omitted/empty = universal (every agent in scope). When set, only agents whose `config_id` matches one of the entries get the doc.
+
+**Engine injection** lives in `engine/squad-engine-core/src/agents/prompt.rs::build_agent_context`. On session start it:
+1. Reads `<agent>/.squad/agent.json` to know the agent's role
+2. Reads `<workspace>/.squad/docs/index.json` + each listed doc, applies audience filter
+3. Reads `<agent>/.squad/docs/index.json` + each listed doc (always included)
+4. Appends each as a `# Project Doc — {title}` section
+
+An `index.json` (`{ slugs: string[] }`) maintained by the frontend lets the engine enumerate docs without a directory listing endpoint. Deleting writes empty content + removes the slug from index — the engine treats empty bodies as "skip".
+
+**UI** — new `Docs` tab on every role agent. Top has a scope toggle (`Workspace` / `<agent name>`). Per-doc autosave editor with title + audience chip selector + Markdown body. `+ New doc` opens a template picker (Architecture / Tech stack / Rules / Best practices / QA criteria / Code review criteria / blank).
+
+Frontend parser: `app/src/lib/project-docs.ts::parseFrontmatter`. Engine parser: `agents/prompt.rs::parse_doc`. Both kept tiny + identical so a doc written from the UI loads correctly into the prompt.
+
+### 7. Team manifest (H.1 + H.2)
 A repo-tracked `<repo>/.squad/team/team.json` carries the roster from machine to machine.
 
 ```json

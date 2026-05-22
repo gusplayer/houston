@@ -12,6 +12,7 @@ export const ctoAgent: AgentConfig = {
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "repo", label: "Repo", builtIn: "repo" },
+    { id: "docs", label: "Docs", builtIn: "docs" },
     { id: "routines", label: "Routines", builtIn: "routines" },
     { id: "skills", label: "Skills", builtIn: "skills" },
     { id: "files", label: "Files", builtIn: "files" },

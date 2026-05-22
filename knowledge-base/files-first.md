@@ -16,6 +16,11 @@ If app-specific → `.squad/`.
     stories/stories.json         workspace-scoped Stories (F.2)
     phase-ownership/
       phase-ownership.json       phase → owning agent id (F.3)
+    docs/                        project docs visible to every agent (I.1)
+      index.json                 { slugs: string[] }
+      architecture.md            universal — audience omitted
+      qa-criteria.md             audience: [qa-agent] in frontmatter
+      review-criteria.md         audience: [cto-agent, *-lead-agent]
   {Agent}/
   .squad/
     agent.json                  AgentMeta (id, manifest_id, created_at, last_opened_at)
@@ -32,6 +37,9 @@ If app-specific → `.squad/`.
       # Empty/unset = CTO mode (sees every workspace project).
     mcps/
       mcps.json + .schema.json   per-agent MCP server config (B.1)
+    docs/                         agent-private project docs (I.1)
+      index.json                  { slugs: string[] }
+      <slug>.md                   markdown with optional frontmatter
     learnings/
       learnings.json + .schema.json   ({id, text, created_at})
       # Legacy `.squad/memory/learnings.md` auto-migrated on startup
