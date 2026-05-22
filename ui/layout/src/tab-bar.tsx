@@ -3,6 +3,10 @@ import { cn } from "@squad/core";
 
 export interface TabBarProps {
   title?: string;
+  /** Optional slot rendered right after the title (e.g. a chip showing
+   * the active project, or the agent's role). Lives in the same row
+   * as `menu`/`actions`. */
+  titleChip?: ReactNode;
   tabs: {
     id: string;
     label: string;
@@ -20,6 +24,7 @@ export interface TabBarProps {
 
 export function TabBar({
   title,
+  titleChip,
   tabs,
   activeTab,
   onTabChange,
@@ -29,11 +34,12 @@ export function TabBar({
   return (
     <div className="shrink-0 px-5 pt-4">
       {/* Title row + menu + actions */}
-      {(title || menu || actions) && (
+      {(title || menu || actions || titleChip) && (
         <div className="flex items-center gap-2 mb-3">
           {title && (
             <h1 className="text-xl font-semibold text-foreground">{title}</h1>
           )}
+          {titleChip}
           {menu}
           {actions && (
             <div className="ml-auto flex items-center gap-2">{actions}</div>

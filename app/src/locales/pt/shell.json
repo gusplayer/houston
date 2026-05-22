@@ -195,6 +195,13 @@
     "renameProject": "Clique para renomear",
     "docsHint": "Edite o público de cada doc no tab Docs do agente."
   },
+  "agentProjectChip": {
+    "allProjects": "Todos os projetos",
+    "oneProject": "1 projeto",
+    "nProjects_one": "{{count}} projeto",
+    "nProjects_other": "{{count}} projetos",
+    "tooltip": "Clique para gerenciar projetos do workspace"
+  },
   "teamManifestBanner": {
     "text_one": "{{repo}} traz uma equipe. Falta {{count}} papel para contratar.",
     "text_other": "{{repo}} traz uma equipe. Faltam {{count}} papéis para contratar.",

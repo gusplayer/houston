@@ -195,6 +195,13 @@
     "renameProject": "Click to rename",
     "docsHint": "Edit per-doc audience in the per-agent Docs tab."
   },
+  "agentProjectChip": {
+    "allProjects": "All projects",
+    "oneProject": "1 project",
+    "nProjects_one": "{{count}} project",
+    "nProjects_other": "{{count}} projects",
+    "tooltip": "Click to manage workspace projects"
+  },
   "teamManifestBanner": {
     "text_one": "{{repo}} ships a team. {{count}} role to hire.",
     "text_other": "{{repo}} ships a team. {{count}} roles to hire.",
