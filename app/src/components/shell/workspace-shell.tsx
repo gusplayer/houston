@@ -24,6 +24,8 @@ import { Sidebar } from "./sidebar";
 import { SquadLogo } from "./experience-card";
 import { CreateAgentDialog } from "./create-workspace-dialog";
 import { RecruitTeamDialog } from "./recruit-team-dialog";
+import { TeamManifestBanner } from "./team-manifest-banner";
+import { WorkspacePage } from "./workspace-page";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
 import { MissionSearchInput } from "../mission-search-input";
@@ -93,8 +95,11 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
               data-tour-target="main"
               className="flex min-w-0 flex-1 flex-col overflow-hidden"
             >
+              <TeamManifestBanner />
               {viewMode === "dashboard" ? (
                 <Dashboard />
+              ) : viewMode === "workspace" ? (
+                <WorkspacePage />
               ) : viewMode === "store" ? (
                 <StorePage />
               ) : viewMode === "connections" ? (

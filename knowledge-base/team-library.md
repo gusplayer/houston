@@ -21,7 +21,7 @@ app/src/lib/team-manifest.ts              H.1/H.2 — read/write team.json
 ui/agent-schemas/src/team.schema.json     manifest schema (v1)
 ```
 
-## The six mechanics
+## The nine mechanics
 
 ### 1. Per-agent project binding (F.1)
 Each agent's `config.projectIds: string[]` decides which workspace projects are visible in the Repo tab. Empty array = **CTO mode** (sees all repos). Non-empty = specialist scope. Managed inline in the Repo tab toolbar (`🔗 Bindings`).
@@ -124,8 +124,23 @@ Deliberately deterministic — no LLM call so it runs instantly and offline. The
 - New stack signal → extend `StackSignals` + `detectSignals()` + `rolesForSignals()` in `recommend-team.ts`.
 - New phase → extend `StoryPhase` in `engine-client/src/types.ts` + `stories.schema.json` enum + `STORY_PHASES` / `PHASE_DOT_COLORS` in `sprints-tab.tsx` + `nextPhase()` ordering. Locales: `sprints.phases.<id>` in en/es/pt.
 
+### 8. Workspace settings page (I.2)
+Sidebar entry **Workspace** (between Store and Integrations) opens a page with three sections:
+
+- **Docs** — read-only viewer of `<workspace>/.squad/docs/*` with template-picker "+ New doc". Edits + audience tagging still happen in the per-agent Docs tab (same files, same hook).
+- **Phase Owners** — same per-phase agent picker as the Sprints toolbar, accessible without entering an agent.
+- **Projects** — list, add, delete workspace projects. Per-row **Export team** writes `<repo>/.squad/team/team.json` from the current roster.
+
+`viewMode === "workspace"` joins the existing `isTopLevel` set in `sidebar.tsx` so it's treated like Mission Control / Store / Settings rather than an agent tab.
+
+### 9. Team manifest banner (H.3)
+When a bound project ships a `team.json` whose roles aren't all present in the workspace, `TeamManifestBanner` renders above every workspace view with a one-click **Hire team** CTA. Click opens `RecruitTeamDialog` which preselects the missing members. Per-session dismiss via `sessionStorage`. Hook: `useDetectedTeamManifest()`. The banner self-hides as soon as the user hires all missing members.
+
+## Avatar sprite slot (G.4, infrastructure only)
+
+`AgentStateAvatar` accepts a `spritePack?: Partial<Record<AgentState, string>>` prop. When a state has a URL in the pack, the helmet is replaced by an `<img>` for that state; missing states fall back to the helmet. Real animated sprite packs (Idle / Walk / Wave / Failed art) are not bundled — they need real design assets. The seam exists so adding them later is a one-line change at the call site.
+
 ## Not yet built
 
-- **G.4** — sprite packs per role (the shadcn-style character animations the user prototyped). Builds on F.4's state machine; the avatar component is ready to accept a `spritePack` prop.
-- **H.3** — persistent "Detected team manifest in {repo}" banner outside the Recruit Team dialog (so users notice the import path on subsequent launches).
-- **I.1** — per-repo CLAUDE.md overrides (`<repo>/.squad/agents/<role>.md` overlays the built-in CLAUDE.md for that role on that repo).
+- **Animated sprite packs** with multi-frame sheets (the shadcn-style preview the user shared). Needs commissioned art per role.
+- **Per-repo CLAUDE.md overrides** — `<repo>/.squad/agents/<role>.md` overlays a role's built-in CLAUDE.md for that repo specifically. The repo-tracked Docs (I.1) cover most of this need, but a per-role overlay would let a project tell Maya "for this repo, use functional components only" without touching the universal docs.

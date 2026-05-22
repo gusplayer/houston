@@ -2,6 +2,7 @@
   "sidebar": {
     "missionControl": "Central de missões",
     "store": "Store",
+    "workspace": "Workspace",
     "integrations": "Integrações",
     "settings": "Configurações",
     "yourAgents": "Seus agentes",
@@ -183,6 +184,21 @@
     "hireAction_one": "Contratar {{count}}",
     "hireAction_other": "Contratar {{count}}",
     "cancel": "Cancelar"
+  },
+  "workspace": {
+    "noWorkspace": "Nenhum workspace selecionado",
+    "docs": "Docs",
+    "owners": "Donos das fases",
+    "projects": "Projetos",
+    "projectsHint": "Repositórios vinculados a este workspace.",
+    "deleteProject": "Remover projeto",
+    "docsHint": "Edite o público de cada doc no tab Docs do agente."
+  },
+  "teamManifestBanner": {
+    "text_one": "{{repo}} traz uma equipe. Falta {{count}} papel para contratar.",
+    "text_other": "{{repo}} traz uma equipe. Faltam {{count}} papéis para contratar.",
+    "action": "Contratar equipe",
+    "dismiss": "Fechar"
   },
   "engineGate": {
     "starting": "Iniciando o motor do Squad…"
