@@ -8,6 +8,7 @@ pub const LEARNINGS: &str = include_str!("../../../ui/agent-schemas/src/learning
 pub const MCPS: &str = include_str!("../../../ui/agent-schemas/src/mcps.schema.json");
 pub const SPRINTS: &str = include_str!("../../../ui/agent-schemas/src/sprints.schema.json");
 pub const STORIES: &str = include_str!("../../../ui/agent-schemas/src/stories.schema.json");
+pub const TEAM: &str = include_str!("../../../ui/agent-schemas/src/team.schema.json");
 
 pub const ALL: &[(&str, &str)] = &[
     ("activity", ACTIVITY),
@@ -18,4 +19,5 @@ pub const ALL: &[(&str, &str)] = &[
     ("mcps", MCPS),
     ("sprints", SPRINTS),
     ("stories", STORIES),
+    ("team", TEAM),
 ];

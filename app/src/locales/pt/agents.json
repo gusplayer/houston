@@ -131,7 +131,15 @@
     "ctoMode": "Modo CTO",
     "ctoModeAction": "Mudar para modo CTO",
     "bindingsTitle": "Vincular projetos a este agente",
-    "bindingsHelp": "Selecione os projetos em que este agente irá trabalhar. Deixe todos desmarcados para o modo CTO (vê todos os projetos do workspace)."
+    "bindingsHelp": "Selecione os projetos em que este agente irá trabalhar. Deixe todos desmarcados para o modo CTO (vê todos os projetos do workspace).",
+    "exportTeam": "Exportar equipe",
+    "exportTeamTitle": "Escreve o manifesto da equipe em <repo>/.squad/team.json para que colaboradores possam contratar a mesma equipe com um clique.",
+    "exportEmptyTitle": "Nenhum papel para exportar",
+    "exportEmptyBody": "Contrate primeiro alguns agentes de papel (Maya, Diego, Peter…). Agentes customizados são ignorados.",
+    "exportSuccessTitle": "Equipe exportada",
+    "exportSuccessBody_one": "Foi gravado {{count}} papel em .squad/team.json. Faça commit para compartilhar.",
+    "exportSuccessBody_other": "Foram gravados {{count}} papéis em .squad/team.json. Faça commit para compartilhar.",
+    "exportErrorTitle": "Não foi possível exportar a equipe"
   },
   "sprints": {
     "backlog": "Backlog",

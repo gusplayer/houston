@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { GitBranch, GitCommit, Plus, RefreshCw, FolderOpen, Link2 } from "lucide-react";
+import { GitBranch, GitCommit, Plus, RefreshCw, FolderOpen, Link2, FileDown } from "lucide-react";
 import {
   Button,
   Badge,
@@ -25,6 +25,11 @@ import {
 } from "../../hooks/queries";
 import { tauriAgents, tauriConfig } from "../../lib/tauri";
 import { queryKeys } from "../../lib/query-keys";
+import { useAgentStore } from "../../stores/agents";
+import { useAgentCatalogStore } from "../../stores/agent-catalog";
+import { useUIStore } from "../../stores/ui";
+import { buildManifestFromAgents, writeTeamManifest } from "../../lib/team-manifest";
+import { ROLE_IDS } from "../../lib/recommend-team";
 
 export default function RepoTab({ agent }: TabProps) {
   const { t } = useTranslation("agents");
@@ -83,6 +88,41 @@ export default function RepoTab({ agent }: TabProps) {
   async function clearBindings() {
     await tauriConfig.write(agentPath, { ...(agentConfig ?? {}), projectIds: [] });
     qc.invalidateQueries({ queryKey: queryKeys.config(agentPath) });
+  }
+
+  const allAgents = useAgentStore((s) => s.agents);
+  const agentDefs = useAgentCatalogStore((s) => s.agents);
+  const addToast = useUIStore((s) => s.addToast);
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExportTeam() {
+    if (!project) return;
+    setExporting(true);
+    try {
+      const manifest = buildManifestFromAgents(allAgents, agentDefs, ROLE_IDS);
+      if (manifest.agents.length === 0) {
+        addToast({
+          title: t("repo.exportEmptyTitle"),
+          description: t("repo.exportEmptyBody"),
+          variant: "info",
+        });
+        return;
+      }
+      await writeTeamManifest(project.repoPath, manifest);
+      addToast({
+        title: t("repo.exportSuccessTitle"),
+        description: t("repo.exportSuccessBody", { count: manifest.agents.length }),
+        variant: "success",
+      });
+    } catch (err) {
+      addToast({
+        title: t("repo.exportErrorTitle"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+      });
+    } finally {
+      setExporting(false);
+    }
   }
 
   const { data: gitStatus, isLoading: statusLoading, refetch: refetchStatus } = useGitStatus(wid, projectId, { refetchInterval: 10_000 });
@@ -179,6 +219,33 @@ export default function RepoTab({ agent }: TabProps) {
           </Button>
         )}
         {projectId && (
+          <>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 ml-auto text-xs"
+              onClick={() => void handleExportTeam()}
+              disabled={exporting}
+              title={t("repo.exportTeamTitle")}
+            >
+              {exporting ? (
+                <Spinner className="size-3 mr-1" />
+              ) : (
+                <FileDown className="size-3 mr-1" />
+              )}
+              {t("repo.exportTeam")}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2"
+              onClick={() => void refetchStatus()}
+            >
+              <RefreshCw className={cn("size-3", statusLoading && "animate-spin")} />
+            </Button>
+          </>
+        )}
+        {!projectId && (
           <Button
             size="sm"
             variant="ghost"

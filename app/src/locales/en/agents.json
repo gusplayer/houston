@@ -131,7 +131,15 @@
     "ctoMode": "CTO mode",
     "ctoModeAction": "Switch to CTO mode",
     "bindingsTitle": "Bind projects to this agent",
-    "bindingsHelp": "Select the projects this agent should work on. Leave all unchecked for CTO mode (sees every workspace project)."
+    "bindingsHelp": "Select the projects this agent should work on. Leave all unchecked for CTO mode (sees every workspace project).",
+    "exportTeam": "Export team",
+    "exportTeamTitle": "Write a team manifest to <repo>/.squad/team.json so collaborators can hire the same team in one click.",
+    "exportEmptyTitle": "No team roles to export",
+    "exportEmptyBody": "Hire some role agents (Maya, Diego, Peter…) first. Custom agents are skipped.",
+    "exportSuccessTitle": "Team exported",
+    "exportSuccessBody_one": "Wrote {{count}} role to .squad/team.json. Commit it to share with collaborators.",
+    "exportSuccessBody_other": "Wrote {{count}} roles to .squad/team.json. Commit it to share with collaborators.",
+    "exportErrorTitle": "Couldn't export team"
   },
   "sprints": {
     "backlog": "Backlog",

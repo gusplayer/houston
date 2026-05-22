@@ -131,7 +131,15 @@
     "ctoMode": "Modo CTO",
     "ctoModeAction": "Cambiar a modo CTO",
     "bindingsTitle": "Asignar proyectos a este agente",
-    "bindingsHelp": "Selecciona los proyectos en los que trabajará este agente. Déjalos todos sin marcar para modo CTO (ve todos los proyectos del workspace)."
+    "bindingsHelp": "Selecciona los proyectos en los que trabajará este agente. Déjalos todos sin marcar para modo CTO (ve todos los proyectos del workspace).",
+    "exportTeam": "Exportar equipo",
+    "exportTeamTitle": "Escribe el manifiesto del equipo en <repo>/.squad/team.json para que tus colaboradores puedan contratar el mismo equipo con un clic.",
+    "exportEmptyTitle": "No hay roles que exportar",
+    "exportEmptyBody": "Contrata primero algunos agentes de rol (Maya, Diego, Peter…). Los agentes personalizados se omiten.",
+    "exportSuccessTitle": "Equipo exportado",
+    "exportSuccessBody_one": "Se escribió {{count}} rol en .squad/team.json. Haz commit para compartirlo.",
+    "exportSuccessBody_other": "Se escribieron {{count}} roles en .squad/team.json. Haz commit para compartirlo.",
+    "exportErrorTitle": "No se pudo exportar el equipo"
   },
   "sprints": {
     "backlog": "Backlog",
