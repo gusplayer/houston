@@ -184,6 +184,12 @@
     "hireAction_other": "Hire {{count}}",
     "cancel": "Cancel"
   },
+  "teamManifestBanner": {
+    "text_one": "{{repo}} ships a team. {{count}} role to hire.",
+    "text_other": "{{repo}} ships a team. {{count}} roles to hire.",
+    "action": "Hire team",
+    "dismiss": "Dismiss"
+  },
   "engineGate": {
     "starting": "Starting Squad engine…"
   }

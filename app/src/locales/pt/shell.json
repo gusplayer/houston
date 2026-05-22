@@ -184,6 +184,12 @@
     "hireAction_other": "Contratar {{count}}",
     "cancel": "Cancelar"
   },
+  "teamManifestBanner": {
+    "text_one": "{{repo}} traz uma equipe. Falta {{count}} papel para contratar.",
+    "text_other": "{{repo}} traz uma equipe. Faltam {{count}} papéis para contratar.",
+    "action": "Contratar equipe",
+    "dismiss": "Fechar"
+  },
   "engineGate": {
     "starting": "Iniciando o motor do Squad…"
   }
