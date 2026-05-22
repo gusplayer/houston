@@ -145,19 +145,42 @@ pub fn build_agent_context(
     let mut parts: Vec<String> = Vec::new();
     let prompts_dir = dir.join(".squad/prompts");
 
+    // Working directory framing depends on whether a real product repo
+    // was handed in. With an override (e.g. session was launched against
+    // a bound project): treat it as the strict sandbox.
+    // Without an override: this is just the agent's identity folder.
+    // Product code lives in the workspace projects listed in
+    // "Projects in scope" further down, not here.
     let effective_dir = working_dir_override.unwrap_or(dir);
     let working_dir = effective_dir.to_string_lossy();
-    parts.push(format!(
-        "# Working Directory — MANDATORY\n\n\
-         Your working directory is: `{working_dir}`\n\n\
-         **CRITICAL RULES:**\n\
-         - ALL files you create, read, or modify MUST be within this directory.\n\
-         - NEVER create files outside this directory (not in ~/, ~/.agents/, ~/Development/, /tmp/, or anywhere else).\n\
-         - Skills go in `.agents/skills/` (relative to this directory).\n\
-         - Houston data goes in `.squad/` (relative to this directory).\n\
-         - If you need a new file or folder, create it HERE.\n\
-         - When referencing paths, always use paths relative to or inside `{working_dir}`."
-    ));
+    if working_dir_override.is_some() {
+        parts.push(format!(
+            "# Working Directory — MANDATORY\n\n\
+             Your working directory is: `{working_dir}`\n\n\
+             **CRITICAL RULES:**\n\
+             - ALL files you create, read, or modify MUST be within this directory.\n\
+             - NEVER create files outside this directory (not in ~/, ~/.agents/, ~/Development/, /tmp/, or anywhere else).\n\
+             - Skills go in `.agents/skills/` (relative to this directory).\n\
+             - Squad data goes in `.squad/` (relative to this directory).\n\
+             - If you need a new file or folder, create it HERE.\n\
+             - When referencing paths, always use paths relative to or inside `{working_dir}`."
+        ));
+    } else {
+        parts.push(format!(
+            "# Agent Identity Directory\n\n\
+             Your identity directory is: `{working_dir}`\n\n\
+             **This is where YOUR data lives** — skills, learnings, \
+             conversations, configuration. It is NOT a product codebase.\n\n\
+             - Your own files (skills, learnings, configuration) live here \
+               under `.squad/` and `.agents/skills/`.\n\
+             - **Product source code lives in workspace projects** — see \
+               \"Projects in scope\" below. When the user asks you to read \
+               or modify code, operate inside those project paths, not here.\n\
+             - If the user asks \"what project are you working on?\", answer \
+               by referencing the workspace projects, not this identity \
+               folder."
+        ));
+    }
 
     if let Some(m) = mode {
         let mode_path = prompts_dir.join(format!("modes/{m}.md"));
@@ -209,6 +232,15 @@ pub fn build_agent_context(
                 names.join(", ")
             ));
         }
+    }
+
+    // Projects in scope: list the workspace projects this agent can
+    // operate on so the agent stops confusing its identity folder (where
+    // its own data lives) with the actual product repo. CTO mode (no
+    // bindings) gets every workspace project; specialist mode gets only
+    // the bound subset.
+    if let Some(projects_block) = build_projects_in_scope(dir) {
+        parts.push(projects_block);
     }
 
     // Project docs (I.1): workspace-scoped docs filtered by audience +
@@ -344,6 +376,110 @@ fn parse_doc(raw: &str, slug: &str) -> DocEntry {
     }
 }
 
+// ── Projects-in-scope helpers ──────────────────────────────────────────
+
+/// Read the agent's bound projectIds from `<agent>/.squad/config/config.json`.
+/// Empty / unset means "see every workspace project" (CTO mode).
+fn read_project_bindings(agent_dir: &Path) -> Vec<String> {
+    let path = agent_dir.join(".squad/config/config.json");
+    let Ok(raw) = fs::read_to_string(&path) else {
+        return Vec::new();
+    };
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) else {
+        return Vec::new();
+    };
+    let Some(arr) = value.get("projectIds").and_then(|v| v.as_array()) else {
+        return Vec::new();
+    };
+    arr.iter()
+        .filter_map(|v| v.as_str().map(String::from))
+        .collect()
+}
+
+/// Read workspace projects from `<workspace>/.squad/projects.json`.
+/// Each entry is `{ id, name, repoPath, stack?, ... }`.
+fn read_workspace_projects(workspace_dir: &Path) -> Vec<serde_json::Value> {
+    let path = workspace_dir.join(".squad/projects.json");
+    let Ok(raw) = fs::read_to_string(&path) else {
+        return Vec::new();
+    };
+    serde_json::from_str::<Vec<serde_json::Value>>(&raw).unwrap_or_default()
+}
+
+/// Compose the "Projects in scope" prompt section, or None when the
+/// workspace has no projects at all. Loud about the difference between
+/// the agent's identity directory (this file lives here) and the actual
+/// product repos (work happens there) because that's the failure mode
+/// we just hit on first hands-on: agents naming their own folder as
+/// "the project".
+fn build_projects_in_scope(agent_dir: &Path) -> Option<String> {
+    let workspace_dir = agent_dir.parent()?;
+    let all = read_workspace_projects(workspace_dir);
+    if all.is_empty() {
+        return None;
+    }
+
+    let bindings = read_project_bindings(agent_dir);
+    let visible: Vec<&serde_json::Value> = if bindings.is_empty() {
+        all.iter().collect()
+    } else {
+        all.iter()
+            .filter(|p| {
+                p.get("id")
+                    .and_then(|v| v.as_str())
+                    .map(|id| bindings.iter().any(|b| b == id))
+                    .unwrap_or(false)
+            })
+            .collect()
+    };
+
+    if visible.is_empty() {
+        return None;
+    }
+
+    let mut lines = String::new();
+    lines.push_str("# Projects in scope\n\n");
+    lines.push_str(
+        "These are the product repositories you can operate on. Use these \
+         paths when running commands, reading source, or referencing files. \
+         Do NOT confuse them with your agent identity folder \
+         (where your own skills, learnings, and conversations live).\n\n",
+    );
+
+    for project in &visible {
+        let name = project
+            .get("name")
+            .and_then(|v| v.as_str())
+            .unwrap_or("(unnamed)");
+        let repo_path = project
+            .get("repoPath")
+            .and_then(|v| v.as_str())
+            .unwrap_or("(no path)");
+        let stack = project.get("stack").and_then(|v| v.as_str());
+        if let Some(s) = stack {
+            lines.push_str(&format!("- **{name}** ({s}) — `{repo_path}`\n"));
+        } else {
+            lines.push_str(&format!("- **{name}** — `{repo_path}`\n"));
+        }
+    }
+
+    if !bindings.is_empty() && visible.len() < all.len() {
+        lines.push_str(
+            "\nOther projects exist in this workspace but you are not bound \
+             to them. Stay scoped to the list above unless the user explicitly \
+             asks otherwise.",
+        );
+    } else if bindings.is_empty() && all.len() > 1 {
+        lines.push_str(
+            "\nYou are in CTO mode — every workspace project is visible. \
+             When delegating, name the specific project so the specialist \
+             knows where to work.",
+        );
+    }
+
+    Some(lines)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -442,6 +578,60 @@ mod tests {
         assert_eq!(parsed.title, "architecture");
         assert!(parsed.audience.is_empty());
         assert_eq!(parsed.body, raw);
+    }
+
+    #[test]
+    fn build_agent_context_lists_projects_in_scope_and_reframes_identity_dir() {
+        // Workspace with two projects. Agent has no bindings → CTO mode,
+        // both projects appear. Identity directory framing kicks in
+        // because we don't pass a working_dir_override.
+        let ws = TempDir::new().unwrap();
+        let agent_dir = ws.path().join("Peter");
+        fs::create_dir_all(agent_dir.join(".squad/config")).unwrap();
+        fs::create_dir_all(ws.path().join(".squad")).unwrap();
+        fs::write(
+            ws.path().join(".squad/projects.json"),
+            r#"[
+                {"id":"p1","name":"photoapp-rn","repoPath":"/repos/photoapp-rn","stack":"react-native"},
+                {"id":"p2","name":"photoapp-backend","repoPath":"/repos/backend"}
+            ]"#,
+        )
+        .unwrap();
+
+        let out = build_agent_context(&agent_dir, None, None);
+        assert!(out.contains("Agent Identity Directory"));
+        assert!(out.contains("Projects in scope"));
+        assert!(out.contains("photoapp-rn"));
+        assert!(out.contains("/repos/photoapp-rn"));
+        assert!(out.contains("photoapp-backend"));
+        assert!(out.contains("CTO mode"));
+    }
+
+    #[test]
+    fn build_agent_context_filters_projects_by_bindings() {
+        let ws = TempDir::new().unwrap();
+        let agent_dir = ws.path().join("Maya");
+        fs::create_dir_all(agent_dir.join(".squad/config")).unwrap();
+        fs::write(
+            agent_dir.join(".squad/config/config.json"),
+            r#"{"projectIds":["p1"]}"#,
+        )
+        .unwrap();
+        fs::create_dir_all(ws.path().join(".squad")).unwrap();
+        fs::write(
+            ws.path().join(".squad/projects.json"),
+            r#"[
+                {"id":"p1","name":"photoapp-rn","repoPath":"/repos/photoapp-rn"},
+                {"id":"p2","name":"photoapp-backend","repoPath":"/repos/backend"}
+            ]"#,
+        )
+        .unwrap();
+
+        let out = build_agent_context(&agent_dir, None, None);
+        assert!(out.contains("photoapp-rn"));
+        assert!(!out.contains("photoapp-backend"));
+        // Bound mode shouldn't claim CTO mode.
+        assert!(!out.contains("CTO mode"));
     }
 
     #[test]
