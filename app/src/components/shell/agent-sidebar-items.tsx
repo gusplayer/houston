@@ -4,6 +4,24 @@ import { AgentSidebarColorMenu } from "./agent-sidebar-color-menu";
 import type { AgentActivitySummary } from "./agent-activity-summary-model";
 import { AgentSidebarIcon, NeedsYouChip } from "./agent-sidebar-status";
 
+/**
+ * Short role label shown under each agent's name in the sidebar so the
+ * roster reads as a team ("Peter — Frontend Lead") instead of just
+ * first names. Keyed by the built-in agent config id; custom / blank
+ * agents render with no subtitle.
+ */
+const ROLE_LABELS: Record<string, string> = {
+  "cto-agent": "CTO",
+  "mobile-lead-agent": "Mobile Lead",
+  "backend-lead-agent": "Backend Lead",
+  "frontend-lead-agent": "Frontend Lead",
+  "designer-agent": "UI/UX Designer",
+  "qa-agent": "QA Engineer",
+  "devops-agent": "DevOps",
+  "dev-agent": "Dev",
+  "personal-assistant": "Assistant",
+};
+
 interface BuildAgentSidebarItemsArgs {
   agents: Agent[];
   summaries: Record<string, AgentActivitySummary>;
@@ -29,6 +47,7 @@ export function buildAgentSidebarItems({
     return {
       id: agent.id,
       name: agent.name,
+      subtitle: ROLE_LABELS[agent.configId],
       icon: (
         <AgentSidebarIcon
           color={agent.color}

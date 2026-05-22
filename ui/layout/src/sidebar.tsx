@@ -9,6 +9,9 @@ import { sidebarClasses } from "./sidebar-classes";
 export interface SidebarItem {
   id: string;
   name: string;
+  /** Optional second line shown under the name. Used to disambiguate
+   * items with similar names — e.g. a team-library role label. */
+  subtitle?: ReactNode;
   icon?: ReactNode;
   /** Optional right-aligned slot for row badges or status indicators. */
   trailing?: ReactNode;

@@ -66,6 +66,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const isAgentView =
     viewMode !== "dashboard" &&
     viewMode !== "store" &&
+    viewMode !== "workspace" &&
     viewMode !== "connections" &&
     viewMode !== "settings";
   const tabIds = new Set(tabs.map((tab) => tab.id));
