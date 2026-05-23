@@ -8,6 +8,7 @@ export const mobileLeadAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["mobile", "react-native", "expo", "ios", "android"],
+  roleLabel: "Mobile Lead",
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "repo", label: "Repo", builtIn: "repo" },

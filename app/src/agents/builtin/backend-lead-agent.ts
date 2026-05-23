@@ -8,6 +8,7 @@ export const backendLeadAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["backend", "node", "api", "database", "postgres"],
+  roleLabel: "Backend Lead",
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "repo", label: "Repo", builtIn: "repo" },

@@ -8,6 +8,7 @@ export const personalAssistantAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["personal", "assistant", "starter", "inbox", "calendar"],
+  roleLabel: "Assistant",
   integrations: ["gmail", "googlecalendar"],
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },

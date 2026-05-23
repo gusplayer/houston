@@ -8,6 +8,7 @@ export const ctoAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["cto", "lead", "architecture", "planning", "strategy"],
+  roleLabel: "CTO",
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },

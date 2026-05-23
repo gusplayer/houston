@@ -1,29 +1,8 @@
 import type { SidebarItem } from "@squad/layout";
-import type { Agent } from "../../lib/types";
+import type { Agent, AgentConfig } from "../../lib/types";
 import { AgentSidebarColorMenu } from "./agent-sidebar-color-menu";
 import type { AgentActivitySummary } from "./agent-activity-summary-model";
 import { AgentSidebarIcon, NeedsYouChip } from "./agent-sidebar-status";
-
-/**
- * Short role label shown under each agent's name in the sidebar so the
- * roster reads as a team ("Peter — Frontend Lead") instead of just
- * first names. Keyed by the built-in agent config id; custom / blank
- * agents render with no subtitle.
- *
- * Exported so the agent-creation dialog can reuse it as the subtitle
- * under the avatar when picking a role from the store.
- */
-export const ROLE_LABELS: Record<string, string> = {
-  "cto-agent": "CTO",
-  "mobile-lead-agent": "Mobile Lead",
-  "backend-lead-agent": "Backend Lead",
-  "frontend-lead-agent": "Frontend Lead",
-  "designer-agent": "UI/UX Designer",
-  "qa-agent": "QA Engineer",
-  "devops-agent": "DevOps",
-  "dev-agent": "Dev",
-  "personal-assistant": "Assistant",
-};
 
 interface BuildAgentSidebarItemsArgs {
   agents: Agent[];
@@ -31,6 +10,8 @@ interface BuildAgentSidebarItemsArgs {
   runningLabel: (count: number) => string;
   needsYouLabel: (count: number) => string;
   onChangeColor: (agentId: string, color: string) => void;
+  /** Resolves an AgentConfig by config id so role labels can be read from the manifest. */
+  getConfig: (configId: string) => AgentConfig | undefined;
 }
 
 export function buildAgentSidebarItems({
@@ -39,6 +20,7 @@ export function buildAgentSidebarItems({
   runningLabel,
   needsYouLabel,
   onChangeColor,
+  getConfig,
 }: BuildAgentSidebarItemsArgs): SidebarItem[] {
   return agents.map((agent) => {
     const summary = summaries[agent.id] ?? {
@@ -50,7 +32,7 @@ export function buildAgentSidebarItems({
     return {
       id: agent.id,
       name: agent.name,
-      subtitle: ROLE_LABELS[agent.configId],
+      subtitle: getConfig(agent.configId)?.roleLabel ?? "",
       icon: (
         <AgentSidebarIcon
           color={agent.color}

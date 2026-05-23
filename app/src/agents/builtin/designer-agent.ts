@@ -8,6 +8,7 @@ export const designerAgent: AgentConfig = {
   category: "design",
   author: "Squad",
   tags: ["design", "ui", "ux", "figma", "brand"],
+  roleLabel: "UI/UX Designer",
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
