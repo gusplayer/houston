@@ -222,6 +222,13 @@
       "deliver": "Entrega"
     }
   },
+  "instructionSuggestion": {
+    "title": "Melhoria de instrucoes",
+    "addTo": "Adicionar a {{section}}:",
+    "apply": "Aplicar nas instrucoes",
+    "dismiss": "Dispensar",
+    "applied": "Instrucoes atualizadas"
+  },
   "mcp": {
     "title": "Servidores MCP",
     "description": "Servidores Model Context Protocol disponíveis em cada sessão para este agente.",

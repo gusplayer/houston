@@ -222,6 +222,13 @@
       "deliver": "Deliver"
     }
   },
+  "instructionSuggestion": {
+    "title": "Instruction improvement",
+    "addTo": "Add to {{section}}:",
+    "apply": "Apply to Instructions",
+    "dismiss": "Dismiss",
+    "applied": "Instructions updated"
+  },
   "mcp": {
     "title": "MCP Servers",
     "description": "Model Context Protocol servers available in every session for this agent.",
