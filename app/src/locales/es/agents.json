@@ -145,7 +145,9 @@
     "exportSuccessTitle": "Equipo exportado",
     "exportSuccessBody_one": "Se escribió {{count}} rol en .squad/team.json. Haz commit para compartirlo.",
     "exportSuccessBody_other": "Se escribieron {{count}} roles en .squad/team.json. Haz commit para compartirlo.",
-    "exportErrorTitle": "No se pudo exportar el equipo"
+    "exportErrorTitle": "No se pudo exportar el equipo",
+    "stackDetectedTitle": "Stack detectado",
+    "stackDetectedBody": "Se actualizaron las instrucciones de {{agent}} con el stack detectado: {{stack}}"
   },
   "docs": {
     "scopeWorkspace": "Workspace",
