@@ -32,7 +32,8 @@ export function RoutinesNudge() {
     () => localStorage.getItem(DISMISS_KEY) === "1",
   );
 
-  // Only consider agents that actually have the routines tab
+  // All extensionTabs-based agents have the routines core tab; legacy agents
+  // (e.g. agent-creator with chat-only layout) may not — this filter handles both.
   const routineAgents = agents.filter((a) => {
     const def = getById(a.configId);
     return def ? resolveAgentTabs(def.config).some((tab) => tab.id === "routines") : false;

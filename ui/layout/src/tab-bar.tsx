@@ -47,8 +47,9 @@ export function TabBar({
         </div>
       )}
 
-      {/* Tab strip */}
-      <div className="flex items-center gap-5">
+      {/* Tab strip — overflow-x-auto lets wide tab sets scroll rather than
+          clip when the window is narrow (10-tab agents on small screens). */}
+      <div className="flex items-center gap-5 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const isDisabled = tab.disabled;
