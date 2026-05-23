@@ -23,13 +23,16 @@ import {
   useGitBranches,
   useGitDiff,
 } from "../../hooks/queries";
-import { tauriAgents, tauriConfig } from "../../lib/tauri";
+import { tauriAgents, tauriConfig, tauriAgent } from "../../lib/tauri";
 import { queryKeys } from "../../lib/query-keys";
 import { useAgentStore } from "../../stores/agents";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useUIStore } from "../../stores/ui";
 import { buildManifestFromAgents, writeTeamManifest } from "../../lib/team-manifest";
 import { ROLE_IDS } from "../../lib/recommend-team";
+import { detectProjectStack } from "../../lib/detect-project-stack";
+import { injectStackSection, removeStackSection } from "../../lib/inject-stack-section";
+import type { Project } from "@squad/engine-client";
 
 export default function RepoTab({ agent }: TabProps) {
   const { t } = useTranslation("agents");
@@ -76,6 +79,36 @@ export default function RepoTab({ agent }: TabProps) {
   const projectId = selectedProjectId ?? visibleProjects[0]?.id;
   const project = projects?.find((p) => p.id === projectId);
 
+  async function updateStackInClaude(boundProjects: Project[]) {
+    try {
+      const current = await tauriAgent.readFile(agentPath, "CLAUDE.md").catch(() => "");
+      if (boundProjects.length === 0) {
+        const updated = removeStackSection(current);
+        if (updated !== current) await tauriAgent.writeFile(agentPath, "CLAUDE.md", updated);
+        return;
+      }
+      const stacks = await Promise.all(boundProjects.map((p) => detectProjectStack(p.repoPath)));
+      const detected = stacks.filter(Boolean);
+      if (detected.length === 0) return;
+      const combinedRaw = [...new Set(detected.map((s) => s!.raw))].join(" · ");
+      const combinedStack = {
+        language: detected[0]!.language,
+        frameworks: detected.flatMap((s) => s!.frameworks),
+        raw: combinedRaw,
+      };
+      const updated = injectStackSection(current, combinedStack);
+      await tauriAgent.writeFile(agentPath, "CLAUDE.md", updated);
+      qc.invalidateQueries({ queryKey: queryKeys.instructions(agentPath) });
+      addToast({
+        title: t("repo.stackDetectedTitle"),
+        description: t("repo.stackDetectedBody", { agent: agent.name, stack: combinedRaw }),
+        variant: "success",
+      });
+    } catch {
+      // Non-fatal — stack injection is best-effort
+    }
+  }
+
   async function toggleBinding(pid: string) {
     const current = agentConfig?.projectIds ?? [];
     const next = current.includes(pid)
@@ -83,11 +116,16 @@ export default function RepoTab({ agent }: TabProps) {
       : [...current, pid];
     await tauriConfig.write(agentPath, { ...(agentConfig ?? {}), projectIds: next });
     qc.invalidateQueries({ queryKey: queryKeys.config(agentPath) });
+    if (projects) {
+      const nextProjects = projects.filter((p) => next.includes(p.id));
+      void updateStackInClaude(nextProjects);
+    }
   }
 
   async function clearBindings() {
     await tauriConfig.write(agentPath, { ...(agentConfig ?? {}), projectIds: [] });
     qc.invalidateQueries({ queryKey: queryKeys.config(agentPath) });
+    void updateStackInClaude([]);
   }
 
   const allAgents = useAgentStore((s) => s.agents);
