@@ -11,6 +11,7 @@ import {
   AGENT_COLORS,
   cn,
 } from "@squad/core";
+import { applyAgentName } from "../../lib/apply-agent-name";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -145,7 +146,7 @@ export function RecruitTeamDialog() {
           name,
           def.config.id,
           color,
-          def.config.claudeMd,
+          applyAgentName(def.config.claudeMd, def.config.name, name),
           def.path,
           def.config.agentSeeds,
         );
