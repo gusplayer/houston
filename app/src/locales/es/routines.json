@@ -4,6 +4,10 @@
     "emptyTitle": "Programa y olvídate",
     "emptyDescription": "Las rutinas se disparan en el horario que elijas y solo te avisan cuando algo de verdad necesita atención.",
     "newRoutine": "Nueva rutina",
-    "descriptionShort": "Tareas recurrentes que corren en un horario y solo te avisan cuando algo necesita tu atención."
+    "descriptionShort": "Tareas recurrentes que corren en un horario y solo te avisan cuando algo necesita tu atención.",
+    "exampleHeading": "Empieza con un ejemplo",
+    "exampleSubheading": "Haz clic en una tarjeta para rellenar el editor de rutinas.",
+    "orCreateNew": "o crea desde cero",
+    "exampleScheduleLabel": "Se ejecuta {{schedule}}"
   }
 }

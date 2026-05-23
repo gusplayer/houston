@@ -12,6 +12,7 @@ import {
 } from "../../hooks/queries";
 import { useTimezonePreference } from "../../hooks/use-timezone-preference";
 import type { TabProps } from "../../lib/types";
+import { RoutinesEmptyState } from "./routines-empty-state";
 
 type View = { type: "grid" } | { type: "editor"; editId?: string };
 
@@ -70,6 +71,13 @@ export default function RoutinesTab({ agent }: TabProps) {
   const handleCreate = useCallback(() => {
     setForm(EMPTY_FORM);
     setBaseline(EMPTY_FORM);
+    setView({ type: "editor" });
+  }, []);
+
+  const handlePrefill = useCallback((patch: Partial<RoutineFormData>) => {
+    const next = { ...EMPTY_FORM, ...patch };
+    setForm(next);
+    setBaseline(next);
     setView({ type: "editor" });
   }, []);
 
@@ -191,6 +199,13 @@ export default function RoutinesTab({ agent }: TabProps) {
         descriptionShort: t("grid.descriptionShort"),
         newRoutine: t("grid.newRoutine"),
       }}
+      emptyState={
+        <RoutinesEmptyState
+          agent={agent}
+          onCreate={handleCreate}
+          onPrefill={handlePrefill}
+        />
+      }
     />
   );
 }

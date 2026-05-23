@@ -99,6 +99,7 @@
   "files": {
     "emptyTitle": "No files yet",
     "emptyDescription": "Files created by your assistant will appear here.",
+    "roleHintLabel": "Typical file types",
     "openInFinder": "Open in Finder",
     "loading": "Loading…",
     "browseFiles": "Browse files",
