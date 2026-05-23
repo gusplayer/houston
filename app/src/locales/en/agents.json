@@ -222,6 +222,15 @@
       "deliver": "Deliver"
     }
   },
+  "routineSuggestion": {
+    "runDaily": "Run this every day?",
+    "runWeekly": "Run this every week?",
+    "runMonthly": "Run this every month?",
+    "runHourly": "Run this every hour?",
+    "runWeekdays": "Run this on weekdays?",
+    "setAsRoutine": "Set as routine",
+    "dismiss": "Dismiss"
+  },
   "mcp": {
     "title": "MCP Servers",
     "description": "Model Context Protocol servers available in every session for this agent.",

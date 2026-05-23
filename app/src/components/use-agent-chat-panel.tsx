@@ -25,6 +25,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { detectRoutineIntent } from "../lib/detect-routine-intent";
+import type { RoutineIntent } from "../lib/detect-routine-intent";
+import { RoutineSuggestionChip } from "./chat/routine-suggestion-chip";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@squad/core";
@@ -38,6 +41,7 @@ import {
 import { useFeedStore } from "../stores/feeds";
 import { useUIStore } from "../stores/ui";
 import { useWorkspaceStore } from "../stores/workspaces";
+import { useAgentStore } from "../stores/agents";
 import {
   useActivity,
   useConnectedToolkits,
@@ -210,6 +214,34 @@ export function useAgentChatPanel({
       });
     },
     [path, selectedActivityId, addToast, t],
+  );
+
+  // ── Routine suggestion chip ───────────────────────────────────────────
+  const setCurrent = useAgentStore((s) => s.setCurrent);
+  const setViewMode = useUIStore((s) => s.setViewMode);
+  const setRoutinePrefill = useUIStore((s) => s.setRoutinePrefill);
+
+  // Key = `${sessionKey}:${userMessageText}` — tracks which (session, message)
+  // pair has been dismissed so the chip doesn't re-appear for the same message.
+  const [dismissedKeys, setDismissedKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const handleRoutineAccept = useCallback(
+    (intent: RoutineIntent) => {
+      if (!agent) return;
+      setRoutinePrefill({
+        name: intent.suggestedName,
+        prompt: intent.suggestedPrompt,
+        schedule: intent.suggestedCron,
+        description: "",
+        suppress_when_silent: true,
+        timezone: null,
+      });
+      setCurrent(agent);
+      setViewMode("routines");
+    },
+    [agent, setCurrent, setViewMode, setRoutinePrefill],
   );
 
   // ── Composio link card support ────────────────────────────────────────
@@ -450,16 +482,58 @@ export function useAgentChatPanel({
     [],
   );
   const afterMessages = useCallback(
-    ({ feedItems }: { sessionKey: string; feedItems: FeedItem[] }) => {
+    ({ sessionKey, feedItems }: { sessionKey: string; feedItems: FeedItem[] }) => {
       const signalKey = providerAuthSignalKey(feedItems);
+
+      // Determine if the turn is complete (last item is an assistant response,
+      // not a user message or streaming chunk).
+      const lastItem = feedItems[feedItems.length - 1];
+      const turnComplete =
+        lastItem &&
+        lastItem.feed_type !== "user_message" &&
+        lastItem.feed_type !== "assistant_text_streaming" &&
+        lastItem.feed_type !== "thinking_streaming" &&
+        lastItem.feed_type !== "thinking" &&
+        lastItem.feed_type !== "tool_call" &&
+        lastItem.feed_type !== "tool_result";
+
+      // Find last user message text for intent detection.
+      let routineChip: ReactNode = null;
+      if (turnComplete) {
+        const lastUserItem = [...feedItems]
+          .reverse()
+          .find((it) => it.feed_type === "user_message");
+        if (lastUserItem && lastUserItem.feed_type === "user_message") {
+          const userText = lastUserItem.data as string;
+          const dismissKey = `${sessionKey}:${userText}`;
+          if (!dismissedKeys.has(dismissKey)) {
+            const intent = detectRoutineIntent(userText);
+            if (intent.detected) {
+              routineChip = (
+                <RoutineSuggestionChip
+                  intent={intent}
+                  onAccept={handleRoutineAccept}
+                  onDismiss={() =>
+                    setDismissedKeys((prev) => new Set([...prev, dismissKey]))
+                  }
+                />
+              );
+            }
+          }
+        }
+      }
+
       return (
-        <ProviderReconnectCard
-          providerId={signalKey ? effectiveProvider : undefined}
-          signalKey={signalKey ?? undefined}
-        />
+        <>
+          <ProviderReconnectCard
+            providerId={signalKey ? effectiveProvider : undefined}
+            signalKey={signalKey ?? undefined}
+          />
+          {routineChip}
+        </>
       );
     },
-    [effectiveProvider],
+    [effectiveProvider, dismissedKeys, handleRoutineAccept],
   );
 
   const composerHeader = useMemo<AIBoardProps["composerHeader"]>(() => {

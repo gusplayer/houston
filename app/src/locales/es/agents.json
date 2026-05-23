@@ -222,6 +222,15 @@
       "deliver": "Entrega"
     }
   },
+  "routineSuggestion": {
+    "runDaily": "¿Ejecutar esto cada día?",
+    "runWeekly": "¿Ejecutar esto cada semana?",
+    "runMonthly": "¿Ejecutar esto cada mes?",
+    "runHourly": "¿Ejecutar esto cada hora?",
+    "runWeekdays": "¿Ejecutar esto en días laborales?",
+    "setAsRoutine": "Crear rutina",
+    "dismiss": "Descartar"
+  },
   "mcp": {
     "title": "Servidores MCP",
     "description": "Servidores Model Context Protocol disponibles en cada sesión para este agente.",

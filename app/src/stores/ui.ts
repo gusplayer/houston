@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { RoutineFormData } from "@squad/routines";
 
 export interface ToastItem {
   id: string;
@@ -50,6 +51,11 @@ interface UIState {
    * has handled the request (either by opening the listing or by surfacing
    * a "not found" fallback). */
   storeAgentId: string | null;
+  /** Transient pre-fill data for the routine editor. Set by the
+   * "Save as routine" chip in chat; consumed and cleared by RoutinesTab
+   * on mount or when it detects a pending value. */
+  routinePrefill: Partial<RoutineFormData> | null;
+  setRoutinePrefill: (data: Partial<RoutineFormData> | null) => void;
   setViewMode: (mode: string) => void;
   setAssistantPanelOpen: (open: boolean) => void;
   setActivityPanelId: (id: string | null) => void;
@@ -91,8 +97,10 @@ export const useUIStore = create<UIState>((set) => ({
   tutorialActive: false,
   uiTourActive: false,
   storeAgentId: null,
+  routinePrefill: null,
   selectedConversationByAgent: {},
 
+  setRoutinePrefill: (routinePrefill) => set({ routinePrefill }),
   setViewMode: (viewMode) => set({ viewMode }),
   setAssistantPanelOpen: (assistantPanelOpen) => set({ assistantPanelOpen }),
   setActivityPanelId: (activityPanelId) => set({ activityPanelId }),
