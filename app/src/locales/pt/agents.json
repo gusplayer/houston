@@ -21,6 +21,12 @@
     "restartSession": "Reiniciar sessão",
     "editMode": "Editar",
     "previewMode": "Visualizar",
+    "fileTreeAria": "Arquivos de instruções",
+    "fromProject": "De: {{name}}",
+    "noProjectsHint": "Vincule um projeto para ver seu CLAUDE.md aqui",
+    "readOnlyBanner": "Este arquivo pertence a {{name}}. Edite-o no diretório do projeto.",
+    "revealInFinder": "Mostrar no Finder",
+    "projectClaudeMdMissing": "Nenhum CLAUDE.md encontrado neste projeto.",
     "snippets": {
       "tone": "Tom",
       "never": "Nunca fazer",
@@ -155,7 +161,9 @@
     "exportSuccessTitle": "Equipe exportada",
     "exportSuccessBody_one": "Foi gravado {{count}} papel em .squad/team.json. Faça commit para compartilhar.",
     "exportSuccessBody_other": "Foram gravados {{count}} papéis em .squad/team.json. Faça commit para compartilhar.",
-    "exportErrorTitle": "Não foi possível exportar a equipe"
+    "exportErrorTitle": "Não foi possível exportar a equipe",
+    "stackDetectedTitle": "Stack detectado",
+    "stackDetectedBody": "As instruções de {{agent}} foram atualizadas com o stack detectado: {{stack}}"
   },
   "docs": {
     "scopeWorkspace": "Workspace",

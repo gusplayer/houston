@@ -34,6 +34,12 @@
     "title": "¿Qué agente debería ejecutar esto?",
     "description": "Elige un agente para abrir una nueva conversación."
   },
+  "routinesNudge": {
+    "title": "Tus agentes pueden trabajar con un horario",
+    "description": "Las rutinas se ejecutan automáticamente y muestran resultados solo cuando hay algo que reportar.",
+    "cta": "Probar una rutina",
+    "dismiss": "Descartar"
+  },
   "skillPicker": {
     "title": "Elige un skill",
     "description": "Explora los skills que este agente ya sabe hacer.",
