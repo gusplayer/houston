@@ -36,101 +36,164 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
     const container = containerRef.current;
     if (!container) return;
 
-    const term = new Terminal({
-      cursorBlink: true,
-      fontSize: 13,
-      fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", ui-monospace, monospace',
-      theme: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        cursor: "hsl(var(--foreground))",
-        black: "#000000",
-        red: "#ef4444",
-        green: "#22c55e",
-        yellow: "#eab308",
-        blue: "#3b82f6",
-        magenta: "#a855f7",
-        cyan: "#06b6d4",
-        white: "#d1d5db",
-        brightBlack: "#6b7280",
-        brightRed: "#f87171",
-        brightGreen: "#4ade80",
-        brightYellow: "#fde047",
-        brightBlue: "#60a5fa",
-        brightMagenta: "#c084fc",
-        brightCyan: "#22d3ee",
-        brightWhite: "#f9fafb",
-      },
-    });
+    // Everything in this effect runs defensively: an xterm/WS init crash
+    // here would otherwise propagate up and tear down the entire chat
+    // subtree (blank screen + chat panel closes, per the original bug
+    // report). We catch locally and call onClose so the parent can
+    // recover.
+    let term: Terminal | undefined;
+    let fitAddon: FitAddon | undefined;
+    let ws: WebSocket | undefined;
+    let observer: ResizeObserver | undefined;
+    let onDataDisposer: { dispose: () => void } | undefined;
+    let onBinaryDisposer: { dispose: () => void } | undefined;
+    let rafHandle: number | undefined;
 
-    const fitAddon = new FitAddon();
-    term.loadAddon(fitAddon);
-    term.open(container);
-    fitAddon.fit();
+    try {
+      term = new Terminal({
+        cursorBlink: true,
+        fontSize: 13,
+        fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", ui-monospace, monospace',
+        theme: {
+          background: "hsl(var(--background))",
+          foreground: "hsl(var(--foreground))",
+          cursor: "hsl(var(--foreground))",
+          black: "#000000",
+          red: "#ef4444",
+          green: "#22c55e",
+          yellow: "#eab308",
+          blue: "#3b82f6",
+          magenta: "#a855f7",
+          cyan: "#06b6d4",
+          white: "#d1d5db",
+          brightBlack: "#6b7280",
+          brightRed: "#f87171",
+          brightGreen: "#4ade80",
+          brightYellow: "#fde047",
+          brightBlue: "#60a5fa",
+          brightMagenta: "#c084fc",
+          brightCyan: "#22d3ee",
+          brightWhite: "#f9fafb",
+        },
+      });
 
-    const ws = new WebSocket(wsUrl);
-    ws.binaryType = "arraybuffer";
+      fitAddon = new FitAddon();
+      term.loadAddon(fitAddon);
+      term.open(container);
 
-    ws.onopen = () => {
-      // Send initial terminal size.
-      const { cols, rows } = term;
-      ws.send(JSON.stringify({ type: "resize", cols, rows }));
-    };
+      ws = new WebSocket(wsUrl);
+      ws.binaryType = "arraybuffer";
 
-    ws.onmessage = (evt) => {
-      if (evt.data instanceof ArrayBuffer) {
-        term.write(new Uint8Array(evt.data));
-      } else if (typeof evt.data === "string") {
+      // Defer the initial fit() to the next animation frame. fitAddon.fit()
+      // reads container dimensions; if the container is mid-transition
+      // (just mounted, layout not yet computed), it can throw and crash
+      // the whole component. Same for the initial resize frame we send
+      // over the WS.
+      rafHandle = requestAnimationFrame(() => {
         try {
-          const msg = JSON.parse(evt.data) as { type: string; code?: number };
-          if (msg.type === "exit") {
-            onExitRef.current?.(msg.code ?? 0);
-          }
-        } catch {
-          // ignore malformed control frames
+          fitAddon?.fit();
+        } catch (e) {
+          console.error("[SquadTerminal] Initial fit failed:", e);
         }
-      }
-    };
+        if (ws && ws.readyState === WebSocket.OPEN && term) {
+          try {
+            const { cols, rows } = term;
+            ws.send(JSON.stringify({ type: "resize", cols, rows }));
+          } catch (e) {
+            console.error("[SquadTerminal] Initial resize send failed:", e);
+          }
+        }
+      });
 
-    ws.onclose = () => {
-      onCloseRef.current?.();
-    };
-
-    // Forward keystrokes to the server as binary frames.
-    const onData = term.onData((data) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(new TextEncoder().encode(data));
-      }
-    });
-
-    // Send binary paste as-is.
-    const onBinary = term.onBinary((data) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        const bytes = Uint8Array.from(data, (c) => c.charCodeAt(0));
-        ws.send(bytes);
-      }
-    });
-
-    // Refit on container resize.
-    const observer = new ResizeObserver(() => {
-      try {
-        fitAddon.fit();
-        if (ws.readyState === WebSocket.OPEN) {
+      ws.onopen = () => {
+        if (!ws || !term) return;
+        try {
+          // Send initial terminal size (in case the rAF callback ran
+          // before the socket opened).
           const { cols, rows } = term;
           ws.send(JSON.stringify({ type: "resize", cols, rows }));
+        } catch (e) {
+          console.error("[SquadTerminal] onopen resize send failed:", e);
         }
-      } catch {
-        // fitAddon may throw if the terminal was disposed
-      }
-    });
-    observer.observe(container);
+      };
+
+      ws.onmessage = (evt) => {
+        if (!term) return;
+        if (evt.data instanceof ArrayBuffer) {
+          term.write(new Uint8Array(evt.data));
+        } else if (typeof evt.data === "string") {
+          try {
+            const msg = JSON.parse(evt.data) as { type: string; code?: number };
+            if (msg.type === "exit") {
+              onExitRef.current?.(msg.code ?? 0);
+            }
+          } catch {
+            // ignore malformed control frames
+          }
+        }
+      };
+
+      ws.onerror = (event) => {
+        console.error("[SquadTerminal] WebSocket error:", event);
+        // Surface to the parent so it can show a reconnect affordance
+        // or fall back to chat view. We don't tear down here — the
+        // browser fires onclose right after onerror.
+        onCloseRef.current?.();
+      };
+
+      ws.onclose = () => {
+        onCloseRef.current?.();
+      };
+
+      // Forward keystrokes to the server as binary frames.
+      onDataDisposer = term.onData((data) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(new TextEncoder().encode(data));
+        }
+      });
+
+      // Send binary paste as-is.
+      onBinaryDisposer = term.onBinary((data) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          const bytes = Uint8Array.from(data, (c) => c.charCodeAt(0));
+          ws.send(bytes);
+        }
+      });
+
+      // Refit on container resize.
+      observer = new ResizeObserver(() => {
+        try {
+          fitAddon?.fit();
+          if (ws && ws.readyState === WebSocket.OPEN && term) {
+            const { cols, rows } = term;
+            ws.send(JSON.stringify({ type: "resize", cols, rows }));
+          }
+        } catch {
+          // fitAddon may throw if the terminal was disposed
+        }
+      });
+      observer.observe(container);
+    } catch (e) {
+      console.error("[SquadTerminal] init failed:", e);
+      // Best-effort cleanup of anything that was created before the throw.
+      try { onDataDisposer?.dispose(); } catch {}
+      try { onBinaryDisposer?.dispose(); } catch {}
+      try { observer?.disconnect(); } catch {}
+      try { ws?.close(); } catch {}
+      try { term?.dispose(); } catch {}
+      if (rafHandle !== undefined) cancelAnimationFrame(rafHandle);
+      // Let the parent know so it can fall back to the chat view.
+      onCloseRef.current?.();
+      return;
+    }
 
     return () => {
-      observer.disconnect();
-      onData.dispose();
-      onBinary.dispose();
-      ws.close();
-      term.dispose();
+      if (rafHandle !== undefined) cancelAnimationFrame(rafHandle);
+      try { observer?.disconnect(); } catch {}
+      try { onDataDisposer?.dispose(); } catch {}
+      try { onBinaryDisposer?.dispose(); } catch {}
+      try { ws?.close(); } catch {}
+      try { term?.dispose(); } catch {}
     };
   // Re-mount only when the WS URL changes (new agent or reconnect).
   // eslint-disable-next-line react-hooks/exhaustive-deps
