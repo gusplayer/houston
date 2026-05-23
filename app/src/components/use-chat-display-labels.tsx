@@ -5,7 +5,7 @@ import type { ChatPanelProps } from "@squad/chat";
 
 export function useChatDisplayLabels(): Pick<
   ChatPanelProps,
-  "processLabels" | "getThinkingMessage"
+  "processLabels" | "getThinkingMessage" | "rawViewLabels"
 > {
   const { t } = useTranslation("chat");
   const processLabels = useMemo(
@@ -27,6 +27,20 @@ export function useChatDisplayLabels(): Pick<
     },
     [t],
   );
+  const rawViewLabels = useMemo<ChatPanelProps["rawViewLabels"]>(
+    () => ({
+      toggle: {
+        enterRaw: t("rawView.enterRaw"),
+        enterChat: t("rawView.enterChat"),
+      },
+      stream: {
+        empty: t("rawView.empty"),
+        expand: t("rawView.expand"),
+        collapse: t("rawView.collapse"),
+      },
+    }),
+    [t],
+  );
 
-  return { processLabels, getThinkingMessage };
+  return { processLabels, getThinkingMessage, rawViewLabels };
 }
