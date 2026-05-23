@@ -345,6 +345,7 @@ export function Dashboard() {
           processLabels={panel.processLabels}
           getThinkingMessage={panel.getThinkingMessage}
           rawViewLabels={panel.rawViewLabels}
+          terminalWsUrl={panel.terminalWsUrl}
           renderTurnSummary={panel.renderTurnSummary}
           renderLink={panel.renderLink}
         />

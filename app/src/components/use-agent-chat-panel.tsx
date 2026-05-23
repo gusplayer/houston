@@ -82,6 +82,7 @@ import { ProviderReconnectCard } from "./shell/provider-reconnect-card";
 import { ToolRuntimeErrorCard } from "./shell/tool-runtime-error-card";
 import { isToolRuntimeErrorMessage } from "./tool-runtime-feed";
 import { useChatDisplayLabels } from "./use-chat-display-labels";
+import { getEngine } from "../lib/engine";
 import {
   filterProviderAuthFeedItems,
   isProviderAuthMessage,
@@ -122,6 +123,7 @@ interface AgentChatPanelProps {
   processLabels: ChatPanelProps["processLabels"];
   getThinkingMessage: ChatPanelProps["getThinkingMessage"];
   rawViewLabels: ChatPanelProps["rawViewLabels"];
+  terminalWsUrl: ChatPanelProps["terminalWsUrl"];
   renderTurnSummary: ChatPanelProps["renderTurnSummary"];
   renderSystemMessage: AIBoardProps["renderSystemMessage"];
   mapFeedItems: AIBoardProps["mapFeedItems"];
@@ -559,6 +561,7 @@ export function useAgentChatPanel({
     processLabels,
     getThinkingMessage,
     rawViewLabels,
+    terminalWsUrl: path ? getEngine().ptyWsUrl(path) : undefined,
     renderTurnSummary,
     renderSystemMessage,
     mapFeedItems,

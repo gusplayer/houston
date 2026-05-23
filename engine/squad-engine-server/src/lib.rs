@@ -32,6 +32,7 @@ pub fn build_router(state: Arc<ServerState>) -> Router {
         .merge(routes::conversations::router())
         .merge(routes::providers::router())
         .merge(routes::agent_configs::router())
+        .merge(routes::pty::router())
         .merge(routes::sessions::router())
         .merge(routes::skills::router())
         .merge(routes::attachments::router())

@@ -20,3 +20,4 @@ dirs = "5"
 # so subprocess spawns of `claude`/`codex`/`composio` find them without
 # any user-side shell config.
 squad-cli-bundle = { workspace = true }
+portable-pty.workspace = true

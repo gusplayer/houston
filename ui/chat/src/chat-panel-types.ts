@@ -74,4 +74,10 @@ export interface ChatPanelProps {
   composerOverride?: ReactNode;
   /** Labels for the optional Chat / Raw view toggle and the raw stream itself. */
   rawViewLabels?: RawViewLabels;
+  /**
+   * When provided, shows a third "Terminal" toggle that renders an interactive
+   * `claude` PTY session via xterm.js. Value must be the full WS URL (include
+   * `?token=<bearer>`). See `SquadClient.ptyWsUrl()`.
+   */
+  terminalWsUrl?: string;
 }

@@ -76,9 +76,10 @@ export function RawLine({ item, expandLabel, collapseLabel }: RawLineProps) {
     }
 
     case "final_result": {
-      const parts = [item.data.result];
+      const parts: string[] = [];
       if (item.data.cost_usd != null) parts.push(`$${item.data.cost_usd.toFixed(4)}`);
       if (item.data.duration_ms != null) parts.push(`${item.data.duration_ms}ms`);
+      if (parts.length === 0) return null;
       return <Block tag="done" tone="green"><PreText text={parts.join(" · ")} /></Block>;
     }
   }
