@@ -1,20 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Button,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-  cn,
-} from "@squad/core";
-import { FileText, RefreshCw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Button, EmptyDescription, EmptyHeader, EmptyTitle } from "@squad/core";
+import { FileText } from "lucide-react";
 import { useAgentState } from "../../hooks/use-agent-state";
-import { tauriChat } from "../../lib/tauri";
-import { InstructionsEditor } from "./instructions-editor";
+import { useWorkspaceStore } from "../../stores/workspaces";
+import { tauriChat, tauriConfig, tauriProjects } from "../../lib/tauri";
+import { queryKeys } from "../../lib/query-keys";
+import type { SelectedFile, ProjectClaudeEntry } from "./instructions-file-tree";
+import { InstructionsFileTree } from "./instructions-file-tree";
+import { InstructionsProjectPanel } from "./instructions-project-panel";
+import { InstructionsAgentEditor, type SaveState } from "./instructions-agent-editor";
 
 export type SubTab = "instructions" | "skills" | "learnings";
-
-type SaveState = "idle" | "saving" | "saved" | "saved-active";
 
 export function InstructionsContent({
   content,
@@ -28,9 +26,11 @@ export function InstructionsContent({
   agentId?: string;
 }) {
   const { t } = useTranslation("agents");
+
+  // ── Agent editor state ──────────────────────────────────────────────
   const [value, setValue] = useState(content);
   const [showEditor, setShowEditor] = useState(false);
-  const [state, setState] = useState<SaveState>("idle");
+  const [saveState, setSaveState] = useState<SaveState>("idle");
   const [restarting, setRestarting] = useState(false);
 
   const agentState = useAgentState(agentPath);
@@ -42,83 +42,112 @@ export function InstructionsContent({
 
   const handleBlur = async () => {
     if (value === content) return;
-    setState("saving");
+    setSaveState("saving");
     await onSave(value);
-    setState(isSessionActive ? "saved-active" : "saved");
-    if (!isSessionActive) {
-      window.setTimeout(() => setState("idle"), 2000);
-    }
+    setSaveState(isSessionActive ? "saved-active" : "saved");
+    if (!isSessionActive) window.setTimeout(() => setSaveState("idle"), 2000);
   };
 
   const handleRestart = async () => {
     if (!agentPath || !agentId) return;
     setRestarting(true);
-    const sessionKey = `chat-${agentId}`;
-    await tauriChat.stop(agentPath, sessionKey).catch(() => {});
+    await tauriChat.stop(agentPath, `chat-${agentId}`).catch(() => {});
     setRestarting(false);
-    setState("saved");
-    window.setTimeout(() => setState("idle"), 2000);
+    setSaveState("saved");
+    window.setTimeout(() => setSaveState("idle"), 2000);
   };
 
-  if (!value.trim() && !showEditor) {
+  // ── Project bindings ────────────────────────────────────────────────
+  const workspace = useWorkspaceStore((s) => s.current);
+  const wid = workspace?.id;
+
+  const { data: agentConfig } = useQuery({
+    queryKey: queryKeys.config(agentPath ?? ""),
+    queryFn: () => tauriConfig.read(agentPath!),
+    enabled: !!agentPath,
+  });
+
+  const { data: allProjects } = useQuery({
+    queryKey: queryKeys.projects(wid ?? ""),
+    queryFn: () => tauriProjects.list(wid!),
+    enabled: !!wid,
+  });
+
+  const projectClaudes = useMemo<ProjectClaudeEntry[]>(() => {
+    if (!allProjects) return [];
+    return (agentConfig?.projectIds ?? [])
+      .map((id) => allProjects.find((p) => p.id === id))
+      .filter((p): p is NonNullable<typeof p> => !!p)
+      .map((p) => ({ projectId: p.id, projectName: p.name, exists: true }));
+  }, [allProjects, agentConfig?.projectIds]);
+
+  // ── File tree selection ─────────────────────────────────────────────
+  const [selectedFile, setSelectedFile] = useState<SelectedFile>("agent");
+
+  useEffect(() => {
+    if (typeof selectedFile === "object") {
+      const still = projectClaudes.some((p) => p.projectId === selectedFile.projectId);
+      if (!still) setSelectedFile("agent");
+    }
+  }, [projectClaudes, selectedFile]);
+
+  const selectedProject =
+    typeof selectedFile === "object" && allProjects
+      ? allProjects.find((p) => p.id === selectedFile.projectId)
+      : undefined;
+
+  // ── Shared sidebar ──────────────────────────────────────────────────
+  const sidebar = (
+    <div className="sticky top-0 self-start">
+      <InstructionsFileTree
+        selectedFile={selectedFile}
+        onSelectFile={setSelectedFile}
+        projectClaudes={projectClaudes}
+      />
+    </div>
+  );
+
+  // ── Empty state ─────────────────────────────────────────────────────
+  if (selectedFile === "agent" && !value.trim() && !showEditor) {
     return (
-      <div className="mx-auto max-w-md flex flex-col items-center gap-6 text-center pt-24 px-6">
-        <EmptyHeader>
-          <EmptyTitle>{t("instructions.emptyTitle")}</EmptyTitle>
-          <EmptyDescription>{t("instructions.emptyDescription")}</EmptyDescription>
-        </EmptyHeader>
-        <Button onClick={() => setShowEditor(true)}>
-          <FileText className="size-4" />
-          {t("instructions.writeButton")}
-        </Button>
+      <div className="flex w-full">
+        {sidebar}
+        <div className="flex-1 flex flex-col items-center gap-6 text-center px-6 pt-24">
+          <EmptyHeader>
+            <EmptyTitle>{t("instructions.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("instructions.emptyDescription")}</EmptyDescription>
+          </EmptyHeader>
+          <Button onClick={() => setShowEditor(true)}>
+            <FileText className="size-4" />
+            {t("instructions.writeButton")}
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const saveLabel = (() => {
-    if (state === "saving") return t("instructions.saving");
-    if (state === "saved") return t("instructions.saved");
-    if (state === "saved-active") return t("instructions.savedActiveSession");
-    return "";
-  })();
-
   return (
-    <div className="max-w-3xl mx-auto w-full px-6 pb-12 pt-2 flex flex-col flex-1 min-h-0">
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <p className="text-xs text-muted-foreground max-w-md">
-          {t("instructions.helper")}
-        </p>
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            className={cn(
-              "text-[11px] tabular-nums transition-opacity duration-200 shrink-0",
-              state === "idle" ? "opacity-0" : "opacity-100 text-muted-foreground",
-            )}
-            aria-live="polite"
-          >
-            {saveLabel}
-          </span>
-          {state === "saved-active" && agentPath && agentId && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-6 px-2 text-[11px] shrink-0"
-              onClick={handleRestart}
-              disabled={restarting}
-            >
-              <RefreshCw className={cn("size-3 mr-1", restarting && "animate-spin")} />
-              {t("instructions.restartSession")}
-            </Button>
-          )}
-        </div>
+    <div className="flex w-full">
+      {sidebar}
+      <div className="flex-1 flex flex-col">
+        {selectedFile === "agent" ? (
+          <InstructionsAgentEditor
+            value={value}
+            saveState={saveState}
+            agentPath={agentPath}
+            agentId={agentId}
+            restarting={restarting}
+            onChange={setValue}
+            onBlur={handleBlur}
+            onRestart={handleRestart}
+          />
+        ) : (
+          <InstructionsProjectPanel
+            projectName={selectedProject?.name ?? ""}
+            repoPath={selectedProject?.repoPath}
+          />
+        )}
       </div>
-      <section className="rounded-xl bg-secondary p-3 flex flex-col flex-1 min-h-0">
-        <InstructionsEditor
-          value={value}
-          onChange={setValue}
-          onBlur={handleBlur}
-        />
-      </section>
     </div>
   );
 }
