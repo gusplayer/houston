@@ -295,9 +295,56 @@ pub fn create(root: &Path, workspace_id: &str, req: CreateAgent) -> CoreResult<C
     seed_json_if_missing(&squad, "activity.json", "[]")?;
     seed_json_if_missing(&squad, "config.json", "{}")?;
 
+    // Pre-trust the agent folder in ~/.claude.json so Claude Code never shows
+    // the "do you trust this folder?" dialog when the user opens the terminal.
+    let real_folder = fs::canonicalize(&folder).unwrap_or_else(|_| folder.clone());
+    pre_trust_claude_folder(&real_folder);
+
     Ok(CreateAgentResult {
         agent: meta_to_agent(&folder, &meta),
     })
+}
+
+/// Writes `hasTrustDialogAccepted: true` for `folder` into `~/.claude.json`
+/// so Claude Code skips the trust prompt on first terminal open.
+/// Silent on any error — failure to pre-trust is not fatal; the user
+/// just sees the one-time prompt as before.
+fn pre_trust_claude_folder(folder: &Path) {
+    let Some(home) = dirs::home_dir() else { return };
+    let claude_json = home.join(".claude.json");
+
+    let mut root: serde_json::Value = if claude_json.exists() {
+        fs::read_to_string(&claude_json)
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_else(|| serde_json::json!({}))
+    } else {
+        serde_json::json!({})
+    };
+
+    let key = folder.to_string_lossy().to_string();
+    let projects = root
+        .as_object_mut()
+        .and_then(|o| {
+            if !o.contains_key("projects") {
+                o.insert("projects".into(), serde_json::json!({}));
+            }
+            o.get_mut("projects")?.as_object_mut()
+        });
+
+    if let Some(projects) = projects {
+        let entry = projects
+            .entry(key)
+            .or_insert_with(|| serde_json::json!({}));
+        if let Some(obj) = entry.as_object_mut() {
+            obj.insert("hasTrustDialogAccepted".into(), serde_json::Value::Bool(true));
+        }
+    }
+
+    if let Ok(json) = serde_json::to_string_pretty(&root) {
+        let tmp = claude_json.with_extension("json.tmp");
+        let _ = fs::write(&tmp, &json).and_then(|_| fs::rename(&tmp, &claude_json));
+    }
 }
 
 pub fn delete(root: &Path, workspace_id: &str, id: &str) -> CoreResult<()> {
