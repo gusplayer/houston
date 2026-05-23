@@ -125,6 +125,7 @@ export function InlineModelSelector({
       {open && coords && createPortal(
         <div
           ref={dropdownRef}
+          data-inline-model-selector-dropdown=""
           className="max-h-96 overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-1 space-y-0.5 shadow-lg"
           style={{
             position: "fixed",

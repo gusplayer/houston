@@ -118,7 +118,11 @@ export function CreateAgentDialog() {
         // pointer-down outside the content. Suppress while the tour is
         // active so clicking the tour's Next button doesn't kill the
         // dialog mid-step; the tour closes it explicitly on the outro.
-        onPointerDownOutside={(e) => { if (uiTourActive) e.preventDefault(); }}
+        onPointerDownOutside={(e) => {
+          const target = e.target as Element;
+          if (target.closest?.('[data-inline-model-selector-dropdown]')) e.preventDefault();
+          if (uiTourActive) e.preventDefault();
+        }}
         onEscapeKeyDown={(e) => { if (uiTourActive) e.preventDefault(); }}
       >
         {step === 1 ? (
