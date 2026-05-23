@@ -5,6 +5,7 @@ import { Button, EmptyDescription, EmptyHeader, EmptyTitle } from "@squad/core";
 import { FileText } from "lucide-react";
 import { useAgentState } from "../../hooks/use-agent-state";
 import { useWorkspaceStore } from "../../stores/workspaces";
+import { useUIStore } from "../../stores/ui";
 import { tauriChat, tauriConfig, tauriProjects } from "../../lib/tauri";
 import { queryKeys } from "../../lib/query-keys";
 import type { SelectedFile, ProjectClaudeEntry } from "./instructions-file-tree";
@@ -26,6 +27,7 @@ export function InstructionsContent({
   agentId?: string;
 }) {
   const { t } = useTranslation("agents");
+  const addToast = useUIStore((s) => s.addToast);
 
   // ── Agent editor state ──────────────────────────────────────────────
   const [value, setValue] = useState(content);
@@ -43,18 +45,36 @@ export function InstructionsContent({
   const handleBlur = async () => {
     if (value === content) return;
     setSaveState("saving");
-    await onSave(value);
-    setSaveState(isSessionActive ? "saved-active" : "saved");
-    if (!isSessionActive) window.setTimeout(() => setSaveState("idle"), 2000);
+    try {
+      await onSave(value);
+      setSaveState(isSessionActive ? "saved-active" : "saved");
+      if (!isSessionActive) window.setTimeout(() => setSaveState("idle"), 2000);
+    } catch (err) {
+      setSaveState("idle");
+      addToast({
+        title: t("instructionsSaveFailed"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+      });
+    }
   };
 
   const handleRestart = async () => {
     if (!agentPath || !agentId) return;
     setRestarting(true);
-    await tauriChat.stop(agentPath, `chat-${agentId}`).catch(() => {});
-    setRestarting(false);
-    setSaveState("saved");
-    window.setTimeout(() => setSaveState("idle"), 2000);
+    try {
+      await tauriChat.stop(agentPath, `chat-${agentId}`);
+      setSaveState("saved");
+      window.setTimeout(() => setSaveState("idle"), 2000);
+    } catch (err) {
+      addToast({
+        title: t("restartFailed"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+      });
+    } finally {
+      setRestarting(false);
+    }
   };
 
   // ── Project bindings ────────────────────────────────────────────────
