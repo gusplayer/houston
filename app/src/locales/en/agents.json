@@ -18,7 +18,9 @@
     "saving": "Saving…",
     "saved": "Saved",
     "savedActiveSession": "Saved · Takes effect in your next conversation",
-    "restartSession": "Restart session"
+    "restartSession": "Restart session",
+    "editMode": "Edit",
+    "previewMode": "Preview"
   },
   "learnings": {
     "emptyTitle": "No learnings yet",

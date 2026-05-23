@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -10,6 +10,7 @@ import {
 import { FileText, RefreshCw } from "lucide-react";
 import { useAgentState } from "../../hooks/use-agent-state";
 import { tauriChat } from "../../lib/tauri";
+import { InstructionsEditor } from "./instructions-editor";
 
 export type SubTab = "instructions" | "skills" | "learnings";
 
@@ -28,7 +29,7 @@ export function InstructionsContent({
 }) {
   const { t } = useTranslation("agents");
   const [value, setValue] = useState(content);
-  const [editing, setEditing] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
   const [state, setState] = useState<SaveState>("idle");
   const [restarting, setRestarting] = useState(false);
 
@@ -38,13 +39,6 @@ export function InstructionsContent({
   useEffect(() => {
     setValue(content);
   }, [content]);
-
-  const textareaRef = useCallback(
-    (el: HTMLTextAreaElement | null) => {
-      if (el && editing) el.focus();
-    },
-    [editing],
-  );
 
   const handleBlur = async () => {
     if (value === content) return;
@@ -66,14 +60,14 @@ export function InstructionsContent({
     window.setTimeout(() => setState("idle"), 2000);
   };
 
-  if (!value.trim() && !editing) {
+  if (!value.trim() && !showEditor) {
     return (
       <div className="mx-auto max-w-md flex flex-col items-center gap-6 text-center pt-24 px-6">
         <EmptyHeader>
           <EmptyTitle>{t("instructions.emptyTitle")}</EmptyTitle>
           <EmptyDescription>{t("instructions.emptyDescription")}</EmptyDescription>
         </EmptyHeader>
-        <Button onClick={() => setEditing(true)}>
+        <Button onClick={() => setShowEditor(true)}>
           <FileText className="size-4" />
           {t("instructions.writeButton")}
         </Button>
@@ -89,7 +83,7 @@ export function InstructionsContent({
   })();
 
   return (
-    <div className="max-w-3xl mx-auto w-full px-6 pb-12 pt-2">
+    <div className="max-w-3xl mx-auto w-full px-6 pb-12 pt-2 flex flex-col flex-1 min-h-0">
       <div className="flex items-center justify-between gap-4 mb-4">
         <p className="text-xs text-muted-foreground max-w-md">
           {t("instructions.helper")}
@@ -118,21 +112,11 @@ export function InstructionsContent({
           )}
         </div>
       </div>
-      <section className="rounded-xl bg-secondary p-3">
-        <textarea
-          ref={textareaRef}
+      <section className="rounded-xl bg-secondary p-3 flex flex-col flex-1 min-h-0">
+        <InstructionsEditor
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={setValue}
           onBlur={handleBlur}
-          placeholder={t("instructions.placeholder")}
-          rows={Math.max(12, value.split("\n").length + 2)}
-          className={cn(
-            "w-full px-4 py-3 text-sm text-foreground leading-relaxed",
-            "placeholder:text-muted-foreground/60",
-            "bg-background border border-black/[0.04] rounded-lg",
-            "outline-none resize-none transition-shadow duration-200",
-            "focus:shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
-          )}
         />
       </section>
     </div>
