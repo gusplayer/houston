@@ -51,6 +51,18 @@ interface UIState {
    * has handled the request (either by opening the listing or by surfacing
    * a "not found" fallback). */
   storeAgentId: string | null;
+  /** Pending instruction improvement proposed by the engine after a session
+   * completes. When non-null, shows an inline diff chip in the chat panel.
+   * Cleared on apply, dismiss, or when a new suggestion arrives for the same
+   * agent. */
+  instructionSuggestion: {
+    agentPath: string;
+    suggestion: {
+      section_name: string;
+      proposed_text: string;
+      reason: string;
+    };
+  } | null;
   /** Transient pre-fill data for the routine editor. Set by the
    * "Save as routine" chip in chat; consumed and cleared by RoutinesTab
    * on mount or when it detects a pending value. */
@@ -75,6 +87,7 @@ interface UIState {
   setUiTourActive: (active: boolean) => void;
   setStoreAgentId: (id: string | null) => void;
   setSelectedConversation: (agentPath: string, id: string | null) => void;
+  setInstructionSuggestion: (v: UIState["instructionSuggestion"]) => void;
 }
 
 let toastCounter = 0;
@@ -97,6 +110,7 @@ export const useUIStore = create<UIState>((set) => ({
   tutorialActive: false,
   uiTourActive: false,
   storeAgentId: null,
+  instructionSuggestion: null,
   routinePrefill: null,
   selectedConversationByAgent: {},
 
@@ -158,4 +172,5 @@ export const useUIStore = create<UIState>((set) => ({
       else next[agentPath] = id;
       return { selectedConversationByAgent: next };
     }),
+  setInstructionSuggestion: (v) => set({ instructionSuggestion: v }),
 }));

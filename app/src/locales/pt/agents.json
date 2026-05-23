@@ -232,6 +232,13 @@
       "deliver": "Entrega"
     }
   },
+  "instructionSuggestion": {
+    "title": "Melhoria de instrucoes",
+    "addTo": "Adicionar a {{section}}:",
+    "apply": "Aplicar nas instrucoes",
+    "dismiss": "Dispensar",
+    "applied": "Instrucoes atualizadas"
+  },
   "routineSuggestion": {
     "runDaily": "Executar isso todo dia?",
     "runWeekly": "Executar isso toda semana?",
