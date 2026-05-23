@@ -16,7 +16,27 @@
     "helper": "Cómo debe pensar y actuar este agente.",
     "placeholder": "Escribe las instrucciones para tu agente…",
     "saving": "Guardando…",
-    "saved": "Guardado"
+    "saved": "Guardado",
+    "savedActiveSession": "Guardado · Aplicará en tu próxima conversación",
+    "restartSession": "Reiniciar sesión",
+    "editMode": "Editar",
+    "previewMode": "Vista previa",
+    "fileTreeAria": "Archivos de instrucciones",
+    "fromProject": "De: {{name}}",
+    "noProjectsHint": "Vincula un proyecto para ver su CLAUDE.md aquí",
+    "readOnlyBanner": "Este archivo pertenece a {{name}}. Edítalo en el directorio del proyecto.",
+    "revealInFinder": "Mostrar en Finder",
+    "projectClaudeMdMissing": "No se encontró CLAUDE.md en este proyecto.",
+    "snippets": {
+      "tone": "Tono",
+      "never": "Nunca hacer",
+      "output": "Formato de salida",
+      "tools": "Herramientas",
+      "workflow": "Flujo de trabajo",
+      "design": "Guía de diseño",
+      "schedule": "Reglas de agenda",
+      "approval": "Regla de aprobación"
+    }
   },
   "learnings": {
     "emptyTitle": "Aún no hay aprendizajes",
@@ -95,6 +115,7 @@
   "files": {
     "emptyTitle": "Aún no hay archivos",
     "emptyDescription": "Los archivos creados por tu asistente aparecerán aquí.",
+    "roleHintLabel": "Tipos de archivo habituales",
     "openInFinder": "Abrir en Finder",
     "loading": "Cargando…",
     "browseFiles": "Elegir archivos",
@@ -109,6 +130,18 @@
       "rename": "Cambiar nombre",
       "reveal": "Mostrar en Finder",
       "delete": "Mover a la Papelera"
+    },
+    "roleHints": {
+      "cto-agent": "Documentos de arquitectura, registros de decisiones, especificaciones técnicas",
+      "designer-agent": "Mockups, especificaciones de diseño, recursos exportados",
+      "backend-lead-agent": "Documentación de API, reportes técnicos, configuraciones",
+      "dev-agent": "Documentación de API, reportes técnicos, configuraciones",
+      "frontend-lead-agent": "Especificaciones de componentes, guías de estilo, capturas",
+      "mobile-lead-agent": "Especificaciones de la app, capturas, notas de versión",
+      "qa-agent": "Reportes de pruebas, registros de bugs, resúmenes de cobertura",
+      "devops-agent": "Runbooks, diagramas de infraestructura, reportes de incidentes",
+      "personal-assistant": "Resúmenes, agendas, notas de reuniones, listas",
+      "fallback": "Documentos y resultados creados por tu agente"
     }
   },
   "repo": {
@@ -140,7 +173,9 @@
     "exportSuccessTitle": "Equipo exportado",
     "exportSuccessBody_one": "Se escribió {{count}} rol en .squad/team.json. Haz commit para compartirlo.",
     "exportSuccessBody_other": "Se escribieron {{count}} roles en .squad/team.json. Haz commit para compartirlo.",
-    "exportErrorTitle": "No se pudo exportar el equipo"
+    "exportErrorTitle": "No se pudo exportar el equipo",
+    "stackDetectedTitle": "Stack detectado",
+    "stackDetectedBody": "Se actualizaron las instrucciones de {{agent}} con el stack detectado: {{stack}}"
   },
   "docs": {
     "scopeWorkspace": "Workspace",
@@ -209,6 +244,28 @@
       "deliver": "Entrega"
     }
   },
+  "instructionSuggestion": {
+    "title": "Mejora de instrucciones",
+    "addTo": "Agregar a {{section}}:",
+    "apply": "Aplicar a instrucciones",
+    "dismiss": "Descartar",
+    "applied": "Instrucciones actualizadas",
+    "applyFailed": "No se pudo aplicar la sugerencia"
+  },
+  "stackUpdateFailed": "No se pudieron actualizar las instrucciones del agente",
+  "instructionsSaveFailed": "No se pudieron guardar las instrucciones",
+  "restartFailed": "No se pudo reiniciar la sesión",
+  "projectClaudeReadFailed": "No se pudieron leer las instrucciones del proyecto",
+  "revealFailed": "No se pudo abrir el archivo",
+  "routineSuggestion": {
+    "runDaily": "¿Ejecutar esto cada día?",
+    "runWeekly": "¿Ejecutar esto cada semana?",
+    "runMonthly": "¿Ejecutar esto cada mes?",
+    "runHourly": "¿Ejecutar esto cada hora?",
+    "runWeekdays": "¿Ejecutar esto en días laborales?",
+    "setAsRoutine": "Crear rutina",
+    "dismiss": "Descartar"
+  },
   "mcp": {
     "title": "Servidores MCP",
     "description": "Servidores Model Context Protocol disponibles en cada sesión para este agente.",
@@ -222,5 +279,147 @@
     "cancel": "Cancelar",
     "empty": "No hay servidores MCP configurados",
     "emptyHint": "Agrega servidores para darle a este agente acceso a Playwright, bases de datos, APIs y más via MCP."
+  },
+  "examples": {
+    "cto-agent": {
+      "weeklyArch": {
+        "name": "Revisión semanal de arquitectura",
+        "prompt": "Revisa la arquitectura actual de todos los repositorios activos. Marca desvíos, focos de deuda técnica y dependencias entre equipos que necesiten atención esta semana."
+      },
+      "dailyStandup": {
+        "name": "Notas del daily",
+        "prompt": "Resume los PRs cerrados ayer, los bloqueos abiertos y las prioridades de hoy del equipo. Entrega una nota breve para el daily."
+      },
+      "monthlyTechDebt": {
+        "name": "Escaneo mensual de deuda técnica",
+        "prompt": "Recorre el código en busca de comentarios TODO/FIXME, dependencias deprecadas y archivos que pasen del límite de 200 líneas. Entrega una lista priorizada para atacar el próximo sprint."
+      }
+    },
+    "designer-agent": {
+      "weeklySystemAudit": {
+        "name": "Auditoría semanal del sistema de diseño",
+        "prompt": "Detecta componentes que se desvíen de los tokens del sistema de diseño (colores, espaciado, tipografía). Lista las inconsistencias indicando archivo y nombre del componente."
+      },
+      "dailyInspiration": {
+        "name": "Búsqueda diaria de inspiración",
+        "prompt": "Encuentra tres patrones de UI o casos de estudio recientes relevantes para el proyecto actual. Resume qué hace efectiva a cada uno."
+      },
+      "fridayReview": {
+        "name": "Revisión de diseño del viernes",
+        "prompt": "Revisa todos los cambios de diseño integrados esta semana. Verifica la consistencia con la guía de estilo y marca lo que requiera seguimiento antes del próximo sprint."
+      }
+    },
+    "backend-lead-agent": {
+      "dailyApiHealth": {
+        "name": "Chequeo diario de salud de la API",
+        "prompt": "Revisa las tasas recientes de errores de la API, queries lentas y logs de timeouts. Resume las anomalías y sugiere causas raíz."
+      },
+      "weeklyDeps": {
+        "name": "Auditoría semanal de dependencias",
+        "prompt": "Revisa todas las dependencias del backend en busca de vulnerabilidades conocidas y parches disponibles. Entrega una lista de paquetes que necesitan actualizarse."
+      },
+      "monthlyPerf": {
+        "name": "Revisión mensual de rendimiento",
+        "prompt": "Analiza los endpoints y queries de base de datos más lentos del último mes. Recomienda tres optimizaciones concretas con el impacto esperado."
+      }
+    },
+    "frontend-lead-agent": {
+      "weeklyBundle": {
+        "name": "Chequeo semanal del tamaño del bundle",
+        "prompt": "Compara el tamaño del bundle de producción de esta semana con el de la semana pasada. Marca cualquier aumento mayor al 5 % e identifica los paquetes o rutas que lo causan."
+      },
+      "dailyA11y": {
+        "name": "Escaneo diario de accesibilidad",
+        "prompt": "Ejecuta un chequeo automático de accesibilidad sobre los flujos principales. Reporta cualquier nueva violación WCAG introducida desde ayer."
+      },
+      "fridayReview": {
+        "name": "Resumen de code review del viernes",
+        "prompt": "Resume todos los PRs de frontend integrados esta semana. Destaca patrones, problemas recurrentes y decisiones de arquitectura que valga la pena documentar."
+      }
+    },
+    "dev-agent": {
+      "dailyApiHealth": {
+        "name": "Chequeo diario de salud de la API",
+        "prompt": "Revisa las tasas recientes de errores de la API, queries lentas y logs de timeouts. Resume las anomalías y sugiere causas raíz."
+      },
+      "weeklyDeps": {
+        "name": "Auditoría semanal de dependencias",
+        "prompt": "Revisa todas las dependencias del proyecto en busca de vulnerabilidades conocidas y parches disponibles. Entrega una lista de paquetes que necesitan actualizarse."
+      },
+      "monthlyPerf": {
+        "name": "Revisión mensual de rendimiento",
+        "prompt": "Analiza las funciones y queries más lentas del último mes. Recomienda tres optimizaciones concretas con el impacto esperado."
+      }
+    },
+    "mobile-lead-agent": {
+      "weeklyCrash": {
+        "name": "Reporte semanal de crashes",
+        "prompt": "Revisa las analíticas de crashes de la última semana. Agrupa por tipo, versiones afectadas y modelos de dispositivo. Prioriza por impacto en usuarios."
+      },
+      "dailyBuild": {
+        "name": "Estado diario del build",
+        "prompt": "Revisa el estado de los builds CI de anoche para iOS y Android. Reporta cualquier falla con el test o paso de build que falló."
+      },
+      "sprintRetro": {
+        "name": "Notas de retrospectiva del sprint",
+        "prompt": "Resume qué salió bien, qué frenó al equipo y tres acciones para el próximo sprint a partir de los commits e issues de esta semana."
+      }
+    },
+    "qa-agent": {
+      "dailyCoverage": {
+        "name": "Reporte diario de cobertura de tests",
+        "prompt": "Revisa el porcentaje actual de cobertura y compáralo con el de ayer. Marca cualquier archivo modificado recientemente con cobertura menor al 60 %."
+      },
+      "weeklyRegression": {
+        "name": "Resumen semanal de regresión",
+        "prompt": "Ejecuta la suite de regresión y resume los resultados. Lista nuevas fallas, tests inestables y los que se arreglaron desde la semana pasada."
+      },
+      "preRelease": {
+        "name": "Checklist previo al release",
+        "prompt": "Recorre el checklist de QA previo al release: smoke tests, accesibilidad, presupuesto de rendimiento y bugs abiertos de alta severidad. Entrega una recomendación de go/no-go."
+      }
+    },
+    "devops-agent": {
+      "dailyInfra": {
+        "name": "Salud diaria de la infraestructura",
+        "prompt": "Revisa CPU, memoria y uso de disco en todos los servicios de producción. Marca lo que esté por arriba del 80 % y sugiere acciones de escalado."
+      },
+      "weeklyCost": {
+        "name": "Reporte semanal de costos",
+        "prompt": "Resume el gasto en la nube de la última semana desglosado por servicio. Compáralo con la semana anterior y marca cualquier pico inesperado."
+      },
+      "monthlySecurity": {
+        "name": "Auditoría mensual de seguridad",
+        "prompt": "Escanea las configuraciones de infraestructura, políticas IAM y árboles de dependencias en busca de fallos de seguridad. Entrega una lista priorizada de remediaciones."
+      }
+    },
+    "personal-assistant": {
+      "morningBriefing": {
+        "name": "Briefing matutino",
+        "prompt": "Resume el calendario de hoy, las tareas pendientes y cualquier correo o notificación importante que requiera respuesta."
+      },
+      "weeklyAgenda": {
+        "name": "Preparación de la agenda semanal",
+        "prompt": "Revisa las reuniones y tareas de la próxima semana. Arma una agenda priorizada y marca conflictos o material de preparación que falte."
+      },
+      "monthlySummary": {
+        "name": "Resumen mensual",
+        "prompt": "Arma un resumen mensual con las tareas completadas, las decisiones clave y los pendientes que pasan al próximo mes."
+      }
+    },
+    "fallback": {
+      "dailyStandup": {
+        "name": "Daily",
+        "prompt": "Resume la actividad reciente, los bloqueos actuales y las prioridades de hoy."
+      },
+      "weeklyReview": {
+        "name": "Revisión semanal",
+        "prompt": "Revisa el avance de la semana, identifica qué salió bien y planea las prioridades de la próxima."
+      },
+      "monthlyReport": {
+        "name": "Reporte mensual",
+        "prompt": "Genera un reporte mensual de avance con el trabajo completado, métricas y los objetivos del próximo mes."
+      }
+    }
   }
 }

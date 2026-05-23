@@ -55,7 +55,7 @@ export default function ChatTab({ agent }: TabProps) {
     }),
     [t],
   );
-  const { processLabels, getThinkingMessage, rawViewLabels } = useChatDisplayLabels();
+  const { processLabels, getThinkingMessage } = useChatDisplayLabels();
   const attachmentValidation = useAttachmentRejectionDialog();
   const { isSpecialTool, renderToolResult, renderTurnSummary } = useFileToolRenderer(agent.folderPath);
   // Free-form chat tab gets its own UUID-scoped session key per agent.
@@ -251,7 +251,6 @@ export default function ChatTab({ agent }: TabProps) {
         renderToolResult={renderToolResult}
         processLabels={processLabels}
         getThinkingMessage={getThinkingMessage}
-        rawViewLabels={rawViewLabels}
         renderTurnSummary={renderTurnSummary}
         renderSystemMessage={(msg) => {
           if (isToolRuntimeErrorMessage(msg)) {

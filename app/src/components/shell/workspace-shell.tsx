@@ -11,6 +11,7 @@ import {
   type Toast,
 } from "@squad/core";
 import { TabBar } from "@squad/layout";
+import { resolveAgentTabs } from "../../agents/core-tabs";
 import { useActivity } from "../../hooks/queries";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
@@ -60,7 +61,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const setUiTourActive = useUIStore((s) => s.setUiTourActive);
   const [panelContainer, setPanelContainer] = useState<HTMLDivElement | null>(null);
   const agentDef = currentAgent ? getById(currentAgent.configId) : undefined;
-  const tabs = agentDef?.config.tabs ?? [];
+  const tabs = agentDef ? resolveAgentTabs(agentDef.config) : [];
   const hasActivityTab = tabs.some((tab) => tab.id === "activity");
   const { data: activities } = useActivity(currentAgent?.folderPath);
   const needsYouCount = (activities ?? []).filter((a) => a.status === "needs_you").length;

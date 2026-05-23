@@ -29,6 +29,7 @@ import { MissionControlToolbar } from "./mission-control-toolbar";
 import { MissionBoardEmptyState } from "./mission-board-empty-state";
 import { useMissionSearch } from "./use-mission-search";
 import { buildMissionBoardColumns } from "./mission-board-columns";
+import { RoutinesNudge } from "./routines-nudge";
 
 export function Dashboard() {
   const { t } = useTranslation(["dashboard", "board", "common"]);
@@ -293,6 +294,8 @@ export function Dashboard() {
         onNewMission={openNewMission}
       />
 
+      <RoutinesNudge />
+
       {/* Board */}
       <div className="flex-1 min-h-0">
         <AIBoard
@@ -344,7 +347,6 @@ export function Dashboard() {
           renderToolResult={panel.renderToolResult}
           processLabels={panel.processLabels}
           getThinkingMessage={panel.getThinkingMessage}
-          rawViewLabels={panel.rawViewLabels}
           terminalWsUrl={panel.terminalWsUrl}
           renderTurnSummary={panel.renderTurnSummary}
           renderLink={panel.renderLink}

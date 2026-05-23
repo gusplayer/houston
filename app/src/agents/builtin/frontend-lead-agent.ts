@@ -8,14 +8,12 @@ export const frontendLeadAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["frontend", "react", "nextjs", "web", "tailwind"],
-  tabs: [
-    { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
+  roleLabel: "Frontend Lead",
+  extensionTabs: [
     { id: "repo", label: "Repo", builtIn: "repo" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "docs", label: "Docs", builtIn: "docs" },
-    { id: "routines", label: "Routines", builtIn: "routines" },
     { id: "skills", label: "Skills", builtIn: "skills" },
-    { id: "files", label: "Files", builtIn: "files" },
     { id: "mcp", label: "MCP", builtIn: "mcp" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],

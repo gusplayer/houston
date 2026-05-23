@@ -566,6 +566,31 @@ export class SquadClient {
     return this.request("DELETE", "/push/unregister", { deviceToken });
   }
 
+  // ---------- instruction suggestions ----------
+
+  /**
+   * Ask the engine to analyse the last N messages and the current CLAUDE.md
+   * and propose a durable instruction to add. Returns `null` when the engine
+   * finds nothing worth suggesting.
+   */
+  suggestInstruction(
+    agentPath: string,
+    messages: Array<{ role: "user" | "assistant"; text: string }>,
+    currentClaudeMd: string,
+  ): Promise<{
+    suggestion: {
+      section_name: string;
+      proposed_text: string;
+      reason: string;
+    } | null;
+  }> {
+    return this.request(
+      "POST",
+      `/agents/suggest-instruction`,
+      { agent_path: agentPath, messages, current_claude_md: currentClaudeMd },
+    );
+  }
+
   // ---------- sessions ----------
 
   /** Start a session. `agentPath` is percent-encoded as a single path segment. */

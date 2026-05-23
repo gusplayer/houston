@@ -25,6 +25,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { detectRoutineIntent } from "../lib/detect-routine-intent";
+import type { RoutineIntent } from "../lib/detect-routine-intent";
+import { RoutineSuggestionChip } from "./chat/routine-suggestion-chip";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@squad/core";
@@ -38,6 +41,10 @@ import {
 import { useFeedStore } from "../stores/feeds";
 import { useUIStore } from "../stores/ui";
 import { useWorkspaceStore } from "../stores/workspaces";
+import { useAgentStore } from "../stores/agents";
+import {
+  InstructionSuggestionChip,
+} from "./instruction-suggestion-chip";
 import {
   useActivity,
   useConnectedToolkits,
@@ -46,6 +53,7 @@ import {
 } from "../hooks/queries";
 import {
   tauriActivity,
+  tauriAgent,
   tauriAttachments,
   tauriChat,
   tauriConfig,
@@ -93,6 +101,15 @@ import type { AIBoardProps } from "@squad/board";
 import type { ChatMessage, ChatPanelProps, FeedItem } from "@squad/chat";
 import type { Agent, AgentDefinition, SkillSummary } from "../lib/types";
 
+/**
+ * UTF-8 safe base64 hash. `btoa()` only accepts Latin1, so non-ASCII
+ * suggestions (e.g. Spanish "Comunicación", Portuguese "Instruções") would
+ * throw `InvalidCharacterError`. Encode through UTF-8 first.
+ */
+function safeHash(text: string): string {
+  return btoa(unescape(encodeURIComponent(text.trim())));
+}
+
 interface UseAgentChatPanelArgs {
   /** The agent the panel is currently scoped to. Null disables features. */
   agent: Agent | null;
@@ -122,7 +139,6 @@ interface AgentChatPanelProps {
   renderToolResult: ChatPanelProps["renderToolResult"];
   processLabels: ChatPanelProps["processLabels"];
   getThinkingMessage: ChatPanelProps["getThinkingMessage"];
-  rawViewLabels: ChatPanelProps["rawViewLabels"];
   terminalWsUrl: ChatPanelProps["terminalWsUrl"];
   renderTurnSummary: ChatPanelProps["renderTurnSummary"];
   renderSystemMessage: AIBoardProps["renderSystemMessage"];
@@ -146,8 +162,8 @@ export function useAgentChatPanel({
   selectedSessionKey,
   onSelectSession,
 }: UseAgentChatPanelArgs): AgentChatPanelProps {
-  const { t } = useTranslation(["board", "chat"]);
-  const { processLabels, getThinkingMessage, rawViewLabels } = useChatDisplayLabels();
+  const { t } = useTranslation(["board", "chat", "agents"]);
+  const { processLabels, getThinkingMessage } = useChatDisplayLabels();
   const queryClient = useQueryClient();
   const addToast = useUIStore((s) => s.addToast);
 
@@ -172,7 +188,12 @@ export function useAgentChatPanel({
         setAgentProvider((cfg.provider as string) ?? null);
         setAgentModel((cfg.model as string) ?? null);
       })
-      .catch(() => {});
+      .catch((err) => {
+        // Best-effort: agent may legitimately have no config yet, so we fall
+        // back to workspace defaults rather than blocking the chat panel.
+        // Log so we don't lose visibility on genuine engine failures.
+        console.error("Failed to read agent config for model resolution:", err);
+      });
   }, [path]);
 
   const { data: activities } = useActivity(path ?? undefined);
@@ -211,6 +232,183 @@ export function useAgentChatPanel({
       });
     },
     [path, selectedActivityId, addToast, t],
+  );
+
+  // ── Instruction suggestion (self-improve CLAUDE.md) ──────────────────
+  const instructionSuggestion = useUIStore((s) => s.instructionSuggestion);
+  const setInstructionSuggestion = useUIStore((s) => s.setInstructionSuggestion);
+
+  // Key used to persist dismissed suggestion hashes in localStorage.
+  const DISMISSED_KEY = "squad:dismissed_suggestions";
+
+  function getDismissedHashes(): Set<string> {
+    try {
+      const raw = localStorage.getItem(DISMISSED_KEY);
+      if (raw) return new Set(JSON.parse(raw) as string[]);
+    } catch {
+      /* ignore */
+    }
+    return new Set();
+  }
+
+  function addDismissedHash(hash: string): void {
+    try {
+      const set = getDismissedHashes();
+      set.add(hash);
+      localStorage.setItem(DISMISSED_KEY, JSON.stringify([...set]));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // Track last-seen `final_result` count per (agentPath, sessionKey) so we
+  // fire the suggestion check exactly once per session completion.
+  const lastFinalResultCountRef = useRef<Record<string, number>>({});
+
+  const checkSuggestion = useCallback(
+    (feedItems: FeedItem[], sessionKey: string) => {
+      if (!path) return;
+      const finalCount = feedItems.filter(
+        (f) => f.feed_type === "final_result",
+      ).length;
+      const cacheKey = `${path}|${sessionKey}`;
+      const prev = lastFinalResultCountRef.current[cacheKey] ?? 0;
+      if (finalCount === 0 || finalCount === prev) return;
+      lastFinalResultCountRef.current[cacheKey] = finalCount;
+
+      // Minimum conversation length gate.
+      if (feedItems.length < 5) return;
+
+      // Don't fire if a suggestion for this agent is already pending.
+      if (instructionSuggestion?.agentPath === path) return;
+
+      // Extract last 10 messages.
+      const messages = feedItems
+        .filter(
+          (f): f is { feed_type: "user_message" | "assistant_text"; data: string } =>
+            f.feed_type === "user_message" || f.feed_type === "assistant_text",
+        )
+        .slice(-10)
+        .map((f) => ({
+          role: (f.feed_type === "user_message" ? "user" : "assistant") as
+            | "user"
+            | "assistant",
+          text: f.data,
+        }));
+
+      if (messages.length < 2) return;
+
+      // Fire best-effort — never surface errors to user.
+      (async () => {
+        try {
+          const currentClaudeMd = await tauriAgent
+            .readFile(path, "CLAUDE.md")
+            .catch(() => "");
+          const result = await getEngine().suggestInstruction(
+            path,
+            messages,
+            currentClaudeMd,
+          );
+          if (!result.suggestion) return;
+
+          // Check dismissed hashes.
+          const hash = safeHash(result.suggestion.proposed_text);
+          if (getDismissedHashes().has(hash)) return;
+
+          setInstructionSuggestion({ agentPath: path, suggestion: result.suggestion });
+        } catch {
+          /* best-effort */
+        }
+      })();
+    },
+    [path, instructionSuggestion, setInstructionSuggestion],
+  );
+
+  // Apply: insert proposed_text into the appropriate CLAUDE.md section.
+  const handleApplySuggestion = useCallback(async () => {
+    if (!path || !instructionSuggestion) return;
+    const { suggestion } = instructionSuggestion;
+    try {
+      // Read the current CLAUDE.md WITHOUT swallowing errors — if we can't
+      // read it, we must NOT silently overwrite the user's existing
+      // instructions with an empty buffer. Let the outer catch surface it.
+      const current = await tauriAgent.readFile(path, "CLAUDE.md");
+      const sectionHeader = suggestion.section_name.startsWith("#")
+        ? suggestion.section_name
+        : `## ${suggestion.section_name}`;
+
+      let updated: string;
+      const sectionIdx = current.indexOf(sectionHeader);
+      if (sectionIdx !== -1) {
+        // Find end of this section (next ## heading or end of file).
+        const afterHeader = sectionIdx + sectionHeader.length;
+        const nextHeading = current.indexOf("\n##", afterHeader);
+        const insertAt = nextHeading !== -1 ? nextHeading : current.length;
+        const before = current.slice(0, insertAt).trimEnd();
+        const after = current.slice(insertAt);
+        updated = `${before}\n${suggestion.proposed_text}${after}`;
+      } else {
+        // Section not found — append at end.
+        updated =
+          current.trimEnd() +
+          `\n\n${sectionHeader}\n${suggestion.proposed_text}`;
+      }
+
+      await tauriAgent.writeFile(path, "CLAUDE.md", updated);
+      addToast({
+        title: t("agents:instructionSuggestion.applied"),
+        variant: "success",
+      });
+      setInstructionSuggestion(null);
+    } catch (err) {
+      // Distinct title so the user doesn't see "Instructions updated" with
+      // a red icon — they need to know the apply failed and the suggestion
+      // is still pending.
+      addToast({
+        title: t("agents:instructionSuggestion.applyFailed"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+      });
+    }
+  }, [path, instructionSuggestion, setInstructionSuggestion, addToast, t]);
+
+  const handleDismissSuggestion = useCallback(() => {
+    if (!instructionSuggestion) return;
+    try {
+      const hash = safeHash(instructionSuggestion.suggestion.proposed_text);
+      addDismissedHash(hash);
+    } catch (e) {
+      console.error("Failed to persist suggestion dismissal", e);
+    }
+    setInstructionSuggestion(null);
+  }, [instructionSuggestion, setInstructionSuggestion]);
+
+  // ── Routine suggestion chip ───────────────────────────────────────────
+  const setCurrent = useAgentStore((s) => s.setCurrent);
+  const setViewMode = useUIStore((s) => s.setViewMode);
+  const setRoutinePrefill = useUIStore((s) => s.setRoutinePrefill);
+
+  // Key = `${sessionKey}:${userMessageText}` — tracks which (session, message)
+  // pair has been dismissed so the chip doesn't re-appear for the same message.
+  const [dismissedKeys, setDismissedKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const handleRoutineAccept = useCallback(
+    (intent: RoutineIntent) => {
+      if (!agent) return;
+      setRoutinePrefill({
+        name: intent.suggestedName,
+        prompt: intent.suggestedPrompt,
+        schedule: intent.suggestedCron,
+        description: "",
+        suppress_when_silent: true,
+        timezone: null,
+      });
+      setCurrent(agent);
+      setViewMode("routines");
+    },
+    [agent, setCurrent, setViewMode, setRoutinePrefill],
   );
 
   // ── Composio link card support ────────────────────────────────────────
@@ -451,16 +649,80 @@ export function useAgentChatPanel({
     [],
   );
   const afterMessages = useCallback(
-    ({ feedItems }: { sessionKey: string; feedItems: FeedItem[] }) => {
+    ({ sessionKey, feedItems }: { sessionKey: string; feedItems: FeedItem[] }) => {
+      // Fire suggestion check on session completion.
+      checkSuggestion(feedItems, sessionKey);
+
       const signalKey = providerAuthSignalKey(feedItems);
+      const showInstructionChip =
+        instructionSuggestion !== null &&
+        instructionSuggestion.agentPath === path;
+
+      // Determine if the turn is complete (last item is an assistant response,
+      // not a user message or streaming chunk).
+      const lastItem = feedItems[feedItems.length - 1];
+      const turnComplete =
+        lastItem &&
+        lastItem.feed_type !== "user_message" &&
+        lastItem.feed_type !== "assistant_text_streaming" &&
+        lastItem.feed_type !== "thinking_streaming" &&
+        lastItem.feed_type !== "thinking" &&
+        lastItem.feed_type !== "tool_call" &&
+        lastItem.feed_type !== "tool_result";
+
+      // Find last user message text for intent detection.
+      let routineChip: ReactNode = null;
+      if (turnComplete) {
+        const lastUserItem = [...feedItems]
+          .reverse()
+          .find((it) => it.feed_type === "user_message");
+        if (lastUserItem && lastUserItem.feed_type === "user_message") {
+          const userText = lastUserItem.data as string;
+          const dismissKey = `${sessionKey}:${userText}`;
+          if (!dismissedKeys.has(dismissKey)) {
+            const intent = detectRoutineIntent(userText);
+            if (intent.detected) {
+              routineChip = (
+                <RoutineSuggestionChip
+                  intent={intent}
+                  onAccept={handleRoutineAccept}
+                  onDismiss={() =>
+                    setDismissedKeys((prev) => new Set([...prev, dismissKey]))
+                  }
+                />
+              );
+            }
+          }
+        }
+      }
+
       return (
-        <ProviderReconnectCard
-          providerId={signalKey ? effectiveProvider : undefined}
-          signalKey={signalKey ?? undefined}
-        />
+        <>
+          <ProviderReconnectCard
+            providerId={signalKey ? effectiveProvider : undefined}
+            signalKey={signalKey ?? undefined}
+          />
+          {showInstructionChip && (
+            <InstructionSuggestionChip
+              suggestion={instructionSuggestion.suggestion}
+              onApply={handleApplySuggestion}
+              onDismiss={handleDismissSuggestion}
+            />
+          )}
+          {routineChip}
+        </>
       );
     },
-    [effectiveProvider],
+    [
+      effectiveProvider,
+      checkSuggestion,
+      instructionSuggestion,
+      path,
+      handleApplySuggestion,
+      handleDismissSuggestion,
+      dismissedKeys,
+      handleRoutineAccept,
+    ],
   );
 
   const composerHeader = useMemo<AIBoardProps["composerHeader"]>(() => {
@@ -560,7 +822,6 @@ export function useAgentChatPanel({
     renderToolResult,
     processLabels,
     getThinkingMessage,
-    rawViewLabels,
     terminalWsUrl: path ? getEngine().ptyWsUrl(path) : undefined,
     renderTurnSummary,
     renderSystemMessage,

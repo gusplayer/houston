@@ -2,7 +2,7 @@
  * FilesBrowser — macOS Finder list-view clone.
  * Column headers with sort, file/folder tree, status bar, drag-and-drop.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { cn, Button } from "@squad/core"
 import { Upload } from "lucide-react"
@@ -48,8 +48,14 @@ export interface FilesBrowserProps {
   onBrowse?: () => void
   emptyTitle?: string
   emptyDescription?: string
+  /**
+   * Custom empty state node. When provided, replaces the default title +
+   * description block entirely. The consumer (app layer) passes role-aware
+   * content here.
+   */
+  emptyState?: ReactNode
   /** Optional action rendered in the bottom status bar (e.g. "Open in Finder" link) */
-  statusBarAction?: React.ReactNode
+  statusBarAction?: ReactNode
   /** Overrides for chrome labels (column headers, loading, browse CTA). */
   labels?: FilesBrowserLabels
   /** Overrides for the right-click context-menu labels. */
@@ -61,6 +67,7 @@ export function FilesBrowser({
   onFilesDropped, onMove, onRename, onCreateFolder, onBrowse,
   emptyTitle = "No files yet",
   emptyDescription = "When agents create files, they\u2019ll appear here.",
+  emptyState,
   statusBarAction,
   labels,
   menuLabels,
@@ -128,10 +135,12 @@ export function FilesBrowser({
   if (isEmpty) {
     return (
       <div className="flex-1 flex flex-col items-center pt-[20vh] gap-4 px-8">
-        <div className="space-y-2 text-center max-w-md">
-          <h1 className="text-2xl font-semibold tracking-tight">{emptyTitle}</h1>
-          <p className="text-sm text-muted-foreground">{emptyDescription}</p>
-        </div>
+        {emptyState ?? (
+          <div className="space-y-2 text-center max-w-md">
+            <h1 className="text-2xl font-semibold tracking-tight">{emptyTitle}</h1>
+            <p className="text-sm text-muted-foreground">{emptyDescription}</p>
+          </div>
+        )}
         {onBrowse && (
           <Button variant="default" size="sm" onClick={onBrowse}>
             <Upload className="size-4 mr-1.5" /> {l.browseFiles}

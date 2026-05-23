@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RoutinesGrid, RoutineEditor } from "@squad/routines";
 import type { RoutineFormData, RoutineRun } from "@squad/routines";
@@ -10,8 +10,10 @@ import {
   useDeleteRoutine,
   useRunRoutineNow,
 } from "../../hooks/queries";
+import { useUIStore } from "../../stores/ui";
 import { useTimezonePreference } from "../../hooks/use-timezone-preference";
 import type { TabProps } from "../../lib/types";
+import { RoutinesEmptyState } from "./routines-empty-state";
 
 type View = { type: "grid" } | { type: "editor"; editId?: string };
 
@@ -54,6 +56,18 @@ export default function RoutinesTab({ agent }: TabProps) {
   const [form, setForm] = useState<RoutineFormData>(EMPTY_FORM);
   const [baseline, setBaseline] = useState<RoutineFormData>(EMPTY_FORM);
 
+  // Consume pending prefill from the "Save as routine" chip in chat.
+  const routinePrefill = useUIStore((s) => s.routinePrefill);
+  const setRoutinePrefill = useUIStore((s) => s.setRoutinePrefill);
+  useEffect(() => {
+    if (!routinePrefill) return;
+    setRoutinePrefill(null);
+    const next: RoutineFormData = { ...EMPTY_FORM, ...routinePrefill };
+    setForm(next);
+    setBaseline(next);
+    setView({ type: "editor" });
+  }, [routinePrefill, setRoutinePrefill]);
+
   // Compute last run per routine
   const lastRuns = useMemo(() => {
     if (!allRuns) return {};
@@ -70,6 +84,13 @@ export default function RoutinesTab({ agent }: TabProps) {
   const handleCreate = useCallback(() => {
     setForm(EMPTY_FORM);
     setBaseline(EMPTY_FORM);
+    setView({ type: "editor" });
+  }, []);
+
+  const handlePrefill = useCallback((patch: Partial<RoutineFormData>) => {
+    const next = { ...EMPTY_FORM, ...patch };
+    setForm(next);
+    setBaseline(next);
     setView({ type: "editor" });
   }, []);
 
@@ -191,6 +212,13 @@ export default function RoutinesTab({ agent }: TabProps) {
         descriptionShort: t("grid.descriptionShort"),
         newRoutine: t("grid.newRoutine"),
       }}
+      emptyState={
+        <RoutinesEmptyState
+          agent={agent}
+          onCreate={handleCreate}
+          onPrefill={handlePrefill}
+        />
+      }
     />
   );
 }

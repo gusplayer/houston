@@ -41,7 +41,11 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^17.0.4",
-    "zustand": "^5.0.5"
+    "zustand": "^5.0.5",
+    "@uiw/react-codemirror": "^4.23.0",
+    "@codemirror/lang-markdown": "^6.2.5",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.8",
