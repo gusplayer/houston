@@ -130,6 +130,18 @@
       "rename": "Renomear",
       "reveal": "Mostrar no Finder",
       "delete": "Mover para o Lixo"
+    },
+    "roleHints": {
+      "cto-agent": "Documentos de arquitetura, registros de decisões, especificações técnicas",
+      "designer-agent": "Mockups, especificações de design, assets exportados",
+      "backend-lead-agent": "Documentação de API, relatórios técnicos, configurações",
+      "dev-agent": "Documentação de API, relatórios técnicos, configurações",
+      "frontend-lead-agent": "Especificações de componentes, guias de estilo, capturas de tela",
+      "mobile-lead-agent": "Especificações do app, capturas de tela, notas de versão",
+      "qa-agent": "Relatórios de testes, registros de bugs, resumos de cobertura",
+      "devops-agent": "Runbooks, diagramas de infraestrutura, relatórios de incidentes",
+      "personal-assistant": "Resumos, agendas, anotações de reuniões, listas",
+      "fallback": "Documentos e resultados criados pelo seu agente"
     }
   },
   "repo": {
@@ -233,11 +245,11 @@
     }
   },
   "instructionSuggestion": {
-    "title": "Melhoria de instrucoes",
+    "title": "Melhoria de instruções",
     "addTo": "Adicionar a {{section}}:",
-    "apply": "Aplicar nas instrucoes",
+    "apply": "Aplicar nas instruções",
     "dismiss": "Dispensar",
-    "applied": "Instrucoes atualizadas",
+    "applied": "Instruções atualizadas",
     "applyFailed": "Não foi possível aplicar a sugestão"
   },
   "stackUpdateFailed": "Não foi possível atualizar as instruções do agente",
@@ -267,5 +279,147 @@
     "cancel": "Cancelar",
     "empty": "Nenhum servidor MCP configurado",
     "emptyHint": "Adicione servidores para dar a este agente acesso ao Playwright, bancos de dados, APIs e mais via MCP."
+  },
+  "examples": {
+    "cto-agent": {
+      "weeklyArch": {
+        "name": "Revisão semanal de arquitetura",
+        "prompt": "Revise a arquitetura atual de todos os repositórios ativos. Aponte desvios, focos de dívida técnica e dependências entre times que precisam de atenção esta semana."
+      },
+      "dailyStandup": {
+        "name": "Notas da daily",
+        "prompt": "Resuma os PRs mergeados ontem, os bloqueios abertos e as prioridades de hoje do time. Entregue uma nota curta para a daily."
+      },
+      "monthlyTechDebt": {
+        "name": "Varredura mensal de dívida técnica",
+        "prompt": "Varra o código atrás de comentários TODO/FIXME, dependências deprecadas e arquivos acima do limite de 200 linhas. Entregue uma lista priorizada para atacar no próximo sprint."
+      }
+    },
+    "designer-agent": {
+      "weeklySystemAudit": {
+        "name": "Auditoria semanal do design system",
+        "prompt": "Identifique componentes que fogem dos tokens do design system (cores, espaçamento, tipografia). Liste as inconsistências indicando arquivo e nome do componente."
+      },
+      "dailyInspiration": {
+        "name": "Busca diária de inspiração",
+        "prompt": "Encontre três padrões de UI ou estudos de caso recentes relevantes para o projeto atual. Resuma o que torna cada um eficaz."
+      },
+      "fridayReview": {
+        "name": "Revisão de design da sexta",
+        "prompt": "Revise todas as mudanças de design integradas nesta semana. Confira a consistência com o guia de estilo e marque qualquer coisa que precise de follow-up antes do próximo sprint."
+      }
+    },
+    "backend-lead-agent": {
+      "dailyApiHealth": {
+        "name": "Check diário de saúde da API",
+        "prompt": "Revise as taxas recentes de erros da API, queries lentas e logs de timeouts. Resuma anomalias e sugira causas-raiz."
+      },
+      "weeklyDeps": {
+        "name": "Auditoria semanal de dependências",
+        "prompt": "Revise todas as dependências do backend em busca de vulnerabilidades conhecidas e patches disponíveis. Entregue uma lista de pacotes que precisam de atualização."
+      },
+      "monthlyPerf": {
+        "name": "Revisão mensal de performance",
+        "prompt": "Analise os endpoints e queries de banco mais lentos do último mês. Recomende três otimizações concretas com o impacto esperado."
+      }
+    },
+    "frontend-lead-agent": {
+      "weeklyBundle": {
+        "name": "Check semanal do tamanho do bundle",
+        "prompt": "Compare o tamanho do bundle de produção desta semana com o da semana passada. Marque qualquer aumento acima de 5 % e identifique os pacotes ou rotas responsáveis."
+      },
+      "dailyA11y": {
+        "name": "Varredura diária de acessibilidade",
+        "prompt": "Rode um check automático de acessibilidade nos fluxos principais. Reporte qualquer nova violação WCAG introduzida desde ontem."
+      },
+      "fridayReview": {
+        "name": "Resumo de code review da sexta",
+        "prompt": "Resuma todos os PRs de frontend mergeados nesta semana. Destaque padrões, problemas recorrentes e decisões de arquitetura que valem ser documentadas."
+      }
+    },
+    "dev-agent": {
+      "dailyApiHealth": {
+        "name": "Check diário de saúde da API",
+        "prompt": "Revise as taxas recentes de erros da API, queries lentas e logs de timeouts. Resuma anomalias e sugira causas-raiz."
+      },
+      "weeklyDeps": {
+        "name": "Auditoria semanal de dependências",
+        "prompt": "Revise todas as dependências do projeto em busca de vulnerabilidades conhecidas e patches disponíveis. Entregue uma lista de pacotes que precisam de atualização."
+      },
+      "monthlyPerf": {
+        "name": "Revisão mensal de performance",
+        "prompt": "Analise as funções e queries mais lentas do último mês. Recomende três otimizações concretas com o impacto esperado."
+      }
+    },
+    "mobile-lead-agent": {
+      "weeklyCrash": {
+        "name": "Relatório semanal de crashes",
+        "prompt": "Revise as analytics de crashes da última semana. Agrupe por tipo, versões afetadas e modelos de dispositivo. Priorize por impacto nos usuários."
+      },
+      "dailyBuild": {
+        "name": "Status diário do build",
+        "prompt": "Confira o status dos builds CI da madrugada para iOS e Android. Reporte qualquer falha com o teste ou etapa de build que quebrou."
+      },
+      "sprintRetro": {
+        "name": "Notas da retrospectiva do sprint",
+        "prompt": "Resuma o que foi bem, o que travou o time e três ações para o próximo sprint com base nos commits e issues desta semana."
+      }
+    },
+    "qa-agent": {
+      "dailyCoverage": {
+        "name": "Relatório diário de cobertura de testes",
+        "prompt": "Confira a porcentagem atual de cobertura e compare com a de ontem. Marque qualquer arquivo modificado recentemente com cobertura abaixo de 60 %."
+      },
+      "weeklyRegression": {
+        "name": "Resumo semanal de regressão",
+        "prompt": "Rode a suíte de regressão e resuma os resultados. Liste novas falhas, testes instáveis e os que foram corrigidos desde a semana passada."
+      },
+      "preRelease": {
+        "name": "Checklist pré-release",
+        "prompt": "Passe pelo checklist de QA pré-release: smoke tests, acessibilidade, orçamento de performance e bugs abertos de alta severidade. Entregue uma recomendação de go/no-go."
+      }
+    },
+    "devops-agent": {
+      "dailyInfra": {
+        "name": "Saúde diária da infraestrutura",
+        "prompt": "Confira CPU, memória e uso de disco em todos os serviços de produção. Marque tudo que estiver acima do limiar de 80 % e sugira ações de escalonamento."
+      },
+      "weeklyCost": {
+        "name": "Relatório semanal de custos",
+        "prompt": "Resuma o gasto em nuvem da última semana detalhado por serviço. Compare com a semana anterior e marque qualquer pico inesperado."
+      },
+      "monthlySecurity": {
+        "name": "Auditoria mensal de segurança",
+        "prompt": "Escaneie configurações de infraestrutura, políticas IAM e árvores de dependências em busca de problemas de segurança. Entregue uma lista priorizada de correções."
+      }
+    },
+    "personal-assistant": {
+      "morningBriefing": {
+        "name": "Briefing matinal",
+        "prompt": "Resuma a agenda de hoje, as tarefas pendentes e qualquer e-mail ou notificação importante que precise de resposta."
+      },
+      "weeklyAgenda": {
+        "name": "Preparação da agenda da semana",
+        "prompt": "Revise as reuniões e tarefas da próxima semana. Monte uma agenda priorizada e marque conflitos ou material de preparação que esteja faltando."
+      },
+      "monthlySummary": {
+        "name": "Resumo mensal",
+        "prompt": "Monte um resumo mensal com as tarefas concluídas, as decisões importantes e os itens que passam para o próximo mês."
+      }
+    },
+    "fallback": {
+      "dailyStandup": {
+        "name": "Daily",
+        "prompt": "Resuma a atividade recente, os bloqueios atuais e as prioridades de hoje."
+      },
+      "weeklyReview": {
+        "name": "Revisão semanal",
+        "prompt": "Revise o progresso da semana, identifique o que foi bem e planeje as prioridades da próxima."
+      },
+      "monthlyReport": {
+        "name": "Relatório mensal",
+        "prompt": "Gere um relatório mensal de progresso com o trabalho concluído, métricas e os objetivos do próximo mês."
+      }
+    }
   }
 }

@@ -10,11 +10,10 @@
 import { useTranslation } from "react-i18next";
 import { Clock, Plus } from "lucide-react";
 import { Button, EmptyHeader, EmptyTitle, EmptyDescription } from "@squad/core";
-import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import {
-  useAgentRoleRoutines,
+  getRoleRoutines,
   type ExampleRoutine,
-} from "../../hooks/use-agent-role-profile";
+} from "../../lib/agent-role-profile";
 import type { RoutineFormData } from "@squad/routines";
 import type { Agent } from "../../lib/types";
 
@@ -30,14 +29,20 @@ export function RoutinesEmptyState({
   onPrefill,
 }: RoutinesEmptyStateProps) {
   const { t } = useTranslation("routines");
-  const getById = useAgentCatalogStore((s) => s.getById);
-  const roleLabel = getById(agent.configId)?.config.roleLabel;
-  const examples = useAgentRoleRoutines(roleLabel);
+  const { t: tAgents } = useTranslation("agents");
+  const examples = getRoleRoutines(agent.configId);
+
+  // example.nameKey / promptKey are computed at runtime from configId, so
+  // they can't be statically narrowed against the agents-namespace type.
+  // Cast through `never` per the well-known react-i18next dynamic-key
+  // workaround so consumers stay typed without weakening the t() return.
+  const translateAgents = (key: string): string =>
+    tAgents(key as unknown as never);
 
   function handleExampleClick(example: ExampleRoutine) {
     onPrefill({
-      name: example.name,
-      prompt: example.prompt,
+      name: translateAgents(example.nameKey),
+      prompt: translateAgents(example.promptKey),
       schedule: example.cron,
       description: "",
       suppress_when_silent: true,
@@ -55,12 +60,12 @@ export function RoutinesEmptyState({
       <div className="flex flex-col gap-2 w-full max-w-sm">
         {examples.map((example) => (
           <button
-            key={example.name}
+            key={example.nameKey}
             onClick={() => handleExampleClick(example)}
             className="group flex flex-col items-start gap-1 rounded-xl border border-border bg-secondary/50 hover:bg-secondary hover:border-primary/30 px-4 py-3 text-left transition-colors"
           >
             <span className="text-sm font-medium text-foreground leading-tight">
-              {example.name}
+              {translateAgents(example.nameKey)}
             </span>
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="size-3 shrink-0" />
