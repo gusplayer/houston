@@ -16,7 +16,9 @@
     "helper": "How this agent should think and act.",
     "placeholder": "Write instructions for your agent…",
     "saving": "Saving…",
-    "saved": "Saved"
+    "saved": "Saved",
+    "savedActiveSession": "Saved · Takes effect in your next conversation",
+    "restartSession": "Restart session"
   },
   "learnings": {
     "emptyTitle": "No learnings yet",

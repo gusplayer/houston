@@ -81,6 +81,8 @@ export default function JobDescriptionTab({ agent }: TabProps) {
             onSave={(c) =>
               saveInstructions.mutateAsync({ name: "CLAUDE.md", content: c })
             }
+            agentPath={path}
+            agentId={agent.id}
           />
         )}
 

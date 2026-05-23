@@ -7,23 +7,33 @@ import {
   EmptyTitle,
   cn,
 } from "@squad/core";
-import { FileText } from "lucide-react";
+import { FileText, RefreshCw } from "lucide-react";
+import { useAgentState } from "../../hooks/use-agent-state";
+import { tauriChat } from "../../lib/tauri";
 
 export type SubTab = "instructions" | "skills" | "learnings";
 
-type SaveState = "idle" | "saving" | "saved";
+type SaveState = "idle" | "saving" | "saved" | "saved-active";
 
 export function InstructionsContent({
   content,
   onSave,
+  agentPath,
+  agentId,
 }: {
   content: string;
   onSave: (content: string) => Promise<unknown>;
+  agentPath?: string;
+  agentId?: string;
 }) {
   const { t } = useTranslation("agents");
   const [value, setValue] = useState(content);
   const [editing, setEditing] = useState(false);
   const [state, setState] = useState<SaveState>("idle");
+  const [restarting, setRestarting] = useState(false);
+
+  const agentState = useAgentState(agentPath);
+  const isSessionActive = agentState === "working";
 
   useEffect(() => {
     setValue(content);
@@ -40,6 +50,18 @@ export function InstructionsContent({
     if (value === content) return;
     setState("saving");
     await onSave(value);
+    setState(isSessionActive ? "saved-active" : "saved");
+    if (!isSessionActive) {
+      window.setTimeout(() => setState("idle"), 2000);
+    }
+  };
+
+  const handleRestart = async () => {
+    if (!agentPath || !agentId) return;
+    setRestarting(true);
+    const sessionKey = `chat-${agentId}`;
+    await tauriChat.stop(agentPath, sessionKey).catch(() => {});
+    setRestarting(false);
     setState("saved");
     window.setTimeout(() => setState("idle"), 2000);
   };
@@ -59,21 +81,42 @@ export function InstructionsContent({
     );
   }
 
+  const saveLabel = (() => {
+    if (state === "saving") return t("instructions.saving");
+    if (state === "saved") return t("instructions.saved");
+    if (state === "saved-active") return t("instructions.savedActiveSession");
+    return "";
+  })();
+
   return (
     <div className="max-w-3xl mx-auto w-full px-6 pb-12 pt-2">
-      <div className="flex items-baseline justify-between gap-4 mb-4">
+      <div className="flex items-center justify-between gap-4 mb-4">
         <p className="text-xs text-muted-foreground max-w-md">
           {t("instructions.helper")}
         </p>
-        <span
-          className={cn(
-            "text-[11px] tabular-nums transition-opacity duration-200",
-            state === "idle" ? "opacity-0" : "opacity-100 text-muted-foreground",
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className={cn(
+              "text-[11px] tabular-nums transition-opacity duration-200 shrink-0",
+              state === "idle" ? "opacity-0" : "opacity-100 text-muted-foreground",
+            )}
+            aria-live="polite"
+          >
+            {saveLabel}
+          </span>
+          {state === "saved-active" && agentPath && agentId && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-[11px] shrink-0"
+              onClick={handleRestart}
+              disabled={restarting}
+            >
+              <RefreshCw className={cn("size-3 mr-1", restarting && "animate-spin")} />
+              {t("instructions.restartSession")}
+            </Button>
           )}
-          aria-live="polite"
-        >
-          {state === "saving" ? t("instructions.saving") : state === "saved" ? t("instructions.saved") : ""}
-        </span>
+        </div>
       </div>
       <section className="rounded-xl bg-secondary p-3">
         <textarea
