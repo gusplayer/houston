@@ -9,8 +9,11 @@ import { AgentSidebarIcon, NeedsYouChip } from "./agent-sidebar-status";
  * roster reads as a team ("Peter — Frontend Lead") instead of just
  * first names. Keyed by the built-in agent config id; custom / blank
  * agents render with no subtitle.
+ *
+ * Exported so the agent-creation dialog can reuse it as the subtitle
+ * under the avatar when picking a role from the store.
  */
-const ROLE_LABELS: Record<string, string> = {
+export const ROLE_LABELS: Record<string, string> = {
   "cto-agent": "CTO",
   "mobile-lead-agent": "Mobile Lead",
   "backend-lead-agent": "Backend Lead",

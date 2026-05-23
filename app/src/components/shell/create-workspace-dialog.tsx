@@ -13,8 +13,11 @@ import { useUIStore } from "../../stores/ui";
 import { tauriConfig } from "../../lib/tauri";
 import type { StoreListing } from "../../lib/types";
 import { getDefaultModel } from "../../lib/providers";
+import { ROLE_IDS } from "../../lib/recommend-team";
 import { StoreStep } from "./store-step";
 import { NamingStep } from "./naming-step";
+
+const ROLE_ID_SET: ReadonlySet<string> = new Set(ROLE_IDS);
 
 export function CreateAgentDialog() {
   const { t } = useTranslation("shell");
@@ -127,6 +130,14 @@ export function CreateAgentDialog() {
               storeCatalog={storeCatalog}
               onSelect={(id) => {
                 setSelectedConfigId(id);
+                // Role agents (Carlo, Alex, …) ship with a personal name;
+                // pre-fill the input so the user can keep it as-is or edit
+                // it intentionally. Non-role templates (Start from scratch,
+                // Dev agent, …) stay empty so the user picks a project name.
+                if (ROLE_ID_SET.has(id)) {
+                  const def = agentDefs.find((d) => d.config.id === id);
+                  if (def) setName(def.config.name);
+                }
                 setStep(2);
               }}
               onInstall={handleInstall}
