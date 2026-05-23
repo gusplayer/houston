@@ -78,6 +78,7 @@ export interface AgentConfig {
   agentSeeds?: Record<string, string>;  // Files to seed in new agents
   features?: string[];     // Rust feature flags needed
   agents?: AgentMode[];    // Multiple prompt profiles for multi-agent setups
+  roleLabel?: string;      // Short role label shown in sidebar, e.g. "CTO", "Frontend Lead"
 }
 
 /** A resolved agent definition (config + where it came from) */

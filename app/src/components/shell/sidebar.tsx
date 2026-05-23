@@ -51,6 +51,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     onChangeColor: (agentId, color) => {
       void handleChangeColor(agentId, color);
     },
+    getConfig: (configId) => getById(configId)?.config,
   });
   const isTopLevel =
     viewMode === "dashboard" ||

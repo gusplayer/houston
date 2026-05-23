@@ -8,6 +8,7 @@ export const qaAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["qa", "testing", "e2e", "regression", "quality"],
+  roleLabel: "QA Engineer",
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "repo", label: "Repo", builtIn: "repo" },

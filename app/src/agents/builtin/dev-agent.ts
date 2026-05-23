@@ -8,6 +8,7 @@ export const devAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["dev", "engineering", "code", "git", "repo"],
+  roleLabel: "Dev",
   tabs: [
     { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
     { id: "repo", label: "Repo", builtIn: "repo" },

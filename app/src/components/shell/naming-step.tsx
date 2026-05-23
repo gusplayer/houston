@@ -13,7 +13,6 @@ import {
 } from "@squad/core";
 import { ArrowLeft, Check, FolderOpen } from "lucide-react";
 import type { AgentDefinition } from "../../lib/types";
-import { ROLE_LABELS } from "./agent-sidebar-items";
 import { InlineModelSelector } from "./inline-model-selector";
 
 interface NamingStepProps {
@@ -80,9 +79,7 @@ export function NamingStep({
         const trimmedName = name.trim();
         const fallback = selectedAgent?.config.name ?? t("naming.newAgentFallback");
         const displayName = trimmedName.length > 0 ? trimmedName : fallback;
-        const roleLabel = selectedAgent?.config.id
-          ? ROLE_LABELS[selectedAgent.config.id]
-          : undefined;
+        const roleLabel = selectedAgent?.config.roleLabel;
         return (
           <div className="flex flex-col items-center gap-4 mb-8">
             <SquadAvatar color={resolvedColor} diameter={80} />
@@ -128,7 +125,7 @@ export function NamingStep({
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
           placeholder={
-            selectedAgent?.config.id && ROLE_LABELS[selectedAgent.config.id]
+            selectedAgent?.config.roleLabel
               ? selectedAgent.config.name
               : t("naming.namePlaceholder")
           }
