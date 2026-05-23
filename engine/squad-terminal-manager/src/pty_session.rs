@@ -114,23 +114,43 @@ pub fn spawn_pty(
     // --- Reader thread: PTY master output → data channel ---
     // Also auto-accepts the claude first-run directory trust prompt so the
     // user lands straight in the REPL without a manual keypress.
+    //
+    // Watches PTY output with a rolling 512-byte window so the prompt is
+    // detected even when claude's TUI writes "Enter to confirm" across
+    // multiple chunk boundaries (a single 4KB read is not enough — TUI
+    // frames can arrive split). Sends `\r` (carriage return) — the
+    // keycode for the Return key in raw mode. Sending `\n` (line feed)
+    // does NOT work: claude's Ink-based TUI runs the PTY in raw mode
+    // and only treats CR as Enter.
     let data_tx_r = data_tx.clone();
     let write_tx_auto = write_tx.clone();
     let mut reader = reader;
     std::thread::spawn(move || {
         let mut buf = [0u8; 4096];
         let mut trust_accepted = false;
+        // Rolling tail of recent bytes for cross-chunk pattern detection.
+        // 512 bytes is enough — the trust prompt fits in that window.
+        let mut tail: Vec<u8> = Vec::with_capacity(512);
+        let needle = b"Enter to confirm";
         loop {
             match reader.read(&mut buf) {
                 Ok(0) | Err(_) => break,
                 Ok(n) => {
-                    // Detect the claude trust prompt and auto-accept once.
+                    // Detect the trust prompt across chunk boundaries.
                     if !trust_accepted {
-                        if let Ok(text) = std::str::from_utf8(&buf[..n]) {
-                            if text.contains("Enter to confirm") {
-                                trust_accepted = true;
-                                let _ = write_tx_auto.blocking_send(b"\n".to_vec());
-                            }
+                        tail.extend_from_slice(&buf[..n]);
+                        if tail.len() > 512 {
+                            let drop = tail.len() - 512;
+                            tail.drain(0..drop);
+                        }
+                        if tail.windows(needle.len()).any(|w| w == needle) {
+                            trust_accepted = true;
+                            // Claude TUI is in raw mode — Enter key = \r
+                            // (CR), not \n (LF).
+                            let _ = write_tx_auto.blocking_send(b"\r".to_vec());
+                            // Free the buffer; we don't need it anymore.
+                            tail.clear();
+                            tail.shrink_to_fit();
                         }
                     }
                     if data_tx_r
@@ -195,4 +215,81 @@ pub fn spawn_pty(
     });
 
     Ok(PtyHandle { data_rx, write_tx, resize_tx, cmd_tx })
+}
+
+#[cfg(test)]
+mod tests {
+    /// Simulates the rolling-buffer detection used by the reader thread.
+    /// The needle straddles two reads, which is the exact scenario that
+    /// `text.contains()` on a single 4KB chunk failed to match.
+    fn detect(chunks: &[&[u8]], needle: &[u8]) -> bool {
+        let mut tail: Vec<u8> = Vec::with_capacity(512);
+        for chunk in chunks {
+            tail.extend_from_slice(chunk);
+            if tail.len() > 512 {
+                let drop = tail.len() - 512;
+                tail.drain(0..drop);
+            }
+            if tail.windows(needle.len()).any(|w| w == needle) {
+                return true;
+            }
+        }
+        false
+    }
+
+    #[test]
+    fn detects_needle_within_single_chunk() {
+        let needle = b"Enter to confirm";
+        assert!(detect(&[b"... press Enter to confirm choice ..."], needle));
+    }
+
+    #[test]
+    fn detects_needle_split_across_two_chunks() {
+        let needle = b"Enter to confirm";
+        // Split right in the middle of the needle — the failure mode
+        // a single-chunk `text.contains()` cannot catch.
+        let first: &[u8] = b"prompt arrives Enter to ";
+        let second: &[u8] = b"confirm and waits for keypress";
+        assert!(detect(&[first, second], needle));
+    }
+
+    #[test]
+    fn detects_needle_split_across_many_chunks() {
+        let needle = b"Enter to confirm";
+        // One byte per chunk — pathological, but the rolling tail must
+        // still match.
+        let prefix = b"junk ";
+        let suffix = b" trailing";
+        let mut chunks: Vec<Vec<u8>> = Vec::new();
+        for &b in prefix {
+            chunks.push(vec![b]);
+        }
+        for &b in needle {
+            chunks.push(vec![b]);
+        }
+        for &b in suffix {
+            chunks.push(vec![b]);
+        }
+        let refs: Vec<&[u8]> = chunks.iter().map(|v| v.as_slice()).collect();
+        assert!(detect(&refs, needle));
+    }
+
+    #[test]
+    fn does_not_detect_when_needle_absent() {
+        let needle = b"Enter to confirm";
+        assert!(!detect(&[b"some other prompt text"], needle));
+    }
+
+    #[test]
+    fn tail_does_not_exceed_512_bytes() {
+        // Sanity: pump more than 512 bytes through the rolling window and
+        // confirm the buffer never grows unbounded (we don't expose the
+        // buffer here, but we can assert detection still works for a
+        // needle near the end of a long stream — proves the trim doesn't
+        // chop the needle prematurely).
+        let needle = b"Enter to confirm";
+        let mut long_prefix = vec![b'x'; 4096];
+        long_prefix.extend_from_slice(needle);
+        assert!(detect(&[&long_prefix], needle));
+    }
 }
