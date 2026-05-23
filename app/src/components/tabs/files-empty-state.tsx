@@ -7,7 +7,7 @@
  * Lives in app/ (not ui/) because it reads from the agent catalog store.
  */
 import { useTranslation } from "react-i18next";
-import { ROLE_LABELS } from "../shell/agent-sidebar-items";
+import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentRoleFileHints } from "../../hooks/use-agent-role-profile";
 import type { Agent } from "../../lib/types";
 
@@ -17,7 +17,8 @@ interface FilesEmptyStateProps {
 
 export function FilesEmptyState({ agent }: FilesEmptyStateProps) {
   const { t } = useTranslation("agents");
-  const roleLabel = ROLE_LABELS[agent.configId];
+  const getById = useAgentCatalogStore((s) => s.getById);
+  const roleLabel = getById(agent.configId)?.config.roleLabel;
   const hints = useAgentRoleFileHints(roleLabel);
 
   return (

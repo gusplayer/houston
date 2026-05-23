@@ -10,7 +10,7 @@
 import { useTranslation } from "react-i18next";
 import { Clock, Plus } from "lucide-react";
 import { Button, EmptyHeader, EmptyTitle, EmptyDescription } from "@squad/core";
-import { ROLE_LABELS } from "../shell/agent-sidebar-items";
+import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import {
   useAgentRoleRoutines,
   type ExampleRoutine,
@@ -30,7 +30,8 @@ export function RoutinesEmptyState({
   onPrefill,
 }: RoutinesEmptyStateProps) {
   const { t } = useTranslation("routines");
-  const roleLabel = ROLE_LABELS[agent.configId];
+  const getById = useAgentCatalogStore((s) => s.getById);
+  const roleLabel = getById(agent.configId)?.config.roleLabel;
   const examples = useAgentRoleRoutines(roleLabel);
 
   function handleExampleClick(example: ExampleRoutine) {

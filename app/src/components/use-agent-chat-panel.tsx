@@ -101,6 +101,15 @@ import type { AIBoardProps } from "@squad/board";
 import type { ChatMessage, ChatPanelProps, FeedItem } from "@squad/chat";
 import type { Agent, AgentDefinition, SkillSummary } from "../lib/types";
 
+/**
+ * UTF-8 safe base64 hash. `btoa()` only accepts Latin1, so non-ASCII
+ * suggestions (e.g. Spanish "Comunicación", Portuguese "Instruções") would
+ * throw `InvalidCharacterError`. Encode through UTF-8 first.
+ */
+function safeHash(text: string): string {
+  return btoa(unescape(encodeURIComponent(text.trim())));
+}
+
 interface UseAgentChatPanelArgs {
   /** The agent the panel is currently scoped to. Null disables features. */
   agent: Agent | null;
@@ -298,7 +307,7 @@ export function useAgentChatPanel({
           if (!result.suggestion) return;
 
           // Check dismissed hashes.
-          const hash = btoa(result.suggestion.proposed_text.trim());
+          const hash = safeHash(result.suggestion.proposed_text);
           if (getDismissedHashes().has(hash)) return;
 
           setInstructionSuggestion({ agentPath: path, suggestion: result.suggestion });
@@ -354,8 +363,12 @@ export function useAgentChatPanel({
 
   const handleDismissSuggestion = useCallback(() => {
     if (!instructionSuggestion) return;
-    const hash = btoa(instructionSuggestion.suggestion.proposed_text.trim());
-    addDismissedHash(hash);
+    try {
+      const hash = safeHash(instructionSuggestion.suggestion.proposed_text);
+      addDismissedHash(hash);
+    } catch (e) {
+      console.error("Failed to persist suggestion dismissal", e);
+    }
     setInstructionSuggestion(null);
   }, [instructionSuggestion, setInstructionSuggestion]);
 
