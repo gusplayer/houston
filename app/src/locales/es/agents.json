@@ -18,7 +18,13 @@
     "saving": "Guardando…",
     "saved": "Guardado",
     "savedActiveSession": "Guardado · Aplicará en tu próxima conversación",
-    "restartSession": "Reiniciar sesión"
+    "restartSession": "Reiniciar sesión",
+    "fileTreeAria": "Archivos de instrucciones",
+    "fromProject": "De: {{name}}",
+    "noProjectsHint": "Vincula un proyecto para ver su CLAUDE.md aquí",
+    "readOnlyBanner": "Este archivo pertenece a {{name}}. Edítalo en el directorio del proyecto.",
+    "revealInFinder": "Mostrar en Finder",
+    "projectClaudeMdMissing": "No se encontró CLAUDE.md en este proyecto."
   },
   "learnings": {
     "emptyTitle": "Aún no hay aprendizajes",
