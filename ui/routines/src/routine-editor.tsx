@@ -354,10 +354,9 @@ export function RoutineEditor({
                 )}
               </div>
             </div>
-          </SectionCard>
 
-          <SectionCard title="Behavior">
-            <div className="flex items-center justify-between gap-4">
+            {/* suppress_when_silent — promoted here so it's visible in the main creation flow */}
+            <div className="flex items-center justify-between gap-4 rounded-lg bg-background border border-black/[0.04] px-4 py-3">
               <div className="min-w-0">
                 <p className="text-sm text-foreground">
                   Only notify when relevant

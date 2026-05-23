@@ -64,7 +64,6 @@ export function ChatPanel({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const status = statusProp ?? deriveStatus(feedItems, isLoading);
   const messages = useMemo(() => feedItemsToMessages(feedItems), [feedItems]);
-  const hasMessages = messages.length > 0;
 
   // Attachments state lives at ChatPanel level so the ENTIRE panel can act as
   // a drop target (not just the composer). When the parent passes controlled
@@ -127,34 +126,29 @@ export function ChatPanel({
           </button>
         </div>
       )}
-      {hasMessages || status !== "ready" ? (
-        <ChatMessagesArea
-          feedItems={feedItems}
-          messages={messages}
-          status={status}
-          thinkingIndicator={thinkingIndicator ?? <DefaultThinkingIndicator />}
-          terminalWsUrl={terminalWsUrl}
-          messagesProps={{
-            transformContent,
-            toolLabels,
-            isSpecialTool,
-            renderToolResult,
-            processLabels,
-            getThinkingMessage,
-            renderMessageAvatar,
-            renderSystemMessage,
-            renderUserMessage,
-            afterMessages,
-            renderTurnSummary,
-            onOpenLink,
-            renderLink,
-          }}
-        />
-      ) : (
-        <div className="flex-1 min-h-0 flex items-center justify-center">
-          {emptyState}
-        </div>
-      )}
+      <ChatMessagesArea
+        feedItems={feedItems}
+        messages={messages}
+        status={status}
+        thinkingIndicator={thinkingIndicator ?? <DefaultThinkingIndicator />}
+        emptyState={emptyState}
+        terminalWsUrl={terminalWsUrl}
+        messagesProps={{
+          transformContent,
+          toolLabels,
+          isSpecialTool,
+          renderToolResult,
+          processLabels,
+          getThinkingMessage,
+          renderMessageAvatar,
+          renderSystemMessage,
+          renderUserMessage,
+          afterMessages,
+          renderTurnSummary,
+          onOpenLink,
+          renderLink,
+        }}
+      />
 
       {composerOverride ? (
         <div className="shrink-0 px-4 pb-6 pt-2">

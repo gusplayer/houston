@@ -30,6 +30,7 @@ export interface ChatMessagesAreaProps {
   messages: ChatMessage[];
   status: ChatStatus;
   thinkingIndicator: ReactNode;
+  emptyState?: ReactNode;
   terminalWsUrl?: string;
   messagesProps: Omit<ChatMessagesProps, "messages" | "status" | "thinkingIndicator">;
 }
@@ -39,6 +40,7 @@ export function ChatMessagesArea({
   messages,
   status,
   thinkingIndicator,
+  emptyState,
   terminalWsUrl,
   messagesProps,
 }: ChatMessagesAreaProps) {
@@ -98,6 +100,10 @@ export function ChatMessagesArea({
             className="flex-1 min-h-0 px-2 py-2"
           />
         </Suspense>
+      ) : messages.length === 0 && status === "ready" && emptyState ? (
+        <div className="flex-1 min-h-0 flex items-center justify-center">
+          {emptyState}
+        </div>
       ) : (
         <ChatMessages
           messages={messages}

@@ -112,14 +112,27 @@ pub fn spawn_pty(
     let (cmd_tx, mut cmd_rx) = mpsc::channel::<PtyKill>(4);
 
     // --- Reader thread: PTY master output → data channel ---
+    // Also auto-accepts the claude first-run directory trust prompt so the
+    // user lands straight in the REPL without a manual keypress.
     let data_tx_r = data_tx.clone();
+    let write_tx_auto = write_tx.clone();
     let mut reader = reader;
     std::thread::spawn(move || {
         let mut buf = [0u8; 4096];
+        let mut trust_accepted = false;
         loop {
             match reader.read(&mut buf) {
                 Ok(0) | Err(_) => break,
                 Ok(n) => {
+                    // Detect the claude trust prompt and auto-accept once.
+                    if !trust_accepted {
+                        if let Ok(text) = std::str::from_utf8(&buf[..n]) {
+                            if text.contains("Enter to confirm") {
+                                trust_accepted = true;
+                                let _ = write_tx_auto.blocking_send(b"\n".to_vec());
+                            }
+                        }
+                    }
                     if data_tx_r
                         .blocking_send(PtyEvent::Data(buf[..n].to_vec()))
                         .is_err()
