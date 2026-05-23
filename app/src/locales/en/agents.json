@@ -130,6 +130,18 @@
       "rename": "Rename",
       "reveal": "Show in Finder",
       "delete": "Move to Trash"
+    },
+    "roleHints": {
+      "cto-agent": "Architecture docs, decision records, technical specs",
+      "designer-agent": "Mockups, design specs, exported assets",
+      "backend-lead-agent": "API docs, technical reports, configs",
+      "dev-agent": "API docs, technical reports, configs",
+      "frontend-lead-agent": "Component specs, style guides, screenshots",
+      "mobile-lead-agent": "App specs, screenshots, release notes",
+      "qa-agent": "Test reports, bug logs, coverage summaries",
+      "devops-agent": "Runbooks, infra diagrams, incident reports",
+      "personal-assistant": "Briefings, agendas, meeting notes, lists",
+      "fallback": "Documents and outputs created by your agent"
     }
   },
   "repo": {
@@ -261,5 +273,147 @@
     "cancel": "Cancel",
     "empty": "No MCP servers configured",
     "emptyHint": "Add servers to give this agent access to Playwright, databases, APIs, and more via MCP."
+  },
+  "examples": {
+    "cto-agent": {
+      "weeklyArch": {
+        "name": "Weekly architecture review",
+        "prompt": "Review the current architecture across all active repositories. Flag drift, technical debt hot-spots, and cross-team dependencies that need attention this week."
+      },
+      "dailyStandup": {
+        "name": "Daily standup notes",
+        "prompt": "Summarise yesterday's merged PRs, open blockers, and today's priorities across the team. Output a brief standup note."
+      },
+      "monthlyTechDebt": {
+        "name": "Monthly tech debt scan",
+        "prompt": "Scan the codebase for TODO/FIXME comments, deprecated dependencies, and files over the 200-line limit. Produce a prioritised list of items to address next sprint."
+      }
+    },
+    "designer-agent": {
+      "weeklySystemAudit": {
+        "name": "Weekly design system audit",
+        "prompt": "Check for components that deviate from the design system tokens (colours, spacing, typography). List inconsistencies with the file and component name."
+      },
+      "dailyInspiration": {
+        "name": "Daily design inspiration scrape",
+        "prompt": "Find three recent UI patterns or design case studies relevant to the current project. Summarise what makes each one effective."
+      },
+      "fridayReview": {
+        "name": "Friday design review",
+        "prompt": "Review all design changes merged this week. Check consistency with the style guide and flag anything that needs a follow-up before next sprint."
+      }
+    },
+    "backend-lead-agent": {
+      "dailyApiHealth": {
+        "name": "Daily API health check",
+        "prompt": "Review recent API error rates, slow queries, and timeout logs. Summarise any anomalies and suggest root causes."
+      },
+      "weeklyDeps": {
+        "name": "Weekly dependency audit",
+        "prompt": "Check all backend dependencies for known vulnerabilities and available patch versions. Produce a list of packages that need updating."
+      },
+      "monthlyPerf": {
+        "name": "Monthly performance review",
+        "prompt": "Analyse the slowest endpoints and database queries from the past month. Recommend three concrete optimisations with expected impact."
+      }
+    },
+    "frontend-lead-agent": {
+      "weeklyBundle": {
+        "name": "Weekly bundle size check",
+        "prompt": "Compare this week's production bundle size against last week. Flag any increase above 5 % and identify the contributing packages or routes."
+      },
+      "dailyA11y": {
+        "name": "Daily accessibility scan",
+        "prompt": "Run an automated accessibility check on the main user flows. Report any new WCAG violations introduced since yesterday."
+      },
+      "fridayReview": {
+        "name": "Friday code review summary",
+        "prompt": "Summarise all frontend PRs merged this week. Highlight patterns, recurring issues, and any architectural decisions that should be documented."
+      }
+    },
+    "dev-agent": {
+      "dailyApiHealth": {
+        "name": "Daily API health check",
+        "prompt": "Review recent API error rates, slow queries, and timeout logs. Summarise any anomalies and suggest root causes."
+      },
+      "weeklyDeps": {
+        "name": "Weekly dependency audit",
+        "prompt": "Check all project dependencies for known vulnerabilities and available patch versions. Produce a list of packages that need updating."
+      },
+      "monthlyPerf": {
+        "name": "Monthly performance review",
+        "prompt": "Analyse the slowest functions and queries from the past month. Recommend three concrete optimisations with expected impact."
+      }
+    },
+    "mobile-lead-agent": {
+      "weeklyCrash": {
+        "name": "Weekly crash report",
+        "prompt": "Review crash analytics from the past week. Group crashes by type, affected versions, and device models. Prioritise by user impact."
+      },
+      "dailyBuild": {
+        "name": "Daily build status",
+        "prompt": "Check the status of last night's CI builds for iOS and Android. Report any failures with the failing test or build step."
+      },
+      "sprintRetro": {
+        "name": "Sprint retrospective notes",
+        "prompt": "Summarise what went well, what slowed the team down, and three action items for next sprint based on this week's commits and issues."
+      }
+    },
+    "qa-agent": {
+      "dailyCoverage": {
+        "name": "Daily test coverage report",
+        "prompt": "Check the current test coverage percentage and compare to yesterday. Flag any files with coverage below 60 % that were modified recently."
+      },
+      "weeklyRegression": {
+        "name": "Weekly regression summary",
+        "prompt": "Run the regression suite and summarise the results. List any new failures, flaky tests, and tests that were fixed since last week."
+      },
+      "preRelease": {
+        "name": "Pre-release checklist",
+        "prompt": "Run through the pre-release QA checklist: smoke tests, accessibility, performance budget, and open high-severity bugs. Produce a go/no-go recommendation."
+      }
+    },
+    "devops-agent": {
+      "dailyInfra": {
+        "name": "Daily infrastructure health",
+        "prompt": "Check CPU, memory, and disk usage across all production services. Flag anything above 80 % threshold and suggest scaling actions."
+      },
+      "weeklyCost": {
+        "name": "Weekly cost report",
+        "prompt": "Summarise cloud spend for the past week broken down by service. Compare to the previous week and flag any unexpected spikes."
+      },
+      "monthlySecurity": {
+        "name": "Monthly security audit",
+        "prompt": "Scan infrastructure configs, IAM policies, and dependency trees for security misconfigurations. Produce a prioritised list of remediation items."
+      }
+    },
+    "personal-assistant": {
+      "morningBriefing": {
+        "name": "Morning briefing",
+        "prompt": "Summarise today's calendar, pending tasks, and any important emails or notifications that need a response."
+      },
+      "weeklyAgenda": {
+        "name": "Weekly agenda prep",
+        "prompt": "Review the upcoming week's meetings and tasks. Draft a prioritised agenda and flag any conflicts or missing prep materials."
+      },
+      "monthlySummary": {
+        "name": "Monthly summary",
+        "prompt": "Produce a monthly summary covering completed tasks, key decisions made, and items carried over to next month."
+      }
+    },
+    "fallback": {
+      "dailyStandup": {
+        "name": "Daily standup",
+        "prompt": "Summarise recent activity, current blockers, and today's priorities."
+      },
+      "weeklyReview": {
+        "name": "Weekly review",
+        "prompt": "Review the week's progress, identify what went well, and plan next week's priorities."
+      },
+      "monthlyReport": {
+        "name": "Monthly report",
+        "prompt": "Generate a monthly progress report covering completed work, metrics, and next month's goals."
+      }
+    }
   }
 }

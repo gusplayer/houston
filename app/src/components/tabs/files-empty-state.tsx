@@ -7,8 +7,7 @@
  * Lives in app/ (not ui/) because it reads from the agent catalog store.
  */
 import { useTranslation } from "react-i18next";
-import { ROLE_LABELS } from "../shell/agent-sidebar-items";
-import { useAgentRoleFileHints } from "../../hooks/use-agent-role-profile";
+import { getRoleFileHints } from "../../lib/agent-role-profile";
 import type { Agent } from "../../lib/types";
 
 interface FilesEmptyStateProps {
@@ -17,8 +16,12 @@ interface FilesEmptyStateProps {
 
 export function FilesEmptyState({ agent }: FilesEmptyStateProps) {
   const { t } = useTranslation("agents");
-  const roleLabel = ROLE_LABELS[agent.configId];
-  const hints = useAgentRoleFileHints(roleLabel);
+  const hints = getRoleFileHints(agent.configId);
+
+  // descriptionKey is built at runtime from configId, so the static key
+  // type can't narrow it. Cast through `never` per the react-i18next
+  // dynamic-key workaround.
+  const description = t(hints.descriptionKey as unknown as never);
 
   return (
     <div className="space-y-4 text-center max-w-md">
@@ -26,7 +29,7 @@ export function FilesEmptyState({ agent }: FilesEmptyStateProps) {
         <h1 className="text-2xl font-semibold tracking-tight">
           {t("files.emptyTitle")}
         </h1>
-        <p className="text-sm text-muted-foreground">{hints.description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </div>
 
       <div className="flex flex-col items-center gap-1.5">

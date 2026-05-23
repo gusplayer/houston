@@ -19,7 +19,7 @@ const UNIVERSAL: Snippet[] = [
     id: "tone",
     labelKey: "tone",
     text: `## Communication style
-- Concise and direct — no filler phrases
+- Concise and direct, no filler phrases
 - Use bullet points for lists, not prose
 - Respond in the same language the user writes in`,
   },
@@ -27,7 +27,7 @@ const UNIVERSAL: Snippet[] = [
     id: "never",
     labelKey: "never",
     text: `## Never do
-- Do not make up information — say you don't know
+- Do not make up information. Say you don't know
 - Do not modify files outside the project directory
 - Do not send messages or emails without explicit confirmation`,
   },
