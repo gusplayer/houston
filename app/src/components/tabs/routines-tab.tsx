@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RoutinesGrid, RoutineEditor } from "@squad/routines";
 import type { RoutineFormData, RoutineRun } from "@squad/routines";
@@ -10,6 +10,7 @@ import {
   useDeleteRoutine,
   useRunRoutineNow,
 } from "../../hooks/queries";
+import { useUIStore } from "../../stores/ui";
 import { useTimezonePreference } from "../../hooks/use-timezone-preference";
 import type { TabProps } from "../../lib/types";
 import { RoutinesEmptyState } from "./routines-empty-state";
@@ -54,6 +55,18 @@ export default function RoutinesTab({ agent }: TabProps) {
   const [view, setView] = useState<View>({ type: "grid" });
   const [form, setForm] = useState<RoutineFormData>(EMPTY_FORM);
   const [baseline, setBaseline] = useState<RoutineFormData>(EMPTY_FORM);
+
+  // Consume pending prefill from the "Save as routine" chip in chat.
+  const routinePrefill = useUIStore((s) => s.routinePrefill);
+  const setRoutinePrefill = useUIStore((s) => s.setRoutinePrefill);
+  useEffect(() => {
+    if (!routinePrefill) return;
+    setRoutinePrefill(null);
+    const next: RoutineFormData = { ...EMPTY_FORM, ...routinePrefill };
+    setForm(next);
+    setBaseline(next);
+    setView({ type: "editor" });
+  }, [routinePrefill, setRoutinePrefill]);
 
   // Compute last run per routine
   const lastRuns = useMemo(() => {
