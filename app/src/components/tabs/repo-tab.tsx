@@ -104,8 +104,14 @@ export default function RepoTab({ agent }: TabProps) {
         description: t("repo.stackDetectedBody", { agent: agent.name, stack: combinedRaw }),
         variant: "success",
       });
-    } catch {
-      // Non-fatal — stack injection is best-effort
+    } catch (err) {
+      // User just bound/unbound a project — if we can't keep their CLAUDE.md
+      // in sync, they need to know so they can fix it (manual edit, retry, etc.).
+      addToast({
+        title: t("stackUpdateFailed"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+      });
     }
   }
 

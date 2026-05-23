@@ -188,7 +188,12 @@ export function useAgentChatPanel({
         setAgentProvider((cfg.provider as string) ?? null);
         setAgentModel((cfg.model as string) ?? null);
       })
-      .catch(() => {});
+      .catch((err) => {
+        // Best-effort: agent may legitimately have no config yet, so we fall
+        // back to workspace defaults rather than blocking the chat panel.
+        // Log so we don't lose visibility on genuine engine failures.
+        console.error("Failed to read agent config for model resolution:", err);
+      });
   }, [path]);
 
   const { data: activities } = useActivity(path ?? undefined);
@@ -324,7 +329,10 @@ export function useAgentChatPanel({
     if (!path || !instructionSuggestion) return;
     const { suggestion } = instructionSuggestion;
     try {
-      const current = await tauriAgent.readFile(path, "CLAUDE.md").catch(() => "");
+      // Read the current CLAUDE.md WITHOUT swallowing errors — if we can't
+      // read it, we must NOT silently overwrite the user's existing
+      // instructions with an empty buffer. Let the outer catch surface it.
+      const current = await tauriAgent.readFile(path, "CLAUDE.md");
       const sectionHeader = suggestion.section_name.startsWith("#")
         ? suggestion.section_name
         : `## ${suggestion.section_name}`;
@@ -351,14 +359,17 @@ export function useAgentChatPanel({
         title: t("agents:instructionSuggestion.applied"),
         variant: "success",
       });
+      setInstructionSuggestion(null);
     } catch (err) {
+      // Distinct title so the user doesn't see "Instructions updated" with
+      // a red icon — they need to know the apply failed and the suggestion
+      // is still pending.
       addToast({
-        title: t("agents:instructionSuggestion.applied"),
-        description: String(err),
+        title: t("agents:instructionSuggestion.applyFailed"),
+        description: err instanceof Error ? err.message : String(err),
         variant: "error",
       });
     }
-    setInstructionSuggestion(null);
   }, [path, instructionSuggestion, setInstructionSuggestion, addToast, t]);
 
   const handleDismissSuggestion = useCallback(() => {

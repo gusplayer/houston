@@ -19,6 +19,9 @@ async function readFile(repoPath: string, filename: string): Promise<string | nu
   try {
     return await tauriShell.run(repoPath, `cat ${filename}`);
   } catch {
+    // Legitimate "file not present" outcome — caller falls through to the
+    // next detector. We intentionally don't log here because every detector
+    // probes for files that may not exist (package.json, Cargo.toml, ...).
     return null;
   }
 }
@@ -39,8 +42,11 @@ export async function detectProjectStack(repoPath: string): Promise<ProjectStack
     let parsed: Record<string, unknown> = {};
     try {
       parsed = JSON.parse(packageJson) as Record<string, unknown>;
-    } catch {
-      // malformed — still treat as Node project
+    } catch (err) {
+      // Malformed package.json — still treat as a Node project so the user
+      // gets *something*, but log so they (or a maintainer) can see the
+      // framework detection skipped due to bad JSON.
+      console.warn("detect-project-stack: malformed package.json, skipping framework detection", err);
     }
     const deps: Record<string, unknown> = {
       ...((parsed.dependencies as Record<string, unknown>) ?? {}),

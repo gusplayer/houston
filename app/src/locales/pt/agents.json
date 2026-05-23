@@ -237,8 +237,14 @@
     "addTo": "Adicionar a {{section}}:",
     "apply": "Aplicar nas instrucoes",
     "dismiss": "Dispensar",
-    "applied": "Instrucoes atualizadas"
+    "applied": "Instrucoes atualizadas",
+    "applyFailed": "Não foi possível aplicar a sugestão"
   },
+  "stackUpdateFailed": "Não foi possível atualizar as instruções do agente",
+  "instructionsSaveFailed": "Não foi possível salvar as instruções",
+  "restartFailed": "Não foi possível reiniciar a sessão",
+  "projectClaudeReadFailed": "Não foi possível ler as instruções do projeto",
+  "revealFailed": "Não foi possível abrir o arquivo",
   "routineSuggestion": {
     "runDaily": "Executar isso todo dia?",
     "runWeekly": "Executar isso toda semana?",

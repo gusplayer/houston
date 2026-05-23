@@ -4,14 +4,19 @@ import { Button, cn } from "@squad/core";
 import { FolderOpen } from "lucide-react";
 import { tauriAgent } from "../../lib/tauri";
 import { osRevealAgent } from "../../lib/os-bridge";
+import { useUIStore } from "../../stores/ui";
 
 // ── Hook: read a project's CLAUDE.md by repo path ────────────────────
 
 export function useProjectClaudeMd(repoPath: string | undefined) {
   return useQuery({
     queryKey: ["project-claude-md", repoPath ?? ""],
-    queryFn: () => tauriAgent.readFile(repoPath!, "CLAUDE.md").catch(() => ""),
+    queryFn: () => tauriAgent.readFile(repoPath!, "CLAUDE.md"),
     enabled: !!repoPath,
+    // A missing CLAUDE.md is a legitimate "no instructions" state (rendered
+    // as the empty hint below), so we don't want React Query to retry it as
+    // a flake. Genuine engine failures still bubble through `error`.
+    retry: false,
   });
 }
 
@@ -25,6 +30,7 @@ function ReadOnlyBanner({
   repoPath: string | undefined;
 }) {
   const { t } = useTranslation("agents");
+  const addToast = useUIStore((s) => s.addToast);
   return (
     <div className="flex items-center gap-3 px-4 py-2.5 bg-muted/50 border-b border-border text-sm text-muted-foreground">
       <span className="flex-1">
@@ -35,7 +41,15 @@ function ReadOnlyBanner({
           variant="ghost"
           size="sm"
           className="h-7 px-2 text-xs shrink-0"
-          onClick={() => osRevealAgent(repoPath).catch(() => {})}
+          onClick={() =>
+            osRevealAgent(repoPath).catch((err: unknown) => {
+              addToast({
+                title: t("revealFailed"),
+                description: err instanceof Error ? err.message : String(err),
+                variant: "error",
+              });
+            })
+          }
         >
           <FolderOpen className="size-3.5 mr-1.5" />
           {t("instructions.revealInFinder")}
@@ -55,7 +69,7 @@ export function InstructionsProjectPanel({
   repoPath: string | undefined;
 }) {
   const { t } = useTranslation("agents");
-  const { data: content } = useProjectClaudeMd(repoPath);
+  const { data: content, error } = useProjectClaudeMd(repoPath);
 
   return (
     <>
@@ -74,6 +88,15 @@ export function InstructionsProjectPanel({
               )}
             />
           </section>
+        ) : error ? (
+          <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3">
+            <p className="text-sm font-medium text-destructive">
+              {t("projectClaudeReadFailed")}
+            </p>
+            <p className="text-xs text-destructive/80 mt-1 font-mono break-all">
+              {error instanceof Error ? error.message : String(error)}
+            </p>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">
             {t("instructions.projectClaudeMdMissing")}
