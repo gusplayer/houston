@@ -4,6 +4,7 @@
  * The parent tab already labels this surface "Routines", so this view skips
  * a redundant page header and goes straight to a meta row + the list.
  */
+import type { ReactNode } from "react"
 import {
   cn,
   EmptyHeader,
@@ -49,6 +50,12 @@ export interface RoutinesGridProps {
   onCreate?: () => void
   onToggle?: (routineId: string, enabled: boolean) => void
   labels?: RoutinesGridLabels
+  /**
+   * Custom empty state rendered when routines.length === 0 and not loading.
+   * When provided, replaces the default EmptyHeader + CTA block.
+   * The consumer (app layer) passes role-aware content here.
+   */
+  emptyState?: ReactNode
 }
 
 export function RoutinesGrid({
@@ -60,6 +67,7 @@ export function RoutinesGrid({
   onCreate,
   onToggle,
   labels,
+  emptyState,
 }: RoutinesGridProps) {
   const l = { ...DEFAULT_LABELS, ...labels }
   // Sort: enabled first, then alphabetical
@@ -82,17 +90,21 @@ export function RoutinesGrid({
     return (
       <div className="flex-1 min-h-0 overflow-y-auto bg-background">
         <div className="mx-auto max-w-md flex flex-col items-center gap-6 text-center pt-24 px-6">
-          <EmptyHeader>
-            <EmptyTitle>{l.emptyTitle}</EmptyTitle>
-            <EmptyDescription>
-              {l.emptyDescription}
-            </EmptyDescription>
-          </EmptyHeader>
-          {onCreate && (
-            <Button onClick={onCreate}>
-              <Plus className="size-4" />
-              {l.newRoutine}
-            </Button>
+          {emptyState ?? (
+            <>
+              <EmptyHeader>
+                <EmptyTitle>{l.emptyTitle}</EmptyTitle>
+                <EmptyDescription>
+                  {l.emptyDescription}
+                </EmptyDescription>
+              </EmptyHeader>
+              {onCreate && (
+                <Button onClick={onCreate}>
+                  <Plus className="size-4" />
+                  {l.newRoutine}
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -19,6 +19,8 @@
     "saved": "Salvo",
     "savedActiveSession": "Salvo · Aplicará na sua próxima conversa",
     "restartSession": "Reiniciar sessão",
+    "editMode": "Editar",
+    "previewMode": "Visualizar",
     "fileTreeAria": "Arquivos de instruções",
     "fromProject": "De: {{name}}",
     "noProjectsHint": "Vincule um projeto para ver seu CLAUDE.md aqui",
@@ -103,6 +105,7 @@
   "files": {
     "emptyTitle": "Ainda não há arquivos",
     "emptyDescription": "Os arquivos criados pelo seu assistente aparecerão aqui.",
+    "roleHintLabel": "Tipos de arquivo comuns",
     "openInFinder": "Abrir no Finder",
     "loading": "Carregando…",
     "browseFiles": "Escolher arquivos",

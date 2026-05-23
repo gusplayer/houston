@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Button, EmptyDescription, EmptyHeader, EmptyTitle } from "@squad/core";
@@ -29,7 +29,7 @@ export function InstructionsContent({
 
   // ── Agent editor state ──────────────────────────────────────────────
   const [value, setValue] = useState(content);
-  const [editing, setEditing] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [restarting, setRestarting] = useState(false);
 
@@ -39,13 +39,6 @@ export function InstructionsContent({
   useEffect(() => {
     setValue(content);
   }, [content]);
-
-  const textareaRef = useCallback(
-    (el: HTMLTextAreaElement | null) => {
-      if (el && editing) el.focus();
-    },
-    [editing],
-  );
 
   const handleBlur = async () => {
     if (value === content) return;
@@ -115,7 +108,7 @@ export function InstructionsContent({
   );
 
   // ── Empty state ─────────────────────────────────────────────────────
-  if (selectedFile === "agent" && !value.trim() && !editing) {
+  if (selectedFile === "agent" && !value.trim() && !showEditor) {
     return (
       <div className="flex w-full">
         {sidebar}
@@ -124,7 +117,7 @@ export function InstructionsContent({
             <EmptyTitle>{t("instructions.emptyTitle")}</EmptyTitle>
             <EmptyDescription>{t("instructions.emptyDescription")}</EmptyDescription>
           </EmptyHeader>
-          <Button onClick={() => setEditing(true)}>
+          <Button onClick={() => setShowEditor(true)}>
             <FileText className="size-4" />
             {t("instructions.writeButton")}
           </Button>
@@ -144,7 +137,6 @@ export function InstructionsContent({
             agentPath={agentPath}
             agentId={agentId}
             restarting={restarting}
-            textareaRef={textareaRef}
             onChange={setValue}
             onBlur={handleBlur}
             onRestart={handleRestart}

@@ -4,6 +4,10 @@
     "emptyTitle": "Set it and forget it",
     "emptyDescription": "Routines fire on a schedule and only ping you when something actually needs attention.",
     "newRoutine": "New routine",
-    "descriptionShort": "Recurring tasks that fire on schedule and only ping you when something needs attention."
+    "descriptionShort": "Recurring tasks that fire on schedule and only ping you when something needs attention.",
+    "exampleHeading": "Start with an example",
+    "exampleSubheading": "Click any card to pre-fill the routine editor.",
+    "orCreateNew": "or create from scratch",
+    "exampleScheduleLabel": "Runs {{schedule}}"
   }
 }

@@ -4,6 +4,7 @@ import { FolderOpen } from "lucide-react";
 import { useFiles, useDeleteFile, useRenameFile, useCreateFolder } from "../../hooks/queries";
 import { tauriFiles } from "../../lib/tauri";
 import type { TabProps } from "../../lib/types";
+import { FilesEmptyState } from "./files-empty-state";
 
 export default function FilesTab({ agent }: TabProps) {
   const { t } = useTranslation("agents");
@@ -39,6 +40,7 @@ export default function FilesTab({ agent }: TabProps) {
         onCreateFolder={(name) => createFolder.mutate(name)}
         emptyTitle={t("files.emptyTitle")}
         emptyDescription={t("files.emptyDescription")}
+        emptyState={<FilesEmptyState agent={agent} />}
         labels={browserLabels}
         menuLabels={menuLabels}
         statusBarAction={

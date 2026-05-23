@@ -19,6 +19,8 @@
     "saved": "Saved",
     "savedActiveSession": "Saved · Takes effect in your next conversation",
     "restartSession": "Restart session",
+    "editMode": "Edit",
+    "previewMode": "Preview",
     "fileTreeAria": "Instruction files",
     "fromProject": "From: {{name}}",
     "noProjectsHint": "Bind a project to see its CLAUDE.md here",
@@ -103,6 +105,7 @@
   "files": {
     "emptyTitle": "No files yet",
     "emptyDescription": "Files created by your assistant will appear here.",
+    "roleHintLabel": "Typical file types",
     "openInFinder": "Open in Finder",
     "loading": "Loading…",
     "browseFiles": "Browse files",
