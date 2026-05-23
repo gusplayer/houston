@@ -249,8 +249,14 @@
     "addTo": "Agregar a {{section}}:",
     "apply": "Aplicar a instrucciones",
     "dismiss": "Descartar",
-    "applied": "Instrucciones actualizadas"
+    "applied": "Instrucciones actualizadas",
+    "applyFailed": "No se pudo aplicar la sugerencia"
   },
+  "stackUpdateFailed": "No se pudieron actualizar las instrucciones del agente",
+  "instructionsSaveFailed": "No se pudieron guardar las instrucciones",
+  "restartFailed": "No se pudo reiniciar la sesión",
+  "projectClaudeReadFailed": "No se pudieron leer las instrucciones del proyecto",
+  "revealFailed": "No se pudo abrir el archivo",
   "routineSuggestion": {
     "runDaily": "¿Ejecutar esto cada día?",
     "runWeekly": "¿Ejecutar esto cada semana?",

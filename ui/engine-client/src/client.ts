@@ -586,8 +586,8 @@ export class SquadClient {
   }> {
     return this.request(
       "POST",
-      `/agents/${this.seg(agentPath)}/suggest-instruction`,
-      { messages, current_claude_md: currentClaudeMd },
+      `/agents/suggest-instruction`,
+      { agent_path: agentPath, messages, current_claude_md: currentClaudeMd },
     );
   }
 

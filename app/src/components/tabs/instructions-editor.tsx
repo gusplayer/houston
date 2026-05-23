@@ -13,7 +13,7 @@ interface InstructionsEditorProps {
   value: string;
   onChange: (v: string) => void;
   onBlur: () => void;
-  editorRef?: React.RefObject<ReactCodeMirrorRef>;
+  editorRef?: React.RefObject<ReactCodeMirrorRef | null>;
 }
 
 export function InstructionsEditor({
