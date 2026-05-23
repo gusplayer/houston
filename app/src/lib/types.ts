@@ -71,7 +71,10 @@ export interface AgentConfig {
   author?: string;         // e.g. "Squad" for official, user name for community
   tags?: string[];         // Searchable tags
   integrations?: string[]; // Composio toolkit slugs used by bundled agents
-  tabs: AgentTab[];
+  tabs?: AgentTab[];
+  /** Non-core tabs appended after the four mandatory core tabs (Activity, Job
+   * Description, Files, Routines). When present, `tabs` is ignored. */
+  extensionTabs?: AgentTab[];
   defaultTab?: string;     // Tab ID to show by default, defaults to first tab
   claudeMd?: string;       // CLAUDE.md content template
   systemPrompt?: string;   // System prompt for the assistant

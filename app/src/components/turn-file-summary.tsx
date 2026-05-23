@@ -5,6 +5,7 @@ import { ChevronDownIcon, Lightbulb, Play, ScrollText } from "lucide-react";
 import { cn } from "@squad/core";
 import { tauriFiles } from "../lib/tauri";
 import type { JobDescriptionTarget } from "../stores/ui";
+import { resolveAgentTabs } from "../agents/core-tabs";
 import { useAgentStore } from "../stores/agents";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useUIStore } from "../stores/ui";
@@ -40,7 +41,7 @@ export function TurnFileSummary({ items, agentPath }: TurnFileSummaryProps) {
       if (agent) {
         useAgentStore.getState().setCurrent(agent);
         const def = useAgentCatalogStore.getState().getById(agent.configId);
-        const tabIds = new Set(def?.config.tabs.map((tab) => tab.id) ?? []);
+        const tabIds = new Set(def ? resolveAgentTabs(def.config).map((tab) => tab.id) : []);
         const target = semanticTarget(kind);
         if (tabIds.has("job-description")) {
           ui.setJobDescriptionTarget(target);

@@ -9,14 +9,11 @@ export const ctoAgent: AgentConfig = {
   author: "Squad",
   tags: ["cto", "lead", "architecture", "planning", "strategy"],
   roleLabel: "CTO",
-  tabs: [
-    { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
+  extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "repo", label: "Repo", builtIn: "repo" },
     { id: "docs", label: "Docs", builtIn: "docs" },
-    { id: "routines", label: "Routines", builtIn: "routines" },
     { id: "skills", label: "Skills", builtIn: "skills" },
-    { id: "files", label: "Files", builtIn: "files" },
     { id: "mcp", label: "MCP", builtIn: "mcp" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],

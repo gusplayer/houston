@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Clock, X } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { Button, cn } from "@squad/core";
+import { resolveAgentTabs } from "../agents/core-tabs";
 import { useAgentStore } from "../stores/agents";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useUIStore } from "../stores/ui";
@@ -34,7 +35,7 @@ export function RoutinesNudge() {
   // Only consider agents that actually have the routines tab
   const routineAgents = agents.filter((a) => {
     const def = getById(a.configId);
-    return def?.config.tabs.some((tab) => tab.id === "routines");
+    return def ? resolveAgentTabs(def.config).some((tab) => tab.id === "routines") : false;
   });
 
   // Query routines for every routines-capable agent in parallel.

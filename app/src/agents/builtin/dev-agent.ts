@@ -9,14 +9,11 @@ export const devAgent: AgentConfig = {
   author: "Squad",
   tags: ["dev", "engineering", "code", "git", "repo"],
   roleLabel: "Dev",
-  tabs: [
-    { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
+  extensionTabs: [
     { id: "repo", label: "Repo", builtIn: "repo" },
-    { id: "routines", label: "Routines", builtIn: "routines" },
-    { id: "skills", label: "Skills", builtIn: "skills" },
-    { id: "files", label: "Files", builtIn: "files" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "docs", label: "Docs", builtIn: "docs" },
+    { id: "skills", label: "Skills", builtIn: "skills" },
     { id: "mcp", label: "MCP", builtIn: "mcp" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],

@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@squad/core";
+import { resolveAgentTabs } from "../../agents/core-tabs";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -84,7 +85,9 @@ export function CreateAgentDialog() {
           model,
         });
       }
-      const firstTab = selectedDef?.config.defaultTab ?? selectedDef?.config.tabs[0]?.id ?? "chat";
+      const firstTab = selectedDef?.config.defaultTab
+        ?? (selectedDef ? resolveAgentTabs(selectedDef.config)[0]?.id : undefined)
+        ?? "chat";
       useUIStore.getState().setViewMode(firstTab);
       handleClose();
     } catch (err) {

@@ -10,12 +10,7 @@ export const personalAssistantAgent: AgentConfig = {
   tags: ["personal", "assistant", "starter", "inbox", "calendar"],
   roleLabel: "Assistant",
   integrations: ["gmail", "googlecalendar"],
-  tabs: [
-    { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
-    { id: "routines", label: "Routines", builtIn: "routines" },
-    { id: "files", label: "Files", builtIn: "files" },
-    { id: "job-description", label: "Job Description", builtIn: "job-description" },
-  ],
+  extensionTabs: [],
   defaultTab: "activity",
   claudeMd: "# Personal assistant\n\nHelp me stay organized. Ask before sending messages, creating calendar events, or changing connected apps.",
 };
