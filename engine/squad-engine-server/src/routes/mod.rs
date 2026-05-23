@@ -14,6 +14,7 @@ pub mod health;
 pub mod preferences;
 pub mod projects;
 pub mod providers;
+pub mod pty;
 pub mod routines;
 pub mod sessions;
 pub mod skills;

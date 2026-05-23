@@ -2,6 +2,7 @@
 @import "@squad/core/src/globals.css";
 @import "@squad/core/src/styles.css";
 @import "@squad/chat/src/styles.css";
+@import "@xterm/xterm/css/xterm.css";
 
 /* Scan local source + @houston-ai packages for Tailwind classes */
 @source "../";

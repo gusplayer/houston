@@ -1,0 +1,21 @@
+{
+  "name": "@squad/terminal",
+  "version": "0.4.19",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@xterm/xterm": "^5.5.0",
+    "@xterm/addon-fit": "^0.10.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

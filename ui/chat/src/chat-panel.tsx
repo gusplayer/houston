@@ -60,6 +60,7 @@ export function ChatPanel({
   canSendEmpty,
   composerOverride,
   rawViewLabels,
+  terminalWsUrl,
 }: ChatPanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const status = statusProp ?? deriveStatus(feedItems, isLoading);
@@ -134,6 +135,7 @@ export function ChatPanel({
           status={status}
           thinkingIndicator={thinkingIndicator ?? <DefaultThinkingIndicator />}
           rawViewLabels={rawViewLabels}
+          terminalWsUrl={terminalWsUrl}
           messagesProps={{
             transformContent,
             toolLabels,

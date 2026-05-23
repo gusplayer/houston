@@ -640,6 +640,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           processLabels={panel.processLabels}
           getThinkingMessage={panel.getThinkingMessage}
           rawViewLabels={panel.rawViewLabels}
+          terminalWsUrl={panel.terminalWsUrl}
           renderTurnSummary={panel.renderTurnSummary}
           renderLink={panel.renderLink}
         />

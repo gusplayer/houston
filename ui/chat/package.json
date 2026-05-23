@@ -10,7 +10,8 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@squad/core": "workspace:*"
+    "@squad/core": "workspace:*",
+    "@squad/terminal": "workspace:*"
   },
   "dependencies": {
     "ai": "^6.0.116",

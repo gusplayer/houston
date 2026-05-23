@@ -15,6 +15,7 @@ pub mod manager;
 pub mod parser;
 pub mod provider_auth;
 mod provider_error;
+pub mod pty_session;
 pub mod session_io;
 pub mod session_pump;
 mod session_update;
@@ -26,6 +27,7 @@ pub use codex_parser::{extract_thread_id, parse_codex_event, CodexAccumulator};
 pub use manager::{SessionHandle, SessionManager};
 pub use parser::{extract_session_id, parse_event, StreamAccumulator};
 pub use provider_auth::ProviderAuthState;
+pub use pty_session::{spawn_pty, PtyEvent, PtyHandle};
 pub use session_update::SessionUpdate;
 pub use types::{
     ClaudeEvent, ContentBlock, FeedItem, FileChanges, Provider, SessionFeedBuffer, SessionStatus,

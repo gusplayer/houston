@@ -723,6 +723,22 @@ export class SquadClient {
     const ws = this.baseUrl.replace(/^http/, "ws");
     return `${ws}/v1/ws?token=${encodeURIComponent(this.token)}`;
   }
+
+  /**
+   * WebSocket URL for an interactive PTY session on a specific agent.
+   *
+   * Connect to this URL to get a real `claude` REPL in an xterm.js terminal.
+   * Binary frames = raw pty bytes; text frames = JSON control messages.
+   * See `routes/pty.rs` for the full protocol.
+   */
+  ptyWsUrl(agentPath: string, opts?: { cols?: number; rows?: number }): string {
+    const ws = this.baseUrl.replace(/^http/, "ws");
+    const encodedPath = encodeURIComponent(agentPath);
+    const params = new URLSearchParams({ token: this.token });
+    if (opts?.cols) params.set("cols", String(opts.cols));
+    if (opts?.rows) params.set("rows", String(opts.rows));
+    return `${ws}/v1/agents/${encodedPath}/pty?${params}`;
+  }
 }
 
 export class SquadEngineError extends Error {

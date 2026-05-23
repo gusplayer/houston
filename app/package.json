@@ -16,6 +16,7 @@
     "@squad/agent-schemas": "workspace:*",
     "@squad/board": "workspace:*",
     "@squad/chat": "workspace:*",
+    "@squad/terminal": "workspace:*",
     "@squad/core": "workspace:*",
     "@squad/engine-client": "workspace:*",
     "@squad/events": "workspace:*",
