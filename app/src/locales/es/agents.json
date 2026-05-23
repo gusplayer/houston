@@ -16,7 +16,9 @@
     "helper": "Cómo debe pensar y actuar este agente.",
     "placeholder": "Escribe las instrucciones para tu agente…",
     "saving": "Guardando…",
-    "saved": "Guardado"
+    "saved": "Guardado",
+    "savedActiveSession": "Guardado · Aplicará en tu próxima conversación",
+    "restartSession": "Reiniciar sesión"
   },
   "learnings": {
     "emptyTitle": "Aún no hay aprendizajes",
