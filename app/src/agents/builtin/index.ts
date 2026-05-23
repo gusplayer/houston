@@ -1,3 +1,4 @@
+import { agentCreator } from "./agent-creator";
 import { blankAgent } from "./default-experience";
 import { personalAssistantAgent } from "./personal-assistant";
 import { devAgent } from "./dev-agent";
@@ -24,4 +25,5 @@ export const builtinConfigs: AgentConfig[] = [
   devAgent,
   personalAssistantAgent,
   blankAgent,
+  agentCreator,
 ];
