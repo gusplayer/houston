@@ -8,6 +8,7 @@ export const agentCreator: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["creator", "publish", "store", "builder"],
+  roleLabel: "Agent Builder",
   tabs: [
     { id: "chat", label: "Chat", builtIn: "chat" },
     { id: "files", label: "Files", builtIn: "files" },
