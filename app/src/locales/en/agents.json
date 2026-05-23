@@ -20,7 +20,17 @@
     "savedActiveSession": "Saved · Takes effect in your next conversation",
     "restartSession": "Restart session",
     "editMode": "Edit",
-    "previewMode": "Preview"
+    "previewMode": "Preview",
+    "snippets": {
+      "tone": "Tone",
+      "never": "Never do",
+      "output": "Output format",
+      "tools": "Tools",
+      "workflow": "Workflow",
+      "design": "Design guidelines",
+      "schedule": "Scheduling rules",
+      "approval": "Approval rule"
+    }
   },
   "learnings": {
     "emptyTitle": "No learnings yet",

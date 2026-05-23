@@ -20,7 +20,17 @@
     "savedActiveSession": "Guardado · Aplicará en tu próxima conversación",
     "restartSession": "Reiniciar sesión",
     "editMode": "Editar",
-    "previewMode": "Vista previa"
+    "previewMode": "Vista previa",
+    "snippets": {
+      "tone": "Tono",
+      "never": "Nunca hacer",
+      "output": "Formato de salida",
+      "tools": "Herramientas",
+      "workflow": "Flujo de trabajo",
+      "design": "Guía de diseño",
+      "schedule": "Reglas de agenda",
+      "approval": "Regla de aprobación"
+    }
   },
   "learnings": {
     "emptyTitle": "Aún no hay aprendizajes",
