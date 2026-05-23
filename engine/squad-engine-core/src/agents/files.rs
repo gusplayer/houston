@@ -90,10 +90,12 @@ fn file_err(e: files::AgentFilesError) -> CoreError {
 // ---------------------------------------------------------------------------
 
 /// User-facing file extensions shown in the browser.
-/// Technical files (json, py, md) are excluded — they confuse non-technical users.
+/// Technical files (json, py) are excluded — they confuse non-technical users.
+/// Markdown is included because agents commonly output reports, briefings, and
+/// summaries as .md files that users expect to find here.
 const USER_EXTENSIONS: &[&str] = &[
     "docx", "doc", "xlsx", "xls", "pptx", "ppt", "pdf", "png", "jpg", "jpeg", "svg", "gif", "txt",
-    "rtf", "csv",
+    "rtf", "csv", "md",
 ];
 
 fn should_skip_dir(name: &str) -> bool {
@@ -429,6 +431,18 @@ mod tests {
         assert!(names.contains(&"notes.txt"));
         assert!(!names.contains(&"script.py"));
         assert!(!names.iter().any(|n| n.starts_with('.')));
+    }
+
+    #[test]
+    fn list_project_files_includes_md() {
+        let d = tmp();
+        std::fs::write(d.path().join("morning_brief.md"), "# Brief").unwrap();
+        std::fs::write(d.path().join("data.json"), "{}").unwrap();
+
+        let files = list_project_files(d.path()).unwrap();
+        let names: Vec<&str> = files.iter().map(|f| f.name.as_str()).collect();
+        assert!(names.contains(&"morning_brief.md"), ".md files should appear in the Files tab");
+        assert!(!names.contains(&"data.json"), ".json files should remain hidden");
     }
 
     #[test]
