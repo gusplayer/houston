@@ -67,6 +67,13 @@
     "active": "Missão em andamento...",
     "complete": "Registro da missão"
   },
+  "rawView": {
+    "enterRaw": "Ver o stream cru",
+    "enterChat": "Ver o chat",
+    "empty": "O stream está vazio.",
+    "expand": "Mostrar mais",
+    "collapse": "Mostrar menos"
+  },
   "summary": {
     "updatesMade": "Atualizações feitas",
     "newFiles_one": "1 arquivo novo",

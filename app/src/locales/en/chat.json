@@ -67,6 +67,13 @@
     "active": "Mission in progress...",
     "complete": "Mission log"
   },
+  "rawView": {
+    "enterRaw": "Show raw stream",
+    "enterChat": "Show chat view",
+    "empty": "Stream is empty.",
+    "expand": "Show more",
+    "collapse": "Show less"
+  },
   "summary": {
     "updatesMade": "Updates made",
     "newFiles_one": "1 new file",

@@ -368,7 +368,7 @@ function ProjectsSection({ workspaceId }: { workspaceId: string }) {
   async function commitRename(id: string) {
     const trimmed = renameValue.trim();
     if (trimmed && projects?.find((p) => p.id === id)?.name !== trimmed) {
-      await updateProject.mutateAsync({ id, patch: { name: trimmed } });
+      await updateProject.mutateAsync({ projectId: id, req: { name: trimmed } });
     }
     setRenamingId(null);
   }

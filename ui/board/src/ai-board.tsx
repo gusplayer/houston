@@ -74,6 +74,8 @@ export interface AIBoardProps {
   processLabels?: ChatPanelProps["processLabels"]
   /** Translated reasoning text inside the process/details block. */
   getThinkingMessage?: ChatPanelProps["getThinkingMessage"]
+  /** Translated labels for the Chat ↔ Raw view toggle and raw stream. */
+  rawViewLabels?: ChatPanelProps["rawViewLabels"]
   /** Custom tool name → human label mappings. */
   toolLabels?: ToolsAndCardsProps["toolLabels"]
   /** Render prop for an end-of-turn summary (e.g., list of edited files). Forwarded to ChatPanel. */
@@ -189,6 +191,7 @@ export function AIBoard({
   renderToolResult,
   processLabels,
   getThinkingMessage,
+  rawViewLabels,
   toolLabels,
   renderTurnSummary,
   renderSystemMessage,
@@ -442,6 +445,7 @@ export function AIBoard({
           renderToolResult={renderToolResult}
           processLabels={processLabels}
           getThinkingMessage={getThinkingMessage}
+          rawViewLabels={rawViewLabels}
           toolLabels={toolLabels}
           renderTurnSummary={renderTurnSummary}
           renderSystemMessage={renderSystemMessage}

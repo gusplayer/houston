@@ -121,6 +121,7 @@ interface AgentChatPanelProps {
   renderToolResult: ChatPanelProps["renderToolResult"];
   processLabels: ChatPanelProps["processLabels"];
   getThinkingMessage: ChatPanelProps["getThinkingMessage"];
+  rawViewLabels: ChatPanelProps["rawViewLabels"];
   renderTurnSummary: ChatPanelProps["renderTurnSummary"];
   renderSystemMessage: AIBoardProps["renderSystemMessage"];
   mapFeedItems: AIBoardProps["mapFeedItems"];
@@ -144,7 +145,7 @@ export function useAgentChatPanel({
   onSelectSession,
 }: UseAgentChatPanelArgs): AgentChatPanelProps {
   const { t } = useTranslation(["board", "chat"]);
-  const { processLabels, getThinkingMessage } = useChatDisplayLabels();
+  const { processLabels, getThinkingMessage, rawViewLabels } = useChatDisplayLabels();
   const queryClient = useQueryClient();
   const addToast = useUIStore((s) => s.addToast);
 
@@ -557,6 +558,7 @@ export function useAgentChatPanel({
     renderToolResult,
     processLabels,
     getThinkingMessage,
+    rawViewLabels,
     renderTurnSummary,
     renderSystemMessage,
     mapFeedItems,

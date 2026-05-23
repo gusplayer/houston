@@ -256,6 +256,39 @@ End-to-end flow (run without asking, unless a step is destructive and not pre-au
 
 Never `git reset --hard` on `main`, never force-push to `main`, never merge without the PR step (even for trivial changes — PR is the audit trail).
 
+### After merging a worktree feature: sync the user's main checkout
+
+The worktree is at `.claude/worktrees/<name>/`, but the user typically runs `pnpm tauri dev` from the **top-level repo checkout** (e.g. `~/Dev/houston/houston/app`). That checkout does NOT auto-update — it stays on whatever commit `main` was at when they last pulled. So after every PR merge, the user has a **stale main**.
+
+Always end the merge step with the exact sync commands the user must run, tailored to what the PR touched:
+
+```bash
+cd ~/Dev/houston/houston                  # the user's main checkout
+git pull origin main
+# If the PR touched any package.json, pnpm-lock.yaml, or Cargo.toml:
+cd app && pnpm install
+# Restart the dev server so it picks up new deps / sidecar
+pnpm tauri dev
+```
+
+Mention this every time. Don't assume they remember. If they kept their old `pnpm tauri dev` running, the symptoms are: feature/fix not visible, Tauri version mismatch errors, "I already pulled but nothing changed."
+
+### Tauri version pinning (Rust ↔ JS must match minor)
+
+`@tauri-apps/api`, `@tauri-apps/cli`, and every `@tauri-apps/plugin-*` JS package MUST share the same major/minor as the Rust `tauri` crate version that `cargo build` resolves. Tauri runtime checks this and throws "Found version mismatched Tauri packages" on dev startup if they drift.
+
+Failure mode: `Cargo.toml` uses `tauri = { version = "2", … }` (caret = always latest 2.x), so a new Tauri minor release (e.g. 2.10 → 2.11) auto-pulls into the Rust binary on the next build, but the JS `package.json` stays pinned to the old `^2.10.0`. The dev gets the mismatch error and `pnpm tauri dev` refuses to start.
+
+When this happens:
+
+```bash
+pnpm update @tauri-apps/api @tauri-apps/cli @tauri-apps/plugin-deep-link \
+            @tauri-apps/plugin-notification @tauri-apps/plugin-updater \
+            --filter squad-app
+```
+
+Bump JS and Rust together in one PR. Never leave them drifted across separate PRs.
+
 ---
 
 ## Secrets

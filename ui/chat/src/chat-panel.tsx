@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { feedItemsToMessages } from "./chat-helpers";
 import { ChatInput } from "./chat-input";
 import { ChatDropOverlay } from "./chat-drop-overlay";
-import { ChatMessages } from "./chat-messages";
+import { ChatMessagesArea } from "./chat-messages-area";
 import type { ChatPanelProps } from "./chat-panel-types";
 import { deriveStatus } from "./chat-status";
 import { Shimmer } from "./ai-elements/shimmer";
@@ -59,6 +59,7 @@ export function ChatPanel({
   queuedLabels,
   canSendEmpty,
   composerOverride,
+  rawViewLabels,
 }: ChatPanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const status = statusProp ?? deriveStatus(feedItems, isLoading);
@@ -127,23 +128,27 @@ export function ChatPanel({
         </div>
       )}
       {hasMessages || status !== "ready" ? (
-        <ChatMessages
+        <ChatMessagesArea
+          feedItems={feedItems}
           messages={messages}
           status={status}
           thinkingIndicator={thinkingIndicator ?? <DefaultThinkingIndicator />}
-          transformContent={transformContent}
-          toolLabels={toolLabels}
-          isSpecialTool={isSpecialTool}
-          renderToolResult={renderToolResult}
-          processLabels={processLabels}
-          getThinkingMessage={getThinkingMessage}
-          renderMessageAvatar={renderMessageAvatar}
-          renderSystemMessage={renderSystemMessage}
-          renderUserMessage={renderUserMessage}
-          afterMessages={afterMessages}
-          renderTurnSummary={renderTurnSummary}
-          onOpenLink={onOpenLink}
-          renderLink={renderLink}
+          rawViewLabels={rawViewLabels}
+          messagesProps={{
+            transformContent,
+            toolLabels,
+            isSpecialTool,
+            renderToolResult,
+            processLabels,
+            getThinkingMessage,
+            renderMessageAvatar,
+            renderSystemMessage,
+            renderUserMessage,
+            afterMessages,
+            renderTurnSummary,
+            onOpenLink,
+            renderLink,
+          }}
         />
       ) : (
         <div className="flex-1 min-h-0 flex items-center justify-center">

@@ -99,7 +99,7 @@ export function TryMission({
   const pushFeedItem = useFeedStore((s) => s.pushFeedItem);
   const sessionStatus = useSessionStatus(agentPath, sessionKeyForHooks);
   const isActive = isActiveSessionStatus(sessionStatus);
-  const { processLabels, getThinkingMessage } = useChatDisplayLabels();
+  const { processLabels, getThinkingMessage, rawViewLabels } = useChatDisplayLabels();
 
   const [composerText, setComposerText] = useState("");
   const [composerFiles, setComposerFiles] = useState<File[]>([]);
@@ -434,6 +434,7 @@ export function TryMission({
                 placeholder={t("setup:tutorial.missions.try.placeholder")}
                 processLabels={processLabels}
                 getThinkingMessage={getThinkingMessage}
+                rawViewLabels={rawViewLabels}
                 renderLink={renderLink}
                 onOpenLink={handleOpenLink}
                 transformContent={transformContent}
