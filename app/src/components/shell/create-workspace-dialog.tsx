@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@squad/core";
 import { resolveAgentTabs } from "../../agents/core-tabs";
+import { applyAgentName } from "../../lib/apply-agent-name";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -71,7 +72,7 @@ export function CreateAgentDialog() {
         trimmed,
         selectedConfigId,
         color,
-        selectedDef?.config.claudeMd,
+        applyAgentName(selectedDef?.config.claudeMd, selectedDef?.config.name, trimmed),
         selectedDef?.path,
         selectedDef?.config.agentSeeds,
         existingPath ?? undefined,
