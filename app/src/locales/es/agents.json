@@ -18,7 +18,9 @@
     "saving": "Guardando…",
     "saved": "Guardado",
     "savedActiveSession": "Guardado · Aplicará en tu próxima conversación",
-    "restartSession": "Reiniciar sesión"
+    "restartSession": "Reiniciar sesión",
+    "editMode": "Editar",
+    "previewMode": "Vista previa"
   },
   "learnings": {
     "emptyTitle": "Aún no hay aprendizajes",
