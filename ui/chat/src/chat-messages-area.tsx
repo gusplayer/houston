@@ -32,6 +32,7 @@ export interface ChatMessagesAreaProps {
   messages: ChatMessage[];
   status: ChatStatus;
   thinkingIndicator: ReactNode;
+  emptyState?: ReactNode;
   rawViewLabels?: RawViewLabels;
   terminalWsUrl?: string;
   messagesProps: Omit<ChatMessagesProps, "messages" | "status" | "thinkingIndicator">;
@@ -42,6 +43,7 @@ export function ChatMessagesArea({
   messages,
   status,
   thinkingIndicator,
+  emptyState,
   rawViewLabels,
   terminalWsUrl,
   messagesProps,
@@ -121,6 +123,10 @@ export function ChatMessagesArea({
         </Suspense>
       ) : viewMode === "raw" ? (
         <RawFeedView feedItems={feedItems} status={status} labels={rawViewLabels?.stream} />
+      ) : messages.length === 0 && status === "ready" && emptyState ? (
+        <div className="flex-1 min-h-0 flex items-center justify-center">
+          {emptyState}
+        </div>
       ) : (
         <ChatMessages
           messages={messages}
