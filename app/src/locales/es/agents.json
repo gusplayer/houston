@@ -95,6 +95,7 @@
   "files": {
     "emptyTitle": "Aún no hay archivos",
     "emptyDescription": "Los archivos creados por tu asistente aparecerán aquí.",
+    "roleHintLabel": "Tipos de archivo habituales",
     "openInFinder": "Abrir en Finder",
     "loading": "Cargando…",
     "browseFiles": "Elegir archivos",
