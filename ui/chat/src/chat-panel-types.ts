@@ -3,22 +3,9 @@ import type { ToolsAndCardsProps } from "./chat-helpers";
 import type { ChatMessagesProps } from "./chat-messages";
 import type { ChatMessage } from "./feed-to-messages";
 import type { QueuedChatMessage, QueuedMessageLabels } from "./queued-message-list";
-import type { RawFeedViewLabels } from "./raw-feed-view";
 import type { FeedItem } from "./types";
 
 export type ChatStatus = "ready" | "streaming" | "submitted";
-
-export interface RawViewToggleLabels {
-  /** Tooltip + aria-label shown when chat view is active (click enters raw). */
-  enterRaw?: string;
-  /** Tooltip + aria-label shown when raw view is active (click returns to chat). */
-  enterChat?: string;
-}
-
-export interface RawViewLabels {
-  toggle?: RawViewToggleLabels;
-  stream?: RawFeedViewLabels;
-}
 
 export interface AttachmentRejection {
   file: File;
@@ -72,8 +59,6 @@ export interface ChatPanelProps {
   onOpenLink?: (url: string) => void;
   renderLink?: ChatMessagesProps["renderLink"];
   composerOverride?: ReactNode;
-  /** Labels for the optional Chat / Raw view toggle and the raw stream itself. */
-  rawViewLabels?: RawViewLabels;
   /**
    * When provided, shows a third "Terminal" toggle that renders an interactive
    * `claude` PTY session via xterm.js. Value must be the full WS URL (include

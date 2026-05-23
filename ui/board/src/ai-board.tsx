@@ -74,8 +74,6 @@ export interface AIBoardProps {
   processLabels?: ChatPanelProps["processLabels"]
   /** Translated reasoning text inside the process/details block. */
   getThinkingMessage?: ChatPanelProps["getThinkingMessage"]
-  /** Translated labels for the Chat ↔ Raw view toggle and raw stream. */
-  rawViewLabels?: ChatPanelProps["rawViewLabels"]
   /** When provided, enables the Terminal toggle showing an interactive claude PTY. */
   terminalWsUrl?: ChatPanelProps["terminalWsUrl"]
   /** Custom tool name → human label mappings. */
@@ -193,7 +191,6 @@ export function AIBoard({
   renderToolResult,
   processLabels,
   getThinkingMessage,
-  rawViewLabels,
   terminalWsUrl,
   toolLabels,
   renderTurnSummary,
@@ -448,7 +445,6 @@ export function AIBoard({
           renderToolResult={renderToolResult}
           processLabels={processLabels}
           getThinkingMessage={getThinkingMessage}
-          rawViewLabels={rawViewLabels}
           terminalWsUrl={terminalWsUrl}
           toolLabels={toolLabels}
           renderTurnSummary={renderTurnSummary}

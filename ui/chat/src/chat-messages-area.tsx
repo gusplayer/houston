@@ -1,22 +1,20 @@
 /**
- * Internal: messages area of ChatPanel. Hosts the Chat / Raw / Terminal view
- * toggle and switches between the three views. Extracted to keep
+ * Internal: messages area of ChatPanel. Hosts the Chat / Terminal view
+ * toggle and switches between the two views. Extracted to keep
  * chat-panel.tsx under the size budget. Not exported from the package index.
  *
  * Views:
  *  - chat     — formatted ChatMessages (default)
- *  - raw      — terminal-style RawFeedView of parsed FeedItems
  *  - terminal — live interactive `claude` PTY via xterm.js (opt-in; only
  *               shown when the parent passes `terminalWsUrl`)
  */
 import { lazy, Suspense, useState, type ReactNode } from "react";
-import { MessageSquareIcon, MonitorIcon, TerminalIcon } from "lucide-react";
+import { MessageSquareIcon, MonitorIcon } from "lucide-react";
 import { Button, cn } from "@squad/core";
 import { ChatMessages } from "./chat-messages";
 import type { ChatMessagesProps } from "./chat-messages";
-import type { ChatStatus, RawViewLabels } from "./chat-panel-types";
+import type { ChatStatus } from "./chat-panel-types";
 import type { ChatMessage } from "./feed-to-messages";
-import { RawFeedView } from "./raw-feed-view";
 import type { FeedItem } from "./types";
 
 // Lazy-load the xterm component so the heavy @xterm/xterm bundle is only
@@ -25,30 +23,27 @@ const SquadTerminal = lazy(() =>
   import("@squad/terminal").then((m) => ({ default: m.SquadTerminal })),
 );
 
-type ViewMode = "chat" | "raw" | "terminal";
+type ViewMode = "chat" | "terminal";
 
 export interface ChatMessagesAreaProps {
   feedItems: FeedItem[];
   messages: ChatMessage[];
   status: ChatStatus;
   thinkingIndicator: ReactNode;
-  rawViewLabels?: RawViewLabels;
   terminalWsUrl?: string;
   messagesProps: Omit<ChatMessagesProps, "messages" | "status" | "thinkingIndicator">;
 }
 
 export function ChatMessagesArea({
-  feedItems,
+  feedItems: _feedItems,
   messages,
   status,
   thinkingIndicator,
-  rawViewLabels,
   terminalWsUrl,
   messagesProps,
 }: ChatMessagesAreaProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("chat");
-  const enterRawLabel = rawViewLabels?.toggle?.enterRaw ?? "Show raw stream";
-  const enterChatLabel = rawViewLabels?.toggle?.enterChat ?? "Show chat view";
+  const enterChatLabel = "Show chat view";
 
   return (
     <div className="relative flex-1 min-h-0 flex flex-col">
@@ -68,22 +63,6 @@ export function ChatMessagesArea({
           )}
         >
           <MessageSquareIcon size={14} />
-        </Button>
-
-        {/* Raw toggle */}
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="ghost"
-          onClick={() => setViewMode("raw")}
-          aria-label={viewMode === "raw" ? enterChatLabel : enterRawLabel}
-          title={viewMode === "raw" ? enterChatLabel : enterRawLabel}
-          className={cn(
-            "text-muted-foreground/60 hover:text-foreground",
-            viewMode === "raw" && "text-foreground bg-accent/40",
-          )}
-        >
-          <TerminalIcon size={14} />
         </Button>
 
         {/* Terminal toggle — only when the engine supports PTY for this agent */}
@@ -119,8 +98,6 @@ export function ChatMessagesArea({
             className="flex-1 min-h-0 px-2 py-2"
           />
         </Suspense>
-      ) : viewMode === "raw" ? (
-        <RawFeedView feedItems={feedItems} status={status} labels={rawViewLabels?.stream} />
       ) : (
         <ChatMessages
           messages={messages}
