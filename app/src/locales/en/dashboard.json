@@ -34,6 +34,12 @@
     "title": "Which agent should run this?",
     "description": "Pick an agent to open a fresh conversation."
   },
+  "routinesNudge": {
+    "title": "Your agents can work on a schedule",
+    "description": "Routines run automatically and surface results only when there is something to report.",
+    "cta": "Try a routine",
+    "dismiss": "Dismiss"
+  },
   "skillPicker": {
     "title": "Pick a skill",
     "description": "Browse the skills this agent already knows how to do.",
