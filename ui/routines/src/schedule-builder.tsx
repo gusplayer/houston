@@ -133,8 +133,8 @@ export function ScheduleBuilder({
         )}
       </div>
 
-      {/* Cron expression display */}
-      {cronDisplay && (
+      {/* Cron expression display — only shown in custom mode */}
+      {activePreset === "custom" && cronDisplay && (
         <p className="text-[11px] text-muted-foreground font-mono">
           cron: {cronDisplay}
         </p>
