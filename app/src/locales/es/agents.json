@@ -26,7 +26,17 @@
     "noProjectsHint": "Vincula un proyecto para ver su CLAUDE.md aquí",
     "readOnlyBanner": "Este archivo pertenece a {{name}}. Edítalo en el directorio del proyecto.",
     "revealInFinder": "Mostrar en Finder",
-    "projectClaudeMdMissing": "No se encontró CLAUDE.md en este proyecto."
+    "projectClaudeMdMissing": "No se encontró CLAUDE.md en este proyecto.",
+    "snippets": {
+      "tone": "Tono",
+      "never": "Nunca hacer",
+      "output": "Formato de salida",
+      "tools": "Herramientas",
+      "workflow": "Flujo de trabajo",
+      "design": "Guía de diseño",
+      "schedule": "Reglas de agenda",
+      "approval": "Regla de aprobación"
+    }
   },
   "learnings": {
     "emptyTitle": "Aún no hay aprendizajes",
@@ -228,6 +238,15 @@
     "apply": "Aplicar a instrucciones",
     "dismiss": "Descartar",
     "applied": "Instrucciones actualizadas"
+  },
+  "routineSuggestion": {
+    "runDaily": "¿Ejecutar esto cada día?",
+    "runWeekly": "¿Ejecutar esto cada semana?",
+    "runMonthly": "¿Ejecutar esto cada mes?",
+    "runHourly": "¿Ejecutar esto cada hora?",
+    "runWeekdays": "¿Ejecutar esto en días laborales?",
+    "setAsRoutine": "Crear rutina",
+    "dismiss": "Descartar"
   },
   "mcp": {
     "title": "Servidores MCP",

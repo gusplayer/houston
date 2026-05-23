@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
+import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
 import ReactMarkdown from "react-markdown";
@@ -12,12 +13,14 @@ interface InstructionsEditorProps {
   value: string;
   onChange: (v: string) => void;
   onBlur: () => void;
+  editorRef?: React.RefObject<ReactCodeMirrorRef>;
 }
 
 export function InstructionsEditor({
   value,
   onChange,
   onBlur,
+  editorRef,
 }: InstructionsEditorProps) {
   const { t } = useTranslation("agents");
   const [mode, setMode] = useState<EditorMode>("edit");
@@ -59,6 +62,7 @@ export function InstructionsEditor({
           onBlur={onBlur}
         >
           <CodeMirror
+            ref={editorRef}
             value={value}
             onChange={onChange}
             extensions={[markdown()]}
