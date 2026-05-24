@@ -47,7 +47,19 @@
   "phases": {
     "addStory": "Add story",
     "storyPlaceholder": "Story title...",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "labels": {
+      "discovery": "Discovery",
+      "analysis": "Spec & Design",
+      "planning": "Test Design",
+      "coding": "Implementation",
+      "review": "Refactor",
+      "qa": "Review & QA",
+      "deploy": "Deploy",
+      "deliver": "Monitor"
+    },
+    "assignAgent": "Assign agent",
+    "unassign": "Remove assignment"
   },
   "skillPicker": {
     "title": "Pick a skill",

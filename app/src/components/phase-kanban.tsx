@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { cn } from "@squad/core";
@@ -9,7 +9,7 @@ import { useStories, useCreateStory, useUpdateStory } from "../hooks/queries";
 import { useWorkspaceStore } from "../stores/workspaces";
 import { PhaseStoryCard } from "./phase-story-card";
 
-const PHASES: { id: StoryPhase; colorClass: string }[] = [
+export const PHASES: { id: StoryPhase; colorClass: string }[] = [
   { id: "discovery", colorClass: "bg-blue-500" },
   { id: "analysis",  colorClass: "bg-cyan-500" },
   { id: "planning",  colorClass: "bg-indigo-500" },
@@ -41,6 +41,14 @@ export function PhaseKanban({ agents, missionItems }: PhaseKanbanProps) {
     return map;
   }, [stories]);
 
+  function moveStory(storyId: string, toPhase: StoryPhase) {
+    void updateStory.mutateAsync({ id: storyId, patch: { phase: toPhase } });
+  }
+
+  function assignAgent(storyId: string, agentId: string | null) {
+    void updateStory.mutateAsync({ id: storyId, patch: { assignedAgentId: agentId } });
+  }
+
   return (
     <div className="flex gap-3 h-full overflow-x-auto px-4 py-4">
       {PHASES.map(({ id, colorClass }) => (
@@ -51,9 +59,8 @@ export function PhaseKanban({ agents, missionItems }: PhaseKanbanProps) {
           stories={storiesByPhase[id]}
           agents={agents}
           missionItems={missionItems}
-          onMove={(storyId, toPhase) =>
-            void updateStory.mutateAsync({ id: storyId, patch: { phase: toPhase } })
-          }
+          onMove={moveStory}
+          onAssign={assignAgent}
           onAdd={(title) =>
             void createStory.mutateAsync({ title, status: "todo", phase: id })
           }
@@ -72,21 +79,19 @@ interface PhaseColumnProps {
   agents: Agent[];
   missionItems: KanbanItem[];
   onMove: (storyId: string, to: StoryPhase) => void;
+  onAssign: (storyId: string, agentId: string | null) => void;
   onAdd: (title: string) => void;
 }
 
 function PhaseColumn({
-  phaseId,
-  colorClass,
-  stories,
-  agents,
-  missionItems,
-  onMove,
-  onAdd,
+  phaseId, colorClass, stories, agents, missionItems,
+  onMove, onAssign, onAdd,
 }: PhaseColumnProps) {
-  const { t } = useTranslation(["agents", "dashboard"]);
+  const { t } = useTranslation("dashboard");
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [dragOver, setDragOver] = useState(false);
+  const dragCounter = useRef(0);
 
   function commitAdd() {
     const trimmed = newTitle.trim();
@@ -95,13 +100,46 @@ function PhaseColumn({
     setAdding(false);
   }
 
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function handleDragEnter(e: React.DragEvent) {
+    e.preventDefault();
+    dragCounter.current += 1;
+    setDragOver(true);
+  }
+
+  function handleDragLeave() {
+    dragCounter.current -= 1;
+    if (dragCounter.current === 0) setDragOver(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setDragOver(false);
+    const storyId = e.dataTransfer.getData("storyId");
+    if (storyId) onMove(storyId, phaseId);
+  }
+
   return (
-    <div className="flex flex-col shrink-0 w-[256px] rounded-xl bg-muted/40 border border-border overflow-hidden">
+    <div
+      className={cn(
+        "flex flex-col shrink-0 w-[256px] rounded-xl border overflow-hidden transition-colors",
+        dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/40",
+      )}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border shrink-0">
         <span className={cn("size-2 rounded-full shrink-0", colorClass)} />
         <span className="text-xs font-semibold flex-1 truncate">
-          {t(`agents:sprints.phases.${phaseId}`)}
+          {t(`phases.labels.${phaseId}`)}
         </span>
         <span className="text-[10px] text-muted-foreground tabular-nums">{stories.length}</span>
       </div>
@@ -116,6 +154,7 @@ function PhaseColumn({
             missionItems={missionItems}
             availablePhases={PHASES}
             onMove={(to) => onMove(story.id, to)}
+            onAssign={(agentId) => onAssign(story.id, agentId)}
           />
         ))}
 
@@ -124,15 +163,12 @@ function PhaseColumn({
             <input
               autoFocus
               className="w-full text-xs bg-transparent outline-none placeholder:text-muted-foreground"
-              placeholder={t("dashboard:phases.storyPlaceholder")}
+              placeholder={t("phases.storyPlaceholder")}
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") commitAdd();
-                if (e.key === "Escape") {
-                  setAdding(false);
-                  setNewTitle("");
-                }
+                if (e.key === "Escape") { setAdding(false); setNewTitle(""); }
               }}
               onBlur={commitAdd}
             />
@@ -146,7 +182,7 @@ function PhaseColumn({
         className="flex items-center gap-1.5 px-3 py-2 text-[11px] text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors border-t border-border shrink-0"
       >
         <Plus className="size-3" />
-        {t("dashboard:phases.addStory")}
+        {t("phases.addStory")}
       </button>
     </div>
   );

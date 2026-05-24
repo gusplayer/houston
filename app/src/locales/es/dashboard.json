@@ -47,7 +47,19 @@
   "phases": {
     "addStory": "Agregar historia",
     "storyPlaceholder": "Titulo de la historia...",
-    "unassigned": "Sin asignar"
+    "unassigned": "Sin asignar",
+    "labels": {
+      "discovery": "Discovery",
+      "analysis": "Spec y Diseno",
+      "planning": "Test Design",
+      "coding": "Implementacion",
+      "review": "Refactor",
+      "qa": "Revision y QA",
+      "deploy": "Deploy",
+      "deliver": "Monitor"
+    },
+    "assignAgent": "Asignar agente",
+    "unassign": "Quitar asignacion"
   },
   "skillPicker": {
     "title": "Elige un skill",
