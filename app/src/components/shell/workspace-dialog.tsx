@@ -76,6 +76,9 @@ export function CreateWorkspaceDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t("shell:workspaceDialog.title")}</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            {t("shell:workspaceDialog.subtitle")}
+          </p>
         </DialogHeader>
         <div className="flex gap-1 pb-2">
           {(["new", "github"] as const).map((item) => (

@@ -2,7 +2,7 @@
   "sidebar": {
     "missionControl": "Visão geral",
     "store": "Store",
-    "workspace": "Workspace",
+    "workspace": "Minha equipe",
     "integrations": "Integrações",
     "settings": "Configurações",
     "yourAgents": "Seus agentes",
@@ -34,12 +34,13 @@
     "description": "Isso apaga o agente e todos os seus dados de forma permanente. Não dá para desfazer."
   },
   "workspaceDialog": {
-    "title": "Novo espaço de trabalho",
+    "title": "Criar um workspace",
+    "subtitle": "O lar da sua equipe. Crie um por produto, empresa ou cliente.",
     "tabNew": "Criar novo",
-    "tabGithub": "Importar do GitHub",
-    "githubDescription": "Importe um modelo de espaço de trabalho do GitHub. Isso cria um espaço com todos os agentes prontos para usar.",
+    "tabGithub": "Entrar pelo GitHub",
+    "githubDescription": "Importe uma equipe do GitHub. O team.json do repositório configura os agentes, papéis e instruções automaticamente.",
     "githubPlaceholder": "usuario/repo",
-    "githubImport": "Importar",
+    "githubImport": "Entrar",
     "githubImporting": "Importando espaço de trabalho e agentes..."
   },
   "uiTour": {
@@ -189,7 +190,7 @@
     "noWorkspace": "Nenhum workspace selecionado",
     "docs": "Docs",
     "owners": "Donos das fases",
-    "projects": "Projetos",
+    "projects": "Repositórios",
     "projectsHint": "Repositórios vinculados a este workspace.",
     "deleteProject": "Remover projeto",
     "renameProject": "Clique para renomear",
