@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, Play } from "lucide-react";
 import { cn } from "@squad/core";
 import type { Story, StoryPhase, StoryPriority, StoryStatus } from "@squad/engine-client";
 import type { KanbanItem } from "@squad/board";
@@ -37,10 +37,11 @@ interface PhaseStoryCardProps {
   onMove: (to: StoryPhase) => void;
   onAssign: (agentId: string | null) => void;
   onUpdate: (patch: Partial<Story>) => void;
+  onStartMission?: () => void;
 }
 
 export function PhaseStoryCard({
-  story, agents, missionItems, availablePhases, onMove, onAssign, onUpdate,
+  story, agents, missionItems, availablePhases, onMove, onAssign, onUpdate, onStartMission,
 }: PhaseStoryCardProps) {
   const { t } = useTranslation("dashboard");
   const [editing, setEditing] = useState(false);
@@ -112,6 +113,16 @@ export function PhaseStoryCard({
       <div className="flex items-start gap-1.5 mb-1">
         {story.priority && <span className={cn("text-[9px] font-semibold px-1 py-px rounded shrink-0 mt-0.5 uppercase tracking-wide", PRIORITY_STYLES[story.priority])}>{t(`phases.priority.${story.priority}`)}</span>}
         <span className="text-xs font-medium leading-tight line-clamp-2 flex-1">{story.title}</span>
+        {onStartMission && assignedAgent && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onStartMission(); }}
+            className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
+            title={t("phases.startMission")}
+          >
+            <Play className="size-2.5 fill-current" />
+            {t("phases.start")}
+          </button>
+        )}
         <button onClick={startEdit} className="shrink-0 p-0.5 rounded text-muted-foreground/40 hover:text-muted-foreground transition-colors" title={t("phases.edit")}><Pencil className="size-3" /></button>
       </div>
       {story.description && <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2">{story.description}</p>}

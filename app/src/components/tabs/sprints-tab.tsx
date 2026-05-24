@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, ChevronDown, Flag, Circle, GitPullRequest, Columns3, Workflow, Users, User } from "lucide-react";
+import { Plus, ChevronDown, Flag, Circle, GitPullRequest, Columns3, Workflow } from "lucide-react";
 import { Button, Badge, Spinner, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@squad/core";
 import type { TabProps, Agent } from "../../lib/types";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -14,9 +14,6 @@ import {
   useCreateStory,
   useUpdateStory,
   useDeleteStory,
-  usePhaseOwnership,
-  useSavePhaseOwnership,
-  type PhaseOwnership,
 } from "../../hooks/queries";
 import type { Story, StoryStatus, StoryPhase } from "@squad/engine-client";
 
@@ -222,8 +219,6 @@ export default function SprintsTab(_: TabProps) {
 
   const { data: sprints, isLoading: sprintsLoading } = useSprints(path);
   const { data: allStories, isLoading: storiesLoading } = useStories(path);
-  const { data: phaseOwnership } = usePhaseOwnership(path);
-  const savePhaseOwnership = useSavePhaseOwnership(path);
   const createSprint = useCreateSprint(path);
   const updateSprint = useUpdateSprint(path);
   const createStory = useCreateStory(path);
@@ -237,7 +232,6 @@ export default function SprintsTab(_: TabProps) {
   const [newStoryTitle, setNewStoryTitle] = useState("");
   const [showNewSprint, setShowNewSprint] = useState(false);
   const [newSprintName, setNewSprintName] = useState("");
-  const [showOwners, setShowOwners] = useState(false);
 
   const displaySprintId = selectedSprintId === "backlog" ? null : selectedSprintId;
 
@@ -272,8 +266,9 @@ export default function SprintsTab(_: TabProps) {
 
   // Auto-handoff: completing the work in one phase advances the story to
   // the next phase with status reset to "todo". `deliver` is terminal —
-  // a delivered story stays done. When the new phase has a configured
-  // owner (phaseOwnership[next]), reassign to that agent automatically.
+  // a delivered story stays done. The current assignee carries over to
+  // the next phase; the workspace phase kanban handles per-phase agent
+  // assignment when the team needs explicit handoffs.
   async function handleStatusChange(id: string, status: StoryStatus) {
     const story = allStories?.find((s) => s.id === id);
     if (
@@ -282,16 +277,9 @@ export default function SprintsTab(_: TabProps) {
       nextPhase(story.phase) !== null
     ) {
       const next = nextPhase(story.phase)!;
-      const nextOwner = phaseOwnership?.[next] ?? undefined;
       await updateStory.mutateAsync({
         id,
-        patch: {
-          phase: next,
-          status: "todo",
-          // Only reassign if the new phase has an explicit owner; otherwise
-          // keep the current assignee so the work stays with someone.
-          ...(nextOwner !== undefined ? { assignedAgentId: nextOwner } : {}),
-        },
+        patch: { phase: next, status: "todo" },
       });
       return;
     }
@@ -304,11 +292,6 @@ export default function SprintsTab(_: TabProps) {
 
   async function handleAssigneeChange(id: string, agentId: string | null) {
     await updateStory.mutateAsync({ id, patch: { assignedAgentId: agentId } });
-  }
-
-  async function handleOwnerChange(phase: StoryPhase, agentId: string | null) {
-    const next: PhaseOwnership = { ...(phaseOwnership ?? {}), [phase]: agentId };
-    await savePhaseOwnership.mutateAsync(next);
   }
 
   async function handleCreateSprint() {
@@ -421,16 +404,6 @@ export default function SprintsTab(_: TabProps) {
             size="sm"
             variant="ghost"
             className="h-7 px-2 text-xs"
-            onClick={() => setShowOwners((v) => !v)}
-          >
-            <Users className="size-3 mr-1" />
-            {t("sprints.phaseOwners")}
-          </Button>
-
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 px-2 text-xs"
             onClick={() => setShowNewSprint((v) => !v)}
           >
             <Plus className="size-3 mr-1" />
@@ -438,55 +411,6 @@ export default function SprintsTab(_: TabProps) {
           </Button>
         </div>
       </div>
-
-      {/* Phase ownership panel */}
-      {showOwners && (
-        <div className="flex flex-col gap-2 px-4 py-3 border-b border-border bg-muted/30 shrink-0">
-          <p className="text-xs font-medium">{t("sprints.phaseOwnersTitle")}</p>
-          <p className="text-[10px] text-muted-foreground">
-            {t("sprints.phaseOwnersHelp")}
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {STORY_PHASES.map((p) => {
-              const ownerId = phaseOwnership?.[p] ?? "__none__";
-              return (
-                <div key={p} className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 w-28 shrink-0 text-[11px]">
-                    <span className={cn("size-1.5 rounded-full", PHASE_DOT_COLORS[p])} />
-                    {t(`sprints.phases.${p}`)}
-                  </span>
-                  <Select
-                    value={ownerId}
-                    onValueChange={(v) =>
-                      void handleOwnerChange(p, v === "__none__" ? null : v)
-                    }
-                  >
-                    <SelectTrigger className="h-6 text-[10px] flex-1">
-                      <SelectValue placeholder={t("sprints.unassigned")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__" className="text-[10px]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <User className="size-3 text-muted-foreground" />
-                          {t("sprints.unassigned")}
-                        </span>
-                      </SelectItem>
-                      {agents.map((a) => (
-                        <SelectItem key={a.id} value={a.id} className="text-[10px]">
-                          <span className="inline-flex items-center gap-1.5">
-                            <AgentStateAvatar agent={a} diameter={14} />
-                            {a.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* New sprint form */}
       {showNewSprint && (
