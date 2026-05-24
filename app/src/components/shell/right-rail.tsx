@@ -1,16 +1,19 @@
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Terminal, FileText } from "lucide-react";
+import { MessageCircle, Terminal, SquareTerminal, FileText } from "lucide-react";
 import { cn, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@squad/core";
 import { tauriTerminal, tauriPreferences } from "../../lib/tauri";
 
 interface RightRailProps {
   viewMode: string;
   missionPanelOpen: boolean;
+  chatPanelViewMode: "chat" | "terminal";
   hasBriefTab: boolean;
   hasActivityTab: boolean;
+  hasInternalTerminal: boolean;
   agentFolderPath: string | undefined;
   onNavigate: (tab: string) => void;
-  onNewTask: (() => void) | null;
+  onOpenChatPanel: () => void;
+  onOpenInternalTerminal: () => void;
   onCloseMissionPanel: () => void;
 }
 
@@ -49,32 +52,38 @@ function RailButton({ icon, label, active, onClick }: RailButtonProps) {
 export function RightRail({
   viewMode,
   missionPanelOpen,
+  chatPanelViewMode,
   hasBriefTab,
-  hasActivityTab,
+  hasActivityTab: _hasActivityTab,
+  hasInternalTerminal,
   agentFolderPath,
   onNavigate,
-  onNewTask,
+  onOpenChatPanel,
+  onOpenInternalTerminal,
   onCloseMissionPanel,
 }: RightRailProps) {
   const { t } = useTranslation("shell");
 
   const handleChat = () => {
-    if (missionPanelOpen) {
+    if (missionPanelOpen && chatPanelViewMode === "chat") {
       onCloseMissionPanel();
     } else {
-      if (hasActivityTab) onNavigate("activity");
-      onNewTask?.();
+      onOpenChatPanel();
     }
   };
 
-  const handleTerminal = async () => {
+  const handleInternalTerminal = () => {
+    if (missionPanelOpen && chatPanelViewMode === "terminal") {
+      onCloseMissionPanel();
+    } else {
+      onOpenInternalTerminal();
+    }
+  };
+
+  const handleExternalTerminal = async () => {
     if (!agentFolderPath) return;
     const terminalApp = await tauriPreferences.get("terminal").catch(() => undefined);
     tauriTerminal.open(agentFolderPath, undefined, terminalApp ?? undefined);
-  };
-
-  const handleBrief = () => {
-    onNavigate("job-description");
   };
 
   return (
@@ -83,21 +92,29 @@ export function RightRail({
         <RailButton
           icon={<MessageCircle className="size-[18px]" />}
           label={t("rightRail.chat")}
-          active={missionPanelOpen}
+          active={missionPanelOpen && chatPanelViewMode === "chat"}
           onClick={handleChat}
         />
+        {hasInternalTerminal && (
+          <RailButton
+            icon={<SquareTerminal className="size-[18px]" />}
+            label={t("rightRail.internalTerminal")}
+            active={missionPanelOpen && chatPanelViewMode === "terminal"}
+            onClick={handleInternalTerminal}
+          />
+        )}
         <RailButton
           icon={<Terminal className="size-[18px]" />}
           label={t("rightRail.terminal")}
           active={false}
-          onClick={handleTerminal}
+          onClick={handleExternalTerminal}
         />
         {hasBriefTab && (
           <RailButton
             icon={<FileText className="size-[18px]" />}
             label={t("rightRail.brief")}
             active={viewMode === "job-description"}
-            onClick={handleBrief}
+            onClick={() => onNavigate("job-description")}
           />
         )}
       </div>

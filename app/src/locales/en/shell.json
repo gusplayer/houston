@@ -213,7 +213,8 @@
   },
   "rightRail": {
     "chat": "Chat",
-    "terminal": "Terminal",
+    "internalTerminal": "Terminal",
+    "terminal": "Open in Warp",
     "brief": "Playbook"
   }
 }

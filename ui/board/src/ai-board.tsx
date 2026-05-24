@@ -76,6 +76,9 @@ export interface AIBoardProps {
   getThinkingMessage?: ChatPanelProps["getThinkingMessage"]
   /** When provided, enables the Terminal toggle showing an interactive claude PTY. */
   terminalWsUrl?: ChatPanelProps["terminalWsUrl"]
+  /** Controlled chat/terminal view mode. When provided, internal panel toggles are hidden. */
+  chatPanelViewMode?: ChatPanelProps["viewMode"]
+  onChatPanelViewModeChange?: ChatPanelProps["onViewModeChange"]
   /** Custom tool name → human label mappings. */
   toolLabels?: ToolsAndCardsProps["toolLabels"]
   /** Render prop for an end-of-turn summary (e.g., list of edited files). Forwarded to ChatPanel. */
@@ -192,6 +195,8 @@ export function AIBoard({
   processLabels,
   getThinkingMessage,
   terminalWsUrl,
+  chatPanelViewMode,
+  onChatPanelViewModeChange,
   toolLabels,
   renderTurnSummary,
   renderSystemMessage,
@@ -446,6 +451,8 @@ export function AIBoard({
           processLabels={processLabels}
           getThinkingMessage={getThinkingMessage}
           terminalWsUrl={terminalWsUrl}
+          viewMode={chatPanelViewMode}
+          onViewModeChange={onChatPanelViewModeChange}
           toolLabels={toolLabels}
           renderTurnSummary={renderTurnSummary}
           renderSystemMessage={renderSystemMessage}

@@ -50,6 +50,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const boardActions = useUIStore((s) => s.boardActions);
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
   const setMissionPanelOpen = useUIStore((s) => s.setMissionPanelOpen);
+  const chatPanelViewMode = useUIStore((s) => s.chatPanelViewMode);
+  const setChatPanelViewMode = useUIStore((s) => s.setChatPanelViewMode);
   const setCreateAgentDialogOpen = useUIStore((s) => s.setCreateAgentDialogOpen);
   const setRecruitTeamDialogOpen = useUIStore((s) => s.setRecruitTeamDialogOpen);
   const agentMissionSearchQuery = useUIStore((s) =>
@@ -231,11 +233,23 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
               <RightRail
                 viewMode={viewMode}
                 missionPanelOpen={missionPanelOpen}
+                chatPanelViewMode={chatPanelViewMode}
                 hasBriefTab={tabIds.has("job-description")}
                 hasActivityTab={hasActivityTab}
+                hasInternalTerminal={!!currentAgent.folderPath}
                 agentFolderPath={currentAgent.folderPath}
                 onNavigate={setViewMode}
-                onNewTask={onStartMission}
+                onOpenChatPanel={() => {
+                  setChatPanelViewMode("chat");
+                  setMissionPanelOpen(true);
+                  if (hasActivityTab) setViewMode("activity");
+                  setTimeout(() => useUIStore.getState().onStartMission?.(), 50);
+                }}
+                onOpenInternalTerminal={() => {
+                  setChatPanelViewMode("terminal");
+                  setMissionPanelOpen(true);
+                  if (hasActivityTab) setViewMode("activity");
+                }}
                 onCloseMissionPanel={() => setMissionPanelOpen(false)}
               />
             )}

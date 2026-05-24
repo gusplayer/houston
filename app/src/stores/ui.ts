@@ -33,6 +33,8 @@ interface UIState {
   agentMissionSearchLoading: Record<string, boolean>;
   /** Whether the mission chat panel is open (hides tab bar for full-height panel) */
   missionPanelOpen: boolean;
+  /** Which view is shown inside the side panel: chat messages or embedded xterm. */
+  chatPanelViewMode: "chat" | "terminal";
   jobDescriptionTarget: JobDescriptionTarget | null;
   /** Currently-open conversation per agent. Persisted in the store so
    * navigating away from the agent (Settings, another agent, …) and back
@@ -82,6 +84,7 @@ interface UIState {
   setAgentMissionSearchQuery: (agentPath: string, query: string) => void;
   setAgentMissionSearchLoading: (agentPath: string, loading: boolean) => void;
   setMissionPanelOpen: (open: boolean) => void;
+  setChatPanelViewMode: (mode: "chat" | "terminal") => void;
   setJobDescriptionTarget: (target: JobDescriptionTarget | null) => void;
   setTutorialActive: (active: boolean) => void;
   setUiTourActive: (active: boolean) => void;
@@ -106,6 +109,7 @@ export const useUIStore = create<UIState>((set) => ({
   agentMissionSearchQueries: {},
   agentMissionSearchLoading: {},
   missionPanelOpen: false,
+  chatPanelViewMode: "chat",
   jobDescriptionTarget: null,
   tutorialActive: false,
   uiTourActive: false,
@@ -161,6 +165,7 @@ export const useUIStore = create<UIState>((set) => ({
       return { agentMissionSearchLoading: next };
     }),
   setMissionPanelOpen: (missionPanelOpen) => set({ missionPanelOpen }),
+  setChatPanelViewMode: (chatPanelViewMode) => set({ chatPanelViewMode }),
   setJobDescriptionTarget: (jobDescriptionTarget) => set({ jobDescriptionTarget }),
   setTutorialActive: (tutorialActive) => set({ tutorialActive }),
   setUiTourActive: (uiTourActive) => set({ uiTourActive }),
