@@ -64,6 +64,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "allAgents": "All",
+    "allSprints": "All sprints",
+    "backlog": "Backlog",
     "descriptionPlaceholder": "Add a description...",
     "start": "Start",
     "startMission": "Start a mission for the assigned agent",

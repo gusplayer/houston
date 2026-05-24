@@ -5,7 +5,7 @@ import { cn, Button, EmptyHeader, EmptyTitle, EmptyDescription } from "@squad/co
 import type { Story, StoryPhase } from "@squad/engine-client";
 import type { KanbanItem } from "@squad/board";
 import type { Agent } from "../lib/types";
-import { useStories, useCreateStory, useUpdateStory } from "../hooks/queries";
+import { useStories, useCreateStory, useUpdateStory, useSprints } from "../hooks/queries";
 import { useWorkspaceStore } from "../stores/workspaces";
 import { AgentStateAvatar } from "./agent-state-avatar";
 import { PhaseStoryCard } from "./phase-story-card";
@@ -32,21 +32,26 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
   const workspace = useWorkspaceStore((s) => s.current);
   const rootPath = workspace?.path;
   const { data: stories = [] } = useStories(rootPath);
+  const { data: sprints = [] } = useSprints(rootPath);
   const createStory = useCreateStory(rootPath);
   const updateStory = useUpdateStory(rootPath);
   const [filterAgentId, setFilterAgentId] = useState<string | null>(null);
+  const [filterSprintId, setFilterSprintId] = useState<string | "all" | "backlog">("all");
 
   const hasNoStories = stories.length === 0;
 
   const storiesByPhase = useMemo(() => {
-    const base = filterAgentId ? stories.filter((s) => s.assignedAgentId === filterAgentId) : stories;
+    let base = stories;
+    if (filterAgentId) base = base.filter((s) => s.assignedAgentId === filterAgentId);
+    if (filterSprintId === "backlog") base = base.filter((s) => !s.sprintId);
+    else if (filterSprintId !== "all") base = base.filter((s) => s.sprintId === filterSprintId);
     const map = Object.fromEntries(PHASES.map((p) => [p.id, [] as Story[]])) as Record<StoryPhase, Story[]>;
     for (const s of base) {
       const phase = s.phase && map[s.phase] ? s.phase : "discovery";
       map[phase].push(s);
     }
     return map;
-  }, [stories, filterAgentId]);
+  }, [stories, filterAgentId, filterSprintId]);
 
   function moveStory(id: string, to: StoryPhase) { void updateStory.mutateAsync({ id, patch: { phase: to } }); }
   function assignAgent(id: string, agentId: string | null) { void updateStory.mutateAsync({ id, patch: { assignedAgentId: agentId } }); }
@@ -89,7 +94,7 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Agent filter bar */}
+      {/* Filter bar: agent pills + sprint dropdown */}
       <div className="shrink-0 flex items-center gap-1.5 px-4 py-2 border-b border-border overflow-x-auto">
         <button
           onClick={() => setFilterAgentId(null)}
@@ -117,6 +122,19 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
             {a.name}
           </button>
         ))}
+        {sprints.length > 0 && (
+          <select
+            value={filterSprintId}
+            onChange={(e) => setFilterSprintId(e.target.value as typeof filterSprintId)}
+            className="ml-auto h-[26px] px-2 text-[11px] rounded-full border border-border bg-background text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring shrink-0"
+          >
+            <option value="all">{t("phases.allSprints")}</option>
+            <option value="backlog">{t("phases.backlog")}</option>
+            {sprints.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Columns */}
