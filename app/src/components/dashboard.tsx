@@ -10,7 +10,7 @@ import {
   Button,
   cn,
 } from "@squad/core";
-import { Plus, LayoutGrid, Columns3 } from "lucide-react";
+import { Plus, LayoutGrid, Columns3, BarChart3 } from "lucide-react";
 import { useAgentStore } from "../stores/agents";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useUIStore } from "../stores/ui";
@@ -32,6 +32,7 @@ import { useMissionSearch } from "./use-mission-search";
 import { buildMissionBoardColumns } from "./mission-board-columns";
 import { RoutinesNudge } from "./routines-nudge";
 import { PhaseKanban } from "./phase-kanban";
+import { UsageDashboard } from "./usage-dashboard";
 
 export function Dashboard() {
   const { t } = useTranslation(["dashboard", "board", "common"]);
@@ -54,7 +55,7 @@ export function Dashboard() {
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
   const addToast = useUIStore((s) => s.addToast);
 
-  const [boardView, setBoardView] = useState<"missions" | "phases">("missions");
+  const [boardView, setBoardView] = useState<"missions" | "phases" | "usage">("missions");
   const [filterPath, setFilterPath] = useState("");
   const [missionSearchQuery, setMissionSearchQuery] = useState("");
   const [agentPickerOpen, setAgentPickerOpen] = useState(false);
@@ -313,9 +314,25 @@ export function Dashboard() {
           <Columns3 className="size-3" />
           {t("dashboard:boardToggle.phases")}
         </button>
+        <button
+          onClick={() => setBoardView("usage")}
+          className={cn(
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors",
+            boardView === "usage"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
+          )}
+        >
+          <BarChart3 className="size-3" />
+          {t("dashboard:boardToggle.usage")}
+        </button>
       </div>
 
-      {boardView === "phases" ? (
+      {boardView === "usage" ? (
+        <div className="flex-1 min-h-0 relative">
+          <UsageDashboard />
+        </div>
+      ) : boardView === "phases" ? (
         <div className="flex-1 min-h-0">
           <PhaseKanban agents={agents} missionItems={mc.items} />
         </div>

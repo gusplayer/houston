@@ -75,7 +75,7 @@ HTTP status maps 1:1 (see `engine-server/src/routes/error.rs`).
 ### Current routes
 
 Full surface live. Every mutating route emits matching `SquadEvent` on
-broadcast bus. 16 route modules wired in
+broadcast bus. 18 route modules wired in
 [`squad-engine-server/src/lib.rs`](../engine/squad-engine-server/src/lib.rs).
 Integration tests in `engine/squad-engine-server/tests/` — one file per
 module.
@@ -270,6 +270,18 @@ See [`docs/mobile-architecture.md`](../docs/mobile-architecture.md) for the full
 | POST | `/v1/watcher/start` | Start `notify` watch on agent dir |
 | POST | `/v1/watcher/stop` | Stop |
 
+**Usage (token + cost dashboard)**
+| Method | Path | Description |
+|---|---|---|
+| GET | `/v1/workspaces/:id/usage?range=today\|7d\|30d\|all` | Workspace totals, per-agent rollups, recent session rows |
+| GET | `/v1/agents/:agent_path/usage?range=...` | Per-agent rollup + that agent's sessions |
+| GET | `/v1/agents/:agent_path/sessions/:key/usage?provider=anthropic` | Single session's cumulative counters |
+| GET | `/v1/agents/:agent_path/sessions/:key/context-breakdown` | What disk files contribute to this agent's initial prompt, plus the most-recent-turn live "window used" figure |
+
+Data source: `session_usage` SQLite table (one row per `(session_key, provider)`), upserted on every turn the provider CLI reports usage. `cost_usd` is the CLI's API-rate estimate — for Pro/Max subscription users it's NOT real money out. UI labels it "≈ API-rate equivalent". Codex emits combined token totals but no cost; `cost_usd` is 0 for those rows. Each upsert emits `SessionUsageChanged { workspace_id, agent_path, session_key, provider }` on the `agent:{path}` topic so the dashboard live-refreshes.
+
+Context-window capacity comes from `model_context_window(model)` in `squad-engine-protocol` — hardcoded best-effort table keyed by model id substring (Opus 4.7 = 200k unless `[1m]`, Sonnet 4.6 = 1M, Haiku 4.5 = 200k, gpt-5/4.1 = 1M, o3/o4 = 200k). Unknown models degrade to raw tokens with no percentage.
+
 ## WebSocket envelope
 
 Every WS frame is an `EngineEnvelope`:
@@ -307,7 +319,7 @@ forwarder sends — essential for remote clients where bandwidth matters.
 |---|---|
 | `*` | **Firehose.** Delivers every event regardless of its event_topic. The desktop app uses this so it doesn't need to track per-agent / per-session subscriptions. Remote clients should prefer narrower topics. |
 | `session:{key}` | `FeedItem`, `SessionStatus`, `AuthRequired` |
-| `agent:{path}` | `ActivityChanged`, `SkillsChanged`, `FilesChanged`, `ConfigChanged`, `ContextChanged`, `LearningsChanged`, `ConversationsChanged` |
+| `agent:{path}` | `ActivityChanged`, `SkillsChanged`, `FilesChanged`, `ConfigChanged`, `ContextChanged`, `LearningsChanged`, `ConversationsChanged`, `SessionUsageChanged` |
 | `routines:{agent}` | `RoutinesChanged`, `RoutineRunsChanged` |
 | `composio` | `ComposioCliReady`, `ComposioCliFailed` |
 | `scheduler` | `HeartbeatFired`, `CronFired` |

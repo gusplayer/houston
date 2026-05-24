@@ -43,7 +43,7 @@ Squad = open platform. Organized as **6 products + 3 code libraries**.
 15 crates. All pure libraries. No frontend assumptions. Full list in
 the workspace root `Cargo.toml`.
 
-- `squad-db` — libSQL. `chat_feed`, `preferences`, `engine_tokens` tables.
+- `squad-db` — libSQL. `chat_feed`, `preferences`, `engine_tokens` (device auth), `phone_access`, `session_usage` (per-session token + cost rollups) tables.
 - `squad-terminal-manager` — Claude/Codex subprocess manager, parser, streaming
 - `squad-events` — hook/webhook/lifecycle queue
 - `squad-scheduler` — cron + heartbeat
@@ -58,7 +58,7 @@ the workspace root `Cargo.toml`.
 - `squad-skills` — skill discovery + management
 - `squad-engine-core` — runtime container (`EngineState`, paths, `workspaces::*`, `agents::{activity,routines,routine_runs,config,conversations,files,prompt,self_improvement}`, `sessions::{history,provider,summarize}`, `routines::{runner,runs,scheduler,engine_dispatcher}`, `store`, `sync`, `worktree`, `provider`, `attachments`, `preferences`, `conversations`, `skills`, `agent_configs`). Domain logic relocated from the Tauri adapter.
 - `squad-engine-protocol` — wire types (REST DTOs, WS envelope, error codes, `PROTOCOL_VERSION`). Matches `ui/engine-client/src/types.ts`.
-- `squad-engine-server` — axum HTTP+WS binary `squad-engine`. The process every client talks to. Full REST surface live — 17 route modules covering workspaces, agents CRUD, sessions, agent data + files, routines + scheduler, skills, store, composio, claude (runtime install), tunnel + pairing, worktrees, shell, attachments, preferences, providers, agent-configs, conversations, watcher. See `knowledge-base/engine-protocol.md` for the complete table.
+- `squad-engine-server` — axum HTTP+WS binary `squad-engine`. The process every client talks to. Full REST surface live — 18 route modules covering workspaces, agents CRUD, sessions, agent data + files, routines + scheduler, skills, store, composio, claude (runtime install), tunnel + pairing, worktrees, shell, attachments, preferences, providers, agent-configs, conversations, watcher, usage. See `knowledge-base/engine-protocol.md` for the complete table.
 
 **Bundled provider CLIs:** Squad ships the codex CLI (Apache-2.0) and
 composio CLI (MIT) inside the signed/notarized `.app` so users get

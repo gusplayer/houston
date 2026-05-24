@@ -106,6 +106,11 @@ pub struct StartParams {
     /// Credits virtual provider and the engine env has SQUAD_CREDITS_KEY.
     /// `None` lets claude-code use whatever auth the user already has.
     pub anthropic_api_key_override: Option<String>,
+    /// Workspace UUID (from `workspaces.json`) that owns this agent. Used
+    /// to tag rows in `session_usage` so the workspace dashboard can
+    /// aggregate. `None` skips usage tracking — used for ad-hoc sessions
+    /// (onboarding) and tests that don't go through a workspace.
+    pub workspace_id: Option<String>,
 }
 
 /// Start a session turn. The request is accepted immediately. Turns with the
@@ -176,6 +181,7 @@ async fn run_start(
         model,
         effort,
         anthropic_api_key_override,
+        workspace_id,
     } = params;
 
     if !agent_dir.exists() {
@@ -269,6 +275,7 @@ async fn run_start(
         source,
         user_message: Some(prompt.clone()),
         claude_session_id: None,
+        workspace_id: workspace_id.clone(),
     });
 
     let events_for_end = events.clone();
@@ -531,6 +538,9 @@ pub async fn start_onboarding(
             model: resolved.model,
             effort: None,
             anthropic_api_key_override,
+            // Onboarding tutorial agents aren't under a workspace — skip
+            // usage tracking so the dashboard doesn't surface practice runs.
+            workspace_id: None,
         },
     )
     .await
@@ -546,6 +556,15 @@ pub fn expand_tilde(p: &std::path::Path) -> PathBuf {
         }
     }
     p.to_path_buf()
+}
+
+/// Resolve a workspace UUID for an agent that lives under `<docs>/<ws>/<agent>`.
+/// Looks up the parent folder name in `workspaces.json`. Returns `None` if
+/// the agent is not under a recognised workspace (ad-hoc / test paths).
+pub fn resolve_workspace_id(paths: &EnginePaths, agent_dir: &Path) -> Option<String> {
+    let workspace_name = agent_dir.parent()?.file_name()?.to_string_lossy().to_string();
+    let all = crate::workspaces::read_all(paths.docs()).ok()?;
+    all.into_iter().find(|w| w.name == workspace_name).map(|w| w.id)
 }
 
 /// Convenience: resolve an agent directory relative to an [`EnginePaths`]
@@ -599,6 +618,7 @@ mod tests {
                     model: None,
                     effort: None,
                     anthropic_api_key_override: None,
+                    workspace_id: None,
                 },
             ),
         )

@@ -477,6 +477,35 @@ export const tauriConversations = {
     ),
 };
 
+// ─── Usage (token + cost dashboard) ────────────────────────────────────
+import type {
+  ContextBreakdown,
+  SessionUsage,
+  UsageRange,
+  WorkspaceUsage,
+} from "@squad/engine-client";
+
+export const tauriUsage = {
+  workspace: (workspaceId: string, range: UsageRange = "all") =>
+    call<WorkspaceUsage>("workspace_usage", () =>
+      getEngine().workspaceUsage(workspaceId, range),
+    ),
+  agent: (agentPath: string, range: UsageRange = "all") =>
+    call<WorkspaceUsage>("agent_usage", () => getEngine().agentUsage(agentPath, range)),
+  session: (
+    agentPath: string,
+    sessionKey: string,
+    provider: "anthropic" | "openai" = "anthropic",
+  ) =>
+    call<SessionUsage | null>("session_usage", () =>
+      getEngine().sessionUsage(agentPath, sessionKey, provider),
+    ),
+  contextBreakdown: (agentPath: string, sessionKey: string) =>
+    call<ContextBreakdown>("session_context_breakdown", () =>
+      getEngine().sessionContextBreakdown(agentPath, sessionKey),
+    ),
+};
+
 function conversationToRaw(
   c: import("@squad/engine-client").ConversationEntry,
 ): RawConversation {

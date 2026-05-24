@@ -76,6 +76,10 @@ import type {
   Commit,
   Branch,
   McpConfig,
+  ContextBreakdown,
+  SessionUsage,
+  UsageRange,
+  WorkspaceUsage,
 } from "./types";
 import { planAttachmentUploadBatches } from "./attachments";
 
@@ -386,6 +390,37 @@ export class SquadClient {
   }
   listAllConversations(agentPaths: string[]): Promise<ConversationEntry[]> {
     return this.request("POST", "/conversations/list-all", { agentPaths });
+  }
+
+  // ---------- usage (token + cost dashboard) ----------
+
+  workspaceUsage(workspaceId: string, range: UsageRange = "all"): Promise<WorkspaceUsage> {
+    return this.request("GET", `/workspaces/${this.seg(workspaceId)}/usage`, undefined, {
+      range,
+    });
+  }
+  agentUsage(agentPath: string, range: UsageRange = "all"): Promise<WorkspaceUsage> {
+    return this.request("GET", `/agents/${this.seg(agentPath)}/usage`, undefined, {
+      range,
+    });
+  }
+  sessionUsage(
+    agentPath: string,
+    sessionKey: string,
+    provider: "anthropic" | "openai" = "anthropic",
+  ): Promise<SessionUsage | null> {
+    return this.request(
+      "GET",
+      `/agents/${this.seg(agentPath)}/sessions/${this.seg(sessionKey)}/usage`,
+      undefined,
+      { provider },
+    );
+  }
+  sessionContextBreakdown(agentPath: string, sessionKey: string): Promise<ContextBreakdown> {
+    return this.request(
+      "GET",
+      `/agents/${this.seg(agentPath)}/sessions/${this.seg(sessionKey)}/context-breakdown`,
+    );
   }
 
   // ---------- skills ----------

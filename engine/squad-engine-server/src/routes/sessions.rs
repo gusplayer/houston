@@ -111,6 +111,7 @@ async fn start_session(
         None
     };
 
+    let workspace_id = sessions::resolve_workspace_id(&st.engine.paths, &agent_dir);
     let params = StartParams {
         agent_dir,
         working_dir,
@@ -122,6 +123,7 @@ async fn start_session(
         model,
         effort: req.effort,
         anthropic_api_key_override,
+        workspace_id,
     };
 
     let rt = SessionRuntime::clone(&st.engine.sessions);

@@ -114,9 +114,12 @@ Skills live at `.agents/skills/<name>/SKILL.md`. Squad mirrors to `.claude/skill
 Same files surface in the UI as **Skills**. Frontmatter drives card image, category tabs, featured-state showcase, and integration logos. Selecting a Skill pins it above the regular composer; free-form text remains in chat. Full schema + render pipeline → [`skills.md`](skills.md).
 
 ## SQLite (minimal)
-Only two tables:
+Live tables:
 - `chat_feed` - keyed by provider CLI session id (`claude_session_id` column name is legacy). UI conversation replay on restart.
 - `preferences` — app-level (last_workspace_id etc). Not scoped.
+- `session_usage` — per-`(session_key, provider)` token + cost accumulation. Denormalised `agent_path` + `workspace_id` columns so the dashboard rolls up without join lookups. Cumulative counters sum across every turn; `last_window_tokens` overwrites with the most recent turn's combined input so the "context window used" bar reflects current state, not lifetime sum. Upserts emit `SessionUsageChanged`. See `engine-protocol.md` for the matching REST routes.
+- `engine_tokens` — device-scoped bearer tokens (phone pairing). NOT AI provider tokens; the name predates the usage table.
+- `phone_access` — stable QR secret for phone pairing.
 
 Everything else lives in files.
 

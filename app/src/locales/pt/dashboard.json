@@ -42,7 +42,8 @@
   },
   "boardToggle": {
     "missions": "Missoes",
-    "phases": "Fases"
+    "phases": "Fases",
+    "usage": "Consumo"
   },
   "phases": {
     "addStory": "Adicionar historia",

@@ -147,6 +147,7 @@ pub fn event_topic(event: &SquadEvent) -> String {
         | SquadEvent::SprintsChanged { agent_path }
         | SquadEvent::StoriesChanged { agent_path } => format!("agent:{agent_path}"),
         SquadEvent::ConversationsChanged { agent_path, .. } => format!("agent:{agent_path}"),
+        SquadEvent::SessionUsageChanged { agent_path, .. } => format!("agent:{agent_path}"),
         SquadEvent::ComposioCliReady
         | SquadEvent::ComposioCliFailed { .. }
         | SquadEvent::ComposioConnectionAdded { .. } => "composio".into(),
@@ -165,6 +166,120 @@ pub fn is_low_severity_feed(item: &squad_terminal_manager::FeedItem) -> bool {
         squad_terminal_manager::FeedItem::AssistantTextStreaming(_)
             | squad_terminal_manager::FeedItem::ThinkingStreaming(_)
     )
+}
+
+/// Per-session usage record returned by the engine. Mirrors
+/// `squad_db::SessionUsageRow` minus storage-only fields. All counts are
+/// cumulative across every turn in the session. `last_window_tokens` is the
+/// most recent turn's combined input — the figure the frontend renders as
+/// "context window full".
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SessionUsageDto {
+    pub session_key: String,
+    pub provider: String,
+    pub agent_path: String,
+    pub workspace_id: String,
+    pub input_tokens: u64,
+    pub output_tokens: u64,
+    pub cache_creation_input_tokens: u64,
+    pub cache_read_input_tokens: u64,
+    /// CLI's API-rate equivalent cost. Subscription users do not pay this.
+    pub cost_usd: f64,
+    pub turns: u64,
+    pub last_window_tokens: u64,
+    pub last_model: Option<String>,
+    /// Context-window size for `last_model`, if known. Pairs with
+    /// `last_window_tokens` for the percentage bar.
+    pub context_window: Option<u64>,
+    pub started_at: String,
+    pub last_turn_at: String,
+}
+
+/// Aggregated usage for one agent across all sessions in a given range.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentUsageDto {
+    pub agent_path: String,
+    pub sessions: u64,
+    pub input_tokens: u64,
+    pub output_tokens: u64,
+    pub cache_creation_input_tokens: u64,
+    pub cache_read_input_tokens: u64,
+    pub cost_usd: f64,
+    pub turns: u64,
+}
+
+/// Workspace dashboard payload. Top-level totals + per-agent rollups + the
+/// raw session rows for the recent-sessions list.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorkspaceUsageDto {
+    pub workspace_id: String,
+    /// Inclusive lower bound used for the range query, RFC3339. Empty = all-time.
+    pub since: String,
+    pub totals: AgentUsageDto,
+    pub agents: Vec<AgentUsageDto>,
+    pub sessions: Vec<SessionUsageDto>,
+}
+
+/// One block injected into the assembled system prompt for a session.
+/// `est_tokens` is `char_count / 4` — close enough for a UI bar, not a
+/// substitute for the API's tokenizer.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ContextBlockDto {
+    /// Stable id (e.g. `claude_md`, `learnings`, `skills_index`,
+    /// `integrations`, `projects`, `workspace_doc:<slug>`, `agent_doc:<slug>`).
+    pub source: String,
+    /// Human-friendly title shown in the inspector.
+    pub title: String,
+    pub char_count: u64,
+    pub est_tokens: u64,
+}
+
+/// Composition of the initial prompt the engine assembles for a session,
+/// plus the live "window used" figure from the most recent turn.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ContextBreakdownDto {
+    pub blocks: Vec<ContextBlockDto>,
+    pub total_chars: u64,
+    pub total_est_tokens: u64,
+    /// Most recent turn's combined input. `None` before the first turn lands.
+    pub last_window_tokens: Option<u64>,
+    pub last_model: Option<String>,
+    /// Capacity of `last_model`. Pair with `last_window_tokens` for `%`.
+    pub context_window: Option<u64>,
+}
+
+/// Context-window size in tokens for a given provider model id, or `None`
+/// when the model id is unrecognised. Hardcoded — there's no machine-readable
+/// catalog for these limits so we map known ids best-effort and bump this
+/// table as new models ship. The frontend uses this for "context window
+/// used" bars in the usage dashboard; an unknown model degrades gracefully
+/// to "raw tokens" with no percentage.
+pub fn model_context_window(model: &str) -> Option<u64> {
+    let m = model.to_lowercase();
+    if m.contains("opus-4-7") && m.contains("[1m]") {
+        return Some(1_000_000);
+    }
+    if m.contains("opus-4-7") || m.contains("opus-4-6") {
+        return Some(200_000);
+    }
+    if m.contains("sonnet-4-6") || m.contains("sonnet-4-5") {
+        return Some(1_000_000);
+    }
+    if m.contains("haiku-4-5") {
+        return Some(200_000);
+    }
+    if m.contains("gpt-5") || m.contains("gpt-4.1") {
+        return Some(1_000_000);
+    }
+    if m.starts_with("o4") || m.starts_with("o3") {
+        return Some(200_000);
+    }
+    None
 }
 
 /// Build a `LagMarker` event envelope suitable for sending on the WS.

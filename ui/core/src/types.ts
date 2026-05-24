@@ -85,6 +85,15 @@ export type SquadEvent =
       data: { project_id: string; agent_path: string };
     }
   | {
+      type: "SessionUsageChanged";
+      data: {
+        workspace_id: string;
+        agent_path: string;
+        session_key: string;
+        provider: string;
+      };
+    }
+  | {
       type: "ActivityChanged";
       data: { agent_path: string };
     }

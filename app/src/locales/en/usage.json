@@ -1,0 +1,42 @@
+{
+  "title": "Token and cost usage",
+  "noWorkspace": "Select a workspace to see usage.",
+  "range": {
+    "today": "Today",
+    "7d": "Last 7 days",
+    "30d": "Last 30 days",
+    "all": "All time"
+  },
+  "totals": {
+    "cost": "Cost",
+    "tokens": "Tokens",
+    "sessions": "Sessions",
+    "turns": "Turns",
+    "costHelp": "API-rate equivalent",
+    "empty": "No usage recorded for this range yet."
+  },
+  "agents": {
+    "title": "By agent",
+    "sessions": "sessions",
+    "tokens": "tokens",
+    "empty": "No agent activity in this range."
+  },
+  "sessions": {
+    "title": "Recent sessions",
+    "empty": "No sessions in this range.",
+    "window": "Window",
+    "cost": "Cost",
+    "inspect": "Inspect",
+    "turns": "turns"
+  },
+  "breakdown": {
+    "title": "Session context",
+    "loading": "Loading context composition...",
+    "window": "Context window",
+    "model": "Model",
+    "noLive": "No turn has run yet, so the live window is unknown.",
+    "composition": "Initial prompt composition",
+    "compositionHelp": "Approximate {{chars}} characters, about {{tokens}} tokens before the first turn.",
+    "empty": "Agent dir has no files this view tracks."
+  }
+}

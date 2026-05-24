@@ -115,6 +115,15 @@ pub enum SquadEvent {
         project_id: String,
         agent_path: String,
     },
+    /// Per-session token/cost row was updated. Workspace usage dashboards
+    /// invalidate their per-workspace, per-agent, and per-session queries
+    /// when this fires.
+    SessionUsageChanged {
+        workspace_id: String,
+        agent_path: String,
+        session_key: String,
+        provider: String,
+    },
     /// Learnings changed (.squad/learnings/learnings.json).
     LearningsChanged {
         agent_path: String,

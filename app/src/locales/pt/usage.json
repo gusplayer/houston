@@ -1,0 +1,42 @@
+{
+  "title": "Consumo de tokens e custo",
+  "noWorkspace": "Selecione um workspace para ver o consumo.",
+  "range": {
+    "today": "Hoje",
+    "7d": "Ultimos 7 dias",
+    "30d": "Ultimos 30 dias",
+    "all": "Todo o periodo"
+  },
+  "totals": {
+    "cost": "Custo",
+    "tokens": "Tokens",
+    "sessions": "Sessoes",
+    "turns": "Turnos",
+    "costHelp": "Equivalente a tarifa da API",
+    "empty": "Ainda nao ha consumo neste intervalo."
+  },
+  "agents": {
+    "title": "Por agente",
+    "sessions": "sessoes",
+    "tokens": "tokens",
+    "empty": "Sem atividade de agentes neste intervalo."
+  },
+  "sessions": {
+    "title": "Sessoes recentes",
+    "empty": "Sem sessoes neste intervalo.",
+    "window": "Janela",
+    "cost": "Custo",
+    "inspect": "Inspecionar",
+    "turns": "turnos"
+  },
+  "breakdown": {
+    "title": "Contexto da sessao",
+    "loading": "Carregando composicao do contexto...",
+    "window": "Janela de contexto",
+    "model": "Modelo",
+    "noLive": "Nenhum turno foi executado, a janela atual e desconhecida.",
+    "composition": "Composicao inicial do prompt",
+    "compositionHelp": "Aproximadamente {{chars}} caracteres, cerca de {{tokens}} tokens antes do primeiro turno.",
+    "empty": "O diretorio do agente nao tem arquivos rastreaveis nesta visao."
+  }
+}

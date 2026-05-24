@@ -21,6 +21,7 @@ pub mod skills;
 pub mod store;
 pub mod suggest_instruction;
 pub mod tunnel;
+pub mod usage;
 pub mod watcher;
 pub mod worktree;
 pub mod workspaces;

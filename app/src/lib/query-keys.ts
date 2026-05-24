@@ -53,4 +53,14 @@ export const queryKeys = {
   gitBranches: (workspaceId: string, projectId: string) => ["git-branches", workspaceId, projectId] as const,
   gitDiff: (workspaceId: string, projectId: string, from?: string, to?: string) =>
     ["git-diff", workspaceId, projectId, from ?? "", to ?? ""] as const,
+
+  // Usage dashboard — workspace + per-agent + per-session rollups.
+  workspaceUsage: (workspaceId: string, range: string) =>
+    ["workspace-usage", workspaceId, range] as const,
+  agentUsage: (agentPath: string, range: string) =>
+    ["agent-usage", agentPath, range] as const,
+  sessionUsage: (agentPath: string, sessionKey: string, provider: string) =>
+    ["session-usage", agentPath, sessionKey, provider] as const,
+  contextBreakdown: (agentPath: string, sessionKey: string) =>
+    ["context-breakdown", agentPath, sessionKey] as const,
 };
