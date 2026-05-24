@@ -183,7 +183,7 @@
     "stackDetectedBody": "As instruções de {{agent}} foram atualizadas com o stack detectado: {{stack}}"
   },
   "docs": {
-    "scopeWorkspace": "Workspace",
+    "scopeWorkspace": "Conhecimento da equipe",
     "scopeAgent": "{{name}}",
     "scopeWorkspaceHint": "Compartilhado entre todos os agentes deste workspace",
     "scopeAgentHint": "Apenas este agente vê",
@@ -191,7 +191,7 @@
     "templates": "Modelos",
     "blankDoc": "Doc em branco",
     "empty": "Ainda não há docs",
-    "pickOrCreate": "Escolha ou crie um doc",
+    "pickOrCreate": "Selecione um doc ou crie um a partir de um modelo",
     "titlePlaceholder": "Sem título",
     "untitledTitle": "Sem título",
     "bodyPlaceholder": "Escreva o doc em Markdown…",
@@ -235,9 +235,9 @@
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dono",
     "unassigned": "Sem responsável",
-    "phaseOwners": "Donos das fases",
-    "phaseOwnersTitle": "Quem é dono de cada fase",
-    "phaseOwnersHelp": "Quando uma história entra em uma fase, ela é atribuída automaticamente ao dono dessa fase. Se estiver sem responsável, o dono atual permanece.",
+    "phaseOwners": "Papéis",
+    "phaseOwnersTitle": "Atribuições por fase de sprint",
+    "phaseOwnersHelp": "Atribua um agente a cada fase do sprint. Quando uma história chega a essa fase, ela vai para esse agente automaticamente. Deixe em branco para manter o responsável atual.",
     "phases": {
       "discovery": "Descoberta",
       "analysis": "Análise",
