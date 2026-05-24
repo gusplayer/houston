@@ -77,6 +77,7 @@ export default function JobDescriptionTab({ agent, agentDef }: TabProps) {
         items={items}
         active={activeTab}
         onSelect={setActiveTab}
+        compact
       />
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">
         {activeTab === "instructions" && (
