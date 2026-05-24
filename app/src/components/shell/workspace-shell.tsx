@@ -31,6 +31,7 @@ import { AgentProjectChip } from "./agent-project-chip";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
 import { MissionSearchInput } from "../mission-search-input";
+import { RightRail } from "./right-rail";
 import { UiTour } from "./ui-tour";
 import { cn } from "@squad/core";
 
@@ -223,6 +224,15 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 ref={setPanelContainer}
                 className="h-full overflow-hidden border-l border-border"
                 style={{ width: "45%", minWidth: 380 }}
+              />
+            )}
+            {isAgentView && currentAgent && (
+              <RightRail
+                viewMode={viewMode}
+                hasBriefTab={tabIds.has("job-description")}
+                hasActivityTab={hasActivityTab}
+                onNavigate={setViewMode}
+                onNewTask={onStartMission}
               />
             )}
           </div>
