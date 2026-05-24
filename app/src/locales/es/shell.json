@@ -1,6 +1,6 @@
 {
   "sidebar": {
-    "missionControl": "Centro de misiones",
+    "missionControl": "Vista general",
     "store": "Store",
     "workspace": "Workspace",
     "integrations": "Integraciones",
@@ -26,7 +26,7 @@
     "runningCount_other": "{{count}} asuntos en curso"
   },
   "tabActions": {
-    "newMission": "Nueva misión",
+    "newMission": "Nueva tarea",
     "startTour": "Guíame"
   },
   "agentDelete": {
@@ -59,7 +59,7 @@
       },
       "newMission": {
         "title": "Inicia un nuevo chat",
-        "body": "Haz clic aquí para abrir una conversación nueva. Cada una se vuelve una tarjeta de misión."
+        "body": "Haz clic aquí para abrir una conversación nueva. Cada una se vuelve una tarjeta de tarea."
       },
       "tabActivity": {
         "title": "Actividad",
@@ -78,7 +78,7 @@
         "body": "Las instrucciones permanentes de tu asistente. Edítalas cuando quieras para cambiar cómo se comporta."
       },
       "missionControl": {
-        "title": "Centro de Misión",
+        "title": "Vista general",
         "body": "Cuando agregues más agentes, esto se vuelve el tablero único de todos. Un solo lugar para verlo todo."
       },
       "integrations": {

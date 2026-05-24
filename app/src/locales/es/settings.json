@@ -89,8 +89,8 @@
     "sending": "Enviando…",
     "toasts": {
       "successTitle": "Recibido, reporte registrado.",
-      "successBody": "El centro de control ya está trabajando en la solución.",
-      "successBodyWithId": "El centro de control ya está trabajando en la solución. Referencia: {{id}}",
+      "successBody": "Squad ya está trabajando en la solución.",
+      "successBodyWithId": "Squad ya está trabajando en la solución. Referencia: {{id}}",
       "errorTitle": "No se pudo enviar el reporte"
     }
   },

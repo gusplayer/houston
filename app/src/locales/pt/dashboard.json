@@ -1,19 +1,19 @@
 {
-  "title": "Central de missões",
+  "title": "Visão geral",
   "filter": {
     "allAgents": "Todos os agentes"
   },
   "search": {
-    "placeholder": "Buscar missões",
+    "placeholder": "Buscar tarefas",
     "clear": "Limpar busca",
     "clearCta": "Limpar busca",
-    "searchingText": "Buscando no texto das missões",
-    "searchingTitle": "Buscando no texto das missões",
+    "searchingText": "Buscando no texto das tarefas",
+    "searchingTitle": "Buscando no texto das tarefas",
     "searchingDescription": "Verificando mensagens antigas agora.",
-    "emptyTitle": "Nenhuma missão encontrada",
+    "emptyTitle": "Nenhuma tarefa encontrada",
     "emptyDescription": "Tente outra busca ou limpe a atual.",
-    "historyErrorTitle": "Não foi possível buscar todas as missões",
-    "historyErrorDescription": "Parte do texto de missões antigas não pôde ser carregada."
+    "historyErrorTitle": "Não foi possível buscar todas as tarefas",
+    "historyErrorDescription": "Parte do texto de tarefas antigas não pôde ser carregada."
   },
   "columns": {
     "running": "Em execução",
@@ -23,7 +23,7 @@
   "empty": {
     "boardTitle": "Ainda sem conversas",
     "boardDescription": "Comece uma conversa nova para delegar trabalho a um agente.",
-    "newMission": "Nova missão"
+    "newMission": "Nova tarefa"
   },
   "noAgents": {
     "title": "Ainda sem agentes",

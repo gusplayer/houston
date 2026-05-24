@@ -16,7 +16,7 @@
   },
   "signOutConfirm": {
     "title": "¿Cerrar sesión de {{provider}}?",
-    "description": "Squad dejará de usar {{provider}} hasta que vuelvas a iniciar sesión. Las misiones existentes pueden terminar su turno actual.",
+    "description": "Squad dejará de usar {{provider}} hasta que vuelvas a iniciar sesión. Las tareas activas pueden terminar su turno actual.",
     "confirm": "Cerrar sesión",
     "cancel": "Cancelar"
   },

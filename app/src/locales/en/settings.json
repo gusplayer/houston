@@ -89,8 +89,8 @@
     "sending": "Sending…",
     "toasts": {
       "successTitle": "Roger that, report received.",
-      "successBody": "Mission control is on it, deploying a fix.",
-      "successBodyWithId": "Mission control is on it, deploying a fix. Reference: {{id}}",
+      "successBody": "Squad is on it, deploying a fix.",
+      "successBodyWithId": "Squad is on it, deploying a fix. Reference: {{id}}",
       "errorTitle": "Couldn't send report"
     }
   },

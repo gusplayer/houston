@@ -16,7 +16,7 @@
   },
   "signOutConfirm": {
     "title": "Sign out of {{provider}}?",
-    "description": "Squad will stop using {{provider}} until you sign in again. Existing missions can still finish their current turn.",
+    "description": "Squad will stop using {{provider}} until you sign in again. Active tasks can still finish their current turn.",
     "confirm": "Sign out",
     "cancel": "Cancel"
   },

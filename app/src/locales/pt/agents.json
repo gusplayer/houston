@@ -7,7 +7,7 @@
   },
   "empty": {
     "title": "Ainda não há agentes",
-    "description": "Crie sua equipe de IA e inicie uma missão."
+    "description": "Crie sua equipe de IA e inicie uma tarefa."
   },
   "instructions": {
     "emptyTitle": "Ainda sem instruções",
@@ -100,7 +100,7 @@
       "description": "Configuração do agente e opções de execução.",
       "savingHint": "Salvando...",
       "worktreeMode": "Modo worktree",
-      "worktreeModeDescription": "Criar um worktree do git separado para cada missão",
+      "worktreeModeDescription": "Criar um worktree do git separado para cada tarefa",
       "installCommand": "Comando de instalação",
       "installCommandPlaceholder": "ex. pnpm install, npm install, cargo build",
       "devCommand": "Comando de desenvolvimento",
