@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, ChevronDown, Flag, Circle, GitPullRequest, Columns3, Workflow } from "lucide-react";
 import { Button, Badge, Spinner, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@squad/core";
@@ -86,8 +86,17 @@ function StoryCard({
   const { t } = useTranslation("agents");
   const [expanded, setExpanded] = useState(false);
 
+  function handleDragStart(e: React.DragEvent) {
+    e.dataTransfer.setData("storyId", story.id);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
   return (
-    <div className="bg-background border border-border rounded-lg p-2.5 shadow-sm group">
+    <div
+      draggable={!expanded}
+      onDragStart={handleDragStart}
+      className="bg-background border border-border rounded-lg p-2.5 shadow-sm group cursor-grab active:cursor-grabbing active:opacity-60"
+    >
       <div className="flex items-start gap-1.5">
         <button
           className="shrink-0 mt-0.5"
@@ -204,6 +213,57 @@ function StoryCard({
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+function StatusColumn({
+  status: _status,
+  count,
+  label,
+  onDropStory,
+  onAdd,
+  children,
+}: {
+  status: StoryStatus;
+  count: number;
+  label: string;
+  onDropStory: (storyId: string) => void;
+  onAdd: () => void;
+  children: React.ReactNode;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const counter = useRef(0);
+  return (
+    <div
+      className={cn(
+        "flex flex-col w-56 shrink-0 border-r border-border last:border-r-0 transition-colors",
+        dragOver && "bg-primary/5",
+      )}
+      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+      onDragEnter={(e) => { e.preventDefault(); counter.current += 1; setDragOver(true); }}
+      onDragLeave={() => { counter.current -= 1; if (counter.current === 0) setDragOver(false); }}
+      onDrop={(e) => {
+        e.preventDefault();
+        counter.current = 0;
+        setDragOver(false);
+        const id = e.dataTransfer.getData("storyId");
+        if (id) onDropStory(id);
+      }}
+    >
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border shrink-0">
+        <span className="text-xs font-medium">{label}</span>
+        {count > 0 && (
+          <Badge variant="secondary" className="text-[10px] h-4 px-1">{count}</Badge>
+        )}
+        <button
+          className="ml-auto text-muted-foreground hover:text-foreground"
+          onClick={onAdd}
+        >
+          <Plus className="size-3.5" />
+        </button>
+      </div>
+      {children}
     </div>
   );
 }
@@ -441,20 +501,14 @@ export default function SprintsTab(_: TabProps) {
           {STORY_COLUMNS.map((status) => {
             const cards = columnStories(status);
             return (
-              <div key={status} className="flex flex-col w-56 shrink-0 border-r border-border last:border-r-0">
-                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border shrink-0">
-                  <span className="text-xs font-medium">{STATUS_LABELS[status]}</span>
-                  {cards.length > 0 && (
-                    <Badge variant="secondary" className="text-[10px] h-4 px-1">{cards.length}</Badge>
-                  )}
-                  <button
-                    className="ml-auto text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowNewStory(status)}
-                  >
-                    <Plus className="size-3.5" />
-                  </button>
-                </div>
-
+              <StatusColumn
+                key={status}
+                status={status}
+                count={cards.length}
+                label={STATUS_LABELS[status]}
+                onDropStory={(id) => void handleStatusChange(id, status)}
+                onAdd={() => setShowNewStory(status)}
+              >
                 <div className="flex flex-col gap-1.5 p-2 flex-1 overflow-auto">
                   {showNewStory === status && (
                     <div className="flex flex-col gap-1">
@@ -502,7 +556,7 @@ export default function SprintsTab(_: TabProps) {
                     />
                   ))}
                 </div>
-              </div>
+              </StatusColumn>
             );
           })}
         </div>
