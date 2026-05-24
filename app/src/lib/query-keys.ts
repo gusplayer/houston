@@ -42,9 +42,6 @@ export const queryKeys = {
   // Agent-scoped MCP config
   mcpConfig: (agentPath: string) => ["mcp-config", agentPath] as const,
 
-  // Workspace-scoped phase ownership (which agent owns each SDLC phase)
-  phaseOwnership: (workspacePath: string) => ["phase-ownership", workspacePath] as const,
-
   // Workspace-scoped projects
   projects: (workspaceId: string) => ["projects", workspaceId] as const,
   // Project-scoped git queries

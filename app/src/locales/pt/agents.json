@@ -236,9 +236,6 @@
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dono",
     "unassigned": "Sem responsável",
-    "phaseOwners": "Papéis",
-    "phaseOwnersTitle": "Atribuições por fase de sprint",
-    "phaseOwnersHelp": "Atribua um agente a cada fase do sprint. Quando uma história chega a essa fase, ela vai para esse agente automaticamente. Deixe em branco para manter o responsável atual.",
     "phases": {
       "discovery": "Descoberta",
       "analysis": "Análise",

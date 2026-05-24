@@ -236,9 +236,6 @@
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dueño",
     "unassigned": "Sin asignar",
-    "phaseOwners": "Roles",
-    "phaseOwnersTitle": "Asignaciones por fase de sprint",
-    "phaseOwnersHelp": "Asigna un agente a cada fase del sprint. Cuando una historia llega a esa fase, va a ese agente automáticamente. Déjalo en blanco para conservar el dueño actual.",
     "phases": {
       "discovery": "Descubrimiento",
       "analysis": "Análisis",

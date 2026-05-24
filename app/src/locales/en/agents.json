@@ -236,9 +236,6 @@
     "pipelineView": "Pipeline",
     "assigneeLabel": "Owner",
     "unassigned": "Unassigned",
-    "phaseOwners": "Roles",
-    "phaseOwnersTitle": "Sprint phase assignments",
-    "phaseOwnersHelp": "Assign an agent to each sprint phase. When a story reaches that phase it goes to that agent automatically. Leave blank to keep the current owner.",
     "phases": {
       "discovery": "Discovery",
       "analysis": "Analysis",

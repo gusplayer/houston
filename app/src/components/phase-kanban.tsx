@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
-import { cn } from "@squad/core";
+import { Plus, Columns3 } from "lucide-react";
+import { cn, Button, EmptyHeader, EmptyTitle, EmptyDescription } from "@squad/core";
 import type { Story, StoryPhase } from "@squad/engine-client";
 import type { KanbanItem } from "@squad/board";
 import type { Agent } from "../lib/types";
@@ -24,9 +24,10 @@ export const PHASES: { id: StoryPhase; colorClass: string }[] = [
 interface PhaseKanbanProps {
   agents: Agent[];
   missionItems: KanbanItem[];
+  onStartStoryMission?: (agent: Agent) => void;
 }
 
-export function PhaseKanban({ agents, missionItems }: PhaseKanbanProps) {
+export function PhaseKanban({ agents, missionItems, onStartStoryMission }: PhaseKanbanProps) {
   const { t } = useTranslation("dashboard");
   const workspace = useWorkspaceStore((s) => s.current);
   const rootPath = workspace?.path;
@@ -34,6 +35,8 @@ export function PhaseKanban({ agents, missionItems }: PhaseKanbanProps) {
   const createStory = useCreateStory(rootPath);
   const updateStory = useUpdateStory(rootPath);
   const [filterAgentId, setFilterAgentId] = useState<string | null>(null);
+
+  const hasNoStories = stories.length === 0;
 
   const storiesByPhase = useMemo(() => {
     const base = filterAgentId ? stories.filter((s) => s.assignedAgentId === filterAgentId) : stories;
@@ -48,6 +51,34 @@ export function PhaseKanban({ agents, missionItems }: PhaseKanbanProps) {
   function moveStory(id: string, to: StoryPhase) { void updateStory.mutateAsync({ id, patch: { phase: to } }); }
   function assignAgent(id: string, agentId: string | null) { void updateStory.mutateAsync({ id, patch: { assignedAgentId: agentId } }); }
   function updateStoryData(id: string, patch: Partial<Story>) { void updateStory.mutateAsync({ id, patch }); }
+  function startStoryMission(story: Story) {
+    if (!onStartStoryMission || !story.assignedAgentId) return;
+    const agent = agents.find((a) => a.id === story.assignedAgentId);
+    if (agent) onStartStoryMission(agent);
+  }
+
+  if (hasNoStories) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center px-6 text-center gap-4">
+        <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Columns3 className="size-6 text-primary" />
+        </div>
+        <EmptyHeader>
+          <EmptyTitle>{t("phases.emptyTitle")}</EmptyTitle>
+          <EmptyDescription>{t("phases.emptyDescription")}</EmptyDescription>
+        </EmptyHeader>
+        <Button
+          className="rounded-full"
+          onClick={() =>
+            void createStory.mutateAsync({ title: t("phases.firstStoryTitle"), status: "todo", phase: "discovery" })
+          }
+        >
+          <Plus className="size-4" />
+          {t("phases.emptyCta")}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -94,6 +125,7 @@ export function PhaseKanban({ agents, missionItems }: PhaseKanbanProps) {
             onMove={moveStory}
             onAssign={assignAgent}
             onUpdate={updateStoryData}
+            onStartMission={onStartStoryMission ? startStoryMission : undefined}
             onAdd={(title) => void createStory.mutateAsync({ title, status: "todo", phase: id })}
           />
         ))}
@@ -110,10 +142,11 @@ interface PhaseColumnProps {
   onMove: (id: string, to: StoryPhase) => void;
   onAssign: (id: string, agentId: string | null) => void;
   onUpdate: (id: string, patch: Partial<Story>) => void;
+  onStartMission?: (story: Story) => void;
   onAdd: (title: string) => void;
 }
 
-function PhaseColumn({ phaseId, colorClass, stories, agents, missionItems, onMove, onAssign, onUpdate, onAdd }: PhaseColumnProps) {
+function PhaseColumn({ phaseId, colorClass, stories, agents, missionItems, onMove, onAssign, onUpdate, onStartMission, onAdd }: PhaseColumnProps) {
   const { t } = useTranslation("dashboard");
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -141,6 +174,7 @@ function PhaseColumn({ phaseId, colorClass, stories, agents, missionItems, onMov
           <PhaseStoryCard
             key={s.id} story={s} agents={agents} missionItems={missionItems} availablePhases={PHASES}
             onMove={(to) => onMove(s.id, to)} onAssign={(aid) => onAssign(s.id, aid)} onUpdate={(patch) => onUpdate(s.id, patch)}
+            onStartMission={onStartMission ? () => onStartMission(s) : undefined}
           />
         ))}
         {adding && (

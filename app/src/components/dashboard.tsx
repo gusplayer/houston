@@ -63,6 +63,10 @@ export function Dashboard() {
   // the new conversation is created (and selectedItem takes over) or
   // the user clicks a different card.
   const [pendingAgent, setPendingAgent] = useState<Agent | null>(null);
+  // Agent the user picked from a phase-kanban story card. Held until
+  // AIBoard mounts and exposes a fresh opener (boardView flips to
+  // "missions"), then we run the pickAgent flow.
+  const [pendingStoryAgent, setPendingStoryAgent] = useState<Agent | null>(null);
   const openerRef = useRef<NewPanelOpener | null>(null);
   const emptyAutoOpenKeyRef = useRef<string | null>(null);
   const openNewMission = useCallback(() => setAgentPickerOpen(true), [setAgentPickerOpen]);
@@ -92,6 +96,24 @@ export function Dashboard() {
   const handleOpenerReady = useCallback((opener: NewPanelOpener) => {
     openerRef.current = opener;
     setNewPanelOpenerReady(true);
+  }, []);
+
+  // When AIBoard unmounts (phases view), its opener is stale. Force a
+  // fresh ready signal on the next mount so pendingStoryAgent only
+  // fires against a live opener.
+  useEffect(() => {
+    if (boardView === "phases") {
+      setNewPanelOpenerReady(false);
+      openerRef.current = null;
+    }
+  }, [boardView]);
+
+  // Start a mission from the phase kanban: switch to missions view +
+  // pin the assigned agent. The effect below runs handlePickAgent once
+  // the board is back online.
+  const handleStartStoryMission = useCallback((agent: Agent) => {
+    setBoardView("missions");
+    setPendingStoryAgent(agent);
   }, []);
 
   const handleStopSession = useCallback(
@@ -140,6 +162,13 @@ export function Dashboard() {
     loadHistory: mc.loadHistory,
     onHistoryLoadError: handleMissionSearchError,
   });
+
+  useEffect(() => {
+    if (!pendingStoryAgent) return;
+    if (boardView !== "missions" || !newPanelOpenerReady) return;
+    handlePickAgent(pendingStoryAgent, { focusComposer: true });
+    setPendingStoryAgent(null);
+  }, [pendingStoryAgent, boardView, newPanelOpenerReady, handlePickAgent]);
 
   useEffect(() => {
     if (!mc.isLoaded) return;
@@ -317,7 +346,11 @@ export function Dashboard() {
 
       {boardView === "phases" ? (
         <div className="flex-1 min-h-0">
-          <PhaseKanban agents={agents} missionItems={mc.items} />
+          <PhaseKanban
+            agents={agents}
+            missionItems={mc.items}
+            onStartStoryMission={handleStartStoryMission}
+          />
         </div>
       ) : (
         <>

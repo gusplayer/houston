@@ -65,6 +65,12 @@
     "cancel": "Cancelar",
     "allAgents": "Todos",
     "descriptionPlaceholder": "Adicione uma descricao...",
+    "start": "Iniciar",
+    "startMission": "Iniciar uma missao para o agente atribuido",
+    "emptyTitle": "Planeje o trabalho por fases",
+    "emptyDescription": "Acompanhe cada feature de Discovery a Monitor e veja num relance qual agente conduz cada etapa.",
+    "emptyCta": "Criar primeira historia",
+    "firstStoryTitle": "Primeira historia",
     "priority": {
       "low": "Baixa",
       "medium": "Media",

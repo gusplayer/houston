@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useQueries } from "@tanstack/react-query";
 import type { KanbanItem } from "@squad/board";
 import type { FeedItem } from "@squad/chat";
 import { useFeedStore } from "../stores/feeds";
@@ -9,9 +10,11 @@ import {
   useSessionStatusStore,
 } from "../stores/session-status";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
-import { useAllConversations } from "../hooks/queries";
-import { tauriActivity, tauriChat, tauriAttachments } from "../lib/tauri";
+import { useWorkspaceStore } from "../stores/workspaces";
+import { useAllConversations, useProjects } from "../hooks/queries";
+import { tauriActivity, tauriChat, tauriAttachments, tauriConfig } from "../lib/tauri";
 import { buildAttachmentPrompt } from "../lib/attachment-message";
+import { queryKeys } from "../lib/query-keys";
 import type { Agent } from "../lib/types";
 import { createElement } from "react";
 import { AgentCardAvatar } from "./shell/agent-card-avatar";
@@ -64,6 +67,32 @@ export function useMissionControl(agents: Agent[]) {
     return m;
   }, [agents, getAgentDef]);
 
+  // Pull each agent's config + the workspace project list so cards can
+  // surface which project the agent is bound to. Tagged on the card so
+  // users see role AND project context without opening the agent.
+  const workspaceId = useWorkspaceStore((s) => s.current?.id);
+  const { data: projects } = useProjects(workspaceId);
+  const agentConfigQueries = useQueries({
+    queries: agents.map((a) => ({
+      queryKey: queryKeys.config(a.folderPath),
+      queryFn: () => tauriConfig.read(a.folderPath),
+      enabled: !!a.folderPath,
+    })),
+  });
+  const agentProjectMap = useMemo(() => {
+    const m: Record<string, string | undefined> = {};
+    if (!projects) return m;
+    agents.forEach((a, idx) => {
+      const cfg = agentConfigQueries[idx]?.data;
+      if (!cfg?.projectIds || cfg.projectIds.length === 0) return;
+      const names = cfg.projectIds
+        .map((pid: string) => projects.find((p) => p.id === pid)?.name)
+        .filter((n): n is string => !!n);
+      if (names.length > 0) m[a.folderPath] = names.join(", ");
+    });
+    return m;
+  }, [agents, agentConfigQueries, projects]);
+
   const items: KanbanItem[] = useMemo(() => {
     if (!convos) return [];
     const map: Record<string, string> = {};
@@ -72,12 +101,14 @@ export function useMissionControl(agents: Agent[]) {
       .map((c) => {
         map[c.id] = c.agent_path;
         const roleLabel = agentRoleMap[c.agent_path];
+        const projectName = agentProjectMap[c.agent_path];
+        const tags = [roleLabel, projectName].filter((s): s is string => !!s);
         return {
           id: c.id,
           title: c.title,
           description: c.description,
           group: c.agent_name,
-          tags: roleLabel ? [roleLabel] : undefined,
+          tags: tags.length > 0 ? tags : undefined,
           icon: createElement(AgentCardAvatar, { color: agentColorMap[c.agent_path] }),
           status: c.status!,
           updatedAt: c.updated_at ?? new Date().toISOString(),
@@ -86,7 +117,7 @@ export function useMissionControl(agents: Agent[]) {
       });
     pathMapRef.current = map;
     return result;
-  }, [convos, agentColorMap, agentRoleMap]);
+  }, [convos, agentColorMap, agentRoleMap, agentProjectMap]);
 
   const loadHistory = useCallback(
     async (sessionKey: string): Promise<FeedItem[]> => {
