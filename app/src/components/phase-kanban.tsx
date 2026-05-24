@@ -55,8 +55,12 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
     if (!onStartStoryMission || !story.assignedAgentId) return;
     const agent = agents.find((a) => a.id === story.assignedAgentId);
     if (!agent) return;
+    // Marker at the end so the agent reads the substance first; UI
+    // strips it for display and cross-references with the stories list
+    // to surface the story title as a tag on the mission card.
     const prefill = t("phases.missionPrefill", { title: story.title })
-      + (story.description ? `\n\n${story.description}` : "");
+      + (story.description ? `\n\n${story.description}` : "")
+      + `\n\n<!-- squad:story=${story.id} -->`;
     onStartStoryMission(agent, prefill);
   }
 

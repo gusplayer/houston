@@ -11,13 +11,19 @@ import {
 } from "../stores/session-status";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useWorkspaceStore } from "../stores/workspaces";
-import { useAllConversations, useProjects } from "../hooks/queries";
+import { useAllConversations, useProjects, useStories } from "../hooks/queries";
 import { tauriActivity, tauriChat, tauriAttachments, tauriConfig } from "../lib/tauri";
 import { buildAttachmentPrompt } from "../lib/attachment-message";
 import { queryKeys } from "../lib/query-keys";
 import type { Agent } from "../lib/types";
 import { createElement } from "react";
 import { AgentCardAvatar } from "./shell/agent-card-avatar";
+
+// Marker embedded by the phase kanban when a mission is started from a
+// story. Lives at the end of the description so the agent reads the
+// substance first; we strip it for UI display and use the captured id
+// to resolve the linked story title for the card tag.
+const STORY_MARKER_RE = /\n*<!-- squad:story=([a-zA-Z0-9-]+) -->\n*/;
 
 export function useMissionControl(agents: Agent[]) {
   const { t } = useTranslation("chat");
@@ -70,8 +76,14 @@ export function useMissionControl(agents: Agent[]) {
   // Pull each agent's config + the workspace project list so cards can
   // surface which project the agent is bound to. Tagged on the card so
   // users see role AND project context without opening the agent.
-  const workspaceId = useWorkspaceStore((s) => s.current?.id);
+  const workspace = useWorkspaceStore((s) => s.current);
+  const workspaceId = workspace?.id;
+  const workspacePath = workspace?.path;
   const { data: projects } = useProjects(workspaceId);
+  // Stories live at the workspace root — used to resolve the
+  // `squad:story=<id>` marker embedded in mission descriptions when a
+  // mission was started from a phase-kanban story.
+  const { data: stories } = useStories(workspacePath);
   const agentConfigQueries = useQueries({
     queries: agents.map((a) => ({
       queryKey: queryKeys.config(a.folderPath),
@@ -102,22 +114,35 @@ export function useMissionControl(agents: Agent[]) {
         map[c.id] = c.agent_path;
         const roleLabel = agentRoleMap[c.agent_path];
         const projectName = agentProjectMap[c.agent_path];
-        const tags = [roleLabel, projectName].filter((s): s is string => !!s);
+        // Pull a `<!-- squad:story=<id> --> ` marker out of the
+        // description and resolve it to the original story title.
+        const m = c.description?.match(STORY_MARKER_RE);
+        const storyId = m?.[1];
+        const linkedStory = storyId && stories
+          ? stories.find((s) => s.id === storyId)
+          : undefined;
+        const cleanDescription = c.description?.replace(STORY_MARKER_RE, "").trim();
+        const storyTag = linkedStory ? `↳ ${linkedStory.title}` : undefined;
+        const tags = [roleLabel, projectName, storyTag].filter((s): s is string => !!s);
         return {
           id: c.id,
           title: c.title,
-          description: c.description,
+          description: cleanDescription,
           group: c.agent_name,
           tags: tags.length > 0 ? tags : undefined,
           icon: createElement(AgentCardAvatar, { color: agentColorMap[c.agent_path] }),
           status: c.status!,
           updatedAt: c.updated_at ?? new Date().toISOString(),
-          metadata: { agentPath: c.agent_path, sessionKey: c.session_key },
+          metadata: {
+            agentPath: c.agent_path,
+            sessionKey: c.session_key,
+            storyId: linkedStory?.id,
+          },
         };
       });
     pathMapRef.current = map;
     return result;
-  }, [convos, agentColorMap, agentRoleMap, agentProjectMap]);
+  }, [convos, agentColorMap, agentRoleMap, agentProjectMap, stories]);
 
   const loadHistory = useCallback(
     async (sessionKey: string): Promise<FeedItem[]> => {
