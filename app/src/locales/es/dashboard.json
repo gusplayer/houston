@@ -40,6 +40,15 @@
     "cta": "Probar una rutina",
     "dismiss": "Descartar"
   },
+  "boardToggle": {
+    "missions": "Misiones",
+    "phases": "Fases"
+  },
+  "phases": {
+    "addStory": "Agregar historia",
+    "storyPlaceholder": "Titulo de la historia...",
+    "unassigned": "Sin asignar"
+  },
   "skillPicker": {
     "title": "Elige un skill",
     "description": "Explora los skills que este agente ya sabe hacer.",

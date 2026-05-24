@@ -40,6 +40,15 @@
     "cta": "Experimentar uma rotina",
     "dismiss": "Dispensar"
   },
+  "boardToggle": {
+    "missions": "Missoes",
+    "phases": "Fases"
+  },
+  "phases": {
+    "addStory": "Adicionar historia",
+    "storyPlaceholder": "Titulo da historia...",
+    "unassigned": "Sem responsavel"
+  },
   "skillPicker": {
     "title": "Escolha um skill",
     "description": "Veja os skills que este agente já sabe fazer.",

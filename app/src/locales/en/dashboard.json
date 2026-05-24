@@ -40,6 +40,15 @@
     "cta": "Try a routine",
     "dismiss": "Dismiss"
   },
+  "boardToggle": {
+    "missions": "Missions",
+    "phases": "Phases"
+  },
+  "phases": {
+    "addStory": "Add story",
+    "storyPlaceholder": "Story title...",
+    "unassigned": "Unassigned"
+  },
   "skillPicker": {
     "title": "Pick a skill",
     "description": "Browse the skills this agent already knows how to do.",

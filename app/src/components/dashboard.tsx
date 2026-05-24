@@ -8,8 +8,9 @@ import {
   EmptyTitle,
   EmptyDescription,
   Button,
+  cn,
 } from "@squad/core";
-import { Plus } from "lucide-react";
+import { Plus, LayoutGrid, Columns3 } from "lucide-react";
 import { useAgentStore } from "../stores/agents";
 import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useUIStore } from "../stores/ui";
@@ -30,6 +31,7 @@ import { MissionBoardEmptyState } from "./mission-board-empty-state";
 import { useMissionSearch } from "./use-mission-search";
 import { buildMissionBoardColumns } from "./mission-board-columns";
 import { RoutinesNudge } from "./routines-nudge";
+import { PhaseKanban } from "./phase-kanban";
 
 export function Dashboard() {
   const { t } = useTranslation(["dashboard", "board", "common"]);
@@ -52,6 +54,7 @@ export function Dashboard() {
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
   const addToast = useUIStore((s) => s.addToast);
 
+  const [boardView, setBoardView] = useState<"missions" | "phases">("missions");
   const [filterPath, setFilterPath] = useState("");
   const [missionSearchQuery, setMissionSearchQuery] = useState("");
   const [agentPickerOpen, setAgentPickerOpen] = useState(false);
@@ -284,21 +287,55 @@ export function Dashboard() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <MissionControlToolbar
-        agents={agents}
-        filterPath={filterPath}
-        search={missionSearchQuery}
-        isSearchingText={missionSearch.isSearchingText}
-        onFilterPathChange={setFilterPath}
-        onSearchChange={setMissionSearchQuery}
-        onNewMission={openNewMission}
-      />
+      {/* View toggle */}
+      <div className="shrink-0 flex items-center gap-1 px-4 py-1.5 border-b border-border">
+        <button
+          onClick={() => setBoardView("missions")}
+          className={cn(
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors",
+            boardView === "missions"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
+          )}
+        >
+          <LayoutGrid className="size-3" />
+          {t("dashboard:boardToggle.missions")}
+        </button>
+        <button
+          onClick={() => setBoardView("phases")}
+          className={cn(
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors",
+            boardView === "phases"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
+          )}
+        >
+          <Columns3 className="size-3" />
+          {t("dashboard:boardToggle.phases")}
+        </button>
+      </div>
 
-      <RoutinesNudge />
+      {boardView === "phases" ? (
+        <div className="flex-1 min-h-0">
+          <PhaseKanban agents={agents} missionItems={mc.items} />
+        </div>
+      ) : (
+        <>
+          <MissionControlToolbar
+            agents={agents}
+            filterPath={filterPath}
+            search={missionSearchQuery}
+            isSearchingText={missionSearch.isSearchingText}
+            onFilterPathChange={setFilterPath}
+            onSearchChange={setMissionSearchQuery}
+            onNewMission={openNewMission}
+          />
 
-      {/* Board */}
-      <div className="flex-1 min-h-0">
-        <AIBoard
+          <RoutinesNudge />
+
+          {/* Board */}
+          <div className="flex-1 min-h-0">
+            <AIBoard
           items={missionSearch.items}
           columns={MC_COLUMNS}
           selectedId={mc.selectedId}
@@ -351,17 +388,19 @@ export function Dashboard() {
           renderTurnSummary={panel.renderTurnSummary}
           renderLink={panel.renderLink}
         />
-      </div>
+          </div>
 
-      {panel.pickerDialog}
-      {attachmentValidation.dialog}
+          {panel.pickerDialog}
+          {attachmentValidation.dialog}
 
-      <AgentPickerDialog
-        open={agentPickerOpen}
-        onOpenChange={setAgentPickerOpen}
-        agents={agents}
-        onPick={handlePickAgent}
-      />
+          <AgentPickerDialog
+            open={agentPickerOpen}
+            onOpenChange={setAgentPickerOpen}
+            agents={agents}
+            onPick={handlePickAgent}
+          />
+        </>
+      )}
     </div>
   );
 }
