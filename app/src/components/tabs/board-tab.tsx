@@ -73,6 +73,8 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
   const setAgentMissionSearchLoading = useUIStore((s) => s.setAgentMissionSearchLoading);
   const setMissionPanelOpen = useUIStore((s) => s.setMissionPanelOpen);
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
+  const chatPanelViewMode = useUIStore((s) => s.chatPanelViewMode);
+  const setChatPanelViewMode = useUIStore((s) => s.setChatPanelViewMode);
   const addToast = useUIStore((s) => s.addToast);
   const attachmentValidation = useAttachmentRejectionDialog();
   const handleNotice = useCallback(
@@ -640,6 +642,8 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           processLabels={panel.processLabels}
           getThinkingMessage={panel.getThinkingMessage}
           terminalWsUrl={panel.terminalWsUrl}
+          chatPanelViewMode={chatPanelViewMode}
+          onChatPanelViewModeChange={setChatPanelViewMode}
           renderTurnSummary={panel.renderTurnSummary}
           renderLink={panel.renderLink}
         />

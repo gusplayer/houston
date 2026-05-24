@@ -76,6 +76,9 @@ export interface ChatMessagesAreaProps {
   thinkingIndicator: ReactNode;
   emptyState?: ReactNode;
   terminalWsUrl?: string;
+  /** When provided, the parent controls which view is shown (no internal toggles). */
+  viewMode?: ViewMode;
+  onViewModeChange?: (mode: ViewMode) => void;
   messagesProps: Omit<ChatMessagesProps, "messages" | "status" | "thinkingIndicator">;
 }
 
@@ -86,49 +89,56 @@ export function ChatMessagesArea({
   thinkingIndicator,
   emptyState,
   terminalWsUrl,
+  viewMode: viewModeProp,
+  onViewModeChange,
   messagesProps,
 }: ChatMessagesAreaProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>("chat");
+  const [localViewMode, setLocalViewMode] = useState<ViewMode>("chat");
+  const isControlled = viewModeProp !== undefined;
+  const viewMode = isControlled ? viewModeProp : localViewMode;
+  const setViewMode = isControlled
+    ? (m: ViewMode) => onViewModeChange?.(m)
+    : setLocalViewMode;
   const enterChatLabel = "Show chat view";
 
   return (
     <div className="relative flex-1 min-h-0 flex flex-col">
-      {/* Toggle buttons — top-right corner */}
-      <div className="absolute top-2 right-3 z-10 flex items-center gap-0.5">
-        {/* Chat toggle */}
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="ghost"
-          onClick={() => setViewMode("chat")}
-          aria-label={enterChatLabel}
-          title={enterChatLabel}
-          className={cn(
-            "text-muted-foreground/60 hover:text-foreground",
-            viewMode === "chat" && "text-foreground bg-accent/40",
-          )}
-        >
-          <MessageSquareIcon size={14} />
-        </Button>
-
-        {/* Terminal toggle — only when the engine supports PTY for this agent */}
-        {terminalWsUrl && (
+      {/* Internal toggle buttons — only shown when parent is NOT controlling viewMode */}
+      {!isControlled && (
+        <div className="absolute top-2 right-3 z-10 flex items-center gap-0.5">
           <Button
             type="button"
             size="icon-sm"
             variant="ghost"
-            onClick={() => setViewMode("terminal")}
-            aria-label="Open interactive terminal"
-            title="Open interactive terminal"
+            onClick={() => setViewMode("chat")}
+            aria-label={enterChatLabel}
+            title={enterChatLabel}
             className={cn(
               "text-muted-foreground/60 hover:text-foreground",
-              viewMode === "terminal" && "text-foreground bg-accent/40",
+              viewMode === "chat" && "text-foreground bg-accent/40",
             )}
           >
-            <MonitorIcon size={14} />
+            <MessageSquareIcon size={14} />
           </Button>
-        )}
-      </div>
+
+          {terminalWsUrl && (
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => setViewMode("terminal")}
+              aria-label="Open interactive terminal"
+              title="Open interactive terminal"
+              className={cn(
+                "text-muted-foreground/60 hover:text-foreground",
+                viewMode === "terminal" && "text-foreground bg-accent/40",
+              )}
+            >
+              <MonitorIcon size={14} />
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Content area */}
       {viewMode === "terminal" && terminalWsUrl ? (

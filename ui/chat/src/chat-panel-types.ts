@@ -65,4 +65,10 @@ export interface ChatPanelProps {
    * `?token=<bearer>`). See `SquadClient.ptyWsUrl()`.
    */
   terminalWsUrl?: string;
+  /**
+   * Controlled view mode. When provided, the parent owns chat/terminal switching
+   * and the internal toggle buttons are hidden. Pair with `onViewModeChange`.
+   */
+  viewMode?: "chat" | "terminal";
+  onViewModeChange?: (mode: "chat" | "terminal") => void;
 }
