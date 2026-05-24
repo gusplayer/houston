@@ -188,13 +188,13 @@
   },
   "workspace": {
     "noWorkspace": "Nenhum workspace selecionado",
-    "docs": "Docs",
-    "owners": "Donos das fases",
+    "docs": "Conhecimento",
+    "owners": "Papéis",
     "projects": "Repositórios",
     "projectsHint": "Repositórios vinculados a este workspace.",
     "deleteProject": "Remover projeto",
     "renameProject": "Clique para renomear",
-    "docsHint": "Edite o público de cada doc no tab Docs do agente."
+    "docsHint": "Os agentes leem esses docs automaticamente com base no seu papel."
   },
   "agentProjectChip": {
     "allProjects": "Todos os projetos",

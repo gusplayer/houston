@@ -188,13 +188,13 @@
   },
   "workspace": {
     "noWorkspace": "No workspace selected",
-    "docs": "Docs",
-    "owners": "Phase Owners",
+    "docs": "Knowledge",
+    "owners": "Roles",
     "projects": "Repositories",
     "projectsHint": "Repositories bound to this workspace.",
     "deleteProject": "Remove project",
     "renameProject": "Click to rename",
-    "docsHint": "Edit per-doc audience in the per-agent Docs tab."
+    "docsHint": "Agents read these docs automatically based on their role."
   },
   "agentProjectChip": {
     "allProjects": "All projects",

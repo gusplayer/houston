@@ -183,7 +183,7 @@
     "stackDetectedBody": "Se actualizaron las instrucciones de {{agent}} con el stack detectado: {{stack}}"
   },
   "docs": {
-    "scopeWorkspace": "Workspace",
+    "scopeWorkspace": "Conocimiento del equipo",
     "scopeAgent": "{{name}}",
     "scopeWorkspaceHint": "Compartido entre todos los agentes de este workspace",
     "scopeAgentHint": "Solo este agente los ve",
@@ -191,7 +191,7 @@
     "templates": "Plantillas",
     "blankDoc": "Doc en blanco",
     "empty": "Aún no hay docs",
-    "pickOrCreate": "Elige o crea un doc",
+    "pickOrCreate": "Selecciona un doc o crea uno desde una plantilla",
     "titlePlaceholder": "Sin título",
     "untitledTitle": "Sin título",
     "bodyPlaceholder": "Escribe el doc en Markdown…",
@@ -235,9 +235,9 @@
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dueño",
     "unassigned": "Sin asignar",
-    "phaseOwners": "Dueños de fase",
-    "phaseOwnersTitle": "Quién es dueño de cada fase",
-    "phaseOwnersHelp": "Cuando una historia entra a una fase, se asigna automáticamente al dueño de esa fase. Si está sin asignar, el dueño actual se mantiene.",
+    "phaseOwners": "Roles",
+    "phaseOwnersTitle": "Asignaciones por fase de sprint",
+    "phaseOwnersHelp": "Asigna un agente a cada fase del sprint. Cuando una historia llega a esa fase, va a ese agente automáticamente. Déjalo en blanco para conservar el dueño actual.",
     "phases": {
       "discovery": "Descubrimiento",
       "analysis": "Análisis",

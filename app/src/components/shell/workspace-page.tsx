@@ -83,9 +83,6 @@ export function WorkspacePage() {
     <div className="h-full flex flex-col min-h-0">
       <header className="shrink-0 px-6 py-4 border-b border-border">
         <h1 className="text-xl font-semibold">{workspace.name}</h1>
-        <p className="text-xs text-muted-foreground mt-0.5 font-mono truncate">
-          {workspace.path}
-        </p>
       </header>
 
       <nav className="shrink-0 flex items-center gap-1 px-4 border-b border-border">
@@ -264,7 +261,7 @@ function WorkspaceDocs({ rootPath }: { rootPath: string | undefined }) {
               {active.frontmatter.audience && active.frontmatter.audience.length > 0
                 ? active.frontmatter.audience.join(", ")
                 : t("docs.audienceAll")}
-              . {t("workspace:docsHint")}
+              . {t("shell:workspace.docsHint")}
             </div>
           </div>
         ) : (
