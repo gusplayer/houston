@@ -65,8 +65,16 @@ export function Dashboard() {
   const [pendingAgent, setPendingAgent] = useState<Agent | null>(null);
   // Agent the user picked from a phase-kanban story card. Held until
   // AIBoard mounts and exposes a fresh opener (boardView flips to
-  // "missions"), then we run the pickAgent flow.
+  // "missions"), then we run the pickAgent flow with the prefill text
+  // staged into the new-conversation composer draft.
   const [pendingStoryAgent, setPendingStoryAgent] = useState<Agent | null>(null);
+  const [pendingStoryPrefill, setPendingStoryPrefill] = useState<string>("");
+  // Composer drafts keyed by sessionKey. AIBoard reads
+  // drafts["new-conversation"] to seed the new-mission composer.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const handleDraftChange = useCallback((key: string, text: string) => {
+    setDrafts((d) => ({ ...d, [key]: text }));
+  }, []);
   const openerRef = useRef<NewPanelOpener | null>(null);
   const emptyAutoOpenKeyRef = useRef<string | null>(null);
   const openNewMission = useCallback(() => setAgentPickerOpen(true), [setAgentPickerOpen]);
@@ -100,20 +108,25 @@ export function Dashboard() {
 
   // When AIBoard unmounts (phases view), its opener is stale. Force a
   // fresh ready signal on the next mount so pendingStoryAgent only
-  // fires against a live opener.
+  // fires against a live opener. Also drop any staged story-mission —
+  // if the user flipped back to phases mid-flight, they cancelled.
   useEffect(() => {
     if (boardView === "phases") {
       setNewPanelOpenerReady(false);
       openerRef.current = null;
+      setPendingStoryAgent(null);
+      setPendingStoryPrefill("");
     }
   }, [boardView]);
 
   // Start a mission from the phase kanban: switch to missions view +
-  // pin the assigned agent. The effect below runs handlePickAgent once
-  // the board is back online.
-  const handleStartStoryMission = useCallback((agent: Agent) => {
+  // pin the assigned agent + stage the prefill text. The effect below
+  // seeds the composer and runs handlePickAgent once the board is back
+  // online.
+  const handleStartStoryMission = useCallback((agent: Agent, prefillText: string) => {
     setBoardView("missions");
     setPendingStoryAgent(agent);
+    setPendingStoryPrefill(prefillText);
   }, []);
 
   const handleStopSession = useCallback(
@@ -166,9 +179,13 @@ export function Dashboard() {
   useEffect(() => {
     if (!pendingStoryAgent) return;
     if (boardView !== "missions" || !newPanelOpenerReady) return;
+    if (pendingStoryPrefill) {
+      setDrafts((d) => ({ ...d, "new-conversation": pendingStoryPrefill }));
+    }
     handlePickAgent(pendingStoryAgent, { focusComposer: true });
     setPendingStoryAgent(null);
-  }, [pendingStoryAgent, boardView, newPanelOpenerReady, handlePickAgent]);
+    setPendingStoryPrefill("");
+  }, [pendingStoryAgent, pendingStoryPrefill, boardView, newPanelOpenerReady, handlePickAgent]);
 
   useEffect(() => {
     if (!mc.isLoaded) return;
@@ -371,6 +388,8 @@ export function Dashboard() {
             <AIBoard
           items={missionSearch.items}
           columns={MC_COLUMNS}
+          drafts={drafts}
+          onDraftChange={handleDraftChange}
           selectedId={mc.selectedId}
           onSelect={mc.setSelectedId}
           feedItems={mc.feedItems}
