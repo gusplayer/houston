@@ -2,7 +2,7 @@
   "sidebar": {
     "missionControl": "Overview",
     "store": "Store",
-    "workspace": "Workspace",
+    "workspace": "My Team",
     "integrations": "Integrations",
     "settings": "Settings",
     "yourAgents": "Your Agents",
@@ -34,12 +34,13 @@
     "description": "This will permanently delete the agent and all its data. This cannot be undone."
   },
   "workspaceDialog": {
-    "title": "New workspace",
+    "title": "Create a workspace",
+    "subtitle": "Your team's home. Create one per product, company, or client.",
     "tabNew": "Create new",
-    "tabGithub": "Import from GitHub",
-    "githubDescription": "Import a workspace template from GitHub. This creates a workspace with all its agents ready to use.",
+    "tabGithub": "Join from GitHub",
+    "githubDescription": "Import a team from GitHub. The repo's team.json sets up agents, roles, and instructions automatically.",
     "githubPlaceholder": "owner/repo",
-    "githubImport": "Import",
+    "githubImport": "Join",
     "githubImporting": "Importing workspace and agents..."
   },
   "uiTour": {
@@ -189,7 +190,7 @@
     "noWorkspace": "No workspace selected",
     "docs": "Docs",
     "owners": "Phase Owners",
-    "projects": "Projects",
+    "projects": "Repositories",
     "projectsHint": "Repositories bound to this workspace.",
     "deleteProject": "Remove project",
     "renameProject": "Click to rename",
