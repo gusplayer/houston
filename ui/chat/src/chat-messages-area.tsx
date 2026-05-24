@@ -153,6 +153,7 @@ export function ChatMessagesArea({
             <SquadTerminal
               wsUrl={terminalWsUrl}
               className="flex-1 min-h-0 px-2 py-2"
+              onClose={() => setViewMode("chat")}
             />
           </Suspense>
         </TerminalErrorBoundary>
