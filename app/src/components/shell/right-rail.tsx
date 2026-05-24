@@ -1,37 +1,38 @@
 import { useTranslation } from "react-i18next";
 import { MessageCircle, Terminal, FileText } from "lucide-react";
 import { cn, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@squad/core";
+import { tauriTerminal, tauriPreferences } from "../../lib/tauri";
 
 interface RightRailProps {
   viewMode: string;
+  missionPanelOpen: boolean;
   hasBriefTab: boolean;
   hasActivityTab: boolean;
+  agentFolderPath: string | undefined;
   onNavigate: (tab: string) => void;
   onNewTask: (() => void) | null;
+  onCloseMissionPanel: () => void;
 }
 
 interface RailButtonProps {
   icon: React.ReactNode;
   label: string;
   active: boolean;
-  disabled?: boolean;
   onClick: () => void;
 }
 
-function RailButton({ icon, label, active, disabled, onClick }: RailButtonProps) {
+function RailButton({ icon, label, active, onClick }: RailButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          disabled={disabled}
           onClick={onClick}
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
             active
               ? "bg-accent text-foreground"
               : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-            disabled && "cursor-not-allowed opacity-40",
           )}
           aria-label={label}
         >
@@ -47,16 +48,33 @@ function RailButton({ icon, label, active, disabled, onClick }: RailButtonProps)
 
 export function RightRail({
   viewMode,
+  missionPanelOpen,
   hasBriefTab,
   hasActivityTab,
+  agentFolderPath,
   onNavigate,
   onNewTask,
+  onCloseMissionPanel,
 }: RightRailProps) {
   const { t } = useTranslation("shell");
 
   const handleChat = () => {
-    if (hasActivityTab) onNavigate("activity");
-    onNewTask?.();
+    if (missionPanelOpen) {
+      onCloseMissionPanel();
+    } else {
+      if (hasActivityTab) onNavigate("activity");
+      onNewTask?.();
+    }
+  };
+
+  const handleTerminal = async () => {
+    if (!agentFolderPath) return;
+    const terminalApp = await tauriPreferences.get("terminal").catch(() => undefined);
+    tauriTerminal.open(agentFolderPath, undefined, terminalApp ?? undefined);
+  };
+
+  const handleBrief = () => {
+    onNavigate("job-description");
   };
 
   return (
@@ -65,21 +83,21 @@ export function RightRail({
         <RailButton
           icon={<MessageCircle className="size-[18px]" />}
           label={t("rightRail.chat")}
-          active={viewMode === "activity"}
+          active={missionPanelOpen}
           onClick={handleChat}
         />
         <RailButton
           icon={<Terminal className="size-[18px]" />}
           label={t("rightRail.terminal")}
           active={false}
-          onClick={handleChat}
+          onClick={handleTerminal}
         />
         {hasBriefTab && (
           <RailButton
             icon={<FileText className="size-[18px]" />}
             label={t("rightRail.brief")}
             active={viewMode === "job-description"}
-            onClick={() => onNavigate("job-description")}
+            onClick={handleBrief}
           />
         )}
       </div>

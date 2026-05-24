@@ -49,6 +49,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const onStartMission = useUIStore((s) => s.onStartMission);
   const boardActions = useUIStore((s) => s.boardActions);
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
+  const setMissionPanelOpen = useUIStore((s) => s.setMissionPanelOpen);
   const setCreateAgentDialogOpen = useUIStore((s) => s.setCreateAgentDialogOpen);
   const setRecruitTeamDialogOpen = useUIStore((s) => s.setRecruitTeamDialogOpen);
   const agentMissionSearchQuery = useUIStore((s) =>
@@ -229,10 +230,13 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
             {isAgentView && currentAgent && (
               <RightRail
                 viewMode={viewMode}
+                missionPanelOpen={missionPanelOpen}
                 hasBriefTab={tabIds.has("job-description")}
                 hasActivityTab={hasActivityTab}
+                agentFolderPath={currentAgent.folderPath}
                 onNavigate={setViewMode}
                 onNewTask={onStartMission}
+                onCloseMissionPanel={() => setMissionPanelOpen(false)}
               />
             )}
           </div>
