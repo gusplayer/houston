@@ -18,6 +18,8 @@ skills-lock.json
 # CLI binaries fetched by scripts/fetch-cli-deps.sh (downloaded during CI, not committed)
 app/src-tauri/resources/bin/
 .claude/worktrees/
+.claude/.merge-approved
+.claude/.merge-approved-*
 
 # Houston engine sidecar staged by build.rs (built from source in CI, not committed)
 app/src-tauri/binaries/
