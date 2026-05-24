@@ -88,6 +88,7 @@ export default function JobDescriptionTab({ agent, agentDef }: TabProps) {
             }
             agentPath={path}
             agentId={agent.id}
+            agentConfigId={agent.configId}
           />
         )}
 

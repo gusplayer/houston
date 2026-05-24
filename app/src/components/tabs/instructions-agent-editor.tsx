@@ -14,6 +14,8 @@ interface InstructionsAgentEditorProps {
   saveState: SaveState;
   agentPath?: string;
   agentId?: string;
+  /** The agent's config slug (e.g. "cto-agent") — distinct from the instance UUID. Used to look up role-specific snippets. */
+  agentConfigId?: string;
   restarting: boolean;
   onChange: (v: string) => void;
   onBlur: () => void;
@@ -25,6 +27,7 @@ export function InstructionsAgentEditor({
   saveState,
   agentPath,
   agentId,
+  agentConfigId,
   restarting,
   onChange,
   onBlur,
@@ -34,7 +37,8 @@ export function InstructionsAgentEditor({
 
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const getById = useAgentCatalogStore((s) => s.getById);
-  const roleLabel = agentId ? getById(agentId)?.config.roleLabel : undefined;
+  // agentConfigId is the catalog key (e.g. "cto-agent"); agentId is the instance UUID.
+  const roleLabel = agentConfigId ? getById(agentConfigId)?.config.roleLabel : undefined;
 
   const insertSnippet = (text: string) => {
     const view = editorRef.current?.view;

@@ -20,11 +20,13 @@ export function InstructionsContent({
   onSave,
   agentPath,
   agentId,
+  agentConfigId,
 }: {
   content: string;
   onSave: (content: string) => Promise<unknown>;
   agentPath?: string;
   agentId?: string;
+  agentConfigId?: string;
 }) {
   const { t } = useTranslation("agents");
   const addToast = useUIStore((s) => s.addToast);
@@ -157,6 +159,7 @@ export function InstructionsContent({
             saveState={saveState}
             agentPath={agentPath}
             agentId={agentId}
+            agentConfigId={agentConfigId}
             restarting={restarting}
             onChange={setValue}
             onBlur={handleBlur}

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Compass, Plus, Users } from "lucide-react";
+import { getEngine } from "../../lib/engine";
 import {
   Button,
   Empty,
@@ -34,6 +35,11 @@ import { MissionSearchInput } from "../mission-search-input";
 import { RightRail } from "./right-rail";
 import { UiTour } from "./ui-tour";
 import { cn } from "@squad/core";
+
+// Lazy-load xterm so the bundle is only fetched when the user opens the terminal.
+const SquadTerminalPanel = lazy(() =>
+  import("@squad/terminal").then((m) => ({ default: m.SquadTerminal })),
+);
 
 interface WorkspaceShellProps {
   toasts: Toast[];
@@ -222,13 +228,36 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 </div>
               )}
             </main>
-            {missionPanelOpen && (
+            {/* Panel slot: terminal mode = standalone SquadTerminal, else = AIBoard portal target */}
+            {missionPanelOpen && chatPanelViewMode === "terminal" && currentAgent ? (
+              <div
+                className="h-full flex flex-col overflow-hidden border-l border-border"
+                style={{ width: "45%", minWidth: 380 }}
+              >
+                <Suspense
+                  fallback={
+                    <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground">
+                      Loading terminal…
+                    </div>
+                  }
+                >
+                  <SquadTerminalPanel
+                    wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath)}
+                    className="flex-1 min-h-0 px-2 py-2"
+                    onClose={() => {
+                      setChatPanelViewMode("chat");
+                      setMissionPanelOpen(false);
+                    }}
+                  />
+                </Suspense>
+              </div>
+            ) : missionPanelOpen ? (
               <div
                 ref={setPanelContainer}
                 className="h-full overflow-hidden border-l border-border"
                 style={{ width: "45%", minWidth: 380 }}
               />
-            )}
+            ) : null}
             {isAgentView && currentAgent && (
               <RightRail
                 viewMode={viewMode}
