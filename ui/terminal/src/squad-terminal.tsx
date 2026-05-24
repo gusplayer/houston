@@ -7,7 +7,7 @@
  *   server → client: Binary frames (raw ANSI terminal output)
  *                    Text frames {"type":"exit","code":N} | {"type":"error","message":"..."}
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 // Consumers must import "@xterm/xterm/css/xterm.css" in their app-level CSS or
@@ -19,28 +19,33 @@ export interface SquadTerminalProps {
   wsUrl: string;
   /** Called when the remote process exits with the given code. */
   onExit?: (code: number) => void;
-  /** Called when the WS connection is closed for any reason. */
+  /** Called when the WS connection is closed for any reason (user-initiated or normal exit). */
   onClose?: () => void;
   className?: string;
 }
 
 export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // Stable refs so effects don't re-run on callback identity changes.
   const onExitRef = useRef(onExit);
   const onCloseRef = useRef(onClose);
   onExitRef.current = onExit;
   onCloseRef.current = onClose;
+  // Track whether onerror fired so onclose knows not to call onClose automatically.
+  const hadConnectionErrorRef = useRef(false);
 
   useEffect(() => {
+    hadConnectionErrorRef.current = false;
+    setErrorMessage(null);
+
     const container = containerRef.current;
     if (!container) return;
 
     // Everything in this effect runs defensively: an xterm/WS init crash
     // here would otherwise propagate up and tear down the entire chat
     // subtree (blank screen + chat panel closes, per the original bug
-    // report). We catch locally and call onClose so the parent can
-    // recover.
+    // report). We catch locally and show an inline error overlay.
     let term: Terminal | undefined;
     let fitAddon: FitAddon | undefined;
     let ws: WebSocket | undefined;
@@ -126,8 +131,10 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
             const msg = JSON.parse(evt.data) as { type: string; code?: number; message?: string };
             if (msg.type === "exit") {
               onExitRef.current?.(msg.code ?? 0);
+              onCloseRef.current?.();
             } else if (msg.type === "error") {
-              term.writeln(`\r\n\x1b[31mFailed to start terminal: ${msg.message ?? "unknown error"}\x1b[0m`);
+              hadConnectionErrorRef.current = true;
+              setErrorMessage(msg.message ?? "Terminal failed to start");
             }
           } catch {
             // ignore malformed control frames
@@ -137,14 +144,19 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
 
       ws.onerror = (event) => {
         console.error("[SquadTerminal] WebSocket error:", event);
-        // Surface to the parent so it can show a reconnect affordance
-        // or fall back to chat view. We don't tear down here — the
-        // browser fires onclose right after onerror.
-        onCloseRef.current?.();
+        hadConnectionErrorRef.current = true;
+        // Show inline error overlay rather than silently flipping to chat.
+        // onclose fires right after onerror — it will see hadConnectionErrorRef.
+        setErrorMessage("Failed to connect to terminal");
       };
 
       ws.onclose = () => {
-        onCloseRef.current?.();
+        // If the close was triggered by a connection/PTY error, the overlay
+        // is already showing — don't auto-navigate away (user clicks "Back").
+        // Only call onClose for clean exits (handled via the "exit" message above).
+        if (!hadConnectionErrorRef.current) {
+          onCloseRef.current?.();
+        }
       };
 
       // Forward keystrokes to the server as binary frames.
@@ -184,8 +196,8 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
       try { ws?.close(); } catch {}
       try { term?.dispose(); } catch {}
       if (rafHandle !== undefined) cancelAnimationFrame(rafHandle);
-      // Let the parent know so it can fall back to the chat view.
-      onCloseRef.current?.();
+      hadConnectionErrorRef.current = true;
+      setErrorMessage("Terminal failed to initialize");
       return;
     }
 
@@ -200,6 +212,46 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
   // Re-mount only when the WS URL changes (new agent or reconnect).
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wsUrl]);
+
+  if (errorMessage) {
+    return (
+      <div
+        className={className}
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "12px",
+          fontSize: "13px",
+          color: "hsl(var(--muted-foreground))",
+          background: "hsl(var(--background))",
+        }}
+      >
+        <span style={{ color: "hsl(var(--destructive))" }}>{errorMessage}</span>
+        <button
+          type="button"
+          onClick={() => {
+            setErrorMessage(null);
+            onCloseRef.current?.();
+          }}
+          style={{
+            fontSize: "12px",
+            color: "hsl(var(--foreground))",
+            textDecoration: "underline",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          Back to chat
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div

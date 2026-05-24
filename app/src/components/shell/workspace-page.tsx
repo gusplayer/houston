@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileText, Users, FolderGit2, Plus, Trash2, FolderOpen, FileDown } from "lucide-react";
+import { FileText, Users, Users2, FolderGit2, Plus, Trash2, FolderOpen, FileDown, ChevronRight } from "lucide-react";
 import {
   Button,
   Badge,
@@ -56,7 +56,7 @@ const PHASE_DOT_COLORS: Record<StoryPhase, string> = {
   deliver: "bg-teal-500",
 };
 
-type Section = "docs" | "owners" | "projects";
+type Section = "team" | "docs" | "owners" | "projects";
 
 /**
  * I.2 — workspace-level settings + management page. One stop for the
@@ -69,7 +69,7 @@ export function WorkspacePage() {
   const workspace = useWorkspaceStore((s) => s.current);
   const workspacePath = workspace?.path;
 
-  const [section, setSection] = useState<Section>("docs");
+  const [section, setSection] = useState<Section>("team");
 
   if (!workspace) {
     return (
@@ -86,6 +86,10 @@ export function WorkspacePage() {
       </header>
 
       <nav className="shrink-0 flex items-center gap-1 px-4 border-b border-border">
+        <NavTab active={section === "team"} onClick={() => setSection("team")}>
+          <Users2 className="size-3.5" />
+          {t("shell:workspace.team")}
+        </NavTab>
         <NavTab active={section === "docs"} onClick={() => setSection("docs")}>
           <FileText className="size-3.5" />
           {t("shell:workspace.docs")}
@@ -101,6 +105,7 @@ export function WorkspacePage() {
       </nav>
 
       <div className="flex-1 min-h-0 overflow-auto">
+        {section === "team" && <TeamRoster workspaceId={workspace.id} />}
         {section === "docs" && <WorkspaceDocs rootPath={workspacePath} />}
         {section === "owners" && <PhaseOwners rootPath={workspacePath} />}
         {section === "projects" && <ProjectsSection workspaceId={workspace.id} />}
@@ -130,6 +135,59 @@ function NavTab({
     >
       {children}
     </button>
+  );
+}
+
+// ── Section: Team ───────────────────────────────────────────────────────
+
+function TeamRoster({ workspaceId: _workspaceId }: { workspaceId: string }) {
+  const { t } = useTranslation("shell");
+  const agents = useAgentStore((s) => s.agents);
+  const getAgentDef = useAgentCatalogStore((s) => s.getById);
+  const setCurrent = useAgentStore((s) => s.setCurrent);
+  const setViewMode = useUIStore((s) => s.setViewMode);
+
+  const workspaceAgents = agents.map((a) => ({
+    agent: a,
+    def: getAgentDef(a.configId),
+  }));
+
+  if (workspaceAgents.length === 0) {
+    return (
+      <div className="flex h-32 items-center justify-center text-xs text-muted-foreground">
+        No agents yet
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-6 py-6">
+      <p className="text-xs text-muted-foreground mb-4">{t("workspace.teamHint")}</p>
+      <div className="flex flex-col gap-2">
+        {workspaceAgents.map(({ agent, def }) => {
+          const roleLabel = def?.config.roleLabel;
+          return (
+            <button
+              key={agent.id}
+              onClick={() => {
+                setCurrent(agent);
+                setViewMode("activity");
+              }}
+              className="flex items-center gap-3 px-3 py-3 rounded-lg border border-border hover:bg-accent/50 transition-colors text-left group"
+            >
+              <AgentStateAvatar agent={agent} diameter={32} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{agent.name}</div>
+                {roleLabel && (
+                  <div className="text-[11px] text-muted-foreground">{roleLabel}</div>
+                )}
+              </div>
+              <ChevronRight className="size-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0" />
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

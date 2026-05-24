@@ -8,6 +8,7 @@ import {
   isActiveSessionStatus,
   useSessionStatusStore,
 } from "../stores/session-status";
+import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useAllConversations } from "../hooks/queries";
 import { tauriActivity, tauriChat, tauriAttachments } from "../lib/tauri";
 import { buildAttachmentPrompt } from "../lib/attachment-message";
@@ -46,11 +47,22 @@ export function useMissionControl(agents: Agent[]) {
 
   const { data: convos, isFetched } = useAllConversations(paths);
 
+  const getAgentDef = useAgentCatalogStore((s) => s.getById);
+
   const agentColorMap = useMemo(() => {
     const m: Record<string, string | undefined> = {};
     for (const a of agents) m[a.folderPath] = a.color;
     return m;
   }, [agents]);
+
+  const agentRoleMap = useMemo(() => {
+    const m: Record<string, string | undefined> = {};
+    for (const a of agents) {
+      const def = getAgentDef(a.configId);
+      m[a.folderPath] = def?.config.roleLabel;
+    }
+    return m;
+  }, [agents, getAgentDef]);
 
   const items: KanbanItem[] = useMemo(() => {
     if (!convos) return [];
@@ -59,11 +71,13 @@ export function useMissionControl(agents: Agent[]) {
       .filter((c) => c.type === "activity" && c.status)
       .map((c) => {
         map[c.id] = c.agent_path;
+        const roleLabel = agentRoleMap[c.agent_path];
         return {
           id: c.id,
           title: c.title,
           description: c.description,
           group: c.agent_name,
+          tags: roleLabel ? [roleLabel] : undefined,
           icon: createElement(AgentCardAvatar, { color: agentColorMap[c.agent_path] }),
           status: c.status!,
           updatedAt: c.updated_at ?? new Date().toISOString(),
@@ -72,7 +86,7 @@ export function useMissionControl(agents: Agent[]) {
       });
     pathMapRef.current = map;
     return result;
-  }, [convos, agentColorMap]);
+  }, [convos, agentColorMap, agentRoleMap]);
 
   const loadHistory = useCallback(
     async (sessionKey: string): Promise<FeedItem[]> => {
