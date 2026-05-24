@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "agents": [
+    {
+      "role": "cto-agent",
+      "name": "Alex",
+      "color": "navy"
+    },
+    {
+      "role": "frontend-lead-agent",
+      "name": "Peter",
+      "color": "purple"
+    },
+    {
+      "role": "backend-lead-agent",
+      "name": "Diego",
+      "color": "forest"
+    },
+    {
+      "role": "designer-agent",
+      "name": "Carlo",
+      "color": "orange"
+    },
+    {
+      "role": "qa-agent",
+      "name": "Maria",
+      "color": "crimson"
+    },
+    {
+      "role": "devops-agent",
+      "name": "Sam",
+      "color": "golden"
+    }
+  ]
+}
