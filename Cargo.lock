@@ -6010,6 +6010,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "squad-methodology"
+version = "0.4.19"
+dependencies = [
+ "serde",
+ "tempfile",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "squad-projects"
 version = "0.4.19"
 dependencies = [

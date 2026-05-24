@@ -20,6 +20,7 @@ members = [
     "engine/squad-engine-server",
     "engine/squad-projects",
     "engine/squad-git",
+    "engine/squad-methodology",
     "app/src-tauri",
 ]
 
@@ -53,4 +54,5 @@ squad-engine-protocol = { version = "0.4.19", path = "engine/squad-engine-protoc
 squad-engine-server = { version = "0.4.19", path = "engine/squad-engine-server" }
 squad-projects = { version = "0.4.19", path = "engine/squad-projects" }
 squad-git = { version = "0.4.19", path = "engine/squad-git" }
+squad-methodology = { version = "0.4.19", path = "engine/squad-methodology" }
 portable-pty = "0.8"
