@@ -269,7 +269,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 agentFolderPath={currentAgent.folderPath}
                 onNavigate={setViewMode}
                 onOpenChatPanel={() => {
-                  const wasOpen = missionPanelOpen;
+                  const wasOpen = missionPanelOpen && chatPanelViewMode === "chat";
                   setChatPanelViewMode("chat");
                   setMissionPanelOpen(true);
                   if (hasActivityTab) setViewMode("activity");
