@@ -28,6 +28,7 @@
     "revealInFinder": "Mostrar no Finder",
     "projectClaudeMdMissing": "Nenhum CLAUDE.md encontrado neste projeto.",
     "snippets": {
+      "insertLabel": "Inserir fragmento",
       "tone": "Tom",
       "never": "Nunca fazer",
       "output": "Formato de saída",

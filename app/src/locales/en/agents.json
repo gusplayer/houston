@@ -28,6 +28,7 @@
     "revealInFinder": "Reveal in Finder",
     "projectClaudeMdMissing": "No CLAUDE.md found in this project.",
     "snippets": {
+      "insertLabel": "Insert snippet",
       "tone": "Tone",
       "never": "Never do",
       "output": "Output format",
