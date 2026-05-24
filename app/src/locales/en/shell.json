@@ -74,7 +74,7 @@
         "body": "Docs your assistant can read or share with you. Drop anything here for context."
       },
       "tabJobDescription": {
-        "title": "Brief",
+        "title": "Playbook",
         "body": "Your assistant's standing instructions. Edit any time to change how it behaves."
       },
       "missionControl": {
@@ -214,6 +214,6 @@
   "rightRail": {
     "chat": "Chat",
     "terminal": "Terminal",
-    "brief": "Brief"
+    "brief": "Playbook"
   }
 }

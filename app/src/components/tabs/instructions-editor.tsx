@@ -2,6 +2,7 @@ import { useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
+import { EditorView } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@squad/core";
@@ -65,7 +66,7 @@ export function InstructionsEditor({
             ref={editorRef}
             value={value}
             onChange={onChange}
-            extensions={[markdown()]}
+            extensions={[markdown(), EditorView.lineWrapping]}
             theme={oneDark}
             basicSetup={{
               lineNumbers: true,

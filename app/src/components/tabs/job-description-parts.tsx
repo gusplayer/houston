@@ -117,7 +117,8 @@ export function InstructionsContent({
       : undefined;
 
   // ── Shared sidebar ──────────────────────────────────────────────────
-  const sidebar = (
+  const hasBoundProjects = projectClaudes.length > 0;
+  const sidebar = hasBoundProjects ? (
     <div className="sticky top-0 self-start">
       <InstructionsFileTree
         selectedFile={selectedFile}
@@ -125,7 +126,7 @@ export function InstructionsContent({
         projectClaudes={projectClaudes}
       />
     </div>
-  );
+  ) : null;
 
   // ── Empty state ─────────────────────────────────────────────────────
   if (selectedFile === "agent" && !value.trim() && !showEditor) {
