@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileText, LibraryBig, Brain } from "lucide-react";
+import { FileText, LibraryBig, Brain, ShieldAlert, Server } from "lucide-react";
 import { SkillDetailPage } from "@squad/skills";
 import {
   useInstructions,
@@ -15,13 +15,15 @@ import { useUIStore } from "../../stores/ui";
 import { LearningsContent } from "./learnings-content";
 import { InstructionsContent, type SubTab } from "./job-description-parts";
 import { SkillsContent } from "./skills-content";
+import { RulesContent } from "./rules-content";
+import McpTab from "./mcp-tab";
 import { useSkillSurface } from "./use-skill-surface";
 import {
   SidebarSectionNav,
   type SidebarSectionItem,
 } from "../shared/sidebar-section-nav";
 
-export default function JobDescriptionTab({ agent }: TabProps) {
+export default function JobDescriptionTab({ agent, agentDef }: TabProps) {
   const { t } = useTranslation("agents");
   const path = agent.folderPath;
   const surface = useSkillSurface(path);
@@ -47,8 +49,10 @@ export default function JobDescriptionTab({ agent }: TabProps) {
   const items = useMemo<SidebarSectionItem<SubTab>[]>(
     () => [
       { id: "instructions", label: t("subTabs.instructions"), icon: FileText },
+      { id: "rules", label: t("subTabs.rules"), icon: ShieldAlert },
       { id: "skills", label: t("subTabs.skills"), icon: LibraryBig },
       { id: "learnings", label: t("subTabs.learnings"), icon: Brain },
+      { id: "mcp", label: t("subTabs.mcp"), icon: Server },
     ],
     [t],
   );
@@ -86,6 +90,10 @@ export default function JobDescriptionTab({ agent }: TabProps) {
           />
         )}
 
+        {activeTab === "rules" && (
+          <RulesContent agentPath={path} />
+        )}
+
         {activeTab === "skills" && (
           <div className="max-w-3xl mx-auto w-full px-6 pb-12 pt-6 flex-1 flex flex-col">
             <SkillsContent
@@ -109,6 +117,10 @@ export default function JobDescriptionTab({ agent }: TabProps) {
             onRemove={(index) => removeLearning.mutateAsync(index)}
             onUpdate={(id, text) => updateLearning.mutateAsync({ id, text })}
           />
+        )}
+
+        {activeTab === "mcp" && (
+          <McpTab agent={agent} agentDef={agentDef} />
         )}
       </div>
     </div>

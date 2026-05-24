@@ -13,8 +13,6 @@ export const devAgent: AgentConfig = {
     { id: "repo", label: "Repo", builtIn: "repo" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "docs", label: "Docs", builtIn: "docs" },
-    { id: "skills", label: "Skills", builtIn: "skills" },
-    { id: "mcp", label: "MCP", builtIn: "mcp" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
