@@ -54,8 +54,13 @@
   },
   "subTabs": {
     "instructions": "Instruções",
+    "rules": "Regras",
     "skills": "Skills",
-    "learnings": "Aprendizados"
+    "learnings": "Aprendizados",
+    "mcp": "MCP"
+  },
+  "rules": {
+    "helper": "Restrições que o agente deve sempre seguir. Carregadas em cada sessão."
   },
   "tabLabels": {
     "activity": "Atividade",

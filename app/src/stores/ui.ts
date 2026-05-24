@@ -9,7 +9,7 @@ export interface ToastItem {
   action?: { label: string; onClick: () => void };
 }
 
-export type JobDescriptionTarget = "instructions" | "skills" | "learnings";
+export type JobDescriptionTarget = "instructions" | "rules" | "skills" | "learnings" | "mcp";
 
 interface UIState {
   viewMode: string;

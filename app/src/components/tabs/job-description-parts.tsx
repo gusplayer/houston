@@ -13,7 +13,7 @@ import { InstructionsFileTree } from "./instructions-file-tree";
 import { InstructionsProjectPanel } from "./instructions-project-panel";
 import { InstructionsAgentEditor, type SaveState } from "./instructions-agent-editor";
 
-export type SubTab = "instructions" | "skills" | "learnings";
+export type SubTab = "instructions" | "rules" | "skills" | "learnings" | "mcp";
 
 export function InstructionsContent({
   content,

@@ -54,8 +54,13 @@
   },
   "subTabs": {
     "instructions": "Instructions",
+    "rules": "Rules",
     "skills": "Skills",
-    "learnings": "Learnings"
+    "learnings": "Learnings",
+    "mcp": "MCP"
+  },
+  "rules": {
+    "helper": "Hard constraints the agent must always follow. Loaded into every session."
   },
   "tabLabels": {
     "activity": "Activity",

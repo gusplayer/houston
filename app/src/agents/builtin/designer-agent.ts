@@ -12,7 +12,6 @@ export const designerAgent: AgentConfig = {
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "docs", label: "Docs", builtIn: "docs" },
-    { id: "skills", label: "Skills", builtIn: "skills" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",

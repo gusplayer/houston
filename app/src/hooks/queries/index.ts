@@ -11,6 +11,7 @@ export {
 } from "./use-skills";
 export { useFiles, useDeleteFile, useRenameFile, useCreateFolder } from "./use-files";
 export { useInstructions, useSaveInstructions } from "./use-instructions";
+export { useRules, useSaveRules } from "./use-rules";
 export { useConversations, useAllConversations, useChatHistory } from "./use-conversations";
 export { useConnections, useComposioApps, useConnectedToolkits, useInvalidateConnections, useResetConnections } from "./use-connections";
 export {
