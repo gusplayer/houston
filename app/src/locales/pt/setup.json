@@ -17,8 +17,8 @@
   },
   "tutorial": {
     "brand": "Squad",
-    "counter": "Missão {{current}} de {{total}}",
-    "eyebrow": "Missão {{number}}",
+    "counter": "Passo {{current}} de {{total}}",
+    "eyebrow": "Passo {{number}}",
     "upNext": "A seguir",
     "welcome": {
       "title": "Bem-vindo ao Squad",
@@ -28,7 +28,7 @@
         "meet": "Conheça seu assistente",
         "brain": "Conecte um provedor de IA para ele pensar",
         "tools": "Dê as suas próprias ferramentas",
-        "try": "Teste uma missão real com seu assistente"
+        "try": "Teste uma tarefa real com seu assistente"
       },
       "start": "Começar tutorial",
       "skip": "Pular tutorial"
@@ -57,7 +57,7 @@
         "body": "Seu assistente precisa de um provedor de IA para pensar e escrever. O Squad usa sua própria assinatura.",
         "continue": "Criar meu assistente",
         "creating": "Criando",
-        "continueHint": "O Squad vai criar seu assistente e abrir a próxima missão."
+        "continueHint": "O Squad vai criar seu assistente e abrir o próximo passo."
       },
       "tools": {
         "title": "Dê as suas próprias ferramentas",
@@ -71,20 +71,20 @@
         "continueHint": "Seu assistente vai pedir cada app na primeira vez que precisar."
       },
       "try": {
-        "title": "Teste uma missão real",
-        "body": "Chat real com seu assistente. Clique na missão para começar. Seu assistente vai perguntar se você usa Google ou Microsoft e depois pedir acesso ao seu e-mail e calendário aqui mesmo no chat se precisar.",
+        "title": "Teste uma tarefa real",
+        "body": "Chat real com seu assistente. Clique na tarefa para começar. Seu assistente vai perguntar se você usa Google ou Microsoft e depois pedir acesso ao seu e-mail e calendário aqui mesmo no chat se precisar.",
         "tipTitle": "Esse é o chat real",
-        "tipBody": "O mesmo chat que você vai usar depois do tutorial. Clique na missão para começar e responda naturalmente. Pedidos de conexão aparecem como cartões que seu assistente posta no chat.",
+        "tipBody": "O mesmo chat que você vai usar depois do tutorial. Clique na tarefa para começar e responda naturalmente. Pedidos de conexão aparecem como cartões que seu assistente posta no chat.",
         "workingTitle": "Trabalhando nisso",
         "workingBody": "Responda no chat como você faria normalmente. O tutorial vai seguir automaticamente quando seu assistente terminar.",
-        "doneTitle": "Você conseguiu. Primeira missão concluída.",
+        "doneTitle": "Você conseguiu. Primeira tarefa concluída.",
         "placeholder": "Responda ao seu assistente...",
         "skill": {
           "title": "Planeja meu próximo dia de trabalho",
           "description": "Lê sua agenda e caixa de entrada em paralelo, cruza para achar coisas que você ia perder e posta um plano estruturado com o que é urgente, sua agenda e quem responder."
         },
         "chip": "Planeja meu próximo dia de trabalho",
-        "composerHint": "Clique para começar a missão.",
+        "composerHint": "Clique para começar a tarefa.",
         "continueChip": "Entre no Squad",
         "skipTutorial": "Pular tutorial",
         "changeBrain": "Trocar cérebro"

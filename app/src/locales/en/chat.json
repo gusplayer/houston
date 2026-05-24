@@ -64,8 +64,8 @@
     "thoughtForFew": "Thought for a few seconds"
   },
   "process": {
-    "active": "Mission in progress...",
-    "complete": "Mission log"
+    "active": "Task in progress...",
+    "complete": "Task log"
   },
   "rawView": {
     "enterRaw": "Show raw stream",

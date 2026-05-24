@@ -64,8 +64,8 @@
     "thoughtForFew": "Pensó durante unos segundos"
   },
   "process": {
-    "active": "Misión en curso...",
-    "complete": "Registro de misión"
+    "active": "Tarea en curso...",
+    "complete": "Registro de tarea"
   },
   "rawView": {
     "enterRaw": "Ver el stream en bruto",

@@ -14,19 +14,19 @@
   "empty": {
     "title": "Aún no hay conversaciones",
     "description": "Inicia una conversación nueva para delegarle trabajo a un agente.",
-    "newMission": "Nueva misión"
+    "newMission": "Nueva tarea"
   },
   "search": {
-    "placeholder": "Buscar misiones",
+    "placeholder": "Buscar tareas",
     "clear": "Borrar búsqueda",
     "clearCta": "Borrar búsqueda",
-    "searchingText": "Buscando en el texto de las misiones",
-    "searchingTitle": "Buscando en el texto de las misiones",
+    "searchingText": "Buscando en el texto de las tareas",
+    "searchingTitle": "Buscando en el texto de las tareas",
     "searchingDescription": "Revisando mensajes anteriores.",
-    "emptyTitle": "No hay misiones que coincidan",
+    "emptyTitle": "No hay tareas que coincidan",
     "emptyDescription": "Prueba otra búsqueda o borra la actual.",
-    "historyErrorTitle": "No se pudieron buscar todas las misiones",
-    "historyErrorDescription": "No se pudo cargar parte del texto de misiones anteriores."
+    "historyErrorTitle": "No se pudieron buscar todas las tareas",
+    "historyErrorDescription": "No se pudo cargar parte del texto de tareas anteriores."
   },
   "toasts": {
     "attached": "Adjuntó: {{names}}"

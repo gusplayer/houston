@@ -17,8 +17,8 @@
   },
   "tutorial": {
     "brand": "Squad",
-    "counter": "Mission {{current}} of {{total}}",
-    "eyebrow": "Mission {{number}}",
+    "counter": "Step {{current}} of {{total}}",
+    "eyebrow": "Step {{number}}",
     "upNext": "Up next",
     "welcome": {
       "title": "Welcome to Squad",
@@ -28,7 +28,7 @@
         "meet": "Meet your assistant",
         "brain": "Connect an AI provider so it can think",
         "tools": "Give it your own tools",
-        "try": "Try a real mission with your assistant"
+        "try": "Try a real task with your assistant"
       },
       "start": "Start tutorial",
       "skip": "Skip tutorial"
@@ -57,7 +57,7 @@
         "body": "Your assistant needs an AI provider to think and write. Squad uses your own subscription.",
         "continue": "Create my assistant",
         "creating": "Creating",
-        "continueHint": "Squad will create your assistant and open the next mission."
+        "continueHint": "Squad will create your assistant and open the next step."
       },
       "tools": {
         "title": "Give it your own tools",
@@ -71,20 +71,20 @@
         "continueHint": "Your assistant will ask for each app the first time it needs it."
       },
       "try": {
-        "title": "Try a real mission",
-        "body": "Real chat with your assistant. Click the mission to start. Your assistant will ask whether you use Google or Microsoft, then request mail and calendar access right here in the chat if it needs them.",
+        "title": "Try a real task",
+        "body": "Real chat with your assistant. Click the task to start. Your assistant will ask whether you use Google or Microsoft, then request mail and calendar access right here in the chat if it needs them.",
         "tipTitle": "This is the real chat",
-        "tipBody": "Same chat you'll use after the tutorial. Click the mission to start, then reply naturally. Connection requests show up as cards your assistant posts in the chat.",
+        "tipBody": "Same chat you'll use after the tutorial. Click the task to start, then reply naturally. Connection requests show up as cards your assistant posts in the chat.",
         "workingTitle": "Working on it",
         "workingBody": "Reply in the chat as you would normally. The tutorial will continue automatically once your assistant finishes.",
-        "doneTitle": "You did it. First mission complete.",
+        "doneTitle": "You did it. First task complete.",
         "placeholder": "Reply to your assistant...",
         "skill": {
           "title": "Plan my next working day",
           "description": "Read your calendar and inbox in parallel, cross-reference them for things you'd miss, and post a structured plan with what's urgent, your agenda and what to reply."
         },
         "chip": "Plan my next working day",
-        "composerHint": "Click to start the mission.",
+        "composerHint": "Click to start the task.",
         "continueChip": "Enter Squad",
         "skipTutorial": "Skip tutorial",
         "changeBrain": "Change brain"

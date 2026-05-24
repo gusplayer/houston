@@ -7,7 +7,7 @@
   },
   "empty": {
     "title": "No agents yet",
-    "description": "Build your AI team and start a mission."
+    "description": "Build your AI team and start a task."
   },
   "instructions": {
     "emptyTitle": "No instructions yet",
@@ -100,7 +100,7 @@
       "description": "Agent configuration and runtime settings.",
       "savingHint": "Saving...",
       "worktreeMode": "Worktree mode",
-      "worktreeModeDescription": "Create a separate git worktree for each mission",
+      "worktreeModeDescription": "Create a separate git worktree for each task",
       "installCommand": "Install command",
       "installCommandPlaceholder": "e.g. pnpm install, npm install, cargo build",
       "devCommand": "Dev command",
