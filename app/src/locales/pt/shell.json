@@ -74,7 +74,7 @@
         "body": "Documentos que seu assistente pode ler ou compartilhar com você. Solte qualquer coisa aqui para dar contexto."
       },
       "tabJobDescription": {
-        "title": "Brief",
+        "title": "Playbook",
         "body": "As instruções permanentes do seu assistente. Edite quando quiser para mudar como ele se comporta."
       },
       "missionControl": {
@@ -214,6 +214,6 @@
   "rightRail": {
     "chat": "Chat",
     "terminal": "Terminal",
-    "brief": "Brief"
+    "brief": "Playbook"
   }
 }
