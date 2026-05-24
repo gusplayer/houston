@@ -188,13 +188,16 @@
   },
   "workspace": {
     "noWorkspace": "Sin workspace seleccionado",
+    "team": "Equipo",
+    "teamHint": "Tus agentes y sus roles en este workspace.",
     "docs": "Conocimiento",
     "owners": "Roles",
     "projects": "Repositorios",
     "projectsHint": "Repositorios vinculados a este workspace.",
     "deleteProject": "Quitar proyecto",
     "renameProject": "Click para renombrar",
-    "docsHint": "Los agentes leen estos docs automáticamente según su rol."
+    "docsHint": "Los agentes leen estos docs automáticamente según su rol.",
+    "openAgent": "Abrir agente"
   },
   "agentProjectChip": {
     "allProjects": "Todos los proyectos",

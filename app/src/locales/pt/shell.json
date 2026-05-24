@@ -188,13 +188,16 @@
   },
   "workspace": {
     "noWorkspace": "Nenhum workspace selecionado",
+    "team": "Equipe",
+    "teamHint": "Seus agentes e seus papéis neste workspace.",
     "docs": "Conhecimento",
     "owners": "Papéis",
     "projects": "Repositórios",
     "projectsHint": "Repositórios vinculados a este workspace.",
     "deleteProject": "Remover projeto",
     "renameProject": "Clique para renomear",
-    "docsHint": "Os agentes leem esses docs automaticamente com base no seu papel."
+    "docsHint": "Os agentes leem esses docs automaticamente com base no seu papel.",
+    "openAgent": "Abrir agente"
   },
   "agentProjectChip": {
     "allProjects": "Todos os projetos",
