@@ -240,10 +240,11 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 agentFolderPath={currentAgent.folderPath}
                 onNavigate={setViewMode}
                 onOpenChatPanel={() => {
+                  const wasOpen = missionPanelOpen;
                   setChatPanelViewMode("chat");
                   setMissionPanelOpen(true);
                   if (hasActivityTab) setViewMode("activity");
-                  setTimeout(() => useUIStore.getState().onStartMission?.(), 50);
+                  if (!wasOpen) setTimeout(() => useUIStore.getState().onStartMission?.(), 50);
                 }}
                 onOpenInternalTerminal={() => {
                   setChatPanelViewMode("terminal");

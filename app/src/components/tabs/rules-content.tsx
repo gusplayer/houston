@@ -8,7 +8,7 @@ import { InstructionsEditor } from "./instructions-editor";
 export function RulesContent({ agentPath }: { agentPath?: string }) {
   const { t } = useTranslation("agents");
   const addToast = useUIStore((s) => s.addToast);
-  const { data: rules } = useRules(agentPath);
+  const { data: rules, isLoading } = useRules(agentPath);
   const saveRules = useSaveRules(agentPath);
   const [value, setValue] = useState("");
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -18,7 +18,7 @@ export function RulesContent({ agentPath }: { agentPath?: string }) {
   }, [rules]);
 
   const handleBlur = async () => {
-    if (!agentPath) return;
+    if (!agentPath || rules === undefined || value === rules) return;
     setSaveState("saving");
     try {
       await saveRules.mutateAsync(value);
@@ -41,12 +41,12 @@ export function RulesContent({ agentPath }: { agentPath?: string }) {
         {saveState === "saving" && (
           <span className="text-xs text-muted-foreground">{t("instructions.saving")}</span>
         )}
-        {saveState === "saved" && (
+        {(saveState === "saved" || saveState === "saved-active") && (
           <span className="text-xs text-muted-foreground">{t("instructions.saved")}</span>
         )}
       </div>
       <InstructionsEditor
-        value={value}
+        value={isLoading ? "" : value}
         onChange={setValue}
         onBlur={handleBlur}
       />

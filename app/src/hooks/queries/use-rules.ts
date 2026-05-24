@@ -31,7 +31,15 @@ const DEFAULT_RULES = `## Security
 export function useRules(agentPath: string | undefined) {
   return useQuery({
     queryKey: queryKeys.rules(agentPath ?? ""),
-    queryFn: () => tauriAgent.readFile(agentPath!, "rules.md").catch(() => DEFAULT_RULES),
+    queryFn: async () => {
+      try {
+        return await tauriAgent.readFile(agentPath!, "rules.md");
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/not found|no such file/i.test(msg)) return DEFAULT_RULES;
+        throw err;
+      }
+    },
     enabled: !!agentPath,
   });
 }

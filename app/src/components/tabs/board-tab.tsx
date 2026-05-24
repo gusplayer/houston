@@ -331,7 +331,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
       await deleteActivity.mutateAsync(item.id);
       if (selectedId === item.id) setSelectedId(null);
     },
-    [deleteActivity, selectedId],
+    [deleteActivity, selectedId, setSelectedId],
   );
 
   const handleApprove = useCallback(
