@@ -67,6 +67,7 @@
     "descriptionPlaceholder": "Add a description...",
     "start": "Start",
     "startMission": "Start a mission for the assigned agent",
+    "missionPrefill": "Work on this story: {{title}}",
     "emptyTitle": "Plan work in phases",
     "emptyDescription": "Track features through Discovery to Monitor and see at a glance which agent owns each stage.",
     "emptyCta": "Create first story",

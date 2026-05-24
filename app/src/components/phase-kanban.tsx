@@ -24,7 +24,7 @@ export const PHASES: { id: StoryPhase; colorClass: string }[] = [
 interface PhaseKanbanProps {
   agents: Agent[];
   missionItems: KanbanItem[];
-  onStartStoryMission?: (agent: Agent) => void;
+  onStartStoryMission?: (agent: Agent, prefillText: string) => void;
 }
 
 export function PhaseKanban({ agents, missionItems, onStartStoryMission }: PhaseKanbanProps) {
@@ -54,7 +54,10 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
   function startStoryMission(story: Story) {
     if (!onStartStoryMission || !story.assignedAgentId) return;
     const agent = agents.find((a) => a.id === story.assignedAgentId);
-    if (agent) onStartStoryMission(agent);
+    if (!agent) return;
+    const prefill = t("phases.missionPrefill", { title: story.title })
+      + (story.description ? `\n\n${story.description}` : "");
+    onStartStoryMission(agent, prefill);
   }
 
   if (hasNoStories) {

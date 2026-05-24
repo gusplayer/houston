@@ -67,6 +67,7 @@
     "descriptionPlaceholder": "Adicione uma descricao...",
     "start": "Iniciar",
     "startMission": "Iniciar uma missao para o agente atribuido",
+    "missionPrefill": "Trabalhe nesta historia: {{title}}",
     "emptyTitle": "Planeje o trabalho por fases",
     "emptyDescription": "Acompanhe cada feature de Discovery a Monitor e veja num relance qual agente conduz cada etapa.",
     "emptyCta": "Criar primeira historia",
