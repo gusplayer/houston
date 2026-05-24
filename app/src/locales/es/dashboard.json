@@ -59,7 +59,26 @@
       "deliver": "Monitor"
     },
     "assignAgent": "Asignar agente",
-    "unassign": "Quitar asignacion"
+    "unassign": "Quitar asignacion",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "allAgents": "Todos",
+    "descriptionPlaceholder": "Agrega una descripcion...",
+    "priority": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "critical": "Critica"
+    },
+    "status": {
+      "backlog": "Backlog",
+      "todo": "Por hacer",
+      "in_progress": "En curso",
+      "in_review": "En revision",
+      "done": "Listo",
+      "cancelled": "Cancelado"
+    }
   },
   "skillPicker": {
     "title": "Elige un skill",

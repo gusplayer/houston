@@ -59,7 +59,26 @@
       "deliver": "Monitor"
     },
     "assignAgent": "Assign agent",
-    "unassign": "Remove assignment"
+    "unassign": "Remove assignment",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "allAgents": "All",
+    "descriptionPlaceholder": "Add a description...",
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "status": {
+      "backlog": "Backlog",
+      "todo": "To do",
+      "in_progress": "In progress",
+      "in_review": "In review",
+      "done": "Done",
+      "cancelled": "Cancelled"
+    }
   },
   "skillPicker": {
     "title": "Pick a skill",
