@@ -123,9 +123,11 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
           term.write(new Uint8Array(evt.data));
         } else if (typeof evt.data === "string") {
           try {
-            const msg = JSON.parse(evt.data) as { type: string; code?: number };
+            const msg = JSON.parse(evt.data) as { type: string; code?: number; message?: string };
             if (msg.type === "exit") {
               onExitRef.current?.(msg.code ?? 0);
+            } else if (msg.type === "error") {
+              term.writeln(`\r\n\x1b[31mFailed to start terminal: ${msg.message ?? "unknown error"}\x1b[0m`);
             }
           } catch {
             // ignore malformed control frames
