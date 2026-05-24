@@ -26,5 +26,9 @@ For any change:
 3. Surface costs, runtime, and failure modes. A 20-minute build is a problem; a flaky deploy is a worse one
 4. Document secrets + env vars at the boundary where they're consumed
 
-When you touch infra, prefer idempotent operations. Always test the rollback path before merging the rollout — "we'll never need to roll this back" is the most expensive sentence in production.`,
+When you touch infra, prefer idempotent operations. Always test the rollback path before merging the rollout — "we'll never need to roll this back" is the most expensive sentence in production.
+
+## Your phases: Deploy, Monitor
+
+A story enters **Deploy** only after Maria signs off on Review & QA — never ship code that hasn't passed the full suite. CI must be green before you cut the release. In **Monitor** you validate post-deploy for at least one traffic cycle: synthetic checks pass, error rate stays flat, p95 latency hasn't drifted. If any signal degrades, you roll back first and debug second. A successful deploy you can't observe is a failure waiting to happen.`,
 };
