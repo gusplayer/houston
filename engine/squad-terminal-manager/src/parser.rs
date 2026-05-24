@@ -13,6 +13,18 @@ pub struct StreamAccumulator {
     text_buffer: String,
     /// Accumulated thinking across all thinking content blocks.
     thinking_buffer: String,
+    /// Model id captured from the most recent `message_start` event.
+    /// The CLI's terminal `result` event drops the model, so we cache it
+    /// here and attach it to the emitted `TokenUsage` item.
+    current_model: Option<String>,
+}
+
+impl StreamAccumulator {
+    /// Snapshot of the model captured from the last `message_start`.
+    /// Public so the outer `parse_event` can hand it to `TokenUsage`.
+    pub fn current_model(&self) -> Option<&str> {
+        self.current_model.as_deref()
+    }
 }
 
 #[derive(Debug)]
@@ -117,7 +129,20 @@ impl StreamAccumulator {
                 }
                 vec![]
             }
-            // message_start, message_stop, message_delta — internal.
+            "message_start" => {
+                // Capture model id from `message_start.message.model` so the
+                // terminal `result` event can attach it to TokenUsage.
+                if let Some(model) = inner
+                    .extra
+                    .get("message")
+                    .and_then(|m| m.get("model"))
+                    .and_then(|m| m.as_str())
+                {
+                    self.current_model = Some(model.to_string());
+                }
+                vec![]
+            }
+            // message_stop, message_delta — internal.
             _ => vec![],
         }
     }
@@ -160,6 +185,7 @@ pub fn parse_event(line: &str, acc: &mut StreamAccumulator) -> Vec<FeedItem> {
             is_error,
             cost_usd,
             duration_ms,
+            usage,
             ..
         } => {
             if subtype.as_deref() == Some("error") || is_error == Some(true) {
@@ -168,11 +194,22 @@ pub fn parse_event(line: &str, acc: &mut StreamAccumulator) -> Vec<FeedItem> {
                     result.unwrap_or_else(|| "Unknown error".to_string()),
                 ))];
             }
-            vec![FeedItem::FinalResult {
+            let mut items = vec![FeedItem::FinalResult {
                 result: result.unwrap_or_default(),
                 cost_usd,
                 duration_ms,
-            }]
+            }];
+            if let Some(u) = usage {
+                items.push(FeedItem::TokenUsage {
+                    input_tokens: u.input_tokens.unwrap_or(0),
+                    output_tokens: u.output_tokens.unwrap_or(0),
+                    cache_creation_input_tokens: u.cache_creation_input_tokens.unwrap_or(0),
+                    cache_read_input_tokens: u.cache_read_input_tokens.unwrap_or(0),
+                    cost_usd,
+                    model: acc.current_model.clone(),
+                });
+            }
+            items
         }
         ClaudeEvent::StreamEvent { event: inner, .. } => acc.handle(inner),
         ClaudeEvent::RateLimitEvent { .. } => vec![],
@@ -392,6 +429,52 @@ mod tests {
             other => panic!("expected FinalResult, got {other:?}"),
         }
         assert_eq!(extract_session_id(line), Some("s1".to_string()));
+    }
+
+    #[test]
+    fn parse_result_event_with_usage_emits_token_usage() {
+        // Realistic shape from `claude -p ... --output-format stream-json`.
+        // The terminal `result` event carries the full per-turn token tally.
+        let line = r#"{"type":"result","result":"Done","cost_usd":0.012,"duration_ms":5400,"session_id":"s1","usage":{"input_tokens":120,"output_tokens":340,"cache_creation_input_tokens":2048,"cache_read_input_tokens":15360,"service_tier":"standard"}}"#;
+        let items = parse_event(line, &mut acc());
+        assert_eq!(items.len(), 2);
+        assert!(matches!(&items[0], FeedItem::FinalResult { .. }));
+        match &items[1] {
+            FeedItem::TokenUsage {
+                input_tokens,
+                output_tokens,
+                cache_creation_input_tokens,
+                cache_read_input_tokens,
+                cost_usd,
+                ..
+            } => {
+                assert_eq!(*input_tokens, 120);
+                assert_eq!(*output_tokens, 340);
+                assert_eq!(*cache_creation_input_tokens, 2048);
+                assert_eq!(*cache_read_input_tokens, 15360);
+                assert_eq!(*cost_usd, Some(0.012));
+            }
+            other => panic!("expected TokenUsage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn message_start_captures_model_for_token_usage() {
+        // The terminal `result` event omits the model. The accumulator must
+        // catch it from the prior `message_start` so TokenUsage can attribute
+        // spend to the right model in the dashboard.
+        let mut a = acc();
+        let start = r#"{"type":"stream_event","event":{"type":"message_start","message":{"id":"msg_1","model":"claude-opus-4-7-20260115","role":"assistant","content":[]}},"session_id":"s1"}"#;
+        let _ = parse_event(start, &mut a);
+        assert_eq!(a.current_model(), Some("claude-opus-4-7-20260115"));
+
+        let result = r#"{"type":"result","result":"Done","cost_usd":0.01,"duration_ms":100,"session_id":"s1","usage":{"input_tokens":10,"output_tokens":20}}"#;
+        let items = parse_event(result, &mut a);
+        let usage = items.iter().find_map(|it| match it {
+            FeedItem::TokenUsage { model, .. } => model.clone(),
+            _ => None,
+        });
+        assert_eq!(usage.as_deref(), Some("claude-opus-4-7-20260115"));
     }
 
     #[test]

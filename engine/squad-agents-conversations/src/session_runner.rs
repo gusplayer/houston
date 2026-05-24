@@ -5,7 +5,7 @@
 
 use crate::session_id_tracker::SessionIdHandle;
 use crate::session_pids::SessionPidMap;
-use squad_db::Database;
+use squad_db::{Database, SessionUsageDelta};
 use squad_terminal_manager::auth_error::{is_auth_error, is_auth_retry_marker};
 use squad_terminal_manager::provider_auth::{probe_claude_auth_status, ProviderAuthState};
 use squad_terminal_manager::{FeedItem, Provider, SessionManager, SessionStatus, SessionUpdate};
@@ -30,6 +30,10 @@ pub struct PersistOptions {
     /// Set automatically once the session reports its ID via
     /// SessionUpdate::SessionId. Do not set manually.
     pub claude_session_id: Option<String>,
+    /// Workspace UUID this session belongs to. When set, `TokenUsage` items
+    /// upsert into `session_usage` so the workspace dashboard can roll up
+    /// spend by agent. `None` skips usage tracking entirely.
+    pub workspace_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -231,6 +235,49 @@ pub fn spawn_and_monitor(
                         session_key: key.clone(),
                         item: item.clone(),
                     });
+                    // Per-turn token accounting → session_usage upsert +
+                    // SessionUsageChanged event. Only fires when persist is
+                    // wired AND a workspace_id is set (ad-hoc / onboarding
+                    // turns skip aggregation).
+                    if let (FeedItem::TokenUsage {
+                        input_tokens,
+                        output_tokens,
+                        cache_creation_input_tokens,
+                        cache_read_input_tokens,
+                        cost_usd,
+                        model,
+                    }, Some(opts)) = (item, persist.as_ref())
+                    {
+                        if let Some(ws_id) = opts.workspace_id.as_ref() {
+                            let delta = SessionUsageDelta {
+                                session_key: &key,
+                                provider: &provider_str,
+                                agent_path: &agent_path_for_events,
+                                workspace_id: ws_id,
+                                input_tokens: *input_tokens,
+                                output_tokens: *output_tokens,
+                                cache_creation_input_tokens: *cache_creation_input_tokens,
+                                cache_read_input_tokens: *cache_read_input_tokens,
+                                cost_usd: cost_usd.unwrap_or(0.0),
+                                model: model.as_deref(),
+                            };
+                            // Block on the upsert so the event we emit
+                            // afterwards genuinely reflects committed state.
+                            // The DB write is local SQLite and trivially fast.
+                            if let Err(e) = opts.db.upsert_session_usage(delta).await {
+                                tracing::warn!(
+                                    "[session_runner] failed to upsert session_usage: {e}"
+                                );
+                            } else {
+                                sink.emit(SquadEvent::SessionUsageChanged {
+                                    workspace_id: ws_id.clone(),
+                                    agent_path: agent_path_for_events.clone(),
+                                    session_key: key.clone(),
+                                    provider: provider_str.clone(),
+                                });
+                            }
+                        }
+                    }
                     // Persist non-streaming items once the provider session id is known.
                     if let Some(ref opts) = persist {
                         if let (Some(sid), Some((ft, dj))) =
@@ -408,6 +455,24 @@ fn serialize_for_persist(item: &FeedItem) -> Option<(String, String)> {
                 "modified": changes.modified
             });
             Some(("file_changes".into(), data.to_string()))
+        }
+        FeedItem::TokenUsage {
+            input_tokens,
+            output_tokens,
+            cache_creation_input_tokens,
+            cache_read_input_tokens,
+            cost_usd,
+            model,
+        } => {
+            let data = serde_json::json!({
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "cache_creation_input_tokens": cache_creation_input_tokens,
+                "cache_read_input_tokens": cache_read_input_tokens,
+                "cost_usd": cost_usd,
+                "model": model,
+            });
+            Some(("token_usage".into(), data.to_string()))
         }
         FeedItem::Thinking(t) => Some(("thinking".into(), json_str(t))),
         // Skip streaming items — they get replaced by finals.

@@ -160,13 +160,29 @@ pub fn parse_codex_event(line: &str, acc: &mut CodexAccumulator) -> Vec<FeedItem
                 items.push(FeedItem::Thinking(String::new()));
             }
             acc.thinking_placeholder_open = false;
-            // Emit usage as FinalResult
+            // Emit usage as FinalResult + structured TokenUsage. The CLI
+            // does not report cost or per-block cache numbers; the dashboard
+            // will price them upstream using a model price table when known.
             if let Some(usage) = &event.usage {
-                let total = usage.input_tokens.unwrap_or(0) + usage.output_tokens.unwrap_or(0);
+                let input = usage.input_tokens.unwrap_or(0);
+                let output = usage.output_tokens.unwrap_or(0);
+                let cached = usage.cached_input_tokens.unwrap_or(0);
+                let total = input + output;
                 items.push(FeedItem::FinalResult {
                     result: format!("{total} tokens used"),
                     cost_usd: None,
                     duration_ms: None,
+                });
+                items.push(FeedItem::TokenUsage {
+                    input_tokens: input,
+                    output_tokens: output,
+                    // Codex reports a single `cached_input_tokens` figure that
+                    // maps to a cache READ (a hit). It has no equivalent for
+                    // cache creation, so that stays zero.
+                    cache_creation_input_tokens: 0,
+                    cache_read_input_tokens: cached,
+                    cost_usd: None,
+                    model: None,
                 });
             }
             items
@@ -552,12 +568,27 @@ mod tests {
     fn parse_turn_completed() {
         let line = r#"{"type":"turn.completed","usage":{"input_tokens":24763,"cached_input_tokens":24448,"output_tokens":122}}"#;
         let items = parse_codex_event(line, &mut acc());
-        assert_eq!(items.len(), 1);
+        assert_eq!(items.len(), 2);
         match &items[0] {
             FeedItem::FinalResult { result, .. } => {
                 assert!(result.contains("24885"));
             }
             other => panic!("expected FinalResult, got {other:?}"),
+        }
+        match &items[1] {
+            FeedItem::TokenUsage {
+                input_tokens,
+                output_tokens,
+                cache_read_input_tokens,
+                cache_creation_input_tokens,
+                ..
+            } => {
+                assert_eq!(*input_tokens, 24763);
+                assert_eq!(*output_tokens, 122);
+                assert_eq!(*cache_read_input_tokens, 24448);
+                assert_eq!(*cache_creation_input_tokens, 0);
+            }
+            other => panic!("expected TokenUsage, got {other:?}"),
         }
     }
 
@@ -623,10 +654,11 @@ mod tests {
         // Turn completes without item.completed for the message
         let done = r#"{"type":"turn.completed","usage":{"input_tokens":100,"output_tokens":50}}"#;
         let items = parse_codex_event(done, &mut a);
-        // Should flush the text buffer as AssistantText + FinalResult
-        assert_eq!(items.len(), 2);
+        // Should flush the text buffer as AssistantText + FinalResult + TokenUsage
+        assert_eq!(items.len(), 3);
         assert!(matches!(&items[0], FeedItem::AssistantText(t) if t == "partial"));
         assert!(matches!(&items[1], FeedItem::FinalResult { .. }));
+        assert!(matches!(&items[2], FeedItem::TokenUsage { .. }));
     }
 
     #[test]

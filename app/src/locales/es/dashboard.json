@@ -42,7 +42,8 @@
   },
   "boardToggle": {
     "missions": "Misiones",
-    "phases": "Fases"
+    "phases": "Fases",
+    "usage": "Consumo"
   },
   "phases": {
     "addStory": "Agregar historia",

@@ -66,6 +66,40 @@ impl Database {
             .await
             .ok();
 
+        // session_usage — per-(session, provider) token + cost accumulation.
+        // One row per chat conversation per provider; upserted on every turn
+        // that the CLI reports usage for. `agent_path` and `workspace_id`
+        // are stored denormalised so the dashboard can group without an
+        // extra lookup table. Costs are the CLI's own per-token estimate —
+        // for subscription users it is API-rate equivalent, not real spend;
+        // the UI labels it as such.
+        self.conn()
+            .execute_batch(
+                "CREATE TABLE IF NOT EXISTS session_usage (
+                    session_key TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    agent_path TEXT NOT NULL,
+                    workspace_id TEXT NOT NULL,
+                    input_tokens INTEGER NOT NULL DEFAULT 0,
+                    output_tokens INTEGER NOT NULL DEFAULT 0,
+                    cache_creation_input_tokens INTEGER NOT NULL DEFAULT 0,
+                    cache_read_input_tokens INTEGER NOT NULL DEFAULT 0,
+                    cost_usd REAL NOT NULL DEFAULT 0,
+                    turns INTEGER NOT NULL DEFAULT 0,
+                    last_window_tokens INTEGER NOT NULL DEFAULT 0,
+                    last_model TEXT,
+                    started_at TEXT NOT NULL,
+                    last_turn_at TEXT NOT NULL,
+                    PRIMARY KEY (session_key, provider)
+                );
+                CREATE INDEX IF NOT EXISTS idx_session_usage_workspace
+                    ON session_usage(workspace_id, last_turn_at);
+                CREATE INDEX IF NOT EXISTS idx_session_usage_agent
+                    ON session_usage(agent_path, last_turn_at);",
+            )
+            .await
+            .ok();
+
         // phone_access — stable high-entropy secret encoded into the QR
         // shown by the desktop app. Rotating it revokes every existing
         // device token and makes old QR codes unusable.

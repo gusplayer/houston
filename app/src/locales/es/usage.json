@@ -1,0 +1,42 @@
+{
+  "title": "Consumo de tokens y costo",
+  "noWorkspace": "Selecciona un workspace para ver el consumo.",
+  "range": {
+    "today": "Hoy",
+    "7d": "Ultimos 7 dias",
+    "30d": "Ultimos 30 dias",
+    "all": "Todo el tiempo"
+  },
+  "totals": {
+    "cost": "Costo",
+    "tokens": "Tokens",
+    "sessions": "Sesiones",
+    "turns": "Turnos",
+    "costHelp": "Equivalente a tarifa de API",
+    "empty": "Aun no hay consumo en este rango."
+  },
+  "agents": {
+    "title": "Por agente",
+    "sessions": "sesiones",
+    "tokens": "tokens",
+    "empty": "Sin actividad de agentes en este rango."
+  },
+  "sessions": {
+    "title": "Sesiones recientes",
+    "empty": "Sin sesiones en este rango.",
+    "window": "Ventana",
+    "cost": "Costo",
+    "inspect": "Inspeccionar",
+    "turns": "turnos"
+  },
+  "breakdown": {
+    "title": "Contexto de la sesion",
+    "loading": "Cargando composicion del contexto...",
+    "window": "Ventana de contexto",
+    "model": "Modelo",
+    "noLive": "Aun no se ha ejecutado un turno, la ventana actual es desconocida.",
+    "composition": "Composicion inicial del prompt",
+    "compositionHelp": "Aproximadamente {{chars}} caracteres, alrededor de {{tokens}} tokens antes del primer turno.",
+    "empty": "El directorio del agente no tiene archivos rastreables en esta vista."
+  }
+}

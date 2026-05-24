@@ -42,7 +42,8 @@
   },
   "boardToggle": {
     "missions": "Missions",
-    "phases": "Phases"
+    "phases": "Phases",
+    "usage": "Usage"
   },
   "phases": {
     "addStory": "Add story",

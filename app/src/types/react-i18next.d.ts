@@ -23,6 +23,7 @@ import type providers from "../locales/en/providers.json";
 import type errors from "../locales/en/errors.json";
 import type events from "../locales/en/events.json";
 import type store from "../locales/en/store.json";
+import type usage from "../locales/en/usage.json";
 
 declare module "react-i18next" {
   interface CustomTypeOptions {
@@ -44,6 +45,7 @@ declare module "react-i18next" {
       errors: typeof errors;
       events: typeof events;
       store: typeof store;
+      usage: typeof usage;
     };
   }
 }

@@ -53,6 +53,17 @@ export function useAgentInvalidation() {
         case "StoriesChanged":
           qc.invalidateQueries({ queryKey: queryKeys.stories(p.data.agent_path) });
           break;
+        case "SessionUsageChanged":
+          // Refresh every cached view that could include this row.
+          qc.invalidateQueries({ queryKey: ["workspace-usage", p.data.workspace_id] });
+          qc.invalidateQueries({ queryKey: ["agent-usage", p.data.agent_path] });
+          qc.invalidateQueries({
+            queryKey: queryKeys.sessionUsage(p.data.agent_path, p.data.session_key, p.data.provider),
+          });
+          qc.invalidateQueries({
+            queryKey: queryKeys.contextBreakdown(p.data.agent_path, p.data.session_key),
+          });
+          break;
         // SessionStatus triggers activity invalidation (agent finished → status changed)
         case "SessionStatus":
           if (p.data.status === "completed" || p.data.status === "error") {

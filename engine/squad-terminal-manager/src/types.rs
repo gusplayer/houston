@@ -66,6 +66,7 @@ pub enum ClaudeEvent {
         cost_usd: Option<f64>,
         duration_ms: Option<u64>,
         session_id: Option<String>,
+        usage: Option<ClaudeUsage>,
         #[serde(flatten)]
         extra: serde_json::Value,
     },
@@ -147,6 +148,18 @@ pub enum ContentBlock {
     Unknown,
 }
 
+/// Per-turn token usage as reported by the Claude CLI's `result` event.
+/// All counts are scoped to one turn; aggregation across turns is the
+/// caller's job. `service_tier` is informational ("standard", "priority").
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct ClaudeUsage {
+    pub input_tokens: Option<u64>,
+    pub output_tokens: Option<u64>,
+    pub cache_creation_input_tokens: Option<u64>,
+    pub cache_read_input_tokens: Option<u64>,
+    pub service_tier: Option<String>,
+}
+
 /// Visible files created or modified during a session.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct FileChanges {
@@ -201,6 +214,19 @@ pub enum FeedItem {
         result: String,
         cost_usd: Option<f64>,
         duration_ms: Option<u64>,
+    },
+    /// Per-turn token accounting. Emitted alongside `FinalResult` when the
+    /// provider CLI reports usage. Aggregated upstream into `session_usage`
+    /// rows and surfaced in the workspace usage dashboard. Cost is the
+    /// provider CLI's own estimate (API-rate equivalent) — for subscription
+    /// users it's not real money out the door; the UI labels it as such.
+    TokenUsage {
+        input_tokens: u64,
+        output_tokens: u64,
+        cache_creation_input_tokens: u64,
+        cache_read_input_tokens: u64,
+        cost_usd: Option<f64>,
+        model: Option<String>,
     },
     /// Visible files created or changed during the session.
     FileChanges(FileChanges),

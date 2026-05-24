@@ -97,6 +97,10 @@ impl RoutineDispatcher for EngineRoutineDispatcher {
                 source: "routine".into(),
                 user_message: Some(ctx.prompt.to_string()),
                 claude_session_id: None,
+                workspace_id: sessions::resolve_workspace_id(
+                    &self.paths,
+                    Path::new(ctx.agent_path),
+                ),
             }),
             Some(self.rt.pid_map.clone()),
             resolved.provider,

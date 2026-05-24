@@ -359,6 +359,79 @@ export interface PreferenceValue {
   value: string | null;
 }
 
+// ---------- Usage / context inspector ----------
+
+/**
+ * Per-session token + cost row, aggregated across every turn in the session.
+ * Mirrors `SessionUsageDto` in `squad-engine-protocol`. Provider CLIs report
+ * their own per-token cost estimate; subscription users do not pay that
+ * amount in real money. UI surfaces it as "API-rate equivalent".
+ */
+export interface SessionUsage {
+  sessionKey: string;
+  provider: string;
+  agentPath: string;
+  workspaceId: string;
+  inputTokens: number;
+  outputTokens: number;
+  cacheCreationInputTokens: number;
+  cacheReadInputTokens: number;
+  costUsd: number;
+  turns: number;
+  /** Combined input on the most recent turn — the live "context window used" figure. */
+  lastWindowTokens: number;
+  lastModel: string | null;
+  /** Capacity of `lastModel`, if recognised. Pairs with `lastWindowTokens` for %. */
+  contextWindow: number | null;
+  startedAt: string;
+  lastTurnAt: string;
+}
+
+/** Aggregated usage for one agent across all sessions in a given range. */
+export interface AgentUsage {
+  agentPath: string;
+  sessions: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheCreationInputTokens: number;
+  cacheReadInputTokens: number;
+  costUsd: number;
+  turns: number;
+}
+
+/** Workspace dashboard payload — totals + per-agent rollups + recent sessions. */
+export interface WorkspaceUsage {
+  workspaceId: string;
+  /** Inclusive lower bound used for the range query, RFC3339. Empty = all-time. */
+  since: string;
+  totals: AgentUsage;
+  agents: AgentUsage[];
+  sessions: SessionUsage[];
+}
+
+/** One block contributed to the initial system prompt for a session. */
+export interface ContextBlock {
+  /** Stable id (e.g. `claude_md`, `learnings`, `skills_index`, `workspace_doc:<slug>`). */
+  source: string;
+  title: string;
+  charCount: number;
+  estTokens: number;
+}
+
+/** Composition of the initial prompt plus the live window-used figure. */
+export interface ContextBreakdown {
+  blocks: ContextBlock[];
+  totalChars: number;
+  totalEstTokens: number;
+  /** Most recent turn's combined input. Null before the first turn lands. */
+  lastWindowTokens: number | null;
+  lastModel: string | null;
+  contextWindow: number | null;
+}
+
+/** Range bucket accepted by the usage endpoints. */
+export type UsageRange = "today" | "7d" | "30d" | "all";
+
 /**
  * Known preference keys. Free-form strings are still allowed — this alias
  * just documents the well-known keys and gives consumers completion.

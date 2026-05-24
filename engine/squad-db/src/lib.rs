@@ -9,6 +9,7 @@
 //! - `preferences` — app-level key/value settings
 //! - `engine_tokens` — device-scoped bearer tokens minted during pairing
 //! - `phone_access` — reusable QR secret for phone access
+//! - `session_usage` — per-(session, provider) token + cost accumulation
 
 pub mod db;
 mod migrations;
@@ -16,9 +17,11 @@ pub mod repo_chat_feed;
 pub mod repo_engine_tokens;
 pub mod repo_phone_access;
 pub mod repo_search;
+pub mod repo_session_usage;
 
 // Re-export key types for convenience.
 pub use db::Database;
 pub use repo_chat_feed::ChatFeedRow;
 pub use repo_phone_access::PhoneAccessRow;
 pub use repo_search::{sanitize_fts_query, SearchResult, SessionMetadata, SessionSearchResult};
+pub use repo_session_usage::{SessionUsageDelta, SessionUsageRow};
