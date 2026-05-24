@@ -1,16 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileText, Users, Users2, FolderGit2, Plus, Trash2, FolderOpen, FileDown, ChevronRight } from "lucide-react";
+import { FileText, Users2, FolderGit2, Plus, Trash2, FolderOpen, FileDown, ChevronRight } from "lucide-react";
 import {
   Button,
   Badge,
   Spinner,
   cn,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "@squad/core";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import { useAgentStore } from "../../stores/agents";
@@ -24,39 +19,14 @@ import {
   useProjectDocs,
   useSaveProjectDoc,
   useDeleteProjectDoc,
-  usePhaseOwnership,
-  useSavePhaseOwnership,
 } from "../../hooks/queries";
 import { DOC_TEMPLATES, type DocFrontmatter } from "../../lib/project-docs";
 import { buildManifestFromAgents, writeTeamManifest } from "../../lib/team-manifest";
 import { ROLE_IDS } from "../../lib/recommend-team";
 import { tauriAgents } from "../../lib/tauri";
 import { AgentStateAvatar } from "../agent-state-avatar";
-import type { StoryPhase } from "@squad/engine-client";
 
-const STORY_PHASES: StoryPhase[] = [
-  "discovery",
-  "analysis",
-  "planning",
-  "coding",
-  "review",
-  "qa",
-  "deploy",
-  "deliver",
-];
-
-const PHASE_DOT_COLORS: Record<StoryPhase, string> = {
-  discovery: "bg-blue-500",
-  analysis: "bg-cyan-500",
-  planning: "bg-indigo-500",
-  coding: "bg-violet-500",
-  review: "bg-amber-500",
-  qa: "bg-pink-500",
-  deploy: "bg-emerald-500",
-  deliver: "bg-teal-500",
-};
-
-type Section = "team" | "docs" | "owners" | "projects";
+type Section = "team" | "docs" | "projects";
 
 /**
  * I.2 — workspace-level settings + management page. One stop for the
@@ -94,10 +64,6 @@ export function WorkspacePage() {
           <FileText className="size-3.5" />
           {t("shell:workspace.docs")}
         </NavTab>
-        <NavTab active={section === "owners"} onClick={() => setSection("owners")}>
-          <Users className="size-3.5" />
-          {t("shell:workspace.owners")}
-        </NavTab>
         <NavTab active={section === "projects"} onClick={() => setSection("projects")}>
           <FolderGit2 className="size-3.5" />
           {t("shell:workspace.projects")}
@@ -107,7 +73,6 @@ export function WorkspacePage() {
       <div className="flex-1 min-h-0 overflow-auto">
         {section === "team" && <TeamRoster workspaceId={workspace.id} />}
         {section === "docs" && <WorkspaceDocs rootPath={workspacePath} />}
-        {section === "owners" && <PhaseOwners rootPath={workspacePath} />}
         {section === "projects" && <ProjectsSection workspaceId={workspace.id} />}
       </div>
     </div>
@@ -327,63 +292,6 @@ function WorkspaceDocs({ rootPath }: { rootPath: string | undefined }) {
             {t("docs.pickOrCreate")}
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-// ── Section: Phase owners ───────────────────────────────────────────────
-
-function PhaseOwners({ rootPath }: { rootPath: string | undefined }) {
-  const { t } = useTranslation("agents");
-  const agents = useAgentStore((s) => s.agents);
-  const { data: ownership } = usePhaseOwnership(rootPath);
-  const save = useSavePhaseOwnership(rootPath);
-
-  async function setOwner(phase: StoryPhase, agentId: string | null) {
-    await save.mutateAsync({ ...(ownership ?? {}), [phase]: agentId });
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto px-6 py-6">
-      <h2 className="text-sm font-semibold mb-1">{t("sprints.phaseOwnersTitle")}</h2>
-      <p className="text-xs text-muted-foreground mb-4">{t("sprints.phaseOwnersHelp")}</p>
-
-      <div className="flex flex-col gap-2">
-        {STORY_PHASES.map((p) => {
-          const ownerId = ownership?.[p] ?? "__none__";
-          return (
-            <div key={p} className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border">
-              <span className="inline-flex items-center gap-2 w-32 shrink-0 text-xs">
-                <span className={cn("size-2 rounded-full", PHASE_DOT_COLORS[p])} />
-                {t(`sprints.phases.${p}`)}
-              </span>
-              <Select
-                value={ownerId}
-                onValueChange={(v) =>
-                  void setOwner(p, v === "__none__" ? null : v)
-                }
-              >
-                <SelectTrigger className="h-7 text-xs flex-1">
-                  <SelectValue placeholder={t("sprints.unassigned")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__" className="text-xs">
-                    {t("sprints.unassigned")}
-                  </SelectItem>
-                  {agents.map((a) => (
-                    <SelectItem key={a.id} value={a.id} className="text-xs">
-                      <span className="inline-flex items-center gap-1.5">
-                        <AgentStateAvatar agent={a} diameter={14} />
-                        {a.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          );
-        })}
       </div>
     </div>
   );
