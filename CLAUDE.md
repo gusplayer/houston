@@ -59,6 +59,7 @@ Before touching anything: run PHASE 1 (load `knowledge-base/architecture.md` + a
 Deploying / shipping a release? → `/release`
 Manual macOS build, notarize, staple? → `/build-app-local`
 Bug? Don't guess → `/debug`
+Merging parallel worktrees? → `claude-method.md` + `/integrate`
 
 Need specific knowledge? Load on demand:
 - Repo shape, products, engine story → `knowledge-base/architecture.md`
