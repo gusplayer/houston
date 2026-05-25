@@ -197,7 +197,30 @@
     "deleteProject": "Remover projeto",
     "renameProject": "Clique para renomear",
     "docsHint": "Os agentes leem esses docs automaticamente com base no seu papel.",
-    "openAgent": "Abrir agente"
+    "openAgent": "Abrir agente",
+    "methodology": "Metodologia",
+    "methodologyHint": "Configure como a metodologia de desenvolvimento paralelo do Squad se aplica aos projetos deste workspace.",
+    "methodologyEnabled": "Ativar metodologia para este workspace",
+    "methodologyTriggerMode": "Modo de gatilho",
+    "methodologyMode": {
+      "manual": "Manual, invocar via /integrate",
+      "preMerge": "Pre-merge, bloqueia merges para a branch alvo (recomendado)",
+      "preCommit": "Pre-commit, bloqueia commits"
+    },
+    "methodologyTargetBranch": "Branch alvo (padrão main)",
+    "methodologySave": "Salvar alterações",
+    "methodologySaved": "Metodologia salva",
+    "methodologySaveError": "Não foi possível salvar a metodologia",
+    "methodologyProjects": "Projetos",
+    "methodologyForce": "Sobrescrever ao semear",
+    "methodologyNoProjects": "Nenhum projeto vinculado a este workspace.",
+    "methodologyBadgeSeeded": "Semeado",
+    "methodologyBadgeNotSeeded": "Não semeado",
+    "methodologyReseed": "Ressemear",
+    "methodologySeedBtn": "Semear",
+    "methodologySeeded": "Metodologia semeada em {{project}}",
+    "methodologySeedSummary": "Criados {{created}}, ignorados {{skipped}}",
+    "methodologySeedError": "Não foi possível semear {{project}}"
   },
   "agentProjectChip": {
     "allProjects": "Todos os projetos",

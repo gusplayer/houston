@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileText, Users2, FolderGit2, Plus, Trash2, FolderOpen, FileDown, ChevronRight } from "lucide-react";
+import { FileText, Users2, FolderGit2, Plus, Trash2, FolderOpen, FileDown, ChevronRight, Workflow } from "lucide-react";
 import {
   Button,
   Badge,
@@ -25,8 +25,9 @@ import { buildManifestFromAgents, writeTeamManifest } from "../../lib/team-manif
 import { ROLE_IDS } from "../../lib/recommend-team";
 import { tauriAgents } from "../../lib/tauri";
 import { AgentStateAvatar } from "../agent-state-avatar";
+import { MethodologySection } from "../workspace/methodology-section";
 
-type Section = "team" | "docs" | "projects";
+type Section = "team" | "docs" | "projects" | "methodology";
 
 /**
  * I.2 — workspace-level settings + management page. One stop for the
@@ -68,12 +69,17 @@ export function WorkspacePage() {
           <FolderGit2 className="size-3.5" />
           {t("shell:workspace.projects")}
         </NavTab>
+        <NavTab active={section === "methodology"} onClick={() => setSection("methodology")}>
+          <Workflow className="size-3.5" />
+          {t("shell:workspace.methodology")}
+        </NavTab>
       </nav>
 
       <div className="flex-1 min-h-0 overflow-auto">
         {section === "team" && <TeamRoster workspaceId={workspace.id} />}
         {section === "docs" && <WorkspaceDocs rootPath={workspacePath} />}
         {section === "projects" && <ProjectsSection workspaceId={workspace.id} />}
+        {section === "methodology" && <MethodologySection workspaceId={workspace.id} />}
       </div>
     </div>
   );

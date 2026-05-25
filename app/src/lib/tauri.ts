@@ -728,6 +728,9 @@ import type {
   Commit,
   Branch,
   McpConfig,
+  MethodologyConfig,
+  MethodologyProjectStatus,
+  MethodologySeedResponse,
 } from "@squad/engine-client";
 
 export const tauriProjects = {
@@ -739,6 +742,25 @@ export const tauriProjects = {
     call<Project>("update_project", () => getEngine().updateProject(workspaceId, projectId, req)),
   delete: (workspaceId: string, projectId: string) =>
     call<void>("delete_project", () => getEngine().deleteProject(workspaceId, projectId)),
+};
+
+export const tauriMethodology = {
+  get: (workspaceId: string) =>
+    call<MethodologyConfig>("get_methodology", () =>
+      getEngine().getMethodology(workspaceId),
+    ),
+  put: (workspaceId: string, cfg: MethodologyConfig) =>
+    call<MethodologyConfig>("put_methodology", () =>
+      getEngine().putMethodology(workspaceId, cfg),
+    ),
+  status: (workspaceId: string) =>
+    call<MethodologyProjectStatus[]>("methodology_status", () =>
+      getEngine().getMethodologyStatus(workspaceId),
+    ),
+  seedProject: (workspaceId: string, projectId: string, force = false) =>
+    call<MethodologySeedResponse>("seed_project_methodology", () =>
+      getEngine().seedProjectMethodology(workspaceId, projectId, force),
+    ),
 };
 
 export const tauriMcps = {

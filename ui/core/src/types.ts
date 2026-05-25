@@ -136,4 +136,17 @@ export type SquadEvent =
   | {
       type: "ComposioConnectionAdded";
       data: { toolkit: string };
+    }
+  | {
+      type: "MethodologyConfigChanged";
+      data: { workspace_id: string };
+    }
+  | {
+      type: "MethodologySeeded";
+      data: {
+        workspace_id: string;
+        project_id: string;
+        files_created: number;
+        files_skipped: number;
+      };
     };

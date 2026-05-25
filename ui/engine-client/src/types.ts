@@ -783,3 +783,23 @@ export interface ComposioStartLinkResponse {
   connected_account_id: string;
   toolkit: string;
 }
+
+// ---------- methodology ----------
+
+export type TriggerMode = "manual" | "pre-merge" | "pre-commit";
+
+export interface MethodologyConfig {
+  enabled: boolean;
+  triggerMode: TriggerMode;
+  targetBranch?: string;
+}
+
+export interface MethodologyProjectStatus {
+  projectId: string;
+  seeded: boolean;
+}
+
+export interface MethodologySeedResponse {
+  filesCreated: string[];
+  filesSkipped: string[];
+}

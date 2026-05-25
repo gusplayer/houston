@@ -53,11 +53,16 @@ fn make_repo(parent: &std::path::Path, name: &str) -> PathBuf {
 
 async fn bind_project(addr: SocketAddr, tok: &str, wid: &str, repo: &std::path::Path) -> String {
     let c = reqwest::Client::new();
+    let name = repo
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("test-repo")
+        .to_string();
     let p: serde_json::Value = c
         .post(format!("http://{addr}/v1/workspaces/{wid}/projects"))
         .bearer_auth(tok)
         .json(&serde_json::json!({
-            "name": "test-repo",
+            "name": name,
             "repoPath": repo.to_string_lossy(),
         }))
         .send()
@@ -218,4 +223,59 @@ async fn manual_seed_with_force_overwrites_existing() {
 
     let body = std::fs::read_to_string(&rules).unwrap();
     assert_ne!(body, "USER OVERRIDE\n");
+}
+
+#[tokio::test]
+async fn status_endpoint_reports_per_project_seeded_state() {
+    let (addr, tok, docs) = spawn().await;
+    let wid = create_workspace(addr, &tok).await;
+    let c = reqwest::Client::new();
+
+    // Empty workspace → empty status array.
+    let empty: serde_json::Value = c
+        .get(format!("http://{addr}/v1/workspaces/{wid}/methodology/status"))
+        .bearer_auth(&tok)
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(empty.as_array().unwrap().len(), 0);
+
+    // Two projects: bind both, only seed one.
+    let repo_seeded = make_repo(docs.path(), "status-seeded");
+    let repo_bare = make_repo(docs.path(), "status-bare");
+    let pid_seeded = bind_project(addr, &tok, &wid, &repo_seeded).await;
+    let pid_bare = bind_project(addr, &tok, &wid, &repo_bare).await;
+
+    c.post(format!(
+        "http://{addr}/v1/workspaces/{wid}/projects/{pid_seeded}/methodology/seed"
+    ))
+    .bearer_auth(&tok)
+    .send()
+    .await
+    .unwrap();
+
+    let status: serde_json::Value = c
+        .get(format!("http://{addr}/v1/workspaces/{wid}/methodology/status"))
+        .bearer_auth(&tok)
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    let arr = status.as_array().unwrap();
+    assert_eq!(arr.len(), 2);
+    let seeded_entry = arr
+        .iter()
+        .find(|e| e["projectId"] == pid_seeded.as_str())
+        .unwrap();
+    assert_eq!(seeded_entry["seeded"], true);
+    let bare_entry = arr
+        .iter()
+        .find(|e| e["projectId"] == pid_bare.as_str())
+        .unwrap();
+    assert_eq!(bare_entry["seeded"], false);
 }

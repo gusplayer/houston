@@ -30,6 +30,12 @@ export {
 } from "./use-learnings";
 export { useMcpConfig, useSaveMcpConfig } from "./use-mcps";
 export {
+  useMethodology,
+  useMethodologyStatus,
+  useUpdateMethodology,
+  useSeedMethodologyForProject,
+} from "./use-methodology";
+export {
   useSprints,
   useCreateSprint,
   useUpdateSprint,

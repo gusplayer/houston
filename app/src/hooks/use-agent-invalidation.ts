@@ -82,6 +82,16 @@ export function useAgentInvalidation() {
         case "ComposioConnectionAdded":
           qc.invalidateQueries({ queryKey: queryKeys.connectedToolkits() });
           break;
+        case "MethodologyConfigChanged":
+          qc.invalidateQueries({
+            queryKey: queryKeys.methodology(p.data.workspace_id),
+          });
+          break;
+        case "MethodologySeeded":
+          qc.invalidateQueries({
+            queryKey: queryKeys.methodologyStatus(p.data.workspace_id),
+          });
+          break;
       }
     });
 
