@@ -17,6 +17,7 @@ use std::sync::Arc;
 pub fn router() -> Router<Arc<ServerState>> {
     Router::new()
         .route("/workspaces/:wid/methodology", get(read).put(write))
+        .route("/workspaces/:wid/methodology/status", get(status))
         .route(
             "/workspaces/:wid/projects/:pid/methodology/seed",
             post(seed),
@@ -98,4 +99,36 @@ async fn seed(
         files_created,
         files_skipped,
     }))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ProjectStatus {
+    project_id: String,
+    seeded: bool,
+}
+
+/// Returns per-project seeding status. A project is "seeded" if
+/// `<repo_path>/.claude/method.config` exists. Cheap filesystem check;
+/// no traversal of the full template set.
+async fn status(
+    State(st): State<Arc<ServerState>>,
+    Path(wid): Path<String>,
+) -> Result<Json<Vec<ProjectStatus>>, ApiError> {
+    let dir = workspace_dir(st.engine.paths.docs(), &wid)?;
+    let projects = squad_projects::list(&dir)
+        .map_err(|e| CoreError::Internal(format!("list projects: {e}")))?;
+    let out = projects
+        .into_iter()
+        .map(|p| {
+            let seeded = std::path::Path::new(&p.repo_path)
+                .join(".claude/method.config")
+                .exists();
+            ProjectStatus {
+                project_id: p.id,
+                seeded,
+            }
+        })
+        .collect();
+    Ok(Json(out))
 }

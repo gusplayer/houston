@@ -21,6 +21,7 @@
  * - `agent:{agent_path}` — ActivityChanged, SkillsChanged, FilesChanged,
  *    ConfigChanged, ContextChanged, LearningsChanged, ConversationsChanged
  * - `composio` — ComposioCliReady, ComposioCliFailed, ComposioConnectionAdded
+ * - `workspace:{workspace_id}` — MethodologyConfigChanged, MethodologySeeded
  *
  * (The legacy `sync` topic was removed — mobile now uses the same WS
  * directly through the reverse tunnel.)

@@ -107,6 +107,7 @@ module.
 |---|---|---|
 | GET | `/v1/workspaces/:wid/methodology` | Read config (returns defaults if not set) |
 | PUT | `/v1/workspaces/:wid/methodology` | Update config (enabled, triggerMode, targetBranch) |
+| GET | `/v1/workspaces/:wid/methodology/status` | Per-project seed status (cheap fs check on `<repo>/.claude/method.config`) |
 | POST | `/v1/workspaces/:wid/projects/:pid/methodology/seed?force=bool` | Manually seed methodology files into a project's repo |
 
 **Sessions** (`agent_path` path-segment, URL-encoded)

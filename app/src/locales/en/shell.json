@@ -197,7 +197,30 @@
     "deleteProject": "Remove project",
     "renameProject": "Click to rename",
     "docsHint": "Agents read these docs automatically based on their role.",
-    "openAgent": "Open agent"
+    "openAgent": "Open agent",
+    "methodology": "Methodology",
+    "methodologyHint": "Configure how Squad's parallel-development methodology applies to projects in this workspace.",
+    "methodologyEnabled": "Enable methodology for this workspace",
+    "methodologyTriggerMode": "Trigger mode",
+    "methodologyMode": {
+      "manual": "Manual only, invoke via /integrate",
+      "preMerge": "Pre-merge, block merges to target branch (recommended)",
+      "preCommit": "Pre-commit, block commits"
+    },
+    "methodologyTargetBranch": "Target branch override (defaults to main)",
+    "methodologySave": "Save changes",
+    "methodologySaved": "Methodology saved",
+    "methodologySaveError": "Could not save methodology",
+    "methodologyProjects": "Projects",
+    "methodologyForce": "Force overwrite when seeding",
+    "methodologyNoProjects": "No projects bound to this workspace.",
+    "methodologyBadgeSeeded": "Seeded",
+    "methodologyBadgeNotSeeded": "Not seeded",
+    "methodologyReseed": "Re-seed",
+    "methodologySeedBtn": "Seed",
+    "methodologySeeded": "Seeded methodology into {{project}}",
+    "methodologySeedSummary": "Created {{created}}, skipped {{skipped}}",
+    "methodologySeedError": "Could not seed {{project}}"
   },
   "agentProjectChip": {
     "allProjects": "All projects",

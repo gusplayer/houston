@@ -72,6 +72,9 @@ import type {
   Project,
   CreateProject,
   UpdateProject,
+  MethodologyConfig,
+  MethodologyProjectStatus,
+  MethodologySeedResponse,
   GitStatus,
   Commit,
   Branch,
@@ -705,6 +708,32 @@ export class SquadClient {
   }
   deleteProject(workspaceId: string, projectId: string): Promise<void> {
     return this.request("DELETE", `/workspaces/${workspaceId}/projects/${projectId}`);
+  }
+
+  // ---------- methodology ----------
+
+  getMethodology(workspaceId: string): Promise<MethodologyConfig> {
+    return this.request("GET", `/workspaces/${workspaceId}/methodology`);
+  }
+  putMethodology(
+    workspaceId: string,
+    cfg: MethodologyConfig,
+  ): Promise<MethodologyConfig> {
+    return this.request("PUT", `/workspaces/${workspaceId}/methodology`, cfg);
+  }
+  getMethodologyStatus(workspaceId: string): Promise<MethodologyProjectStatus[]> {
+    return this.request("GET", `/workspaces/${workspaceId}/methodology/status`);
+  }
+  seedProjectMethodology(
+    workspaceId: string,
+    projectId: string,
+    force = false,
+  ): Promise<MethodologySeedResponse> {
+    const qs = force ? "?force=true" : "";
+    return this.request(
+      "POST",
+      `/workspaces/${workspaceId}/projects/${projectId}/methodology/seed${qs}`,
+    );
   }
 
   // ---------- git ----------

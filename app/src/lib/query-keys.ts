@@ -44,6 +44,10 @@ export const queryKeys = {
 
   // Workspace-scoped projects
   projects: (workspaceId: string) => ["projects", workspaceId] as const,
+  // Workspace-scoped methodology
+  methodology: (workspaceId: string) => ["methodology", workspaceId] as const,
+  methodologyStatus: (workspaceId: string) =>
+    ["methodology-status", workspaceId] as const,
   // Project-scoped git queries
   gitStatus: (workspaceId: string, projectId: string) => ["git-status", workspaceId, projectId] as const,
   gitLog: (workspaceId: string, projectId: string) => ["git-log", workspaceId, projectId] as const,
