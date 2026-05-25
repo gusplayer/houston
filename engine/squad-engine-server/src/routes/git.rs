@@ -36,11 +36,7 @@ pub fn router() -> Router<Arc<ServerState>> {
         .route("/workspaces/:wid/projects/:id/git/diff", get(diff_route))
 }
 
-fn repo_path_for(
-    docs: &std::path::Path,
-    wid: &str,
-    project_id: &str,
-) -> Result<PathBuf, ApiError> {
+fn repo_path_for(docs: &std::path::Path, wid: &str, project_id: &str) -> Result<PathBuf, ApiError> {
     let all = workspaces::read_all(docs)?;
     let ws = all
         .into_iter()

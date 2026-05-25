@@ -3,9 +3,9 @@
 //! Delegates atomic writes + path-traversal safety to `squad-agent-files`.
 
 use crate::error::{CoreError, CoreResult};
-use squad_agent_files as files;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use squad_agent_files as files;
 use std::path::{Path, PathBuf};
 
 /// Returns the `.squad/` directory inside an agent root.
@@ -16,9 +16,8 @@ pub fn squad_dir(root: &Path) -> PathBuf {
 /// Creates `.squad/` if it doesn't exist.
 pub fn ensure_squad_dir(root: &Path) -> CoreResult<()> {
     let dir = squad_dir(root);
-    std::fs::create_dir_all(&dir).map_err(|e| {
-        CoreError::Internal(format!("failed to create .squad directory: {e}"))
-    })?;
+    std::fs::create_dir_all(&dir)
+        .map_err(|e| CoreError::Internal(format!("failed to create .squad directory: {e}")))?;
     Ok(())
 }
 

@@ -7,9 +7,11 @@ use axum::{
     routing::get,
     Json, Router,
 };
+use squad_engine_core::methodology;
 use squad_engine_core::workspaces;
 use squad_engine_core::CoreError;
 use squad_projects::{self, CreateProject, Project, UpdateProject};
+use squad_ui_events::SquadEvent;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -45,7 +47,36 @@ async fn create(
     Json(req): Json<CreateProject>,
 ) -> Result<Json<Project>, ApiError> {
     let root = workspace_root(st.engine.paths.docs(), &wid)?;
-    Ok(Json(squad_projects::create(&root, req)?))
+    let project = squad_projects::create(&root, req)?;
+    if let Err(err) = maybe_auto_seed(&st, &root, &wid, &project) {
+        tracing::warn!(project_id = %project.id, "methodology auto-seed failed: {err}");
+        st.engine.events.emit(SquadEvent::Toast {
+            message: format!("Methodology auto-seed failed: {err}"),
+            variant: "warning".to_string(),
+        });
+    }
+    Ok(Json(project))
+}
+
+fn maybe_auto_seed(
+    st: &ServerState,
+    workspace_dir: &std::path::Path,
+    wid: &str,
+    project: &Project,
+) -> Result<(), CoreError> {
+    let cfg = methodology::read_config(workspace_dir)?;
+    if !cfg.enabled {
+        return Ok(());
+    }
+    let report =
+        methodology::seed_for_project(std::path::Path::new(&project.repo_path), &cfg, false)?;
+    st.engine.events.emit(SquadEvent::MethodologySeeded {
+        workspace_id: wid.to_string(),
+        project_id: project.id.clone(),
+        files_created: report.created.len() as u64,
+        files_skipped: report.skipped.len() as u64,
+    });
+    Ok(())
 }
 
 async fn fetch(

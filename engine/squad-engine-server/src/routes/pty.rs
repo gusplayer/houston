@@ -31,7 +31,7 @@ use axum::{
 };
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::Deserialize;
-use squad_terminal_manager::{claude_install_path, PtyEvent, spawn_pty};
+use squad_terminal_manager::{claude_install_path, spawn_pty, PtyEvent};
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -48,8 +48,12 @@ struct PtyQuery {
     #[serde(default = "default_rows")]
     rows: u16,
 }
-fn default_cols() -> u16 { 120 }
-fn default_rows() -> u16 { 36 }
+fn default_cols() -> u16 {
+    120
+}
+fn default_rows() -> u16 {
+    36
+}
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -81,16 +85,14 @@ async fn handle_pty_socket(
         PathBuf::from("claude")
     };
 
-    let handle = match spawn_pty(
-        claude_bin,
-        Some(working_dir),
-        query.cols,
-        query.rows,
-    ) {
+    let handle = match spawn_pty(claude_bin, Some(working_dir), query.cols, query.rows) {
         Ok(h) => h,
         Err(e) => {
             tracing::error!("[pty] failed to spawn: {e}");
-            let msg = format!("{{\"type\":\"error\",\"message\":{}}}", serde_json::json!(e));
+            let msg = format!(
+                "{{\"type\":\"error\",\"message\":{}}}",
+                serde_json::json!(e)
+            );
             let mut ws = socket;
             let _ = ws.send(Message::Text(msg)).await;
             return;

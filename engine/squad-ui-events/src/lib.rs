@@ -8,8 +8,8 @@
 //! emit, broadcast channel for the HTTP server, no-op for tests) is
 //! injected at the top of the app. No Tauri dep here by design.
 
-use squad_terminal_manager::FeedItem;
 use serde::Serialize;
+use squad_terminal_manager::FeedItem;
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
@@ -30,15 +30,9 @@ pub enum SquadEvent {
         error: Option<String>,
     },
     /// Toast notification for the UI.
-    Toast {
-        message: String,
-        variant: String,
-    },
+    Toast { message: String, variant: String },
     /// CLI tool authentication required — provider session returned 401 or similar.
-    AuthRequired {
-        provider: String,
-        message: String,
-    },
+    AuthRequired { provider: String, message: String },
     /// Activity completion notification.
     CompletionToast {
         title: String,
@@ -46,7 +40,6 @@ pub enum SquadEvent {
     },
 
     // ----- Event system (squad-events) -----
-
     /// An input event was received and queued for processing.
     EventReceived {
         event_id: String,
@@ -56,13 +49,9 @@ pub enum SquadEvent {
         summary: String,
     },
     /// An input event was processed.
-    EventProcessed {
-        event_id: String,
-        status: String,
-    },
+    EventProcessed { event_id: String, status: String },
 
     // ----- Scheduler (squad-scheduler) -----
-
     /// A heartbeat fired.
     HeartbeatFired {
         prompt: String,
@@ -76,40 +65,24 @@ pub enum SquadEvent {
     },
 
     // ----- Routines -----
-
     /// Routines list changed (.squad/routines.json).
-    RoutinesChanged {
-        agent_path: String,
-    },
+    RoutinesChanged { agent_path: String },
     /// Routine runs changed (.squad/routine_runs.json).
-    RoutineRunsChanged {
-        agent_path: String,
-    },
+    RoutineRunsChanged { agent_path: String },
 
     // ----- Agent data changes (AI-native reactivity) -----
     // Emitted by agent_store writes AND by the file watcher.
     // Frontend uses these to invalidate TanStack Query caches.
-
     /// Activity list changed (.squad/activity.json).
-    ActivityChanged {
-        agent_path: String,
-    },
+    ActivityChanged { agent_path: String },
     /// Skills changed (.agents/skills/ — skill.sh / Claude Code convention).
-    SkillsChanged {
-        agent_path: String,
-    },
+    SkillsChanged { agent_path: String },
     /// Agent files changed (non-.squad files).
-    FilesChanged {
-        agent_path: String,
-    },
+    FilesChanged { agent_path: String },
     /// Config changed (.squad/config.json).
-    ConfigChanged {
-        agent_path: String,
-    },
+    ConfigChanged { agent_path: String },
     /// Context files changed (CLAUDE.md, .squad/prompts/).
-    ContextChanged {
-        agent_path: String,
-    },
+    ContextChanged { agent_path: String },
     /// Conversations list changed.
     ConversationsChanged {
         project_id: String,
@@ -125,20 +98,27 @@ pub enum SquadEvent {
         provider: String,
     },
     /// Learnings changed (.squad/learnings/learnings.json).
-    LearningsChanged {
-        agent_path: String,
-    },
+    LearningsChanged { agent_path: String },
     /// Sprints changed (.squad/sprints/sprints.json).
-    SprintsChanged {
-        agent_path: String,
-    },
+    SprintsChanged { agent_path: String },
     /// Stories changed (.squad/stories/stories.json).
-    StoriesChanged {
-        agent_path: String,
+    StoriesChanged { agent_path: String },
+
+    // ----- Methodology -----
+    /// Workspace methodology config changed (enabled, trigger mode,
+    /// target branch). Frontend invalidates the methodology query.
+    MethodologyConfigChanged { workspace_id: String },
+    /// Methodology files were seeded into a project's repo (auto on
+    /// project bind, or manual via REST). Frontend shows a toast and
+    /// invalidates project-view queries.
+    MethodologySeeded {
+        workspace_id: String,
+        project_id: String,
+        files_created: u64,
+        files_skipped: u64,
     },
 
     // ----- Composio CLI lifecycle -----
-
     /// Composio CLI is installed and ready. Frontend should invalidate
     /// the connections query so the integrations tab updates.
     ComposioCliReady,
@@ -162,7 +142,6 @@ pub enum SquadEvent {
     // downloads it on first launch via `squad-claude-installer`. The
     // frontend uses these events to render the install progress banner
     // and re-check provider auth status once ready.
-
     /// Claude Code CLI download in progress. `progress_pct` is 0-100;
     /// emitted at most every 10 percentage points so the channel isn't
     /// flooded during a ~120 MB download.

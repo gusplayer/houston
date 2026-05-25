@@ -48,7 +48,9 @@ pub struct McpConfig {
 
 impl Default for McpConfig {
     fn default() -> Self {
-        Self { mcp_servers: HashMap::new() }
+        Self {
+            mcp_servers: HashMap::new(),
+        }
     }
 }
 
@@ -75,7 +77,9 @@ async fn write_mcps(
     let agent_dir = std::path::Path::new(&q.agent_path);
     let contents = serde_json::to_string_pretty(&body)
         .map_err(|e| CoreError::Internal(format!("mcps serialize: {e}")))?;
-    if let Some(event) = write_agent_file(agent_dir, &q.agent_path, ".squad/mcps/mcps.json", &contents)? {
+    if let Some(event) =
+        write_agent_file(agent_dir, &q.agent_path, ".squad/mcps/mcps.json", &contents)?
+    {
         st.engine.events.emit(event);
     }
     Ok(())

@@ -323,21 +323,20 @@ fn pre_trust_claude_folder(folder: &Path) {
     };
 
     let key = folder.to_string_lossy().to_string();
-    let projects = root
-        .as_object_mut()
-        .and_then(|o| {
-            if !o.contains_key("projects") {
-                o.insert("projects".into(), serde_json::json!({}));
-            }
-            o.get_mut("projects")?.as_object_mut()
-        });
+    let projects = root.as_object_mut().and_then(|o| {
+        if !o.contains_key("projects") {
+            o.insert("projects".into(), serde_json::json!({}));
+        }
+        o.get_mut("projects")?.as_object_mut()
+    });
 
     if let Some(projects) = projects {
-        let entry = projects
-            .entry(key)
-            .or_insert_with(|| serde_json::json!({}));
+        let entry = projects.entry(key).or_insert_with(|| serde_json::json!({}));
         if let Some(obj) = entry.as_object_mut() {
-            obj.insert("hasTrustDialogAccepted".into(), serde_json::Value::Bool(true));
+            obj.insert(
+                "hasTrustDialogAccepted".into(),
+                serde_json::Value::Bool(true),
+            );
         }
     }
 

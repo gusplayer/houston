@@ -8,9 +8,9 @@
 use crate::routes::error::ApiError;
 use crate::state::ServerState;
 use axum::{extract::State, routing::post, Json, Router};
+use serde::Deserialize;
 use squad_engine_core::CoreError;
 use squad_file_watcher::start_watching;
-use serde::Deserialize;
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
@@ -31,8 +31,8 @@ async fn start(
 ) -> Result<(), ApiError> {
     let mut guard = st.watcher.0.lock().await;
     *guard = None; // stop any existing watcher
-    let watcher = start_watching(st.engine.events.clone(), req.agent_path)
-        .map_err(CoreError::Internal)?;
+    let watcher =
+        start_watching(st.engine.events.clone(), req.agent_path).map_err(CoreError::Internal)?;
     *guard = Some(watcher);
     Ok(())
 }

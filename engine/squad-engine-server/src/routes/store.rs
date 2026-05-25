@@ -7,10 +7,10 @@ use axum::{
     routing::{delete, get, post},
     Json, Router,
 };
+use serde::Deserialize;
 use squad_engine_core::store::{
     self, ImportedWorkspace, InstallAgent, InstallFromGithub, StoreListing,
 };
-use serde::Deserialize;
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
@@ -44,10 +44,7 @@ async fn install(
     State(st): State<Arc<ServerState>>,
     Json(req): Json<InstallAgent>,
 ) -> Result<(), ApiError> {
-    let bundled_agent_id = req
-        .repo
-        .strip_prefix("squad-store/")
-        .map(ToOwned::to_owned);
+    let bundled_agent_id = req.repo.strip_prefix("squad-store/").map(ToOwned::to_owned);
     store::install_agent(&st.engine.paths.agents_dir(), req).await?;
     if let Some(agent_id) = bundled_agent_id {
         store::sync_bundled_agent_instances(

@@ -7,11 +7,11 @@ use axum::{
     routing::{delete, get, patch, post},
     Json, Router,
 };
+use serde::Deserialize;
 use squad_engine_core::agents_crud::{self, Agent, CreateAgent, CreateAgentResult, UpdateAgent};
 use squad_engine_core::workspaces::{
     self, CreateWorkspace, RenameWorkspace, UpdateProvider, Workspace,
 };
-use serde::Deserialize;
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {

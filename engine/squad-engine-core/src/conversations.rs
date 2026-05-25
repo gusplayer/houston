@@ -7,8 +7,8 @@
 //! collapse the duplication with `app/squad-tauri/src/agent_store/`.
 
 use crate::error::{CoreError, CoreResult};
-use squad_agent_files as files;
 use serde::{Deserialize, Serialize};
+use squad_agent_files as files;
 use std::path::Path;
 
 /// Minimal view of an activity entry — only the fields conversations need.

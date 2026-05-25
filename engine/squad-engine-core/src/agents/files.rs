@@ -17,9 +17,9 @@
 //! in the Tauri adapter — they have no meaning when the engine runs remotely.
 
 use crate::error::{CoreError, CoreResult};
+use serde::{Deserialize, Serialize};
 use squad_agent_files as files;
 use squad_ui_events::SquadEvent;
-use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 // ---------------------------------------------------------------------------
@@ -158,8 +158,7 @@ pub fn rename_file(agent_root: &Path, rel_path: &str, new_name: &str) -> CoreRes
 /// Delete a file from the agent.
 pub fn delete_file(agent_root: &Path, rel_path: &str) -> CoreResult<()> {
     let full = resolve_existing(agent_root, rel_path)?;
-    std::fs::remove_file(&full)
-        .map_err(|e| CoreError::Internal(format!("failed to delete: {e}")))
+    std::fs::remove_file(&full).map_err(|e| CoreError::Internal(format!("failed to delete: {e}")))
 }
 
 /// Create a folder inside the agent. Accepts a relative path (e.g., `docs`
@@ -239,9 +238,8 @@ pub fn import_files(
     let dest_dir = match target_folder {
         Some(folder) => {
             let d = agent_root.join(folder);
-            std::fs::create_dir_all(&d).map_err(|e| {
-                CoreError::Internal(format!("failed to create directory: {e}"))
-            })?;
+            std::fs::create_dir_all(&d)
+                .map_err(|e| CoreError::Internal(format!("failed to create directory: {e}")))?;
             d
         }
         None => agent_root.to_path_buf(),
@@ -414,7 +412,10 @@ mod tests {
         let res = write_agent_file(d.path(), "/a", "../escape.txt", "x");
         match res {
             Err(CoreError::BadRequest(_)) => {}
-            other => panic!("expected BadRequest, got {:?}", other.err().map(|e| e.to_string())),
+            other => panic!(
+                "expected BadRequest, got {:?}",
+                other.err().map(|e| e.to_string())
+            ),
         }
     }
 
@@ -441,8 +442,14 @@ mod tests {
 
         let files = list_project_files(d.path()).unwrap();
         let names: Vec<&str> = files.iter().map(|f| f.name.as_str()).collect();
-        assert!(names.contains(&"morning_brief.md"), ".md files should appear in the Files tab");
-        assert!(!names.contains(&"data.json"), ".json files should remain hidden");
+        assert!(
+            names.contains(&"morning_brief.md"),
+            ".md files should appear in the Files tab"
+        );
+        assert!(
+            !names.contains(&"data.json"),
+            ".json files should remain hidden"
+        );
     }
 
     #[test]

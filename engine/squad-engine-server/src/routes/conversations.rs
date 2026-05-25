@@ -3,8 +3,8 @@
 use crate::routes::error::ApiError;
 use crate::state::ServerState;
 use axum::{extract::State, routing::post, Json, Router};
-use squad_engine_core::conversations::{self, ConversationEntry};
 use serde::Deserialize;
+use squad_engine_core::conversations::{self, ConversationEntry};
 use std::path::PathBuf;
 use std::sync::Arc;
 

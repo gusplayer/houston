@@ -7,8 +7,8 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use squad_engine_core::preferences;
 use serde::{Deserialize, Serialize};
+use squad_engine_core::preferences;
 use std::sync::Arc;
 
 #[derive(Deserialize)]

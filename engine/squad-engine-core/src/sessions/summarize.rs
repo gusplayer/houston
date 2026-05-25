@@ -8,8 +8,8 @@ use super::summary_text::{
     fallback_summary, normalize_spaces, parse_summary, truncate_chars, DESCRIPTION_MAX_CHARS,
 };
 use crate::error::CoreResult;
-use squad_terminal_manager::{claude_path, Provider};
 use serde_json::Value;
+use squad_terminal_manager::{claude_path, Provider};
 use std::time::Duration;
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
@@ -86,8 +86,8 @@ async fn run_codex_summary(prompt: &str, model: Option<&str>) -> Result<String, 
     // Prefer the bundled codex (pinned in `cli-deps.json`) so the title
     // summarizer can't get sabotaged by a stale `nvm`/`brew` codex on the
     // user's PATH that doesn't recognize the model we picked.
-    let bin = squad_cli_bundle::bundled_codex_path()
-        .unwrap_or_else(|| std::path::PathBuf::from("codex"));
+    let bin =
+        squad_cli_bundle::bundled_codex_path().unwrap_or_else(|| std::path::PathBuf::from("codex"));
     let mut cmd = tokio::process::Command::new(&bin);
     cmd.env("PATH", claude_path::shell_path());
     cmd.arg("exec")

@@ -102,6 +102,13 @@ module.
 | POST | `/v1/workspaces/:id/agents/:agent_id/rename` | Rename agent |
 | POST | `/v1/workspaces/install-from-github` | Import workspace template |
 
+**Methodology** (workspace-level parallel-dev policy; auto-seeds .claude/* into bound projects when enabled)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/v1/workspaces/:wid/methodology` | Read config (returns defaults if not set) |
+| PUT | `/v1/workspaces/:wid/methodology` | Update config (enabled, triggerMode, targetBranch) |
+| POST | `/v1/workspaces/:wid/projects/:pid/methodology/seed?force=bool` | Manually seed methodology files into a project's repo |
+
 **Sessions** (`agent_path` path-segment, URL-encoded)
 | Method | Path | Description |
 |---|---|---|
@@ -320,6 +327,7 @@ forwarder sends — essential for remote clients where bandwidth matters.
 | `*` | **Firehose.** Delivers every event regardless of its event_topic. The desktop app uses this so it doesn't need to track per-agent / per-session subscriptions. Remote clients should prefer narrower topics. |
 | `session:{key}` | `FeedItem`, `SessionStatus`, `AuthRequired` |
 | `agent:{path}` | `ActivityChanged`, `SkillsChanged`, `FilesChanged`, `ConfigChanged`, `ContextChanged`, `LearningsChanged`, `ConversationsChanged`, `SessionUsageChanged` |
+| `workspace:{id}` | `MethodologyConfigChanged`, `MethodologySeeded` |
 | `routines:{agent}` | `RoutinesChanged`, `RoutineRunsChanged` |
 | `composio` | `ComposioCliReady`, `ComposioCliFailed` |
 | `scheduler` | `HeartbeatFired`, `CronFired` |

@@ -11,8 +11,8 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use squad_engine_core::CoreError;
 use serde::Serialize;
+use squad_engine_core::CoreError;
 use std::sync::Arc;
 
 #[derive(Serialize)]

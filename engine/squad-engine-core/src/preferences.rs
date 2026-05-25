@@ -4,8 +4,8 @@
 //! Relocated from `app/src-tauri/src/commands/preferences.rs`.
 
 use crate::error::{CoreError, CoreResult};
-use squad_db::Database;
 use serde::{Deserialize, Serialize};
+use squad_db::Database;
 
 /// Preference key for the user's IANA timezone (e.g. `"America/Bogota"`).
 /// Cron schedules without a per-routine override are interpreted in this zone.
@@ -84,10 +84,7 @@ pub async fn get_legal_acceptance(db: &Database) -> CoreResult<Option<LegalAccep
 }
 
 /// Persist the user's disclaimer acceptance.
-pub async fn set_legal_acceptance(
-    db: &Database,
-    acceptance: &LegalAcceptance,
-) -> CoreResult<()> {
+pub async fn set_legal_acceptance(db: &Database, acceptance: &LegalAcceptance) -> CoreResult<()> {
     let encoded = serde_json::to_string(acceptance)
         .map_err(|e| CoreError::Internal(format!("legal_acceptance encode: {e}")))?;
     set(db, LEGAL_ACCEPTANCE_KEY, &encoded).await

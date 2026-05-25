@@ -11,12 +11,12 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use serde::{Deserialize, Serialize};
 use squad_composio::apps::ComposioAppEntry;
 use squad_composio::cli::{ComposioStatus, StartLinkResponse, StartLoginResponse};
 use squad_composio::commands as inner;
 use squad_composio::connection_watcher;
 use squad_engine_core::CoreError;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
