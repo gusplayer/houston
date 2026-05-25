@@ -15,11 +15,11 @@ use axum::{
     Json, Router,
 };
 use base64::Engine as _;
+use serde::{Deserialize, Serialize};
 use squad_engine_core::agents::files;
 use squad_engine_core::paths::expand_tilde;
 use squad_engine_core::CoreError;
 use squad_ui_events::SquadEvent;
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -238,8 +238,7 @@ async fn import(
     Json(body): Json<ImportBody>,
 ) -> Result<Json<Vec<files::ProjectFile>>, ApiError> {
     let root = resolve_root(&body.agent_path)?;
-    let imported =
-        files::import_files(&root, &body.file_paths, body.target_folder.as_deref())?;
+    let imported = files::import_files(&root, &body.file_paths, body.target_folder.as_deref())?;
     if !imported.is_empty() {
         emit(
             &st,

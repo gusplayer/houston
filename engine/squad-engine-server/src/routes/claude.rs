@@ -22,8 +22,8 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use squad_engine_core::CoreError;
 use serde::Serialize;
+use squad_engine_core::CoreError;
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
@@ -95,8 +95,9 @@ async fn status(State(st): State<Arc<ServerState>>) -> Json<ClaudeStatus> {
 /// `SquadEvent::ClaudeCliInstalling` / `ClaudeCliReady` /
 /// `ClaudeCliFailed` over the WebSocket firehose.
 async fn install(State(st): State<Arc<ServerState>>) -> Result<(), ApiError> {
-    let manifest = squad_cli_bundle::load_bundled_manifest()
-        .ok_or_else(|| lift("cli-deps.json manifest not available — install pinned manifest first".into()))?;
+    let manifest = squad_cli_bundle::load_bundled_manifest().ok_or_else(|| {
+        lift("cli-deps.json manifest not available — install pinned manifest first".into())
+    })?;
     let entry = manifest
         .entry("claude-code")
         .ok_or_else(|| lift("cli-deps.json missing 'claude-code' entry".into()))?;
@@ -112,12 +113,11 @@ async fn install(State(st): State<Arc<ServerState>>) -> Result<(), ApiError> {
     tokio::spawn(async move {
         sink.emit(squad_ui_events::SquadEvent::ClaudeCliInstalling { progress_pct: 0 });
         let sink_for_progress = sink.clone();
-        let result =
-            squad_claude_installer::install(&entry, move |pct| {
-                sink_for_progress
-                    .emit(squad_ui_events::SquadEvent::ClaudeCliInstalling { progress_pct: pct });
-            })
-            .await;
+        let result = squad_claude_installer::install(&entry, move |pct| {
+            sink_for_progress
+                .emit(squad_ui_events::SquadEvent::ClaudeCliInstalling { progress_pct: pct });
+        })
+        .await;
         match result {
             Ok(_) => {
                 if let Err(e) = db

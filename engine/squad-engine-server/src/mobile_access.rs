@@ -5,10 +5,10 @@
 //! used for token exchange, not for normal engine requests.
 
 use async_trait::async_trait;
-use squad_db::{Database, PhoneAccessRow};
-use squad_tunnel::{PairError, PairOutcome, PairingService};
 use rand::{distributions::Alphanumeric, Rng};
 use serde::Serialize;
+use squad_db::{Database, PhoneAccessRow};
+use squad_tunnel::{PairError, PairOutcome, PairingService};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 

@@ -51,8 +51,7 @@ impl RoutineDispatcher for EngineRoutineDispatcher {
                 error: Some(format!("seed failed: {e}")),
             };
         }
-        let agent_context =
-            agent_prompt::build_agent_context(ctx.working_dir, None, None);
+        let agent_context = agent_prompt::build_agent_context(ctx.working_dir, None, None);
         let system_prompt = if self.app_system_prompt.is_empty() {
             agent_context
         } else {

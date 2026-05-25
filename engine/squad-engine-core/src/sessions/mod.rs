@@ -41,7 +41,7 @@ use std::path::{Path, PathBuf};
 use workdir_locks::{WorkdirLocks, WorkdirSessionGuard};
 
 pub use provider::{
-    squad_credits_key, resolve_provider, ResolvedProvider, SQUAD_CREDITS_MODEL,
+    resolve_provider, squad_credits_key, ResolvedProvider, SQUAD_CREDITS_MODEL,
     SQUAD_CREDITS_PROVIDER,
 };
 
@@ -562,9 +562,15 @@ pub fn expand_tilde(p: &std::path::Path) -> PathBuf {
 /// Looks up the parent folder name in `workspaces.json`. Returns `None` if
 /// the agent is not under a recognised workspace (ad-hoc / test paths).
 pub fn resolve_workspace_id(paths: &EnginePaths, agent_dir: &Path) -> Option<String> {
-    let workspace_name = agent_dir.parent()?.file_name()?.to_string_lossy().to_string();
+    let workspace_name = agent_dir
+        .parent()?
+        .file_name()?
+        .to_string_lossy()
+        .to_string();
     let all = crate::workspaces::read_all(paths.docs()).ok()?;
-    all.into_iter().find(|w| w.name == workspace_name).map(|w| w.id)
+    all.into_iter()
+        .find(|w| w.name == workspace_name)
+        .map(|w| w.id)
 }
 
 /// Convenience: resolve an agent directory relative to an [`EnginePaths`]

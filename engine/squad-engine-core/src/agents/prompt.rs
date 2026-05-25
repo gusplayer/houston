@@ -207,22 +207,19 @@ pub fn build_agent_context(
 
     let integrations_path = dir.join(".squad/integrations.json");
     if let Ok(content) = fs::read_to_string(&integrations_path) {
-        let names: Vec<String> =
-            serde_json::from_str::<Vec<serde_json::Value>>(&content)
-                .ok()
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|v| {
-                            v.get("toolkit").and_then(|t| t.as_str()).map(String::from)
-                        })
-                        .collect()
-                })
-                .or_else(|| {
-                    serde_json::from_str::<serde_json::Map<String, serde_json::Value>>(&content)
-                        .ok()
-                        .map(|map| map.keys().cloned().collect())
-                })
-                .unwrap_or_default();
+        let names: Vec<String> = serde_json::from_str::<Vec<serde_json::Value>>(&content)
+            .ok()
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.get("toolkit").and_then(|t| t.as_str()).map(String::from))
+                    .collect()
+            })
+            .or_else(|| {
+                serde_json::from_str::<serde_json::Map<String, serde_json::Value>>(&content)
+                    .ok()
+                    .map(|map| map.keys().cloned().collect())
+            })
+            .unwrap_or_default();
 
         if !names.is_empty() {
             parts.push(format!(
@@ -348,17 +345,10 @@ fn parse_doc(raw: &str, slug: &str) -> DocEntry {
                 let v = v.trim();
                 if k == "title" {
                     title = v.trim_matches(|c| c == '"' || c == '\'').to_string();
-                } else if k == "audience"
-                    && v.starts_with('[')
-                    && v.ends_with(']')
-                {
+                } else if k == "audience" && v.starts_with('[') && v.ends_with(']') {
                     audience = v[1..v.len() - 1]
                         .split(',')
-                        .map(|s| {
-                            s.trim()
-                                .trim_matches(|c| c == '"' || c == '\'')
-                                .to_string()
-                        })
+                        .map(|s| s.trim().trim_matches(|c| c == '"' || c == '\'').to_string())
                         .filter(|s| !s.is_empty())
                         .collect();
                 }
@@ -490,7 +480,10 @@ mod tests {
         let d = TempDir::new().unwrap();
         seed_file(d.path(), "CLAUDE.md", "first").unwrap();
         seed_file(d.path(), "CLAUDE.md", "second").unwrap();
-        assert_eq!(fs::read_to_string(d.path().join("CLAUDE.md")).unwrap(), "first");
+        assert_eq!(
+            fs::read_to_string(d.path().join("CLAUDE.md")).unwrap(),
+            "first"
+        );
     }
 
     #[cfg(unix)]

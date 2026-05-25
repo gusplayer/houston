@@ -265,7 +265,10 @@ mod tests {
             classify(".squad/activity/activity.json"),
             Some("activity".to_string())
         );
-        assert_eq!(classify(".squad/routines/routines.json"), Some("routines".to_string()));
+        assert_eq!(
+            classify(".squad/routines/routines.json"),
+            Some("routines".to_string())
+        );
         assert_eq!(classify("CLAUDE.md"), None);
     }
 
@@ -274,7 +277,10 @@ mod tests {
         let dir = TempDir::new().unwrap();
         seed_schemas(dir.path()).unwrap();
         for (name, _) in schemas::ALL {
-            assert!(dir.path().join(format!(".squad/{name}/{name}.schema.json")).exists());
+            assert!(dir
+                .path()
+                .join(format!(".squad/{name}/{name}.schema.json"))
+                .exists());
         }
     }
 

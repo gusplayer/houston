@@ -7,12 +7,12 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use serde::Deserialize;
 use squad_engine_core::skills::{
     self, CreateSkillRequest, InstallCommunityRequest, InstallFromRepoRequest, SaveSkillRequest,
     SkillDetailResponse, SkillSummaryResponse,
 };
 use squad_skills::remote::{CommunitySkill, RepoSkill};
-use serde::Deserialize;
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
@@ -102,7 +102,9 @@ async fn community_install(
     State(st): State<Arc<ServerState>>,
     Json(req): Json<InstallCommunityRequest>,
 ) -> Result<Json<String>, ApiError> {
-    Ok(Json(skills::install_community(&st.engine.events, req).await?))
+    Ok(Json(
+        skills::install_community(&st.engine.events, req).await?,
+    ))
 }
 
 async fn repo_list(
@@ -116,5 +118,7 @@ async fn repo_install(
     State(st): State<Arc<ServerState>>,
     Json(req): Json<InstallFromRepoRequest>,
 ) -> Result<Json<Vec<String>>, ApiError> {
-    Ok(Json(skills::install_from_repo(&st.engine.events, req).await?))
+    Ok(Json(
+        skills::install_from_repo(&st.engine.events, req).await?,
+    ))
 }

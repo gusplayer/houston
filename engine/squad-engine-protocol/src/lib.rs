@@ -4,8 +4,8 @@
 //! codes, and the protocol version. Every client (desktop, mobile, CLI,
 //! third-party) speaks this protocol to talk to `squad-engine`.
 
-use squad_ui_events::SquadEvent;
 use serde::{Deserialize, Serialize};
+use squad_ui_events::SquadEvent;
 
 /// Protocol major version. Incremented on breaking changes.
 pub const PROTOCOL_VERSION: u8 = 1;
@@ -130,12 +130,8 @@ pub fn event_topic(event: &SquadEvent) -> String {
         | SquadEvent::SessionStatus { session_key, .. } => format!("session:{session_key}"),
         SquadEvent::AuthRequired { .. } => "auth".into(),
         SquadEvent::Toast { .. } | SquadEvent::CompletionToast { .. } => "toast".into(),
-        SquadEvent::EventReceived { .. } | SquadEvent::EventProcessed { .. } => {
-            "events".into()
-        }
-        SquadEvent::HeartbeatFired { .. } | SquadEvent::CronFired { .. } => {
-            "scheduler".into()
-        }
+        SquadEvent::EventReceived { .. } | SquadEvent::EventProcessed { .. } => "events".into(),
+        SquadEvent::HeartbeatFired { .. } | SquadEvent::CronFired { .. } => "scheduler".into(),
         SquadEvent::RoutinesChanged { agent_path }
         | SquadEvent::RoutineRunsChanged { agent_path } => format!("routines:{agent_path}"),
         SquadEvent::ActivityChanged { agent_path }
@@ -154,6 +150,10 @@ pub fn event_topic(event: &SquadEvent) -> String {
         SquadEvent::ClaudeCliInstalling { .. }
         | SquadEvent::ClaudeCliReady
         | SquadEvent::ClaudeCliFailed { .. } => "claude".into(),
+        SquadEvent::MethodologyConfigChanged { workspace_id }
+        | SquadEvent::MethodologySeeded { workspace_id, .. } => {
+            format!("workspace:{workspace_id}")
+        }
     }
 }
 
@@ -343,7 +343,10 @@ mod tests {
 
     #[test]
     fn event_topic_singletons() {
-        let ev = SquadEvent::Toast { message: "x".into(), variant: "info".into() };
+        let ev = SquadEvent::Toast {
+            message: "x".into(),
+            variant: "info".into(),
+        };
         assert_eq!(event_topic(&ev), "toast");
         assert_eq!(event_topic(&SquadEvent::ComposioCliReady), "composio");
     }
@@ -351,8 +354,12 @@ mod tests {
     #[test]
     fn low_severity_feed_detection() {
         use squad_terminal_manager::FeedItem;
-        assert!(is_low_severity_feed(&FeedItem::AssistantTextStreaming("x".into())));
-        assert!(is_low_severity_feed(&FeedItem::ThinkingStreaming("x".into())));
+        assert!(is_low_severity_feed(&FeedItem::AssistantTextStreaming(
+            "x".into()
+        )));
+        assert!(is_low_severity_feed(&FeedItem::ThinkingStreaming(
+            "x".into()
+        )));
         assert!(!is_low_severity_feed(&FeedItem::AssistantText("x".into())));
     }
 }

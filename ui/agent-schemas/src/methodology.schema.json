@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MethodologyConfig",
+  "description": "Workspace-level config for the parallel-dev methodology. Lives at <workspace>/.squad/methodology.json. When enabled, the engine auto-seeds .claude/{rules,method.config,agents,hooks,commands} into bound projects.",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Master switch. When false, the engine does not seed methodology files on project bind and does not remove existing seeded files."
+    },
+    "triggerMode": {
+      "type": "string",
+      "enum": ["manual", "pre-merge", "pre-commit"],
+      "default": "pre-merge",
+      "description": "When the methodology gate fires. manual: only via /integrate; pre-merge: blocks merges to TARGET_BRANCH (recommended default); pre-commit: blocks commits."
+    },
+    "targetBranch": {
+      "type": "string",
+      "description": "Override TARGET_BRANCH in the seeded .claude/method.config. If omitted, the template default ('main') applies."
+    }
+  },
+  "additionalProperties": false
+}

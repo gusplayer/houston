@@ -60,7 +60,10 @@ fn since_iso_for_range(range: Option<&str>) -> String {
         "today" => now
             .date_naive()
             .and_hms_opt(0, 0, 0)
-            .map(|naive| chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(naive, chrono::Utc).to_rfc3339())
+            .map(|naive| {
+                chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(naive, chrono::Utc)
+                    .to_rfc3339()
+            })
             .unwrap_or_default(),
         "7d" => (now - chrono::Duration::days(7)).to_rfc3339(),
         "30d" => (now - chrono::Duration::days(30)).to_rfc3339(),
@@ -181,11 +184,9 @@ async fn agent_usage(
         fold_into_agent(&mut totals, row);
     }
     let sessions: Vec<SessionUsageDto> = rows.into_iter().map(row_to_dto).collect();
-    let workspace_id = squad_engine_core::sessions::resolve_workspace_id(
-        &st.engine.paths,
-        &agent_dir,
-    )
-    .unwrap_or_default();
+    let workspace_id =
+        squad_engine_core::sessions::resolve_workspace_id(&st.engine.paths, &agent_dir)
+            .unwrap_or_default();
 
     Ok(Json(WorkspaceUsageDto {
         workspace_id,
@@ -274,7 +275,13 @@ async fn context_breakdown(
 fn collect_context_blocks(agent_dir: &PathBuf) -> Vec<ContextBlockDto> {
     let mut out = Vec::new();
 
-    push_file_block(&mut out, agent_dir, "CLAUDE.md", "claude_md", "Agent instructions (CLAUDE.md)");
+    push_file_block(
+        &mut out,
+        agent_dir,
+        "CLAUDE.md",
+        "claude_md",
+        "Agent instructions (CLAUDE.md)",
+    );
 
     // Learnings — count by summing the text field of every entry.
     let learnings_path = agent_dir.join(".squad/learnings/learnings.json");
@@ -321,13 +328,30 @@ fn collect_context_blocks(agent_dir: &PathBuf) -> Vec<ContextBlockDto> {
         });
     }
 
-    push_file_block(&mut out, agent_dir, ".squad/integrations.json", "integrations", "Composio integrations");
-    push_file_block(&mut out, agent_dir, ".squad/mcps/mcps.json", "mcps", "MCP servers");
+    push_file_block(
+        &mut out,
+        agent_dir,
+        ".squad/integrations.json",
+        "integrations",
+        "Composio integrations",
+    );
+    push_file_block(
+        &mut out,
+        agent_dir,
+        ".squad/mcps/mcps.json",
+        "mcps",
+        "MCP servers",
+    );
 
     // Workspace + agent docs from `.squad/docs/*.md`.
     push_docs_in(&mut out, agent_dir, "agent_doc", "Agent doc");
     if let Some(workspace_dir) = agent_dir.parent() {
-        push_docs_in(&mut out, &workspace_dir.to_path_buf(), "workspace_doc", "Workspace doc");
+        push_docs_in(
+            &mut out,
+            &workspace_dir.to_path_buf(),
+            "workspace_doc",
+            "Workspace doc",
+        );
     }
 
     out
@@ -354,7 +378,12 @@ fn push_file_block(
     }
 }
 
-fn push_docs_in(out: &mut Vec<ContextBlockDto>, root: &PathBuf, source_prefix: &str, title_prefix: &str) {
+fn push_docs_in(
+    out: &mut Vec<ContextBlockDto>,
+    root: &PathBuf,
+    source_prefix: &str,
+    title_prefix: &str,
+) {
     let docs_dir = root.join(".squad/docs");
     let index_path = docs_dir.join("index.json");
     let Ok(raw) = std::fs::read_to_string(&index_path) else {

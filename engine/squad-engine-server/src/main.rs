@@ -4,11 +4,11 @@
 //! Houston home dir so the desktop supervisor can discover `{port, pid,
 //! token_hash, version}`, and serves the full router.
 
+use serde::Serialize;
+use sha2::{Digest, Sha256};
 use squad_engine_protocol::{ENGINE_VERSION, PROTOCOL_VERSION};
 use squad_engine_server::{build_router, ServerConfig, ServerState};
 use squad_tunnel::{EngineEndpoint, TunnelClient, TunnelConfig};
-use serde::Serialize;
-use sha2::{Digest, Sha256};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::TcpListener;

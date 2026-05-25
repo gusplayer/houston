@@ -182,7 +182,10 @@ async fn routine_runs_create_update_filter() {
     // Filter by routineId.
     let filtered: serde_json::Value = c
         .get(format!("http://{addr}/v1/routine-runs"))
-        .query(&[("agentPath", &agent_path), ("routineId", &rid_a.to_string())])
+        .query(&[
+            ("agentPath", &agent_path),
+            ("routineId", &rid_a.to_string()),
+        ])
         .bearer_auth(&tok)
         .send()
         .await

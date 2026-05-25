@@ -6,8 +6,8 @@
 
 use crate::paths::EnginePaths;
 use crate::workspaces;
-use squad_terminal_manager::Provider;
 use serde::Deserialize;
+use squad_terminal_manager::Provider;
 use std::path::Path;
 
 /// Workspace provider string that signals the Houston Credits trial — internally

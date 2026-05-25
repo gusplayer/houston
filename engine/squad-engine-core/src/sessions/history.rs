@@ -5,9 +5,9 @@
 //! Transport-neutral: REST handlers and tests call it the same way.
 
 use crate::error::{CoreError, CoreResult};
+use serde::Serialize;
 use squad_agents_conversations::session_id_tracker::session_ids_for_history;
 use squad_db::Database;
-use serde::Serialize;
 use std::path::Path;
 
 #[derive(Debug, Serialize, Clone)]

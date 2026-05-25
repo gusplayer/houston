@@ -11,6 +11,7 @@ use axum::{
     routing::{get, patch},
     Json, Router,
 };
+use serde::Deserialize;
 use squad_engine_core::agents::{
     activity, config, routine_runs, routines, Activity, ActivityUpdate, NewActivity, NewRoutine,
     ProjectConfig, Routine, RoutineRun, RoutineRunUpdate, RoutineUpdate,
@@ -18,14 +19,16 @@ use squad_engine_core::agents::{
 use squad_engine_core::paths::expand_tilde;
 use squad_engine_core::CoreError;
 use squad_ui_events::SquadEvent;
-use serde::Deserialize;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
     Router::new()
         // Activities
-        .route("/agents/activities", get(list_activities).post(create_activity))
+        .route(
+            "/agents/activities",
+            get(list_activities).post(create_activity),
+        )
         .route(
             "/agents/activities/:id",
             patch(update_activity).delete(delete_activity),

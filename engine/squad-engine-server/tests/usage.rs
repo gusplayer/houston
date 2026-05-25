@@ -48,7 +48,10 @@ async fn workspace_usage_unknown_workspace_returns_404() {
     let s = spawn().await;
     let c = reqwest::Client::new();
     let res = c
-        .get(format!("http://{}/v1/workspaces/does-not-exist/usage", s.addr))
+        .get(format!(
+            "http://{}/v1/workspaces/does-not-exist/usage",
+            s.addr
+        ))
         .bearer_auth(&s.token)
         .send()
         .await

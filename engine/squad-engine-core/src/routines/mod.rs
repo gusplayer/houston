@@ -12,9 +12,9 @@ pub mod types;
 
 use crate::error::{CoreError, CoreResult};
 use chrono::Utc;
-use squad_agent_files as files;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use squad_agent_files as files;
 use std::path::Path;
 use uuid::Uuid;
 

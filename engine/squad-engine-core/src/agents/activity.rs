@@ -127,8 +127,7 @@ pub fn set_status_by_session_key(
     let mut items = list(root)?;
     let implied_id = session_key.strip_prefix("activity-");
     let Some(item) = items.iter_mut().find(|t| {
-        t.session_key.as_deref() == Some(session_key)
-            || implied_id.is_some_and(|id| t.id == id)
+        t.session_key.as_deref() == Some(session_key) || implied_id.is_some_and(|id| t.id == id)
     }) else {
         return Ok(None);
     };

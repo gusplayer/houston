@@ -40,9 +40,7 @@ impl From<GitError> for ApiError {
     fn from(e: GitError) -> Self {
         let core = match e {
             GitError::NotARepo(p) => CoreError::BadRequest(format!("not a git repository: {p}")),
-            GitError::GitMissing => {
-                CoreError::Unavailable("git binary not found on PATH".into())
-            }
+            GitError::GitMissing => CoreError::Unavailable("git binary not found on PATH".into()),
             GitError::CommandFailed { code, stderr } => {
                 CoreError::BadRequest(format!("git failed (exit {code}): {stderr}"))
             }

@@ -18,6 +18,7 @@ squad-db = { workspace = true }
 squad-terminal-manager = { workspace = true }
 squad-ui-events = { workspace = true }
 squad-agent-files = { workspace = true }
+squad-methodology = { workspace = true }
 squad-skills = { workspace = true, features = ["remote"] }
 squad-engine-protocol = { workspace = true }
 squad-agents-conversations = { workspace = true }

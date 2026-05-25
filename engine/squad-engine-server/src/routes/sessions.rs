@@ -21,20 +21,17 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use serde::{Deserialize, Serialize};
 use squad_engine_core::sessions::{
     self, history, resolve_agent_dir, resolve_provider, summarize, SessionRuntime, StartParams,
 };
 use squad_engine_core::CoreError;
 use squad_terminal_manager::Provider;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 pub fn router() -> Router<Arc<ServerState>> {
     Router::new()
-        .route(
-            "/agents/:agent_path/sessions",
-            post(start_session),
-        )
+        .route("/agents/:agent_path/sessions", post(start_session))
         .route(
             "/agents/:agent_path/sessions/onboarding",
             post(start_onboarding),
@@ -103,7 +100,12 @@ async fn start_session(
         provider,
         model,
         uses_squad_credits,
-    } = resolve_provider_with_overrides(&st, &agent_dir, req.provider.as_deref(), req.model.clone())?;
+    } = resolve_provider_with_overrides(
+        &st,
+        &agent_dir,
+        req.provider.as_deref(),
+        req.model.clone(),
+    )?;
 
     let anthropic_api_key_override = if uses_squad_credits {
         sessions::squad_credits_key()
@@ -257,8 +259,7 @@ fn resolve_provider_with_overrides(
         if p_str == sessions::SQUAD_CREDITS_PROVIDER {
             return Ok(ResolvedProviderChoice {
                 provider: Provider::Anthropic,
-                model: model_override
-                    .or_else(|| Some(sessions::SQUAD_CREDITS_MODEL.to_string())),
+                model: model_override.or_else(|| Some(sessions::SQUAD_CREDITS_MODEL.to_string())),
                 uses_squad_credits: true,
             });
         }
