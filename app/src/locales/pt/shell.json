@@ -41,7 +41,9 @@
     "githubDescription": "Importe uma equipe do GitHub. O team.json do repositório configura os agentes, papéis e instruções automaticamente.",
     "githubPlaceholder": "usuario/repo",
     "githubImport": "Entrar",
-    "githubImporting": "Importando espaço de trabalho e agentes..."
+    "githubImporting": "Importando espaço de trabalho e agentes...",
+    "enableMethodology": "Ativar metodologia de desenvolvimento paralelo para este workspace",
+    "methodologyEnableError": "Workspace criado, mas não foi possível ativar a metodologia"
   },
   "uiTour": {
     "counter": "Tour {{current}} de {{total}}",

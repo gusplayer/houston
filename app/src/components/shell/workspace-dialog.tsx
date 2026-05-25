@@ -10,9 +10,10 @@ import {
   cn,
 } from "@squad/core";
 import { analytics } from "../../lib/analytics";
-import { tauriStore } from "../../lib/tauri";
+import { tauriMethodology, tauriStore } from "../../lib/tauri";
 import { useAgentCatalogStore } from "../../stores/agent-catalog";
 import { useAgentStore } from "../../stores/agents";
+import { useUIStore } from "../../stores/ui";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import { WorkspaceSetupFlow } from "./workspace-setup-flow";
 import { createPersonalAssistantForWorkspace } from "../onboarding/create-personal-assistant";
@@ -34,10 +35,30 @@ export function CreateWorkspaceDialog({
   const loadWorkspaces = useWorkspaceStore((s) => s.loadWorkspaces);
   const loadAgents = useAgentStore((s) => s.loadAgents);
   const loadConfigs = useAgentCatalogStore((s) => s.loadConfigs);
+  const addToast = useUIStore((s) => s.addToast);
   const [tab, setTab] = useState<"new" | "github">("new");
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState("");
   const [importUrl, setImportUrl] = useState("");
+  const [enableMethodology, setEnableMethodology] = useState(true);
+
+  /** PUT methodology config after workspace creation. Non-blocking: failure
+   * surfaces as a warning toast, but the workspace itself is already created. */
+  async function applyMethodologyIfRequested(workspaceId: string) {
+    if (!enableMethodology) return;
+    try {
+      await tauriMethodology.put(workspaceId, {
+        enabled: true,
+        triggerMode: "pre-merge",
+      });
+    } catch (err) {
+      addToast({
+        title: t("shell:workspaceDialog.methodologyEnableError"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "info",
+      });
+    }
+  }
 
   const handleClose = () => {
     onOpenChange(false);
@@ -62,6 +83,7 @@ export function CreateWorkspaceDialog({
       if (imported) {
         setCurrentWorkspace(imported);
         await loadAgents(imported.id);
+        await applyMethodologyIfRequested(imported.id);
       }
       analytics.track("workspace_created", { source: "github_import" });
       handleClose();
@@ -98,6 +120,15 @@ export function CreateWorkspaceDialog({
             </button>
           ))}
         </div>
+        <label className="flex items-center gap-2 cursor-pointer px-1 pb-2 text-xs text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={enableMethodology}
+            onChange={(e) => setEnableMethodology(e.target.checked)}
+            className="size-3.5"
+          />
+          <span>{t("shell:workspaceDialog.enableMethodology")}</span>
+        </label>
         {tab === "new" ? (
           <WorkspaceSetupFlow
             mode="dialog"
@@ -120,6 +151,7 @@ export function CreateWorkspaceDialog({
               });
               setCurrentWorkspace(ws);
               await loadAgents(ws.id);
+              await applyMethodologyIfRequested(ws.id);
               handleClose();
             }}
           />

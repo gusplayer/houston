@@ -41,7 +41,9 @@
     "githubDescription": "Import a team from GitHub. The repo's team.json sets up agents, roles, and instructions automatically.",
     "githubPlaceholder": "owner/repo",
     "githubImport": "Join",
-    "githubImporting": "Importing workspace and agents..."
+    "githubImporting": "Importing workspace and agents...",
+    "enableMethodology": "Enable parallel-dev methodology for this workspace",
+    "methodologyEnableError": "Workspace created, but could not enable methodology"
   },
   "uiTour": {
     "counter": "Tour {{current}} of {{total}}",
