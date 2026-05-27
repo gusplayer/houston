@@ -14,6 +14,7 @@ import {
   useCreateStory,
   useUpdateStory,
   useDeleteStory,
+  useProjects,
 } from "../../hooks/queries";
 import type { Story, StoryStatus, StoryPhase } from "@squad/engine-client";
 
@@ -279,6 +280,7 @@ export default function SprintsTab(_: TabProps) {
 
   const { data: sprints, isLoading: sprintsLoading } = useSprints(path);
   const { data: allStories, isLoading: storiesLoading } = useStories(path);
+  const { data: projects } = useProjects(workspace?.id);
   const createSprint = useCreateSprint(path);
   const updateSprint = useUpdateSprint(path);
   const createStory = useCreateStory(path);
@@ -287,6 +289,12 @@ export default function SprintsTab(_: TabProps) {
 
   const [selectedSprintId, setSelectedSprintId] = useState<string | "backlog">("backlog");
   const [phaseFilter, setPhaseFilter] = useState<StoryPhase | "all">("all");
+  /** Project filter scope:
+   *   "all"        — every story across the workspace (default)
+   *   "__global__" — only stories with no project_id (cuts across projects)
+   *   <projectId>  — only stories scoped to that project
+   * Kept in URL-friendly strings so future router state can hydrate it. */
+  const [projectFilter, setProjectFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [showNewStory, setShowNewStory] = useState<StoryStatus | null>(null);
   const [newStoryTitle, setNewStoryTitle] = useState("");
@@ -301,15 +309,37 @@ export default function SprintsTab(_: TabProps) {
   const matchesPhaseFilter = (s: Story) =>
     phaseFilter === "all" || s.phase === phaseFilter;
 
+  const matchesProjectFilter = (s: Story) => {
+    if (projectFilter === "all") return true;
+    if (projectFilter === "__global__") return !s.projectId;
+    return s.projectId === projectFilter;
+  };
+
   const columnStories = (status: StoryStatus): Story[] =>
     (allStories ?? []).filter(
-      (s) => s.status === status && inSelectedSprint(s) && matchesPhaseFilter(s),
+      (s) =>
+        s.status === status &&
+        inSelectedSprint(s) &&
+        matchesPhaseFilter(s) &&
+        matchesProjectFilter(s),
     );
 
   const pipelineCell = (phase: StoryPhase, status: StoryStatus): Story[] =>
     (allStories ?? []).filter(
-      (s) => s.phase === phase && s.status === status && inSelectedSprint(s),
+      (s) =>
+        s.phase === phase &&
+        s.status === status &&
+        inSelectedSprint(s) &&
+        matchesProjectFilter(s),
     );
+
+  /** New story inherits the current project filter when one is selected. A
+   * generic filter ("all") creates a workspace-global story; the "__global__"
+   * filter is explicit so it also creates a global story. */
+  function newStoryProjectId(): string | null {
+    if (projectFilter === "all" || projectFilter === "__global__") return null;
+    return projectFilter;
+  }
 
   async function handleAddStory(status: StoryStatus, phase?: StoryPhase) {
     if (!newStoryTitle.trim()) return;
@@ -317,6 +347,7 @@ export default function SprintsTab(_: TabProps) {
       title: newStoryTitle.trim(),
       status,
       sprintId: displaySprintId ?? undefined,
+      projectId: newStoryProjectId(),
       priority: "medium",
       phase: phase ?? (phaseFilter === "all" ? "discovery" : phaseFilter),
     });
@@ -389,6 +420,23 @@ export default function SprintsTab(_: TabProps) {
             ))}
           </SelectContent>
         </Select>
+
+        {(projects?.length ?? 0) > 0 && (
+          <Select value={projectFilter} onValueChange={setProjectFilter}>
+            <SelectTrigger className="h-7 text-xs w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">{t("sprints.allProjects")}</SelectItem>
+              <SelectItem value="__global__" className="text-xs">{t("sprints.workspaceGlobal")}</SelectItem>
+              {(projects ?? []).map((p) => (
+                <SelectItem key={p.id} value={p.id} className="text-xs">
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         {viewMode === "kanban" && (
           <Select value={phaseFilter} onValueChange={(v) => setPhaseFilter(v as StoryPhase | "all")}>

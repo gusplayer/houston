@@ -737,6 +737,9 @@ export interface Story {
   status: StoryStatus;
   phase?: StoryPhase;
   sprintId?: string | null;
+  /** Workspace project the story is scoped to. Null/undefined = workspace-global
+   * (cuts across projects). Backed by `project_id` in the file schema. */
+  projectId?: string | null;
   epic?: string | null;
   priority?: StoryPriority;
   points?: number | null;

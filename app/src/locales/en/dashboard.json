@@ -66,6 +66,8 @@
     "cancel": "Cancel",
     "allAgents": "All",
     "allSprints": "All sprints",
+    "allProjects": "All projects",
+    "workspaceGlobal": "Workspace-global",
     "backlog": "Backlog",
     "descriptionPlaceholder": "Add a description...",
     "start": "Start",

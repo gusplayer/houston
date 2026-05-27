@@ -235,6 +235,8 @@
     "phaseLabel": "Fase",
     "noPhase": "Sin fase",
     "allPhases": "Todas las fases",
+    "allProjects": "Todos los proyectos",
+    "workspaceGlobal": "Workspace-global",
     "kanbanView": "Kanban",
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dueño",

@@ -28,6 +28,10 @@
         "type": ["string", "null"],
         "description": "ID of the sprint this story belongs to. Null = backlog."
       },
+      "project_id": {
+        "type": ["string", "null"],
+        "description": "Workspace project the story is scoped to. Null = workspace-global (cuts across projects). Stories created before this field existed are read as null."
+      },
       "epic": {
         "type": ["string", "null"],
         "description": "Free-text epic label, e.g. 'Auth Hardening' or 'Perf Sprint'."
