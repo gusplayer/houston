@@ -100,6 +100,7 @@ function toAgent(a: import("@squad/engine-client").Agent): Agent {
     color: a.color,
     createdAt: a.createdAt,
     lastOpenedAt: a.lastOpenedAt,
+    protected: a.protected,
   };
 }
 
@@ -118,6 +119,7 @@ export const tauriAgents = {
     installedPath?: string,
     seeds?: Record<string, string>,
     existingPath?: string,
+    protectedFlag?: boolean,
   ) =>
     call<CreateAgentResult>("create_agent", async () => {
       const r = await getEngine().createAgent(workspaceId, {
@@ -128,6 +130,7 @@ export const tauriAgents = {
         installedPath,
         seeds,
         existingPath,
+        protected: protectedFlag,
       });
       return {
         agent: toAgent(r.agent),

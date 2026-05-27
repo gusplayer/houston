@@ -31,7 +31,8 @@
   },
   "agentDelete": {
     "title": "¿Eliminar el agente?",
-    "description": "Se eliminará el agente y todos sus datos de forma permanente. Esta acción no se puede deshacer."
+    "description": "Se eliminará el agente y todos sus datos de forma permanente. Esta acción no se puede deshacer.",
+    "errorTitle": "No se pudo eliminar el agente"
   },
   "workspaceDialog": {
     "title": "Crea un workspace",
@@ -43,7 +44,10 @@
     "githubImport": "Unirse",
     "githubImporting": "Importando espacio de trabajo y agentes...",
     "enableMethodology": "Activar metodología de desarrollo paralelo para este workspace",
-    "methodologyEnableError": "Workspace creado, pero no se pudo activar la metodología"
+    "methodologyEnableError": "Workspace creado, pero no se pudo activar la metodología",
+    "protectedRosterPartialTitle": "Equipo por defecto parcialmente contratado",
+    "protectedRosterPartialDescription_one": "No se pudo contratar a {{count}} miembro por defecto. Puedes reintentar desde el reclutador.",
+    "protectedRosterPartialDescription_other": "No se pudieron contratar a {{count}} miembros por defecto. Puedes reintentar desde el reclutador."
   },
   "uiTour": {
     "counter": "Tour {{current}} de {{total}}",

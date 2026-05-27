@@ -96,10 +96,20 @@ export function Sidebar({ children }: { children: ReactNode }) {
     setPendingDeleteId(agentId);
   };
 
+  const addToast = useUIStore((s) => s.addToast);
   const confirmDelete = async () => {
     if (!currentWorkspace || !pendingDeleteId) return;
-    await deleteAgent(currentWorkspace.id, pendingDeleteId);
-    setPendingDeleteId(null);
+    try {
+      await deleteAgent(currentWorkspace.id, pendingDeleteId);
+    } catch (err) {
+      addToast({
+        title: t("shell:agentDelete.errorTitle"),
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+      });
+    } finally {
+      setPendingDeleteId(null);
+    }
   };
 
   return (

@@ -53,6 +53,7 @@ export function buildAgentSidebarItems({
           onChange={(color) => onChangeColor(agent.id, color)}
         />
       ),
+      disableDelete: agent.protected === true,
     };
   });
 }

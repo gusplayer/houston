@@ -133,7 +133,7 @@ export function SidebarItemRow({
                   </DropdownMenuItem>
                 )}
                 {item.menuContent}
-                {onDelete && (
+                {onDelete && !item.disableDelete && (
                   <DropdownMenuItem
                     onClick={() => onDelete(item.id)}
                     className="text-destructive focus:text-destructive"

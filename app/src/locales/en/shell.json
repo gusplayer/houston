@@ -31,7 +31,8 @@
   },
   "agentDelete": {
     "title": "Delete agent?",
-    "description": "This will permanently delete the agent and all its data. This cannot be undone."
+    "description": "This will permanently delete the agent and all its data. This cannot be undone.",
+    "errorTitle": "Could not delete agent"
   },
   "workspaceDialog": {
     "title": "Create a workspace",
@@ -43,7 +44,10 @@
     "githubImport": "Join",
     "githubImporting": "Importing workspace and agents...",
     "enableMethodology": "Enable parallel-dev methodology for this workspace",
-    "methodologyEnableError": "Workspace created, but could not enable methodology"
+    "methodologyEnableError": "Workspace created, but could not enable methodology",
+    "protectedRosterPartialTitle": "Default team partially hired",
+    "protectedRosterPartialDescription_one": "{{count}} default member could not be hired. You can retry from the recruiter.",
+    "protectedRosterPartialDescription_other": "{{count}} default members could not be hired. You can retry from the recruiter."
   },
   "uiTour": {
     "counter": "Tour {{current}} of {{total}}",

@@ -82,6 +82,10 @@ export interface AgentConfig {
   features?: string[];     // Rust feature flags needed
   agents?: AgentMode[];    // Multiple prompt profiles for multi-agent setups
   roleLabel?: string;      // Short role label shown in sidebar, e.g. "CTO", "Frontend Lead"
+  /** Marks this config as one of the default workspace members auto-hired on
+   * workspace create (CTO, PM, Code Reviewer, QA, Architect). The engine
+   * blocks DELETE on protected agent instances. */
+  protected?: boolean;
 }
 
 /** A resolved agent definition (config + where it came from) */
@@ -101,6 +105,9 @@ export interface Agent {
   color?: string;        // User-chosen color for avatar
   createdAt: string;
   lastOpenedAt?: string;
+  /** Default protected member (CTO/PM/Code Reviewer/QA/Architect) the engine
+   * refuses to delete. False or missing for ordinary hires. */
+  protected?: boolean;
 }
 
 /** Props injected into every tab component */

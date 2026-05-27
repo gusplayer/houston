@@ -31,7 +31,8 @@
   },
   "agentDelete": {
     "title": "Excluir o agente?",
-    "description": "Isso apaga o agente e todos os seus dados de forma permanente. Não dá para desfazer."
+    "description": "Isso apaga o agente e todos os seus dados de forma permanente. Não dá para desfazer.",
+    "errorTitle": "Não foi possível excluir o agente"
   },
   "workspaceDialog": {
     "title": "Criar um workspace",
@@ -43,7 +44,10 @@
     "githubImport": "Entrar",
     "githubImporting": "Importando espaço de trabalho e agentes...",
     "enableMethodology": "Ativar metodologia de desenvolvimento paralelo para este workspace",
-    "methodologyEnableError": "Workspace criado, mas não foi possível ativar a metodologia"
+    "methodologyEnableError": "Workspace criado, mas não foi possível ativar a metodologia",
+    "protectedRosterPartialTitle": "Equipe padrão parcialmente contratada",
+    "protectedRosterPartialDescription_one": "{{count}} membro padrão não pôde ser contratado. Você pode tentar novamente pelo recrutador.",
+    "protectedRosterPartialDescription_other": "{{count}} membros padrão não puderam ser contratados. Você pode tentar novamente pelo recrutador."
   },
   "uiTour": {
     "counter": "Tour {{current}} de {{total}}",

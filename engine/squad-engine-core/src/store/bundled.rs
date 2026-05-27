@@ -732,6 +732,7 @@ mod tests {
                 installed_path: Some(agents.path().join("demo").to_string_lossy().to_string()),
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
@@ -815,6 +816,7 @@ Package v2 body
                 installed_path: Some(agents.path().join("demo").to_string_lossy().to_string()),
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
@@ -887,6 +889,7 @@ User customized body
                 installed_path: Some(agents.path().join("demo").to_string_lossy().to_string()),
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
@@ -1179,6 +1182,7 @@ User customized body
                 installed_path: Some(agents.path().join("demo").to_string_lossy().to_string()),
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
@@ -1284,6 +1288,7 @@ User customized body
                 installed_path: Some(agents.path().join("demo").to_string_lossy().to_string()),
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();

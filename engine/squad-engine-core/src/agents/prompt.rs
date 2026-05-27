@@ -243,8 +243,8 @@ pub fn build_agent_context(
     // Project docs (I.1): workspace-scoped docs filtered by audience +
     // per-agent private docs. The agent's role id comes from
     // `<agent>/.squad/agent.json` so audience-tagged docs only land in
-    // the right roles' prompts (qa-criteria for Maria, review-criteria
-    // for Alex/leads).
+    // the right roles' prompts (qa-criteria for Jeff, review-criteria
+    // for Sam, Jane, and the leads).
     let role_id = read_role_id(dir);
     if let Some(workspace_dir) = dir.parent() {
         for d in read_docs_in(workspace_dir) {

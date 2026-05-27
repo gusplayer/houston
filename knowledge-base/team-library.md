@@ -1,25 +1,43 @@
 # Team Library
 
-Squad ships a roster of named role agents (Alex CTO, Maya Mobile, Diego Backend, Peter Frontend, Carlo Designer, Maria QA, Sam DevOps) so a workspace can be staffed in one click. Built across Milestones F + G + H — the team metaphor is the load-bearing UX.
+Squad ships a roster of named role agents grouped into two tiers:
+
+- **Protected default members** (auto-hired on every new workspace, can't be deleted): Sam CTO, Steve PM, Jane Code Reviewer, Jeff QA, Adam Architect.
+- **Opt-in specialists** (hired via the recruiter from stack signals): Maya Mobile, Diego Backend, Peter Frontend, Carlo Designer, Marcus DevOps.
+
+Built across Milestones F + G + H + M5 — the team metaphor is the load-bearing UX.
 
 ## What lives where
 
 ```
-app/src/agents/builtin/                   role agent configs (G.1)
-  cto-agent.ts                            Alex — visión global
+app/src/agents/builtin/                   role agent configs
+  cto-agent.ts                            Sam — system-level lead (PROTECTED)
+  pm-agent.ts                             Steve — stories + sprint planning (PROTECTED)
+  code-reviewer-agent.ts                  Jane — diff/security review (PROTECTED)
+  qa-agent.ts                             Jeff — test plans (PROTECTED)
+  architect-agent.ts                      Adam — system design + ADRs (PROTECTED)
   mobile-lead-agent.ts                    Maya — RN/Expo
   backend-lead-agent.ts                   Diego — Node/Postgres
   frontend-lead-agent.ts                  Peter — React/Next
   designer-agent.ts                       Carlo — specs/flows
-  qa-agent.ts                             Maria — test plans
-  devops-agent.ts                         Sam — CI/CD
-  index.ts                                catalog ordering (CTO first)
+  devops-agent.ts                         Marcus — CI/CD
+  index.ts                                catalog ordering + PROTECTED_CONFIG_IDS export
 
-app/src/lib/recommend-team.ts             G.2 — stack → role inference
-app/src/components/shell/recruit-team-dialog.tsx   G.3 — Hire dialog
+app/src/components/onboarding/
+  create-protected-roster.ts              M5 — sequential auto-hire of the 5 protected
+app/src/lib/recommend-team.ts             G.2 — stack → role inference (specialists only)
+app/src/components/shell/recruit-team-dialog.tsx   G.3 — Hire dialog (specialists only)
 app/src/lib/team-manifest.ts              H.1/H.2 — read/write team.json
 ui/agent-schemas/src/team.schema.json     manifest schema (v1)
 ```
+
+## Protected members (M5)
+
+The five defaults are hired automatically by `hireProtectedRoster(workspaceId)` after every workspace create (both "Create new" and "Join from GitHub" paths in `workspace-dialog.tsx`). Each agent.json carries `"protected": true`; the engine returns 409 Conflict on DELETE with a "protected default member" message. The sidebar hides the Delete row-menu entry and ignores the Delete/Backspace keyboard shortcut for protected agents via the generic `disableDelete` flag on `SidebarItem` (no app-specific concept leaks into `@squad/layout`).
+
+Hires are sequential — parallel creates race the workspace agent registry (same constraint as `RecruitTeamDialog`). Failures surface as a toast but never abort the workspace itself; the user keeps as many of the team as Squad could land.
+
+Existing workspaces created before M5 are NOT auto-backfilled (the user may already have an agent named "Sam"; a forced rename or duplicate would surprise them). A future follow-up can add a "Recruit your default team" banner for legacy workspaces.
 
 ## The nine mechanics
 
@@ -76,7 +94,7 @@ A repo-tracked `<repo>/.squad/team/team.json` carries the roster from machine to
 {
   "version": 1,
   "agents": [
-    { "role": "cto-agent", "name": "Alex" },
+    { "role": "cto-agent", "name": "Sam" },
     { "role": "mobile-lead-agent", "name": "Maya", "color": "green" },
     { "role": "backend-lead-agent", "name": "Diego" }
   ]
@@ -91,9 +109,8 @@ The manifest schema is registered in `engine/squad-agent-files/src/schemas.rs::A
 
 `RecruitTeamDialog` reads:
 1. `projects` → if any has a team.json, use those roles + name/color overrides
-2. otherwise → `recommendTeam(projects)` heuristic
-3. Always include CTO + QA as universal recommendations
-4. No projects? → CTO + Designer (the early-product team)
+2. otherwise → `recommendTeam(projects)` heuristic (specialists only — the 5 protected defaults are already in the workspace)
+3. No projects? → Designer (the early-product specialist)
 
 Hire is **sequential** (`for...of` + `await`), not `Promise.all`. The engine's file watcher + workspace agent registry assume ordered writes; parallel creates race.
 
@@ -106,15 +123,16 @@ Each hired agent gets:
 
 `detectSignals(project)` reads `package.json` + a few config files in parallel:
 
-| Signal | Role triggered |
-|--------|----------------|
+| Signal | Specialist recommended |
+|--------|------------------------|
 | `react-native` / `expo` dep | Maya |
 | `next` / `astro` / `nuxt` dep | Peter |
 | `@nestjs/core` / `fastify` / `express` / `@prisma/client` dep | Diego |
 | `prisma/schema.prisma` file | Diego |
-| `Dockerfile` exists | Sam |
-| `.github/workflows/` exists | Sam |
-| Always | CTO + Maria |
+| `Dockerfile` exists | Marcus |
+| `.github/workflows/` exists | Marcus |
+
+The five protected defaults (Sam, Steve, Jane, Jeff, Adam) are NOT in this table — they're auto-hired by `hireProtectedRoster` regardless of stack.
 
 Deliberately deterministic — no LLM call so it runs instantly and offline. The user can override the selection before hiring.
 

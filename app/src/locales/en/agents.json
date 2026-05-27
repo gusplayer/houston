@@ -207,13 +207,16 @@
     "rolePlural_one": "{{count}} role",
     "rolePlural_other": "{{count}} roles",
     "roleLabel": {
-      "cto-agent": "Alex (CTO)",
+      "cto-agent": "Sam (CTO)",
+      "pm-agent": "Steve (PM)",
+      "code-reviewer-agent": "Jane (Code Reviewer)",
+      "qa-agent": "Jeff (QA)",
+      "architect-agent": "Adam (Architect)",
       "mobile-lead-agent": "Maya (Mobile)",
       "backend-lead-agent": "Diego (Backend)",
       "frontend-lead-agent": "Peter (Frontend)",
       "designer-agent": "Carlo (Design)",
-      "qa-agent": "Maria (QA)",
-      "devops-agent": "Sam (DevOps)"
+      "devops-agent": "Marcus (DevOps)"
     }
   },
   "sprints": {

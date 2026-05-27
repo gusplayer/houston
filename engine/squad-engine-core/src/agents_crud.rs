@@ -27,6 +27,10 @@ pub struct AgentMeta {
     pub color: Option<String>,
     pub created_at: String,
     pub last_opened_at: Option<String>,
+    /// Default workspace members the user can't delete (CTO, PM, Code Reviewer,
+    /// QA, Architect). Older agent.json files default to `false`.
+    #[serde(default)]
+    pub protected: bool,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -39,6 +43,7 @@ pub struct Agent {
     pub color: Option<String>,
     pub created_at: String,
     pub last_opened_at: Option<String>,
+    pub protected: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -56,6 +61,8 @@ pub struct CreateAgent {
     pub seeds: Option<HashMap<String, String>>,
     #[serde(default)]
     pub existing_path: Option<String>,
+    #[serde(default)]
+    pub protected: bool,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -111,6 +118,7 @@ fn meta_to_agent(folder: &Path, meta: &AgentMeta) -> Agent {
         color: meta.color.clone(),
         created_at: meta.created_at.clone(),
         last_opened_at: meta.last_opened_at.clone(),
+        protected: meta.protected,
     }
 }
 
@@ -258,6 +266,7 @@ pub fn create(root: &Path, workspace_id: &str, req: CreateAgent) -> CoreResult<C
         color: req.color,
         created_at: now.clone(),
         last_opened_at: Some(now),
+        protected: req.protected,
     };
     write_agent_meta(&folder, &meta)?;
 
@@ -349,6 +358,13 @@ fn pre_trust_claude_folder(folder: &Path) {
 pub fn delete(root: &Path, workspace_id: &str, id: &str) -> CoreResult<()> {
     let ws_dir = resolve_ws_folder(root, workspace_id)?;
     let folder = find_agent_by_id(&ws_dir, id)?;
+    let meta = read_agent_meta(&folder)?;
+    if meta.protected {
+        return Err(CoreError::Conflict(format!(
+            "Agent \"{}\" is a protected default member and cannot be deleted",
+            meta.name.unwrap_or_else(|| meta.config_id.clone())
+        )));
+    }
     if folder.is_symlink() {
         fs::remove_file(&folder)?;
     } else {
@@ -434,6 +450,7 @@ mod tests {
                 installed_path: None,
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
@@ -468,6 +485,7 @@ mod tests {
                 installed_path: None,
                 seeds: Some(seeds),
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
@@ -493,11 +511,62 @@ mod tests {
                 installed_path: None,
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();
         let renamed = rename(d.path(), &ws_id, &res.agent.id, "m").unwrap();
         assert_eq!(renamed.name, "m");
+        delete(d.path(), &ws_id, &res.agent.id).unwrap();
+        assert!(list(d.path(), &ws_id).unwrap().is_empty());
+    }
+
+    #[test]
+    fn protected_agent_cannot_be_deleted() {
+        let d = TempDir::new().unwrap();
+        let ws_id = setup_ws(d.path());
+        let res = create(
+            d.path(),
+            &ws_id,
+            CreateAgent {
+                name: "Sam".into(),
+                config_id: "cto-agent".into(),
+                color: None,
+                claude_md: None,
+                installed_path: None,
+                seeds: None,
+                existing_path: None,
+                protected: true,
+            },
+        )
+        .unwrap();
+        assert!(res.agent.protected);
+
+        let err = delete(d.path(), &ws_id, &res.agent.id).unwrap_err();
+        assert!(matches!(err, CoreError::Conflict(_)));
+        assert_eq!(list(d.path(), &ws_id).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn unprotected_agent_can_be_deleted() {
+        let d = TempDir::new().unwrap();
+        let ws_id = setup_ws(d.path());
+        let res = create(
+            d.path(),
+            &ws_id,
+            CreateAgent {
+                name: "casual".into(),
+                config_id: "blank".into(),
+                color: None,
+                claude_md: None,
+                installed_path: None,
+                seeds: None,
+                existing_path: None,
+                protected: false,
+            },
+        )
+        .unwrap();
+        assert!(!res.agent.protected);
         delete(d.path(), &ws_id, &res.agent.id).unwrap();
         assert!(list(d.path(), &ws_id).unwrap().is_empty());
     }
@@ -517,6 +586,7 @@ mod tests {
                 installed_path: None,
                 seeds: None,
                 existing_path: None,
+                protected: false,
             },
         )
         .unwrap();

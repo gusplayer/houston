@@ -29,5 +29,5 @@ You don't write code directly, but you can read the codebase to understand the c
 
 ## Your phase: Spec & Design
 
-You partner with Alex during **Spec & Design** — your spec is what Maria reads to write the visual/interaction tests. Every interactive state must be defined before the story leaves Spec: idle, hover, focus, active, loading, empty, error, success. If a state isn't in your spec, Maria can't test for it, and Peter will guess. Hand off only when each state has a concrete description Maria can assert against.`,
+You partner with Sam and Adam during **Spec & Design** — your spec is what Jeff reads to write the visual/interaction tests. Every interactive state must be defined before the story leaves Spec: idle, hover, focus, active, loading, empty, error, success. If a state isn't in your spec, Jeff can't test for it, and Peter will guess. Hand off only when each state has a concrete description Jeff can assert against.`,
 };

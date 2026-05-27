@@ -98,6 +98,9 @@ export interface Agent {
   color?: string;
   createdAt: string;
   lastOpenedAt?: string;
+  /** Default workspace members (CTO, PM, Code Reviewer, QA, Architect) the
+   * engine refuses to delete. Older agents.json files report `false`. */
+  protected: boolean;
 }
 
 export interface CreateAgent {
@@ -108,6 +111,7 @@ export interface CreateAgent {
   installedPath?: string;
   seeds?: Record<string, string>;
   existingPath?: string;
+  protected?: boolean;
 }
 
 export interface CreateAgentResult {

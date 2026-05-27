@@ -17,6 +17,9 @@ export interface SidebarItem {
   trailing?: ReactNode;
   /** Optional dropdown content rendered before built-in item actions. */
   menuContent?: ReactNode;
+  /** When true the row hides the Delete menu entry and ignores the
+   * Delete/Backspace keyboard shortcut. Rename still works. */
+  disableDelete?: boolean;
 }
 
 export interface SidebarNavItemEntry {
@@ -99,10 +102,12 @@ export function AppSidebar({
   };
 
   const handleKeyDown = (e: KeyboardEvent, id: string) => {
-    if (onDelete && (e.key === "Delete" || e.key === "Backspace")) {
-      e.preventDefault();
-      onDelete(id);
-    }
+    if (!onDelete) return;
+    if (e.key !== "Delete" && e.key !== "Backspace") return;
+    const target = items.find((i) => i.id === id);
+    if (target?.disableDelete) return;
+    e.preventDefault();
+    onDelete(id);
   };
 
   const showLogo = logo && !header;

@@ -138,7 +138,7 @@ export function CreateAgentDialog() {
               storeCatalog={storeCatalog}
               onSelect={(id) => {
                 setSelectedConfigId(id);
-                // Role agents (Carlo, Alex, …) ship with a personal name;
+                // Role agents (Carlo, Sam, Maya, …) ship with a personal name;
                 // pre-fill the input so the user can keep it as-is or edit
                 // it intentionally. Non-role templates (Start from scratch,
                 // Dev agent, …) stay empty so the user picks a project name.

@@ -207,13 +207,16 @@
     "rolePlural_one": "{{count}} papel",
     "rolePlural_other": "{{count}} papéis",
     "roleLabel": {
-      "cto-agent": "Alex (CTO)",
+      "cto-agent": "Sam (CTO)",
+      "pm-agent": "Steve (PM)",
+      "code-reviewer-agent": "Jane (Revisor de código)",
+      "qa-agent": "Jeff (QA)",
+      "architect-agent": "Adam (Arquiteto)",
       "mobile-lead-agent": "Maya (Mobile)",
       "backend-lead-agent": "Diego (Backend)",
       "frontend-lead-agent": "Peter (Frontend)",
       "designer-agent": "Carlo (Design)",
-      "qa-agent": "Maria (QA)",
-      "devops-agent": "Sam (DevOps)"
+      "devops-agent": "Marcus (DevOps)"
     }
   },
   "sprints": {
