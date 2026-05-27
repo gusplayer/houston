@@ -117,6 +117,18 @@ pub enum SquadEvent {
         files_created: u64,
         files_skipped: u64,
     },
+    /// A project-scoped doc (CLAUDE.md / Rules / Architecture) was
+    /// written. Frontend invalidates the project-doc query so any open
+    /// editor refreshes; the next agent session picks up the new body
+    /// via prompt assembly (no live re-injection mid-session).
+    ProjectDocChanged {
+        workspace_id: String,
+        project_id: String,
+        /// Doc slug as it appears on the wire — `claude-md`, `rules`,
+        /// or `architecture`. Kept as a string so adding doc types
+        /// doesn't break old wire consumers.
+        doc: String,
+    },
 
     // ----- Composio CLI lifecycle -----
     /// Composio CLI is installed and ready. Frontend should invalidate

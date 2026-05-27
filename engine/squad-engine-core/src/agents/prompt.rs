@@ -240,6 +240,18 @@ pub fn build_agent_context(
         parts.push(projects_block);
     }
 
+    // Project-scoped docs (M1/M2 cascade): for each project the agent can
+    // see, inject CLAUDE.md / Rules / Architecture if the user wrote any.
+    // These sit between workspace docs and agent docs in the cascade.
+    if let Some(workspace_dir) = dir.parent() {
+        let visible_ids = visible_project_ids(dir, workspace_dir);
+        for project_id in visible_ids {
+            for block in read_project_doc_blocks(workspace_dir, &project_id) {
+                parts.push(block);
+            }
+        }
+    }
+
     // Project docs (I.1): workspace-scoped docs filtered by audience +
     // per-agent private docs. The agent's role id comes from
     // `<agent>/.squad/agent.json` so audience-tagged docs only land in
@@ -394,6 +406,49 @@ fn read_workspace_projects(workspace_dir: &Path) -> Vec<serde_json::Value> {
         return Vec::new();
     };
     serde_json::from_str::<Vec<serde_json::Value>>(&raw).unwrap_or_default()
+}
+
+/// Resolve the set of project ids visible to this agent: the bound
+/// projectIds, or all workspace projects when bindings are empty (CTO
+/// mode). Order is the workspace order so prompt assembly is deterministic.
+fn visible_project_ids(agent_dir: &Path, workspace_dir: &Path) -> Vec<String> {
+    let all = read_workspace_projects(workspace_dir);
+    let bindings = read_project_bindings(agent_dir);
+    all.into_iter()
+        .filter_map(|p| p.get("id").and_then(|v| v.as_str()).map(String::from))
+        .filter(|id| bindings.is_empty() || bindings.iter().any(|b| b == id))
+        .collect()
+}
+
+/// Read all three project-scoped docs for one project and turn them into
+/// labeled prompt blocks. Missing/empty docs are skipped silently — the
+/// project may not have written any yet, which is fine.
+fn read_project_doc_blocks(workspace_dir: &Path, project_id: &str) -> Vec<String> {
+    let project_name = read_project_name(workspace_dir, project_id);
+    let mut out = Vec::new();
+    for doc in squad_projects::ProjectDoc::all() {
+        let body = match squad_projects::read_doc(workspace_dir, project_id, doc) {
+            Ok(Some(body)) => body,
+            _ => continue,
+        };
+        out.push(format!(
+            "# Project Doc — {} ({})\n\n{}",
+            doc.label(),
+            project_name.as_deref().unwrap_or(project_id),
+            body,
+        ));
+    }
+    out
+}
+
+fn read_project_name(workspace_dir: &Path, project_id: &str) -> Option<String> {
+    read_workspace_projects(workspace_dir).into_iter().find_map(|p| {
+        let id = p.get("id").and_then(|v| v.as_str())?;
+        if id != project_id {
+            return None;
+        }
+        p.get("name").and_then(|v| v.as_str()).map(String::from)
+    })
 }
 
 /// Compose the "Projects in scope" prompt section, or None when the

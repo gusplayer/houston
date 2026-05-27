@@ -151,7 +151,8 @@ pub fn event_topic(event: &SquadEvent) -> String {
         | SquadEvent::ClaudeCliReady
         | SquadEvent::ClaudeCliFailed { .. } => "claude".into(),
         SquadEvent::MethodologyConfigChanged { workspace_id }
-        | SquadEvent::MethodologySeeded { workspace_id, .. } => {
+        | SquadEvent::MethodologySeeded { workspace_id, .. }
+        | SquadEvent::ProjectDocChanged { workspace_id, .. } => {
             format!("workspace:{workspace_id}")
         }
     }

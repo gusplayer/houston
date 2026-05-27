@@ -60,3 +60,7 @@ export {
   useSaveProjectDoc,
   useDeleteProjectDoc,
 } from "./use-project-docs";
+export {
+  useProjectScopedDoc,
+  useSaveProjectScopedDoc,
+} from "./use-project-doc";

@@ -98,6 +98,46 @@ pub struct UpdateProject {
     pub default_branch: Option<String>,
 }
 
+/// Documents stored at the project scope inside `<workspace>/.squad/projects/<id>/`.
+/// Whitelisted so callers can't address arbitrary paths. Filenames are
+/// lower-case slugs so the on-disk shape stays predictable for git.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum ProjectDoc {
+    /// CLAUDE.md visible to every agent bound to this project.
+    ClaudeMd,
+    /// Non-negotiable rules — read by code reviewer + leads.
+    Rules,
+    /// Architecture notes — read by architect + leads.
+    Architecture,
+}
+
+impl ProjectDoc {
+    /// On-disk filename inside `<workspace>/.squad/projects/<id>/`.
+    pub fn filename(self) -> &'static str {
+        match self {
+            ProjectDoc::ClaudeMd => "claude.md",
+            ProjectDoc::Rules => "rules.md",
+            ProjectDoc::Architecture => "architecture.md",
+        }
+    }
+
+    /// Human-readable label used in prompt blocks (`# Project Doc — <label>`).
+    pub fn label(self) -> &'static str {
+        match self {
+            ProjectDoc::ClaudeMd => "CLAUDE.md",
+            ProjectDoc::Rules => "Rules",
+            ProjectDoc::Architecture => "Architecture",
+        }
+    }
+
+    /// All variants in stable order — used by prompt assembly so each
+    /// agent session sees docs in the same sequence.
+    pub fn all() -> [ProjectDoc; 3] {
+        [ProjectDoc::ClaudeMd, ProjectDoc::Rules, ProjectDoc::Architecture]
+    }
+}
+
 // ── Persistence ────────────────────────────────────────────────────────────
 
 fn squad_dir(workspace_root: &Path) -> PathBuf {
@@ -225,6 +265,56 @@ pub fn update(workspace_root: &Path, id: &str, req: UpdateProject) -> ProjectRes
     let updated = project.clone();
     write_all(workspace_root, &projects)?;
     Ok(updated)
+}
+
+/// Read a project-scoped doc. Returns `None` when the file is missing or
+/// empty (treated as "no doc" so prompt assembly can skip it). Errors only
+/// on real I/O failures, not on absence.
+pub fn read_doc(
+    workspace_root: &Path,
+    project_id: &str,
+    doc: ProjectDoc,
+) -> ProjectResult<Option<String>> {
+    // Verify the project exists so callers can't read stray files left in
+    // the projects/ tree by an orphaned directory.
+    let _ = get(workspace_root, project_id)?;
+    let path = project_dir(workspace_root, project_id).join(doc.filename());
+    if !path.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(&path)?;
+    if content.trim().is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(content))
+}
+
+/// Write or clear a project-scoped doc. Empty/whitespace content deletes
+/// the file so the prompt-assembly code can use "absent" as the single
+/// signal for "skip this doc"; no need for the agent to read a file just
+/// to find it blank.
+pub fn write_doc(
+    workspace_root: &Path,
+    project_id: &str,
+    doc: ProjectDoc,
+    content: &str,
+) -> ProjectResult<()> {
+    let _ = get(workspace_root, project_id)?;
+    let dir = project_dir(workspace_root, project_id);
+    fs::create_dir_all(&dir)?;
+    let target = dir.join(doc.filename());
+
+    if content.trim().is_empty() {
+        if target.exists() {
+            fs::remove_file(&target)?;
+        }
+        return Ok(());
+    }
+
+    let tmp = dir.join(format!("{}.tmp", doc.filename()));
+    fs::write(&tmp, content)?;
+    fs::rename(&tmp, &target)?;
+    Ok(())
 }
 
 pub fn delete(workspace_root: &Path, id: &str) -> ProjectResult<()> {
@@ -402,5 +492,70 @@ mod tests {
         let d = tmp();
         let err = delete(d.path(), "ghost").unwrap_err();
         assert!(matches!(err, ProjectError::NotFound(_)));
+    }
+
+    #[test]
+    fn read_doc_returns_none_when_missing() {
+        let d = tmp();
+        let p = create(d.path(), make("alpha", "/r1")).unwrap();
+        assert!(read_doc(d.path(), &p.id, ProjectDoc::ClaudeMd).unwrap().is_none());
+        assert!(read_doc(d.path(), &p.id, ProjectDoc::Rules).unwrap().is_none());
+        assert!(read_doc(d.path(), &p.id, ProjectDoc::Architecture).unwrap().is_none());
+    }
+
+    #[test]
+    fn write_then_read_doc_round_trip() {
+        let d = tmp();
+        let p = create(d.path(), make("alpha", "/r1")).unwrap();
+        write_doc(d.path(), &p.id, ProjectDoc::ClaudeMd, "# project context").unwrap();
+        write_doc(d.path(), &p.id, ProjectDoc::Rules, "no SQL strings").unwrap();
+        assert_eq!(
+            read_doc(d.path(), &p.id, ProjectDoc::ClaudeMd).unwrap().as_deref(),
+            Some("# project context"),
+        );
+        assert_eq!(
+            read_doc(d.path(), &p.id, ProjectDoc::Rules).unwrap().as_deref(),
+            Some("no SQL strings"),
+        );
+        assert!(read_doc(d.path(), &p.id, ProjectDoc::Architecture).unwrap().is_none());
+    }
+
+    #[test]
+    fn write_doc_empty_clears_the_file() {
+        let d = tmp();
+        let p = create(d.path(), make("alpha", "/r1")).unwrap();
+        write_doc(d.path(), &p.id, ProjectDoc::ClaudeMd, "draft").unwrap();
+        assert!(read_doc(d.path(), &p.id, ProjectDoc::ClaudeMd).unwrap().is_some());
+
+        write_doc(d.path(), &p.id, ProjectDoc::ClaudeMd, "   \n\n").unwrap();
+        let on_disk = project_dir(d.path(), &p.id).join("claude.md");
+        assert!(!on_disk.exists(), "empty write should remove the file");
+        assert!(read_doc(d.path(), &p.id, ProjectDoc::ClaudeMd).unwrap().is_none());
+    }
+
+    #[test]
+    fn write_doc_rejects_unknown_project() {
+        let d = tmp();
+        let err = write_doc(d.path(), "ghost", ProjectDoc::Rules, "x").unwrap_err();
+        assert!(matches!(err, ProjectError::NotFound(_)));
+    }
+
+    #[test]
+    fn read_doc_rejects_unknown_project() {
+        let d = tmp();
+        let err = read_doc(d.path(), "ghost", ProjectDoc::ClaudeMd).unwrap_err();
+        assert!(matches!(err, ProjectError::NotFound(_)));
+    }
+
+    #[test]
+    fn delete_project_wipes_docs() {
+        let d = tmp();
+        let p = create(d.path(), make("alpha", "/r1")).unwrap();
+        write_doc(d.path(), &p.id, ProjectDoc::ClaudeMd, "x").unwrap();
+        let pdir = project_dir(d.path(), &p.id);
+        assert!(pdir.join("claude.md").exists());
+
+        delete(d.path(), &p.id).unwrap();
+        assert!(!pdir.exists());
     }
 }

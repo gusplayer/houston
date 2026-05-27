@@ -202,6 +202,20 @@
     "projectsHint": "Repositories bound to this workspace.",
     "deleteProject": "Remove project",
     "renameProject": "Click to rename",
+    "projectDocs": {
+      "toggle": "Docs",
+      "toggleHint": "Edit CLAUDE.md, rules, and architecture for this project. Every bound agent reads them on its next session.",
+      "title": "Project docs",
+      "save": "Save",
+      "saved": "Saved",
+      "unsaved": "Unsaved changes",
+      "hint": "Bound agents see this body on their next session.",
+      "placeholder": {
+        "claude-md": "Per-project instructions for every agent bound to this project. Tone, file paths, must-knows.",
+        "rules": "Non-negotiable rules. The code reviewer treats these as blocking.",
+        "architecture": "System design notes, module boundaries, contracts. The architect and leads consult this."
+      }
+    },
     "docsHint": "Agents read these docs automatically based on their role.",
     "openAgent": "Open agent",
     "methodology": "Methodology",

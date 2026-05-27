@@ -83,6 +83,7 @@ import type {
   SessionUsage,
   UsageRange,
   WorkspaceUsage,
+  ProjectDocSlug,
 } from "./types";
 import { planAttachmentUploadBatches } from "./attachments";
 
@@ -708,6 +709,35 @@ export class SquadClient {
   }
   deleteProject(workspaceId: string, projectId: string): Promise<void> {
     return this.request("DELETE", `/workspaces/${workspaceId}/projects/${projectId}`);
+  }
+
+  /** Read a project-scoped doc. Always returns a string — the engine
+   * resolves missing/empty files to "" so callers can render the editor
+   * unconditionally. */
+  readProjectDoc(
+    workspaceId: string,
+    projectId: string,
+    doc: ProjectDocSlug,
+  ): Promise<{ content: string }> {
+    return this.request(
+      "GET",
+      `/workspaces/${workspaceId}/projects/${projectId}/docs/${doc}`,
+    );
+  }
+  /** Write or clear a project-scoped doc. Empty/whitespace content
+   * deletes the file engine-side so prompt assembly can treat absence
+   * as "no doc here". */
+  writeProjectDoc(
+    workspaceId: string,
+    projectId: string,
+    doc: ProjectDocSlug,
+    content: string,
+  ): Promise<void> {
+    return this.request(
+      "PUT",
+      `/workspaces/${workspaceId}/projects/${projectId}/docs/${doc}`,
+      { content },
+    );
   }
 
   // ---------- methodology ----------

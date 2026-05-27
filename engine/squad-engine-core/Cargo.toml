@@ -24,6 +24,7 @@ squad-engine-protocol = { workspace = true }
 squad-agents-conversations = { workspace = true }
 squad-cli-bundle = { workspace = true }
 squad-claude-installer = { workspace = true }
+squad-projects = { workspace = true }
 dirs-next = "2"
 dirs = "5"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }

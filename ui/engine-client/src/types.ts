@@ -649,6 +649,19 @@ export interface Project {
   updatedAt: string;
 }
 
+/** Slug of a project-scoped doc on the wire. Matches the Rust
+ * `ProjectDoc` enum (kebab-case via serde). Add new variants here AND
+ * in the Rust enum together. */
+export type ProjectDocSlug = "claude-md" | "rules" | "architecture";
+
+/** Stable display label for each doc — mirrors `ProjectDoc::label()`
+ * server-side. */
+export const PROJECT_DOC_LABELS: Record<ProjectDocSlug, string> = {
+  "claude-md": "CLAUDE.md",
+  rules: "Rules",
+  architecture: "Architecture",
+};
+
 export interface CreateProject {
   name: string;
   repoPath: string;
