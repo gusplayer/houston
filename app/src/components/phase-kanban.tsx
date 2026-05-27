@@ -5,7 +5,7 @@ import { cn, Button, EmptyHeader, EmptyTitle, EmptyDescription } from "@squad/co
 import type { Story, StoryPhase } from "@squad/engine-client";
 import type { KanbanItem } from "@squad/board";
 import type { Agent } from "../lib/types";
-import { useStories, useCreateStory, useUpdateStory, useSprints } from "../hooks/queries";
+import { useStories, useCreateStory, useUpdateStory, useSprints, useProjects } from "../hooks/queries";
 import { useWorkspaceStore } from "../stores/workspaces";
 import { AgentStateAvatar } from "./agent-state-avatar";
 import { PhaseStoryCard } from "./phase-story-card";
@@ -33,10 +33,12 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
   const rootPath = workspace?.path;
   const { data: stories = [] } = useStories(rootPath);
   const { data: sprints = [] } = useSprints(rootPath);
+  const { data: projects = [] } = useProjects(workspace?.id);
   const createStory = useCreateStory(rootPath);
   const updateStory = useUpdateStory(rootPath);
   const [filterAgentId, setFilterAgentId] = useState<string | null>(null);
   const [filterSprintId, setFilterSprintId] = useState<string | "all" | "backlog">("all");
+  const [filterProjectId, setFilterProjectId] = useState<string | "all" | "__global__">("all");
 
   const hasNoStories = stories.length === 0;
 
@@ -45,13 +47,21 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
     if (filterAgentId) base = base.filter((s) => s.assignedAgentId === filterAgentId);
     if (filterSprintId === "backlog") base = base.filter((s) => !s.sprintId);
     else if (filterSprintId !== "all") base = base.filter((s) => s.sprintId === filterSprintId);
+    if (filterProjectId === "__global__") base = base.filter((s) => !s.projectId);
+    else if (filterProjectId !== "all") base = base.filter((s) => s.projectId === filterProjectId);
     const map = Object.fromEntries(PHASES.map((p) => [p.id, [] as Story[]])) as Record<StoryPhase, Story[]>;
     for (const s of base) {
       const phase = s.phase && map[s.phase] ? s.phase : "discovery";
       map[phase].push(s);
     }
     return map;
-  }, [stories, filterAgentId, filterSprintId]);
+  }, [stories, filterAgentId, filterSprintId, filterProjectId]);
+
+  /** New story inherits the active project filter — same UX as sprints-tab. */
+  function newStoryProjectId(): string | null {
+    if (filterProjectId === "all" || filterProjectId === "__global__") return null;
+    return filterProjectId;
+  }
 
   function moveStory(id: string, to: StoryPhase) { void updateStory.mutateAsync({ id, patch: { phase: to } }); }
   function assignAgent(id: string, agentId: string | null) { void updateStory.mutateAsync({ id, patch: { assignedAgentId: agentId } }); }
@@ -122,11 +132,27 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
             {a.name}
           </button>
         ))}
+        {projects.length > 0 && (
+          <select
+            value={filterProjectId}
+            onChange={(e) => setFilterProjectId(e.target.value as typeof filterProjectId)}
+            className="ml-auto h-[26px] px-2 text-[11px] rounded-full border border-border bg-background text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring shrink-0"
+          >
+            <option value="all">{t("phases.allProjects")}</option>
+            <option value="__global__">{t("phases.workspaceGlobal")}</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        )}
         {sprints.length > 0 && (
           <select
             value={filterSprintId}
             onChange={(e) => setFilterSprintId(e.target.value as typeof filterSprintId)}
-            className="ml-auto h-[26px] px-2 text-[11px] rounded-full border border-border bg-background text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring shrink-0"
+            className={cn(
+              "h-[26px] px-2 text-[11px] rounded-full border border-border bg-background text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring shrink-0",
+              projects.length === 0 && "ml-auto",
+            )}
           >
             <option value="all">{t("phases.allSprints")}</option>
             <option value="backlog">{t("phases.backlog")}</option>
@@ -151,7 +177,7 @@ export function PhaseKanban({ agents, missionItems, onStartStoryMission }: Phase
             onAssign={assignAgent}
             onUpdate={updateStoryData}
             onStartMission={onStartStoryMission ? startStoryMission : undefined}
-            onAdd={(title) => void createStory.mutateAsync({ title, status: "todo", phase: id })}
+            onAdd={(title) => void createStory.mutateAsync({ title, status: "todo", phase: id, projectId: newStoryProjectId() })}
           />
         ))}
       </div>
