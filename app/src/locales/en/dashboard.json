@@ -77,6 +77,9 @@
     "emptyDescription": "Track features through Discovery to Monitor and see at a glance which agent owns each stage.",
     "emptyCta": "Create first story",
     "firstStoryTitle": "First story",
+    "specDraft": "Draft spec",
+    "specDraftHint": "Create a spec file in the project repo and link it to this story.",
+    "specOpenHint": "Open the linked spec in your default editor.",
     "priority": {
       "low": "Low",
       "medium": "Medium",

@@ -32,6 +32,10 @@
         "type": ["string", "null"],
         "description": "Workspace project the story is scoped to. Null = workspace-global (cuts across projects). Stories created before this field existed are read as null."
       },
+      "spec_path": {
+        "type": ["string", "null"],
+        "description": "Path to the SDD spec file, relative to the bound project's repo root (typically 'specs/<slug>.md'). When set, the card shows a spec badge and clicking it opens the file in the user's default editor. Meaningless without project_id."
+      },
       "epic": {
         "type": ["string", "null"],
         "description": "Free-text epic label, e.g. 'Auth Hardening' or 'Perf Sprint'."
