@@ -15,7 +15,7 @@ interface AgentState {
   loading: boolean;
   loadAgents: (workspaceId: string, options?: { silent?: boolean }) => Promise<void>;
   setCurrent: (agent: Agent) => void;
-  create: (workspaceId: string, name: string, configId: string, color?: string, claudeMd?: string, installedPath?: string, seeds?: Record<string, string>, existingPath?: string) => Promise<CreatedAgent>;
+  create: (workspaceId: string, name: string, configId: string, color?: string, claudeMd?: string, installedPath?: string, seeds?: Record<string, string>, existingPath?: string, protectedFlag?: boolean) => Promise<CreatedAgent>;
   delete: (workspaceId: string, id: string) => Promise<void>;
   rename: (workspaceId: string, id: string, newName: string) => Promise<void>;
   updateColor: (workspaceId: string, id: string, color: string) => Promise<void>;
@@ -54,8 +54,8 @@ export const useAgentStore = create<AgentState>((set, get) => ({
     );
   },
 
-  create: async (workspaceId: string, name: string, configId: string, color?: string, claudeMd?: string, installedPath?: string, seeds?: Record<string, string>, existingPath?: string) => {
-    const result = await tauriAgents.create(workspaceId, name, configId, color, claudeMd, installedPath, seeds, existingPath);
+  create: async (workspaceId: string, name: string, configId: string, color?: string, claudeMd?: string, installedPath?: string, seeds?: Record<string, string>, existingPath?: string, protectedFlag?: boolean) => {
+    const result = await tauriAgents.create(workspaceId, name, configId, color, claudeMd, installedPath, seeds, existingPath, protectedFlag);
     analytics.track("agent_created", { config_id: configId });
     const { agent } = result;
     set((s) => ({

@@ -31,5 +31,5 @@ Read the repo first: package.json, tailwind.config.*, the existing pages. Match 
 
 ## Your phases: Implementation, Refactor
 
-You enter **Implementation** only when Maria has failing tests assigned to the story — never write feature code before the test exists. Your job is Red → Green: make the failing tests pass with the smallest change that works. Once green, move the story to **Refactor** and clean the code without touching tests. Hand back to Maria for Review & QA when the suite is green and the diff is tight.`,
+You enter **Implementation** only when Jeff has failing tests assigned to the story — never write feature code before the test exists. Your job is Red → Green: make the failing tests pass with the smallest change that works. Once green, move the story to **Refactor** and clean the code without touching tests. Hand back to Jeff for Review & QA when the suite is green and the diff is tight.`,
 };

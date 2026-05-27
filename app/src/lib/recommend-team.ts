@@ -2,13 +2,16 @@
  * G.2 — team recommendations.
  *
  * Looks at the workspace's projects and decides which roles from the
- * team library (G.1) should be highlighted as "Recommended" in the
+ * team library should be highlighted as "Recommended" in the
  * Recruit Team dialog. Deliberately deterministic — we read package
  * manifests and config files, no LLM call. The user can always
  * override the recommendation by checking/unchecking.
  *
- * Two universally-useful roles (CTO + QA) are always recommended.
- * Everything else is keyed off stack signals.
+ * The five protected default members (Sam CTO, Steve PM, Jane Code Reviewer,
+ * Jeff QA, Adam Architect) are auto-hired on workspace create and never need
+ * to appear in the recommendation list — but we keep them in `ROLE_IDS` so
+ * the manifest schema and team.json import flow stay consistent. Specialists
+ * (Maya, Diego, Peter, Carlo, Marcus) are stack-keyed.
  */
 import { tauriAgent } from "./tauri";
 import type { Project } from "@squad/engine-client";
@@ -16,11 +19,14 @@ import type { Project } from "@squad/engine-client";
 /** Built-in role IDs from app/src/agents/builtin/. */
 export const ROLE_IDS = [
   "cto-agent",
+  "pm-agent",
+  "code-reviewer-agent",
+  "qa-agent",
+  "architect-agent",
   "mobile-lead-agent",
   "backend-lead-agent",
   "frontend-lead-agent",
   "designer-agent",
-  "qa-agent",
   "devops-agent",
 ] as const;
 export type RoleId = (typeof ROLE_IDS)[number];
@@ -91,10 +97,10 @@ async function detectSignals(project: Project): Promise<StackSignals> {
 
 function rolesForSignals(s: StackSignals): RoleId[] {
   const roles = new Set<RoleId>();
-  // Universally useful — every team benefits.
-  roles.add("cto-agent");
-  roles.add("qa-agent");
 
+  // Stack-specific specialists (opt-in hires). The five protected defaults
+  // (cto, pm, code-reviewer, qa, architect) are already in the workspace —
+  // no need to recommend them here.
   if (s.hasReactNative || s.hasExpo) roles.add("mobile-lead-agent");
   if (s.hasNext || s.hasAstro || s.hasNuxt) roles.add("frontend-lead-agent");
   if (s.hasNest || s.hasFastify || s.hasExpress || s.hasPrisma) {
@@ -113,13 +119,15 @@ export interface TeamRecommendation {
 
 /**
  * Inspect every workspace project, merge signals, and return the
- * recommended role set. Falls back to CTO + Designer when no projects
- * exist (a brand-new workspace with no repos bound).
+ * recommended specialist set (opt-in hires only — the five protected
+ * defaults are already auto-hired on workspace create). Falls back to
+ * the designer when no projects exist, since every brand-new product
+ * benefits from a designer in the early phase.
  */
 export async function recommendTeam(projects: Project[]): Promise<TeamRecommendation> {
   if (projects.length === 0) {
     return {
-      recommended: new Set<RoleId>(["cto-agent", "designer-agent"]),
+      recommended: new Set<RoleId>(["designer-agent"]),
       perProject: [],
     };
   }

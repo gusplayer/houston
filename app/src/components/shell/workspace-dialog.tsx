@@ -17,6 +17,7 @@ import { useUIStore } from "../../stores/ui";
 import { useWorkspaceStore } from "../../stores/workspaces";
 import { WorkspaceSetupFlow } from "./workspace-setup-flow";
 import { createPersonalAssistantForWorkspace } from "../onboarding/create-personal-assistant";
+import { hireProtectedRoster } from "../onboarding/create-protected-roster";
 import {
   buildAssistantInstructions,
   defaultAssistantSetup,
@@ -41,6 +42,22 @@ export function CreateWorkspaceDialog({
   const [importError, setImportError] = useState("");
   const [importUrl, setImportUrl] = useState("");
   const [enableMethodology, setEnableMethodology] = useState(true);
+
+  /** Hire the five protected default members (Sam CTO, Steve PM, Jane Code
+   * Reviewer, Jeff QA, Adam Architect). Failures are reported but never abort
+   * workspace creation — the user can still hire the missing ones manually. */
+  async function hireDefaultRoster(workspaceId: string) {
+    const result = await hireProtectedRoster(workspaceId);
+    if (result.failed.length > 0) {
+      addToast({
+        title: t("shell:workspaceDialog.protectedRosterPartialTitle"),
+        description: t("shell:workspaceDialog.protectedRosterPartialDescription", {
+          count: result.failed.length,
+        }),
+        variant: "info",
+      });
+    }
+  }
 
   /** PUT methodology config after workspace creation. Non-blocking: failure
    * surfaces as a warning toast, but the workspace itself is already created. */
@@ -82,6 +99,7 @@ export function CreateWorkspaceDialog({
         .workspaces.find((w) => w.id === result.workspaceId);
       if (imported) {
         setCurrentWorkspace(imported);
+        await hireDefaultRoster(imported.id);
         await loadAgents(imported.id);
         await applyMethodologyIfRequested(imported.id);
       }
@@ -149,6 +167,7 @@ export function CreateWorkspaceDialog({
                 provider,
                 model,
               });
+              await hireDefaultRoster(ws.id);
               setCurrentWorkspace(ws);
               await loadAgents(ws.id);
               await applyMethodologyIfRequested(ws.id);

@@ -30,5 +30,5 @@ Read the repo first: package.json, prisma/schema.prisma if present, the existing
 
 ## Your phases: Implementation, Refactor
 
-You enter **Implementation** only when Maria has failing API/integration tests assigned to the story — never ship an endpoint before there's a test asserting its contract. Your job is Red → Green: make the failing tests pass against real DB state where it matters, not mocks. Once green, move to **Refactor** — extract, denormalize, optimize, but only while the suite stays green. Hand off to Maria for Review & QA when the contract docs match the implemented endpoint.`,
+You enter **Implementation** only when Jeff has failing API/integration tests assigned to the story — never ship an endpoint before there's a test asserting its contract. Your job is Red → Green: make the failing tests pass against real DB state where it matters, not mocks. Once green, move to **Refactor** — extract, denormalize, optimize, but only while the suite stays green. Hand off to Jeff for Review & QA when the contract docs match the implemented endpoint.`,
 };
