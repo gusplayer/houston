@@ -28,6 +28,7 @@ import { CreateAgentDialog } from "./create-workspace-dialog";
 import { RecruitTeamDialog } from "./recruit-team-dialog";
 import { TeamManifestBanner } from "./team-manifest-banner";
 import { WorkspacePage } from "./workspace-page";
+import { InboxView } from "./inbox-view";
 import { AgentProjectChip } from "./agent-project-chip";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
@@ -80,7 +81,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
     viewMode !== "store" &&
     viewMode !== "workspace" &&
     viewMode !== "connections" &&
-    viewMode !== "settings";
+    viewMode !== "settings" &&
+    viewMode !== "inbox";
   const tabIds = new Set(tabs.map((tab) => tab.id));
   const firstAgentTab = agentDef?.config.defaultTab ?? tabs[0]?.id ?? "activity";
   // Map a desired tab id to one this agent actually has, falling back to its
@@ -111,6 +113,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
               <TeamManifestBanner />
               {viewMode === "dashboard" ? (
                 <Dashboard />
+              ) : viewMode === "inbox" ? (
+                <InboxView />
               ) : viewMode === "workspace" ? (
                 <WorkspacePage />
               ) : viewMode === "store" ? (
