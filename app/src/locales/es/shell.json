@@ -1,6 +1,7 @@
 {
   "sidebar": {
     "missionControl": "Vista general",
+    "inbox": "Inbox",
     "store": "Store",
     "workspace": "Mi equipo",
     "integrations": "Integraciones",
@@ -263,5 +264,22 @@
     "internalTerminal": "Terminal",
     "terminal": "Abrir en Warp",
     "brief": "Playbook"
+  },
+  "inbox": {
+    "title": "Inbox",
+    "untitled": "Tarea sin título",
+    "statusNeedsYou": "Te necesita",
+    "statusError": "Con error",
+    "emptyTitle": "Todo al día",
+    "emptyDescription": "Ningún agente está bloqueado o esperando por ti en este workspace ahora mismo.",
+    "relative": {
+      "justNow": "hace un momento",
+      "minutes_one": "hace {{count}} min",
+      "minutes_other": "hace {{count}} min",
+      "hours_one": "hace {{count}} h",
+      "hours_other": "hace {{count}} h",
+      "days_one": "hace {{count}} día",
+      "days_other": "hace {{count}} días"
+    }
   }
 }

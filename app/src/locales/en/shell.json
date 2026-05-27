@@ -1,6 +1,7 @@
 {
   "sidebar": {
     "missionControl": "Overview",
+    "inbox": "Inbox",
     "store": "Store",
     "workspace": "My Team",
     "integrations": "Integrations",
@@ -263,5 +264,22 @@
     "internalTerminal": "Terminal",
     "terminal": "Open in Warp",
     "brief": "Playbook"
+  },
+  "inbox": {
+    "title": "Inbox",
+    "untitled": "Untitled task",
+    "statusNeedsYou": "Needs you",
+    "statusError": "Errored",
+    "emptyTitle": "All clear",
+    "emptyDescription": "No agent is blocked or waiting on you in this workspace right now.",
+    "relative": {
+      "justNow": "just now",
+      "minutes_one": "{{count}} min ago",
+      "minutes_other": "{{count}} min ago",
+      "hours_one": "{{count}} hr ago",
+      "hours_other": "{{count}} hrs ago",
+      "days_one": "{{count}} day ago",
+      "days_other": "{{count}} days ago"
+    }
   }
 }
