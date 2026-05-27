@@ -387,7 +387,7 @@ function StatusRow(props: CellArgs) {
       {STATUS_COLUMNS.map((status) => (
         <DropColumn
           key={status}
-          label={t(`columns.${status}`)}
+          label={t(`sprints.columnLabels.${status}` as const)}
           count={props.inCell(status).length}
           accepts={{ status }}
           onAdd={() => props.setAddingTo({ status })}

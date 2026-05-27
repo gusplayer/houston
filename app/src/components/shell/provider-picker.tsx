@@ -198,7 +198,7 @@ function ProviderCard({
         {provider.id === "anthropic" ? <ClaudeLogo /> : <OpenAILogo />}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-medium text-foreground truncate flex items-center gap-1.5">
+        <p className="text-[13px] font-medium text-foreground flex items-center gap-1.5">
           {provider.name}
           {connected && (
             <span
@@ -207,7 +207,7 @@ function ProviderCard({
             />
           )}
         </p>
-        <p className="text-[11px] text-muted-foreground truncate">
+        <p className="text-[11px] text-muted-foreground">
           {connected ? provider.cost : provider.subtitle}
         </p>
       </div>
@@ -224,6 +224,10 @@ function ProviderCard({
 
 function ComingSoonCard({ provider }: { provider: ComingSoonProviderInfo }) {
   const { t } = useTranslation("providers");
+  // The "Coming Soon" tag used to sit to the right of the name, which on a
+  // two-column grid squeezed the provider name into "G…" / "M…" ellipses.
+  // Move the tag below the name as a small subtitle so the full name has
+  // room and the card stays legible.
   return (
     <div
       aria-disabled="true"
@@ -233,12 +237,11 @@ function ComingSoonCard({ provider }: { provider: ComingSoonProviderInfo }) {
         <ComingSoonLogo provider={provider} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-medium text-foreground truncate">{provider.name}</p>
-        <p className="text-[11px] text-muted-foreground truncate">{provider.subtitle}</p>
+        <p className="text-[13px] font-medium text-foreground">{provider.name}</p>
+        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          {t("card.comingSoon")}
+        </p>
       </div>
-      <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground shrink-0">
-        {t("card.comingSoon")}
-      </span>
     </div>
   );
 }

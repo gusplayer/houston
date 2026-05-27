@@ -53,6 +53,12 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
     let onDataDisposer: { dispose: () => void } | undefined;
     let onBinaryDisposer: { dispose: () => void } | undefined;
     let rafHandle: number | undefined;
+    // Flips to true on cleanup. xterm internals (RenderService listeners,
+    // DPR observer, queued render frames) can fire one more time AFTER
+    // term.dispose() and hit the "undefined is not an object (evaluating
+    // 'this._renderer.value.dimensions')" race. The flag lets our own
+    // callbacks short-circuit so we don't pile more access on top.
+    let isDisposed = false;
 
     try {
       term = new Terminal({
@@ -174,8 +180,13 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
         }
       });
 
-      // Refit on container resize.
+      // Refit on container resize. Skip entirely once the effect has been
+      // torn down — a ResizeObserver callback can fire after cleanup runs
+      // (browsers batch them on the next layout), and touching a disposed
+      // xterm renderer is what the famous `_renderer.value.dimensions`
+      // crash boils down to.
       observer = new ResizeObserver(() => {
+        if (isDisposed) return;
         try {
           fitAddon?.fit();
           if (ws && ws.readyState === WebSocket.OPEN && term) {
@@ -202,6 +213,7 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
     }
 
     return () => {
+      isDisposed = true;
       if (rafHandle !== undefined) cancelAnimationFrame(rafHandle);
       try { observer?.disconnect(); } catch {}
       try { onDataDisposer?.dispose(); } catch {}

@@ -120,7 +120,7 @@ export function CreateWorkspaceDialog({
             {t("shell:workspaceDialog.subtitle")}
           </p>
         </DialogHeader>
-        <div className="flex gap-1 pb-2">
+        <div className="flex gap-1 pb-1">
           {(["new", "github"] as const).map((item) => (
             <button
               key={item}
@@ -138,14 +138,24 @@ export function CreateWorkspaceDialog({
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 cursor-pointer px-1 pb-2 text-xs text-muted-foreground">
+        {/* One-line description of the active tab so the user doesn't have to
+            guess what "Create new" vs. "Import from GitHub" actually does. */}
+        <p className="px-1 pb-3 text-xs text-muted-foreground">
+          {tab === "new"
+            ? t("shell:workspaceDialog.tabNewHint")
+            : t("shell:workspaceDialog.tabGithubHint")}
+        </p>
+        <label className="flex items-start gap-2 cursor-pointer px-1 pb-2 text-xs text-muted-foreground">
           <input
             type="checkbox"
             checked={enableMethodology}
             onChange={(e) => setEnableMethodology(e.target.checked)}
-            className="size-3.5"
+            className="mt-0.5 size-3.5"
           />
-          <span>{t("shell:workspaceDialog.enableMethodology")}</span>
+          <span className="flex flex-col gap-0.5">
+            <span className="text-foreground">{t("shell:workspaceDialog.enableMethodology")}</span>
+            <span>{t("shell:workspaceDialog.enableMethodologyHint")}</span>
+          </span>
         </label>
         {tab === "new" ? (
           <WorkspaceSetupFlow

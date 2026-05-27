@@ -45,3 +45,40 @@ export const PROTECTED_CONFIG_IDS = [
   "architect-agent",
 ] as const;
 export type ProtectedConfigId = (typeof PROTECTED_CONFIG_IDS)[number];
+
+/** Canonical role-tier ordering used by sidebar lists, the agent picker, and
+ * any other UI that surfaces the team. CTO first (workspace lead), then PM,
+ * Architect, Code Reviewer, QA, specialists, dev, assistant, then anything
+ * else falls to the bottom in insertion order. */
+const ROLE_TIER_ORDER: readonly string[] = [
+  "cto-agent",
+  "architect-agent",
+  "pm-agent",
+  "code-reviewer-agent",
+  "qa-agent",
+  "mobile-lead-agent",
+  "backend-lead-agent",
+  "frontend-lead-agent",
+  "designer-agent",
+  "devops-agent",
+  "dev-agent",
+  "personal-assistant",
+  "blank",
+  "agent-creator",
+];
+
+/** Tier index for `configId`. Unknown configs sort after all known tiers. */
+export function roleTierIndex(configId: string | undefined): number {
+  if (!configId) return Number.MAX_SAFE_INTEGER;
+  const idx = ROLE_TIER_ORDER.indexOf(configId);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
+/** Stable sort that puts agents in canonical role-tier order, preserving the
+ * caller's original order for ties. The CTO ends up first, then Architect,
+ * PM, Code Reviewer, QA, and so on. */
+export function sortAgentsByRoleTier<T extends { configId?: string }>(
+  agents: readonly T[],
+): T[] {
+  return [...agents].sort((a, b) => roleTierIndex(a.configId) - roleTierIndex(b.configId));
+}

@@ -73,7 +73,9 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
   const setAgentMissionSearchLoading = useUIStore((s) => s.setAgentMissionSearchLoading);
   const setMissionPanelOpen = useUIStore((s) => s.setMissionPanelOpen);
   const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
-  const chatPanelViewMode = useUIStore((s) => s.chatPanelViewMode);
+  // chatPanelViewMode is owned by the workspace shell — see the dock
+  // terminal in workspace-shell.tsx. board-tab forces "chat" into AIBoard
+  // so it never duplicates the dock terminal inline.
   const setChatPanelViewMode = useUIStore((s) => s.setChatPanelViewMode);
   const addToast = useUIStore((s) => s.addToast);
   const attachmentValidation = useAttachmentRejectionDialog();
@@ -642,7 +644,13 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           processLabels={panel.processLabels}
           getThinkingMessage={panel.getThinkingMessage}
           terminalWsUrl={panel.terminalWsUrl}
-          chatPanelViewMode={chatPanelViewMode}
+          // Terminal mode is owned by the workspace shell dock (right rail
+          // -> SquadTerminalPanel), which renders its own SquadTerminal at
+          // the workspace level. AIBoard's chat panel must NOT also render
+          // a terminal — that produced two PTY connections and a visible
+          // duplicate panel. Always feed "chat" to AIBoard so its inline
+          // chat-messages-area stays in chat mode.
+          chatPanelViewMode={"chat"}
           onChatPanelViewModeChange={setChatPanelViewMode}
           renderTurnSummary={panel.renderTurnSummary}
           renderLink={panel.renderLink}

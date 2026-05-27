@@ -32,7 +32,8 @@
   },
   "agentPicker": {
     "title": "Qual agente deve fazer isso?",
-    "description": "Escolha um agente para abrir uma nova conversa."
+    "description": "Escolha um agente para abrir uma nova conversa.",
+    "recommended": "Recomendado"
   },
   "routinesNudge": {
     "title": "Seus agentes podem trabalhar com um horário",
