@@ -35,6 +35,10 @@ interface UIState {
   missionPanelOpen: boolean;
   /** Which view is shown inside the side panel: chat messages or embedded xterm. */
   chatPanelViewMode: "chat" | "terminal";
+  /** Width in pixels of the right dock that hosts the mission/terminal
+   * panel. Persisted (lazily from localStorage on init) so the user's
+   * preferred ratio survives navigation and app restarts. */
+  dockWidth: number;
   jobDescriptionTarget: JobDescriptionTarget | null;
   /** Currently-open conversation per agent. Persisted in the store so
    * navigating away from the agent (Settings, another agent, …) and back
@@ -85,6 +89,7 @@ interface UIState {
   setAgentMissionSearchLoading: (agentPath: string, loading: boolean) => void;
   setMissionPanelOpen: (open: boolean) => void;
   setChatPanelViewMode: (mode: "chat" | "terminal") => void;
+  setDockWidth: (width: number) => void;
   setJobDescriptionTarget: (target: JobDescriptionTarget | null) => void;
   setTutorialActive: (active: boolean) => void;
   setUiTourActive: (active: boolean) => void;
@@ -94,6 +99,20 @@ interface UIState {
 }
 
 let toastCounter = 0;
+
+const DOCK_WIDTH_KEY = "squad.dockWidth";
+const DOCK_WIDTH_DEFAULT = 560;
+const DOCK_WIDTH_MIN = 360;
+const DOCK_WIDTH_MAX = 1200;
+
+function readInitialDockWidth(): number {
+  if (typeof window === "undefined") return DOCK_WIDTH_DEFAULT;
+  const raw = window.localStorage.getItem(DOCK_WIDTH_KEY);
+  if (!raw) return DOCK_WIDTH_DEFAULT;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n)) return DOCK_WIDTH_DEFAULT;
+  return Math.min(DOCK_WIDTH_MAX, Math.max(DOCK_WIDTH_MIN, n));
+}
 
 export const useUIStore = create<UIState>((set) => ({
   viewMode: "chat",
@@ -110,6 +129,7 @@ export const useUIStore = create<UIState>((set) => ({
   agentMissionSearchLoading: {},
   missionPanelOpen: false,
   chatPanelViewMode: "chat",
+  dockWidth: readInitialDockWidth(),
   jobDescriptionTarget: null,
   tutorialActive: false,
   uiTourActive: false,
@@ -166,6 +186,13 @@ export const useUIStore = create<UIState>((set) => ({
     }),
   setMissionPanelOpen: (missionPanelOpen) => set({ missionPanelOpen }),
   setChatPanelViewMode: (chatPanelViewMode) => set({ chatPanelViewMode }),
+  setDockWidth: (rawWidth) => {
+    const width = Math.min(DOCK_WIDTH_MAX, Math.max(DOCK_WIDTH_MIN, Math.round(rawWidth)));
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(DOCK_WIDTH_KEY, String(width));
+    }
+    set({ dockWidth: width });
+  },
   setJobDescriptionTarget: (jobDescriptionTarget) => set({ jobDescriptionTarget }),
   setTutorialActive: (tutorialActive) => set({ tutorialActive }),
   setUiTourActive: (uiTourActive) => set({ uiTourActive }),

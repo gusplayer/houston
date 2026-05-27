@@ -52,10 +52,12 @@ export function Dashboard() {
   const getAgentDef = useAgentCatalogStore((s) => s.getById);
   const setDialogOpen = useUIStore((s) => s.setCreateAgentDialogOpen);
   const setMissionPanelOpen = useUIStore((s) => s.setMissionPanelOpen);
-  const missionPanelOpen = useUIStore((s) => s.missionPanelOpen);
   const addToast = useUIStore((s) => s.addToast);
 
-  const [boardView, setBoardView] = useState<"missions" | "phases" | "usage">("missions");
+  // Default to the phase board: it shows status × phase swim-lanes and gives
+  // a fuller picture of where each story lives. The legacy Missions board is
+  // still reachable via the toggle for a simpler glance at what's running.
+  const [boardView, setBoardView] = useState<"missions" | "phases" | "usage">("phases");
   const [filterPath, setFilterPath] = useState("");
   const [missionSearchQuery, setMissionSearchQuery] = useState("");
   const [agentPickerOpen, setAgentPickerOpen] = useState(false);
@@ -77,7 +79,6 @@ export function Dashboard() {
     setDrafts((d) => ({ ...d, [key]: text }));
   }, []);
   const openerRef = useRef<NewPanelOpener | null>(null);
-  const emptyAutoOpenKeyRef = useRef<string | null>(null);
   const openNewMission = useCallback(() => setAgentPickerOpen(true), [setAgentPickerOpen]);
   const MC_COLUMNS: KanbanColumnConfig[] = buildMissionBoardColumns(
     {
@@ -159,10 +160,6 @@ export function Dashboard() {
       icon: <AgentCardAvatar color={colorByPath[item.metadata?.agentPath as string]} />,
     }));
   }, [mc.items, filterPath, colorByPath]);
-  const visibleAgents = useMemo(
-    () => (filterPath ? agents.filter((a) => a.folderPath === filterPath) : agents),
-    [agents, filterPath],
-  );
   const handleMissionSearchError = useCallback(() => {
     addToast({
       title: t("dashboard:search.historyErrorTitle"),
@@ -188,33 +185,10 @@ export function Dashboard() {
     setPendingStoryPrefill("");
   }, [pendingStoryAgent, pendingStoryPrefill, boardView, newPanelOpenerReady, handlePickAgent]);
 
-  useEffect(() => {
-    if (!mc.isLoaded) return;
-    if (missionSearch.hasQuery) return;
-    const emptyKey = filterPath || "all";
-    if (agentFilteredItems.length > 0) {
-      if (emptyAutoOpenKeyRef.current === emptyKey) emptyAutoOpenKeyRef.current = null;
-      return;
-    }
-    if (!newPanelOpenerReady || missionPanelOpen || agentPickerOpen) return;
-    if (emptyAutoOpenKeyRef.current === emptyKey) return;
-    emptyAutoOpenKeyRef.current = emptyKey;
-    if (visibleAgents.length === 1) {
-      handlePickAgent(visibleAgents[0], { focusComposer: false });
-    } else if (visibleAgents.length > 1) {
-      setAgentPickerOpen(true);
-    }
-  }, [
-    agentPickerOpen,
-    filterPath,
-    agentFilteredItems.length,
-    handlePickAgent,
-    mc.isLoaded,
-    missionSearch.hasQuery,
-    missionPanelOpen,
-    newPanelOpenerReady,
-    visibleAgents,
-  ]);
+  // Empty boards used to auto-open the agent picker on mount, which
+  // re-fired every time the user navigated back to Overview. The picker
+  // is now opened only via explicit user action (New task button, "+"
+  // column action, or the empty-state CTA).
 
   const selectedItem = mc.selectedId
     ? mc.items.find((i) => i.id === mc.selectedId)
@@ -334,20 +308,9 @@ export function Dashboard() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* View toggle */}
+      {/* View toggle — Phases first (default + canonical planning view),
+          then Missions (lightweight daily glance), then Usage. */}
       <div className="shrink-0 flex items-center gap-1 px-4 py-1.5 border-b border-border">
-        <button
-          onClick={() => setBoardView("missions")}
-          className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors",
-            boardView === "missions"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground hover:bg-accent",
-          )}
-        >
-          <LayoutGrid className="size-3" />
-          {t("dashboard:boardToggle.missions")}
-        </button>
         <button
           onClick={() => setBoardView("phases")}
           className={cn(
@@ -359,6 +322,18 @@ export function Dashboard() {
         >
           <Columns3 className="size-3" />
           {t("dashboard:boardToggle.phases")}
+        </button>
+        <button
+          onClick={() => setBoardView("missions")}
+          className={cn(
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-colors",
+            boardView === "missions"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
+          )}
+        >
+          <LayoutGrid className="size-3" />
+          {t("dashboard:boardToggle.missions")}
         </button>
         <button
           onClick={() => setBoardView("usage")}
@@ -466,6 +441,7 @@ export function Dashboard() {
             open={agentPickerOpen}
             onOpenChange={setAgentPickerOpen}
             agents={agents}
+            getRoleLabel={(configId) => getAgentDef(configId)?.config.roleLabel}
             onPick={handlePickAgent}
           />
         </>

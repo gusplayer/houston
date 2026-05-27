@@ -23,6 +23,26 @@ import { analytics, classifyAnalyticsError } from "./lib/analytics";
 // ~/.squad/logs/frontend.log (or ~/.dev-squad/logs/frontend.log in dev).
 initFrontendLogging();
 
+/**
+ * Patterns we know are 3rd-party disposal-race noise: not user-initiated,
+ * not actionable, fire on unmount and would otherwise toast on every
+ * navigation. We still log them and ship them to analytics so they show
+ * up in triage — we just don't toast.
+ *
+ * Current entries:
+ *  - xterm's RenderService.dimensions getter dereferences a
+ *    MutableDisposable whose `.value` becomes null right after dispose.
+ *    Reproduces on every workspace nav with an open terminal. See:
+ *    @xterm/xterm RenderService at https://github.com/xtermjs/xterm.js
+ */
+const SILENT_NOISE_PATTERNS: readonly RegExp[] = [
+  /this\._renderer\.value\.dimensions/,
+];
+
+function isKnownDisposalNoise(message: string): boolean {
+  return SILENT_NOISE_PATTERNS.some((re) => re.test(message));
+}
+
 // Global error handlers — surface ALL uncaught errors as toasts
 // (console.error calls here also flow to the log file via initFrontendLogging)
 window.onerror = (_event, _source, _line, _col, error) => {
@@ -32,6 +52,7 @@ window.onerror = (_event, _source, _line, _col, error) => {
     source: "uncaught_error",
     error_kind: classifyAnalyticsError(message),
   });
+  if (isKnownDisposalNoise(message)) return;
   showErrorToast("uncaught_error", message);
 };
 
@@ -42,6 +63,7 @@ window.onunhandledrejection = (event: PromiseRejectionEvent) => {
     source: "unhandled_rejection",
     error_kind: classifyAnalyticsError(message),
   });
+  if (isKnownDisposalNoise(message)) return;
   showErrorToast("unhandled_rejection", message);
 };
 

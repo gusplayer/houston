@@ -35,6 +35,7 @@ import { DetailPanelProvider } from "./detail-panel-context";
 import { MissionSearchInput } from "../mission-search-input";
 import { RightRail } from "./right-rail";
 import { UiTour } from "./ui-tour";
+import { DockResizer } from "./dock-resizer";
 import { cn } from "@squad/core";
 
 // Lazy-load xterm so the bundle is only fetched when the user opens the terminal.
@@ -59,6 +60,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const setMissionPanelOpen = useUIStore((s) => s.setMissionPanelOpen);
   const chatPanelViewMode = useUIStore((s) => s.chatPanelViewMode);
   const setChatPanelViewMode = useUIStore((s) => s.setChatPanelViewMode);
+  const dockWidth = useUIStore((s) => s.dockWidth);
+  const setDockWidth = useUIStore((s) => s.setDockWidth);
   const setCreateAgentDialogOpen = useUIStore((s) => s.setCreateAgentDialogOpen);
   const setRecruitTeamDialogOpen = useUIStore((s) => s.setRecruitTeamDialogOpen);
   const agentMissionSearchQuery = useUIStore((s) =>
@@ -232,35 +235,44 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 </div>
               )}
             </main>
-            {/* Panel slot: terminal mode = standalone SquadTerminal, else = AIBoard portal target */}
+            {/* Panel slot: terminal mode = standalone SquadTerminal, else = AIBoard portal target.
+                Both share the same draggable width persisted in the UI store so the user's
+                preferred ratio survives navigation. The DockResizer sits on the LEFT edge of
+                the dock so dragging it leftwards grows the panel. */}
             {missionPanelOpen && chatPanelViewMode === "terminal" && currentAgent ? (
-              <div
-                className="h-full flex flex-col overflow-hidden border-l border-border"
-                style={{ width: "45%", minWidth: 380 }}
-              >
-                <Suspense
-                  fallback={
-                    <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground">
-                      Loading terminal…
-                    </div>
-                  }
+              <>
+                <DockResizer width={dockWidth} onWidthChange={setDockWidth} />
+                <div
+                  className="h-full flex flex-col overflow-hidden border-l border-border"
+                  style={{ width: `${dockWidth}px`, minWidth: 360 }}
                 >
-                  <SquadTerminalPanel
-                    wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath)}
-                    className="flex-1 min-h-0 px-2 py-2"
-                    onClose={() => {
-                      setChatPanelViewMode("chat");
-                      setMissionPanelOpen(false);
-                    }}
-                  />
-                </Suspense>
-              </div>
+                  <Suspense
+                    fallback={
+                      <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground">
+                        Loading terminal…
+                      </div>
+                    }
+                  >
+                    <SquadTerminalPanel
+                      wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath)}
+                      className="flex-1 min-h-0 px-3 py-3"
+                      onClose={() => {
+                        setChatPanelViewMode("chat");
+                        setMissionPanelOpen(false);
+                      }}
+                    />
+                  </Suspense>
+                </div>
+              </>
             ) : missionPanelOpen ? (
-              <div
-                ref={setPanelContainer}
-                className="h-full overflow-hidden border-l border-border"
-                style={{ width: "45%", minWidth: 380 }}
-              />
+              <>
+                <DockResizer width={dockWidth} onWidthChange={setDockWidth} />
+                <div
+                  ref={setPanelContainer}
+                  className="h-full overflow-hidden border-l border-border"
+                  style={{ width: `${dockWidth}px`, minWidth: 360 }}
+                />
+              </>
             ) : null}
             {isAgentView && currentAgent && (
               <RightRail
