@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Pencil, Check, X, Play } from "lucide-react";
+import { Pencil, Check, X, Play, FileText, FilePlus2 } from "lucide-react";
 import { cn } from "@squad/core";
-import type { Story, StoryPhase, StoryPriority, StoryStatus } from "@squad/engine-client";
+import type { Story, StoryPhase, StoryPriority, StoryStatus, Project } from "@squad/engine-client";
 import type { KanbanItem } from "@squad/board";
 import type { Agent } from "../lib/types";
+import { tauriFiles } from "../lib/tauri";
+import { draftSpecFile } from "../lib/story-specs";
 import { AgentStateAvatar } from "./agent-state-avatar";
 
 const PRIORITY_STYLES: Record<StoryPriority, string> = {
@@ -34,6 +36,11 @@ interface PhaseStoryCardProps {
   agents: Agent[];
   missionItems: KanbanItem[];
   availablePhases: { id: StoryPhase }[];
+  /** Project the story is scoped to. When provided, drives the SDD spec
+   * affordance — open the linked spec or draft one inside the project's
+   * repo. Without it the spec chip is hidden (workspace-global stories
+   * have no project repo to write into). */
+  project?: Project | null;
   onMove: (to: StoryPhase) => void;
   onAssign: (agentId: string | null) => void;
   onUpdate: (patch: Partial<Story>) => void;
@@ -41,7 +48,7 @@ interface PhaseStoryCardProps {
 }
 
 export function PhaseStoryCard({
-  story, agents, missionItems, availablePhases, onMove, onAssign, onUpdate, onStartMission,
+  story, agents, missionItems, availablePhases, project, onMove, onAssign, onUpdate, onStartMission,
 }: PhaseStoryCardProps) {
   const { t } = useTranslation("dashboard");
   const [editing, setEditing] = useState(false);
@@ -108,6 +115,23 @@ export function PhaseStoryCard({
     );
   }
 
+  async function openSpec() {
+    if (!project || !story.specPath) return;
+    await tauriFiles.open(project.repoPath, story.specPath);
+  }
+
+  async function draftSpec() {
+    if (!project) return;
+    const relPath = await draftSpecFile({
+      repoPath: project.repoPath,
+      title: story.title,
+      description: story.description,
+    });
+    onUpdate({ specPath: relPath });
+    // Open immediately so the user can fill it in.
+    await tauriFiles.open(project.repoPath, relPath);
+  }
+
   return (
     <div draggable onDragStart={handleDragStart} className="rounded-lg border border-border bg-card p-2.5 hover:border-foreground/20 transition-colors cursor-grab active:cursor-grabbing active:opacity-60">
       <div className="flex items-start gap-1.5 mb-1">
@@ -126,6 +150,14 @@ export function PhaseStoryCard({
         <button onClick={startEdit} className="shrink-0 p-0.5 rounded text-muted-foreground/40 hover:text-muted-foreground transition-colors" title={t("phases.edit")}><Pencil className="size-3" /></button>
       </div>
       {story.description && <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2">{story.description}</p>}
+
+      {project && (
+        <SpecChip
+          specPath={story.specPath ?? null}
+          onOpen={openSpec}
+          onDraft={draftSpec}
+        />
+      )}
 
       <div className="flex items-center gap-1.5 mt-2">
         <div className="relative shrink-0" ref={assignRef}>
@@ -156,5 +188,44 @@ export function PhaseStoryCard({
         </select>
       </div>
     </div>
+  );
+}
+
+/** Small chip below the description. Renders `📋 specs/<file>` when a
+ * spec is linked (click opens the file via the OS), or a `+ Spec`
+ * button when the story has a project but no spec yet. Hidden entirely
+ * for workspace-global stories — there's no project repo to write
+ * into, and an SDD-style spec without an owning repo is meaningless. */
+function SpecChip({
+  specPath,
+  onOpen,
+  onDraft,
+}: {
+  specPath: string | null;
+  onOpen: () => void;
+  onDraft: () => void;
+}) {
+  const { t } = useTranslation("dashboard");
+  if (specPath) {
+    return (
+      <button
+        onClick={(e) => { e.stopPropagation(); void onOpen(); }}
+        className="mb-2 inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors max-w-full"
+        title={t("phases.specOpenHint")}
+      >
+        <FileText className="size-2.5 shrink-0" />
+        <span className="truncate font-mono">{specPath}</span>
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); void onDraft(); }}
+      className="mb-2 inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+      title={t("phases.specDraftHint")}
+    >
+      <FilePlus2 className="size-2.5" />
+      {t("phases.specDraft")}
+    </button>
   );
 }

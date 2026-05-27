@@ -753,6 +753,10 @@ export interface Story {
   /** Workspace project the story is scoped to. Null/undefined = workspace-global
    * (cuts across projects). Backed by `project_id` in the file schema. */
   projectId?: string | null;
+  /** Path to the SDD spec file relative to the bound project's repo root
+   * (typically `specs/<slug>.md`). Backed by `spec_path` in the file schema.
+   * Meaningless without `projectId`. */
+  specPath?: string | null;
   epic?: string | null;
   priority?: StoryPriority;
   points?: number | null;

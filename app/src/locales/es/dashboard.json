@@ -77,6 +77,9 @@
     "emptyDescription": "Sigue cada feature de Discovery a Monitor y ve de un vistazo que agente lleva cada etapa.",
     "emptyCta": "Crear primera historia",
     "firstStoryTitle": "Primera historia",
+    "specDraft": "Crear spec",
+    "specDraftHint": "Crea un archivo de spec en el repo del proyecto y lo vincula a esta historia.",
+    "specOpenHint": "Abre el spec vinculado en tu editor por defecto.",
     "priority": {
       "low": "Baja",
       "medium": "Media",

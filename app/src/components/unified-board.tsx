@@ -34,7 +34,7 @@ import {
   Spinner,
   cn,
 } from "@squad/core";
-import type { Story, StoryPhase, StoryStatus } from "@squad/engine-client";
+import type { Project, Story, StoryPhase, StoryStatus } from "@squad/engine-client";
 import type { KanbanItem } from "@squad/board";
 import type { Agent } from "../lib/types";
 import { useWorkspaceStore } from "../stores/workspaces";
@@ -99,6 +99,11 @@ export function UnifiedBoard({
   const [showSwimlanes, setShowSwimlanes] = useState(false);
   const [addingTo, setAddingTo] = useState<{ status: StoryStatus; phase?: StoryPhase } | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
+
+  const projectsById = useMemo(
+    () => new Map((projects ?? []).map((p) => [p.id, p])),
+    [projects],
+  );
 
   const filtered = useMemo(() => {
     let base = stories ?? [];
@@ -297,6 +302,7 @@ export function UnifiedBoard({
             stories={filtered}
             agents={agents}
             missionItems={missionItems}
+            projectsById={projectsById}
             inCell={inCell}
             onMove={moveStory}
             onStartMission={onStartStoryMission ? startStoryMission : undefined}
@@ -311,6 +317,7 @@ export function UnifiedBoard({
             stories={filtered}
             agents={agents}
             missionItems={missionItems}
+            projectsById={projectsById}
             inCell={inCell}
             onMove={moveStory}
             onStartMission={onStartStoryMission ? startStoryMission : undefined}
@@ -359,6 +366,10 @@ interface CellArgs {
   stories: Story[];
   agents: Agent[];
   missionItems: KanbanItem[];
+  /** Workspace projects keyed by id — used to surface the SDD spec
+   * affordance on cards scoped to a project. Cards for workspace-global
+   * stories simply pass `undefined` and the chip hides itself. */
+  projectsById: Map<string, Project>;
   inCell: (status: StoryStatus, phase?: StoryPhase) => Story[];
   onMove: (id: string, patch: Partial<Story>) => void;
   onStartMission?: (story: Story) => void;
@@ -449,13 +460,15 @@ function SwimlaneGrid({
   );
 }
 
-function CardWrap({ story, agents, missionItems, onMove, onStartMission }: CellArgs & { story: Story }) {
+function CardWrap({ story, agents, missionItems, projectsById, onMove, onStartMission }: CellArgs & { story: Story }) {
+  const project = story.projectId ? projectsById.get(story.projectId) ?? null : null;
   return (
     <PhaseStoryCard
       story={story}
       agents={agents}
       missionItems={missionItems}
       availablePhases={PHASES}
+      project={project}
       onMove={(phase) => onMove(story.id, { phase })}
       onAssign={(agentId) => onMove(story.id, { assignedAgentId: agentId })}
       onUpdate={(patch) => onMove(story.id, patch)}
