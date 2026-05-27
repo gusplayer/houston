@@ -235,8 +235,18 @@
     "phaseLabel": "Fase",
     "noPhase": "Sem fase",
     "allPhases": "Todas as fases",
+    "allSprints": "Todos os sprints",
     "allProjects": "Todos os projetos",
     "workspaceGlobal": "Workspace-global",
+    "showPhases": "Mostrar fases",
+    "swimlaneHint": "Ativa raias horizontais, uma por fase do ciclo de desenvolvimento",
+    "phaseHeader": "Fase",
+    "columnLabels": {
+      "todo": "A fazer",
+      "in_progress": "Em andamento",
+      "in_review": "Em revisão",
+      "done": "Concluído"
+    },
     "kanbanView": "Kanban",
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dono",

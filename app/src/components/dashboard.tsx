@@ -31,7 +31,7 @@ import { MissionBoardEmptyState } from "./mission-board-empty-state";
 import { useMissionSearch } from "./use-mission-search";
 import { buildMissionBoardColumns } from "./mission-board-columns";
 import { RoutinesNudge } from "./routines-nudge";
-import { PhaseKanban } from "./phase-kanban";
+import { UnifiedBoard } from "./unified-board";
 import { UsageDashboard } from "./usage-dashboard";
 
 export function Dashboard() {
@@ -380,7 +380,7 @@ export function Dashboard() {
         </div>
       ) : boardView === "phases" ? (
         <div className="flex-1 min-h-0">
-          <PhaseKanban
+          <UnifiedBoard
             agents={agents}
             missionItems={mc.items}
             onStartStoryMission={handleStartStoryMission}

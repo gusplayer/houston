@@ -235,8 +235,18 @@
     "phaseLabel": "Fase",
     "noPhase": "Sin fase",
     "allPhases": "Todas las fases",
+    "allSprints": "Todos los sprints",
     "allProjects": "Todos los proyectos",
     "workspaceGlobal": "Workspace-global",
+    "showPhases": "Mostrar fases",
+    "swimlaneHint": "Activa filas horizontales, una por fase del ciclo de desarrollo",
+    "phaseHeader": "Fase",
+    "columnLabels": {
+      "todo": "Por hacer",
+      "in_progress": "En curso",
+      "in_review": "En revisión",
+      "done": "Hecho"
+    },
     "kanbanView": "Kanban",
     "pipelineView": "Pipeline",
     "assigneeLabel": "Dueño",

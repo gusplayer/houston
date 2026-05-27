@@ -235,8 +235,18 @@
     "phaseLabel": "Phase",
     "noPhase": "No phase",
     "allPhases": "All phases",
+    "allSprints": "All sprints",
     "allProjects": "All projects",
     "workspaceGlobal": "Workspace-global",
+    "showPhases": "Show phases",
+    "swimlaneHint": "Toggle horizontal swimlanes, one row per SDLC phase",
+    "phaseHeader": "Phase",
+    "columnLabels": {
+      "todo": "To do",
+      "in_progress": "In progress",
+      "in_review": "In review",
+      "done": "Done"
+    },
     "kanbanView": "Kanban",
     "pipelineView": "Pipeline",
     "assigneeLabel": "Owner",
