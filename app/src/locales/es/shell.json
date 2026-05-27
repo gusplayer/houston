@@ -202,6 +202,20 @@
     "projectsHint": "Repositorios vinculados a este workspace.",
     "deleteProject": "Quitar proyecto",
     "renameProject": "Click para renombrar",
+    "projectDocs": {
+      "toggle": "Docs",
+      "toggleHint": "Edita CLAUDE.md, reglas y arquitectura de este proyecto. Cada agente vinculado los lee en su próxima sesión.",
+      "title": "Docs del proyecto",
+      "save": "Guardar",
+      "saved": "Guardado",
+      "unsaved": "Cambios sin guardar",
+      "hint": "Los agentes vinculados verán este contenido en su próxima sesión.",
+      "placeholder": {
+        "claude-md": "Instrucciones por proyecto para cada agente vinculado. Tono, rutas, cosas críticas.",
+        "rules": "Reglas no negociables. El revisor de código las trata como bloqueantes.",
+        "architecture": "Notas de diseño de sistema, límites de módulo, contratos. El arquitecto y los leads las consultan."
+      }
+    },
     "docsHint": "Los agentes leen estos docs automáticamente según su rol.",
     "openAgent": "Abrir agente",
     "methodology": "Metodología",

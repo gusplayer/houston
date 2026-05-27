@@ -12,6 +12,10 @@ If app-specific → `.squad/`.
 ~/.squad/workspaces/{Workspace}/
   .squad/
     projects.json                workspace-scoped repo bindings (squad-projects)
+    projects/{projectId}/        per-project scoped docs (M1)
+      claude.md                  read by every agent bound to this project
+      rules.md                   read by code reviewer + leads
+      architecture.md            read by architect + leads
     sprints/sprints.json         workspace-scoped Sprints (F.2)
     stories/stories.json         workspace-scoped Stories (F.2)
     phase-ownership/

@@ -734,6 +734,7 @@ import type {
   MethodologyConfig,
   MethodologyProjectStatus,
   MethodologySeedResponse,
+  ProjectDocSlug,
 } from "@squad/engine-client";
 
 export const tauriProjects = {
@@ -745,6 +746,14 @@ export const tauriProjects = {
     call<Project>("update_project", () => getEngine().updateProject(workspaceId, projectId, req)),
   delete: (workspaceId: string, projectId: string) =>
     call<void>("delete_project", () => getEngine().deleteProject(workspaceId, projectId)),
+  readDoc: (workspaceId: string, projectId: string, doc: ProjectDocSlug) =>
+    call<{ content: string }>("read_project_doc", () =>
+      getEngine().readProjectDoc(workspaceId, projectId, doc),
+    ),
+  writeDoc: (workspaceId: string, projectId: string, doc: ProjectDocSlug, content: string) =>
+    call<void>("write_project_doc", () =>
+      getEngine().writeProjectDoc(workspaceId, projectId, doc, content),
+    ),
 };
 
 export const tauriMethodology = {

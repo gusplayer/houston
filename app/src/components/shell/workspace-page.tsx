@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FileText, Users2, FolderGit2, Plus, Trash2, FolderOpen, FileDown, ChevronRight, Workflow } from "lucide-react";
+import { ProjectDocsEditor } from "./project-docs-editor";
 import {
   Button,
   Badge,
@@ -328,6 +329,9 @@ function ProjectsSection({ workspaceId }: { workspaceId: string }) {
   const [exporting, setExporting] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  /** Project id whose docs editor is expanded inline. At most one open at a
+   * time — keeps the page from turning into a wall of textareas. */
+  const [docsOpenId, setDocsOpenId] = useState<string | null>(null);
 
   function startRename(id: string, currentName: string) {
     setRenamingId(id);
@@ -448,70 +452,85 @@ function ProjectsSection({ workspaceId }: { workspaceId: string }) {
           const folder = repoFolderName(p.repoPath);
           const nameDiffersFromFolder = p.name.toLowerCase() !== folder.toLowerCase();
           const isRenaming = renamingId === p.id;
+          const isDocsOpen = docsOpenId === p.id;
           return (
-          <div
-            key={p.id}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border"
-          >
-            <FolderGit2 className="size-4 text-muted-foreground shrink-0" />
-            <div className="flex-1 min-w-0">
-              {isRenaming ? (
-                <input
-                  autoFocus
-                  value={renameValue}
-                  onChange={(e) => setRenameValue(e.target.value)}
-                  onBlur={() => void commitRename(p.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void commitRename(p.id);
-                    if (e.key === "Escape") setRenamingId(null);
-                  }}
-                  className="w-full h-6 text-sm font-medium rounded border border-border bg-background px-1 focus:outline-none focus:ring-1 focus:ring-ring"
-                />
-              ) : (
-                <button
-                  onClick={() => startRename(p.id, p.name)}
-                  className="text-sm font-medium truncate text-left hover:text-muted-foreground transition-colors w-full"
-                  title={t("shell:workspace.renameProject")}
-                >
-                  {p.name}
-                  {nameDiffersFromFolder && (
-                    <span className="ml-2 text-[10px] font-normal text-muted-foreground">
-                      ({folder})
-                    </span>
-                  )}
-                </button>
+          <div key={p.id} className="rounded-lg border border-border">
+            <div className="flex items-center gap-3 px-3 py-2">
+              <FolderGit2 className="size-4 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0">
+                {isRenaming ? (
+                  <input
+                    autoFocus
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={() => void commitRename(p.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") void commitRename(p.id);
+                      if (e.key === "Escape") setRenamingId(null);
+                    }}
+                    className="w-full h-6 text-sm font-medium rounded border border-border bg-background px-1 focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                ) : (
+                  <button
+                    onClick={() => startRename(p.id, p.name)}
+                    className="text-sm font-medium truncate text-left hover:text-muted-foreground transition-colors w-full"
+                    title={t("shell:workspace.renameProject")}
+                  >
+                    {p.name}
+                    {nameDiffersFromFolder && (
+                      <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+                        ({folder})
+                      </span>
+                    )}
+                  </button>
+                )}
+                <div className="text-[10px] text-muted-foreground font-mono truncate">{p.repoPath}</div>
+              </div>
+              {p.stack && (
+                <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
+                  {p.stack}
+                </Badge>
               )}
-              <div className="text-[10px] text-muted-foreground font-mono truncate">{p.repoPath}</div>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs"
+                onClick={() => setDocsOpenId(isDocsOpen ? null : p.id)}
+                title={t("shell:workspace.projectDocs.toggleHint")}
+              >
+                <FileText className="size-3 mr-1" />
+                {t("shell:workspace.projectDocs.toggle")}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs"
+                onClick={() => void exportTeam(p.repoPath)}
+                disabled={exporting === p.repoPath}
+                title={t("agents:repo.exportTeamTitle")}
+              >
+                {exporting === p.repoPath ? (
+                  <Spinner className="size-3 mr-1" />
+                ) : (
+                  <FileDown className="size-3 mr-1" />
+                )}
+                {t("agents:repo.exportTeam")}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                onClick={() => void deleteProject.mutateAsync(p.id)}
+                title={t("shell:workspace.deleteProject")}
+              >
+                <Trash2 className="size-3" />
+              </Button>
             </div>
-            {p.stack && (
-              <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
-                {p.stack}
-              </Badge>
+            {isDocsOpen && (
+              <div className="px-3 pb-3">
+                <ProjectDocsEditor workspaceId={workspaceId} projectId={p.id} />
+              </div>
             )}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 px-2 text-xs"
-              onClick={() => void exportTeam(p.repoPath)}
-              disabled={exporting === p.repoPath}
-              title={t("agents:repo.exportTeamTitle")}
-            >
-              {exporting === p.repoPath ? (
-                <Spinner className="size-3 mr-1" />
-              ) : (
-                <FileDown className="size-3 mr-1" />
-              )}
-              {t("agents:repo.exportTeam")}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 px-2 text-muted-foreground hover:text-destructive"
-              onClick={() => void deleteProject.mutateAsync(p.id)}
-              title={t("shell:workspace.deleteProject")}
-            >
-              <Trash2 className="size-3" />
-            </Button>
           </div>
           );
         })}
