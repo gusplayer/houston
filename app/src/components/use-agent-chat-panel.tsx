@@ -822,7 +822,15 @@ export function useAgentChatPanel({
     renderToolResult,
     processLabels,
     getThinkingMessage,
-    terminalWsUrl: path ? getEngine().ptyWsUrl(path) : undefined,
+    // Continue whichever conversation this panel is showing (a selected
+    // activity, else the agent's primary chat thread) so the terminal and
+    // chat are one claude conversation.
+    terminalWsUrl:
+      path && agent
+        ? getEngine().ptyWsUrl(path, {
+            sessionKey: selectedSessionKey ?? `chat-${agent.id}`,
+          })
+        : undefined,
     renderTurnSummary,
     renderSystemMessage,
     mapFeedItems,

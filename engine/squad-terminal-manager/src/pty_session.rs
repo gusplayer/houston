@@ -90,11 +90,17 @@ impl PtyHandle {
 /// `claude_bin` — absolute path to the `claude` CLI binary.
 /// `working_dir` — agent project directory (becomes `claude`'s cwd).
 /// `cols`/`rows` — initial terminal size.
+/// `resume_session_id` — when `Some`, launches with `--resume <id>` so the
+///   interactive terminal continues the SAME claude conversation the
+///   structured chat created. This is how chat and terminal share context:
+///   they're two views of one claude session, identified by the resume id
+///   the chat persisted to `.squad/sessions/anthropic/<key>.sid`.
 pub fn spawn_pty(
     claude_bin: PathBuf,
     working_dir: Option<PathBuf>,
     cols: u16,
     rows: u16,
+    resume_session_id: Option<String>,
 ) -> Result<PtyHandle, String> {
     let pty_system = NativePtySystem::default();
     let size = PtySize { rows, cols, pixel_width: 0, pixel_height: 0 };
@@ -106,6 +112,11 @@ pub fn spawn_pty(
     let mut cmd = CommandBuilder::new(&claude_bin);
     cmd.env("PATH", crate::claude_path::shell_path());
     // Interactive REPL mode — no -p flag, no --output-format.
+    // Continue the chat's conversation when we know its session id.
+    if let Some(id) = resume_session_id {
+        cmd.arg("--resume");
+        cmd.arg(id);
+    }
     cmd.arg("--dangerously-skip-permissions");
     cmd.env_remove("CLAUDE_CODE_ENTRYPOINT");
     cmd.env_remove("CLAUDECODE");

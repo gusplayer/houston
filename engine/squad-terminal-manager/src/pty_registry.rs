@@ -114,6 +114,11 @@ impl PtyRegistry {
 
     /// Return the live session for `agent_path`, spawning a fresh PTY if
     /// none exists or the previous one already exited.
+    ///
+    /// `resume_session_id` is only consulted when a fresh PTY is spawned — an
+    /// already-running session is reused as-is (it's mid-conversation). When
+    /// set, the new `claude` continues that conversation, so chat and
+    /// terminal share one context.
     pub fn get_or_spawn(
         &self,
         agent_path: &str,
@@ -121,6 +126,7 @@ impl PtyRegistry {
         working_dir: PathBuf,
         cols: u16,
         rows: u16,
+        resume_session_id: Option<String>,
     ) -> Result<Arc<PtySession>, String> {
         {
             let map = self.sessions.lock().unwrap();
@@ -131,7 +137,7 @@ impl PtyRegistry {
             }
         }
 
-        let handle = spawn_pty(claude_bin, Some(working_dir), cols, rows)?;
+        let handle = spawn_pty(claude_bin, Some(working_dir), cols, rows, resume_session_id)?;
         let parts = handle.into_parts();
         let (broadcast_tx, _keep) = broadcast::channel(BROADCAST_CAP);
         let session = Arc::new(PtySession {

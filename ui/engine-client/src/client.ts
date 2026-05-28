@@ -850,12 +850,18 @@ export class SquadClient {
    * Binary frames = raw pty bytes; text frames = JSON control messages.
    * See `routes/pty.rs` for the full protocol.
    */
-  ptyWsUrl(agentPath: string, opts?: { cols?: number; rows?: number }): string {
+  ptyWsUrl(
+    agentPath: string,
+    opts?: { cols?: number; rows?: number; sessionKey?: string },
+  ): string {
     const ws = this.baseUrl.replace(/^http/, "ws");
     const encodedPath = encodeURIComponent(agentPath);
     const params = new URLSearchParams({ token: this.token });
     if (opts?.cols) params.set("cols", String(opts.cols));
     if (opts?.rows) params.set("rows", String(opts.rows));
+    // When set, the engine launches `claude --resume <id>` for this
+    // conversation so the terminal continues the same chat thread.
+    if (opts?.sessionKey) params.set("session_key", opts.sessionKey);
     return `${ws}/v1/agents/${encodedPath}/pty?${params}`;
   }
 
