@@ -145,6 +145,26 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
     (id: string | null) => setSelectedConversation(agentPath, id),
     [agentPath, setSelectedConversation],
   );
+  // Selecting a card (or opening the panel for one) means "show me this
+  // conversation" — that's the chat view. Force chat mode so the shell
+  // renders the chat portal instead of the terminal dock; otherwise the
+  // board falls back to its inline chat SplitView while the terminal dock
+  // is still showing, and the user sees BOTH panels at once. The PTY keeps
+  // running in the background, reachable again from the terminal icon.
+  const handleCardSelect = useCallback(
+    (id: string | null) => {
+      setSelectedId(id);
+      if (id) setChatPanelViewMode("chat");
+    },
+    [setSelectedId, setChatPanelViewMode],
+  );
+  const handlePanelOpenChange = useCallback(
+    (open: boolean) => {
+      setMissionPanelOpen(open);
+      if (open) setChatPanelViewMode("chat");
+    },
+    [setMissionPanelOpen, setChatPanelViewMode],
+  );
   useEffect(() => {
     if (pendingId) {
       // Only navigate if the user isn't already viewing a conversation
@@ -587,7 +607,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           items={missionSearch.items}
           columns={boardColumns}
           selectedId={selectedId}
-          onSelect={setSelectedId}
+          onSelect={handleCardSelect}
           panelContainer={panelContainer}
           feedItems={feedItems}
           isLoading={effectiveLoading}
@@ -606,7 +626,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           onHistoryLoaded={handleHistoryLoaded}
           onNewPanelOpenerReady={handleOpenerReady}
           emptyState={emptyBoard}
-          onPanelOpenChange={setMissionPanelOpen}
+          onPanelOpenChange={handlePanelOpenChange}
           onStopSession={handleStopSession}
           drafts={boardDrafts}
           onDraftChange={handleDraftChange}

@@ -53,6 +53,12 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
     let onDataDisposer: { dispose: () => void } | undefined;
     let onBinaryDisposer: { dispose: () => void } | undefined;
     let rafHandle: number | undefined;
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+    let connect: () => void = () => {};
+    // Set true when WE tear the socket down (cleanup/detach) or on a real
+    // process exit — so the close handler does NOT treat it as a drop and
+    // either reconnect or bubble onClose (which would hide the panel).
+    let intentionalClose = false;
     // Flips to true on cleanup. xterm internals (RenderService listeners,
     // DPR observer, queued render frames) can fire one more time AFTER
     // term.dispose() and hit the "undefined is not an object (evaluating
@@ -92,14 +98,10 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
       term.loadAddon(fitAddon);
       term.open(container);
 
-      ws = new WebSocket(wsUrl);
-      ws.binaryType = "arraybuffer";
-
       // Defer the initial fit() to the next animation frame. fitAddon.fit()
       // reads container dimensions; if the container is mid-transition
       // (just mounted, layout not yet computed), it can throw and crash
-      // the whole component. Same for the initial resize frame we send
-      // over the WS.
+      // the whole component.
       rafHandle = requestAnimationFrame(() => {
         try {
           fitAddon?.fit();
@@ -116,54 +118,86 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
         }
       });
 
-      ws.onopen = () => {
-        if (!ws || !term) return;
-        try {
-          // Send initial terminal size (in case the rAF callback ran
-          // before the socket opened).
-          const { cols, rows } = term;
-          ws.send(JSON.stringify({ type: "resize", cols, rows }));
-        } catch (e) {
-          console.error("[SquadTerminal] onopen resize send failed:", e);
+      // Reconnect bookkeeping. Switching agents tears down one socket and
+      // opens another in the same tick, which intermittently loses the new
+      // connection (the "Failed to connect" the user hit on agent switch).
+      // Rather than surface that race, we retry a few times with a short
+      // backoff — the engine session persists, so a retry reattaches and
+      // replays scrollback. Only after the budget is exhausted do we show
+      // the error overlay.
+      let retries = 0;
+      const MAX_RETRIES = 4;
+
+      const scheduleReconnect = () => {
+        if (isDisposed || intentionalClose) return;
+        if (retries >= MAX_RETRIES) {
+          hadConnectionErrorRef.current = true;
+          setErrorMessage("Failed to connect to terminal");
+          return;
         }
+        retries += 1;
+        reconnectTimer = setTimeout(connect, 250 * retries);
       };
 
-      ws.onmessage = (evt) => {
-        if (!term) return;
-        if (evt.data instanceof ArrayBuffer) {
-          term.write(new Uint8Array(evt.data));
-        } else if (typeof evt.data === "string") {
+      connect = () => {
+        if (isDisposed) return;
+        ws = new WebSocket(wsUrl);
+        ws.binaryType = "arraybuffer";
+
+        ws.onopen = () => {
+          retries = 0; // fresh budget for any later drop
+          hadConnectionErrorRef.current = false;
+          setErrorMessage(null);
+          if (!ws || !term) return;
           try {
-            const msg = JSON.parse(evt.data) as { type: string; code?: number; message?: string };
-            if (msg.type === "exit") {
-              onExitRef.current?.(msg.code ?? 0);
-              onCloseRef.current?.();
-            } else if (msg.type === "error") {
-              hadConnectionErrorRef.current = true;
-              setErrorMessage(msg.message ?? "Terminal failed to start");
-            }
-          } catch {
-            // ignore malformed control frames
+            const { cols, rows } = term;
+            ws.send(JSON.stringify({ type: "resize", cols, rows }));
+          } catch (e) {
+            console.error("[SquadTerminal] onopen resize send failed:", e);
           }
-        }
+        };
+
+        ws.onmessage = (evt) => {
+          if (!term) return;
+          if (evt.data instanceof ArrayBuffer) {
+            term.write(new Uint8Array(evt.data));
+          } else if (typeof evt.data === "string") {
+            try {
+              const msg = JSON.parse(evt.data) as {
+                type: string;
+                code?: number;
+                message?: string;
+              };
+              if (msg.type === "exit") {
+                // Real process exit — don't reconnect.
+                intentionalClose = true;
+                onExitRef.current?.(msg.code ?? 0);
+                onCloseRef.current?.();
+              } else if (msg.type === "error") {
+                intentionalClose = true;
+                hadConnectionErrorRef.current = true;
+                setErrorMessage(msg.message ?? "Terminal failed to start");
+              }
+            } catch {
+              // ignore malformed control frames
+            }
+          }
+        };
+
+        ws.onerror = () => {
+          // onclose fires right after; let it decide whether to retry.
+        };
+
+        ws.onclose = () => {
+          if (intentionalClose || isDisposed) return;
+          // Either the cross-agent connect race (never opened) or a dropped
+          // socket on a still-live engine session. Retry; reattach replays
+          // scrollback so the screen self-heals.
+          scheduleReconnect();
+        };
       };
 
-      ws.onerror = (event) => {
-        console.error("[SquadTerminal] WebSocket error:", event);
-        hadConnectionErrorRef.current = true;
-        // Show inline error overlay rather than silently flipping to chat.
-        // onclose fires right after onerror — it will see hadConnectionErrorRef.
-        setErrorMessage("Failed to connect to terminal");
-      };
-
-      ws.onclose = () => {
-        // If the close was triggered by a connection/PTY error, the overlay
-        // is already showing — don't auto-navigate away (user clicks "Back").
-        // Only call onClose for clean exits (handled via the "exit" message above).
-        if (!hadConnectionErrorRef.current) {
-          onCloseRef.current?.();
-        }
-      };
+      connect();
 
       // Forward keystrokes to the server as binary frames.
       onDataDisposer = term.onData((data) => {
@@ -214,6 +248,10 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
 
     return () => {
       isDisposed = true;
+      // This is a detach, not a session end: mark it so the close handler
+      // neither reconnects nor calls onClose (which would hide the panel).
+      intentionalClose = true;
+      if (reconnectTimer !== undefined) clearTimeout(reconnectTimer);
       if (rafHandle !== undefined) cancelAnimationFrame(rafHandle);
       try { observer?.disconnect(); } catch {}
       try { onDataDisposer?.dispose(); } catch {}

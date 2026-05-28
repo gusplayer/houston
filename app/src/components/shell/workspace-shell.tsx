@@ -244,7 +244,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
               <>
                 <DockResizer width={dockWidth} onWidthChange={setDockWidth} />
                 <div
-                  className="h-full flex flex-col overflow-hidden border-l border-border"
+                  className="h-full flex flex-col overflow-hidden border-l border-border shrink-0"
                   style={{ width: `${dockWidth}px`, minWidth: 360 }}
                 >
                   {/* Dock header: "Hide" detaches (the PTY keeps running in the
@@ -296,6 +296,10 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                     }
                   >
                     <SquadTerminalPanel
+                      // Remount cleanly when switching agents so the old
+                      // session's socket fully tears down before the new one
+                      // connects — avoids the cross-agent reconnect race.
+                      key={currentAgent.folderPath}
                       wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath)}
                       className="flex-1 min-h-0 px-3 py-3"
                       onClose={() => {
@@ -311,7 +315,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 <DockResizer width={dockWidth} onWidthChange={setDockWidth} />
                 <div
                   ref={setPanelContainer}
-                  className="h-full overflow-hidden border-l border-border"
+                  className="h-full overflow-hidden border-l border-border shrink-0"
                   style={{ width: `${dockWidth}px`, minWidth: 360 }}
                 />
               </>
