@@ -27,6 +27,14 @@
 //! only **detaches** — the `claude` process keeps running so the user can
 //! navigate away and come back. `DELETE` on the same path is the explicit
 //! "close this terminal for good" action.
+//!
+//! # Status events
+//!
+//! On attach the server emits `SessionStatus { status: "running" }` with
+//! `session_key = "pty"` so the frontend sidebar can light up the running
+//! glow while the interactive session is live. On `Exit` it emits
+//! `status = "completed"`. The `"pty"` key never collides with structured
+//! session keys (those use "activity-*", "chat-*", "routine-*" prefixes).
 
 use crate::state::ServerState;
 use axum::{
@@ -42,9 +50,14 @@ use axum::{
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::Deserialize;
 use squad_terminal_manager::{resolve_claude_bin, Provider, PtyBroadcast};
+use squad_ui_events::{EventSink, SquadEvent};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::broadcast::error::RecvError;
+
+/// Session key used for PTY lifecycle events. Must not collide with structured
+/// session keys (activity-*, chat-*, routine-*).
+const PTY_SESSION_KEY: &str = "pty";
 
 pub fn router() -> Router<Arc<ServerState>> {
     Router::new().route("/agents/:agent_path/pty", get(pty_ws).delete(pty_kill))
@@ -93,6 +106,13 @@ async fn pty_kill(
     State(state): State<Arc<ServerState>>,
 ) -> StatusCode {
     state.pty_registry.kill(&agent_path);
+    // Emit completed so the sidebar glow clears immediately on explicit kill.
+    state.events.emit(SquadEvent::SessionStatus {
+        agent_path,
+        session_key: PTY_SESSION_KEY.to_string(),
+        status: "completed".to_string(),
+        error: None,
+    });
     StatusCode::NO_CONTENT
 }
 
@@ -144,6 +164,15 @@ async fn handle_pty_socket(
         }
     };
 
+    // Emit "running" as soon as we attach (fresh spawn or reattach). The
+    // frontend maps this to the sidebar running glow for this agent.
+    state.events.emit(SquadEvent::SessionStatus {
+        agent_path: agent_path.clone(),
+        session_key: PTY_SESSION_KEY.to_string(),
+        status: "running".to_string(),
+        error: None,
+    });
+
     // Atomically grab the scrollback snapshot + a live subscription.
     let (snapshot, mut broadcast_rx) = session.attach();
     let (mut sink, mut stream) = socket.split();
@@ -155,6 +184,9 @@ async fn handle_pty_socket(
     }
     // Re-fit the live PTY to this client's viewport.
     let _ = session.resize(query.cols, query.rows).await;
+
+    let events = state.events.clone();
+    let agent_path_exit = agent_path.clone();
 
     // Forward live PTY output → WS frames.
     let pty_to_ws = tokio::spawn(async move {
@@ -168,6 +200,12 @@ async fn handle_pty_socket(
                 Ok(PtyBroadcast::Exit(code)) => {
                     let msg = format!("{{\"type\":\"exit\",\"code\":{code}}}");
                     let _ = sink.send(Message::Text(msg)).await;
+                    events.emit(SquadEvent::SessionStatus {
+                        agent_path: agent_path_exit,
+                        session_key: PTY_SESSION_KEY.to_string(),
+                        status: "completed".to_string(),
+                        error: None,
+                    });
                     break;
                 }
                 // Slow client fell behind; the next reattach replays scrollback
