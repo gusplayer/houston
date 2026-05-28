@@ -858,6 +858,16 @@ export class SquadClient {
     if (opts?.rows) params.set("rows", String(opts.rows));
     return `${ws}/v1/agents/${encodedPath}/pty?${params}`;
   }
+
+  /**
+   * Explicitly terminate an agent's persistent PTY session. Closing the
+   * WebSocket only detaches (the process keeps running for reattach); this
+   * is the deliberate "kill the terminal" action behind the dock's close
+   * button. No-op on the engine if there is no live session.
+   */
+  killPty(agentPath: string): Promise<void> {
+    return this.request("DELETE", `/agents/${this.seg(agentPath)}/pty`);
+  }
 }
 
 export class SquadEngineError extends Error {

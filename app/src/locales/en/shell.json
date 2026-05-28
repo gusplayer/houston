@@ -53,6 +53,12 @@
     "protectedRosterPartialDescription_one": "{{count}} default member could not be hired. You can retry from the recruiter.",
     "protectedRosterPartialDescription_other": "{{count}} default members could not be hired. You can retry from the recruiter."
   },
+  "terminal": {
+    "title": "{{name}} · terminal",
+    "hide": "Hide terminal (keeps running)",
+    "end": "End session",
+    "endError": "Couldn't end the terminal session"
+  },
   "uiTour": {
     "counter": "Tour {{current}} of {{total}}",
     "next": "Next",

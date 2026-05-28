@@ -64,6 +64,41 @@ export function mergeFeedItem(items: FeedItem[], item: FeedItem): FeedItem[] {
   return [...items, item];
 }
 
+/**
+ * Drop back-to-back duplicate final messages from a feed.
+ *
+ * Feed items carry no stable id, and the same logical turn can reach the
+ * store from two paths: the live `session:{key}` WS stream AND a history
+ * reload from the DB. The history-load reconcilers dedup current-vs-server
+ * by `JSON.stringify`, but that misses a copy when the two serializations
+ * differ by a field or when the DB holds two rows for one turn. The
+ * symptom is a completed assistant reply rendered twice in a row.
+ *
+ * This collapses an `assistant_text` (and, for symmetry, a `thinking` or
+ * `final_result`) that is byte-identical to the item immediately before
+ * it. Only *adjacent* identical items collapse, so an agent legitimately
+ * repeating itself across separate turns is untouched — matching the
+ * existing consecutive-`user_message` collapse in `mergeFeedItem`.
+ */
+export function dedupeFeed(items: FeedItem[]): FeedItem[] {
+  const out: FeedItem[] = [];
+  for (const item of items) {
+    const prev = out[out.length - 1];
+    if (
+      prev &&
+      prev.feed_type === item.feed_type &&
+      (item.feed_type === "assistant_text" ||
+        item.feed_type === "thinking" ||
+        item.feed_type === "final_result") &&
+      JSON.stringify(prev.data) === JSON.stringify(item.data)
+    ) {
+      continue;
+    }
+    out.push(item);
+  }
+  return out;
+}
+
 function replaceLast(
   items: FeedItem[],
   item: FeedItem,
