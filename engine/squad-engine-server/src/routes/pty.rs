@@ -41,7 +41,7 @@ use axum::{
 };
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::Deserialize;
-use squad_terminal_manager::{resolve_claude_bin, PtyBroadcast};
+use squad_terminal_manager::{resolve_claude_bin, Provider, PtyBroadcast};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::broadcast::error::RecvError;
@@ -58,6 +58,11 @@ struct PtyQuery {
     /// Initial terminal rows (default: 36).
     #[serde(default = "default_rows")]
     rows: u16,
+    /// Chat session key whose claude conversation the terminal should
+    /// continue (e.g. `chat-<agentId>`). When present and a resume id has
+    /// been recorded for it, the PTY launches `claude --resume <id>` so the
+    /// terminal and the structured chat are two views of one conversation.
+    session_key: Option<String>,
 }
 fn default_cols() -> u16 {
     120
@@ -100,6 +105,25 @@ async fn handle_pty_socket(
     let working_dir = PathBuf::from(&agent_path);
     let claude_bin = resolve_claude_bin();
 
+    // Resolve the claude conversation to continue. The terminal always runs
+    // `claude` (Anthropic); if the structured chat for this session_key has
+    // a recorded resume id, the terminal continues that same conversation so
+    // the two share context. Only used when spawning a fresh PTY.
+    let resume_session_id = match query.session_key.as_deref() {
+        Some(session_key) if !session_key.is_empty() => {
+            let provider = Provider::Anthropic;
+            let agent_key = format!("{}:{}:{}", agent_path, provider, session_key);
+            let handle = state
+                .engine
+                .sessions
+                .session_ids
+                .get_for_session(&agent_key, &working_dir, session_key, provider)
+                .await;
+            handle.get().await
+        }
+        _ => None,
+    };
+
     // Attach to the live session for this agent, spawning one if needed. The
     // PTY outlives this WebSocket — we're just one of possibly several views.
     let session = match state.pty_registry.get_or_spawn(
@@ -108,6 +132,7 @@ async fn handle_pty_socket(
         working_dir,
         query.cols,
         query.rows,
+        resume_session_id,
     ) {
         Ok(s) => s,
         Err(e) => {

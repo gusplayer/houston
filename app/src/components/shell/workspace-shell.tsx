@@ -300,7 +300,11 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                       // session's socket fully tears down before the new one
                       // connects — avoids the cross-agent reconnect race.
                       key={currentAgent.folderPath}
-                      wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath)}
+                      // Continue the agent's primary chat thread so the
+                      // terminal and chat share one claude conversation.
+                      wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath, {
+                        sessionKey: `chat-${currentAgent.id}`,
+                      })}
                       className="flex-1 min-h-0 px-3 py-3"
                       onClose={() => {
                         setChatPanelViewMode("chat");
