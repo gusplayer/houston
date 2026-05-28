@@ -53,6 +53,12 @@
     "protectedRosterPartialDescription_one": "No se pudo contratar a {{count}} miembro por defecto. Puedes reintentar desde el reclutador.",
     "protectedRosterPartialDescription_other": "No se pudieron contratar a {{count}} miembros por defecto. Puedes reintentar desde el reclutador."
   },
+  "terminal": {
+    "title": "{{name}} · terminal",
+    "hide": "Ocultar terminal (sigue corriendo)",
+    "end": "Terminar sesión",
+    "endError": "No se pudo terminar la sesión del terminal"
+  },
   "uiTour": {
     "counter": "Tour {{current}} de {{total}}",
     "next": "Siguiente",

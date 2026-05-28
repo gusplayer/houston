@@ -18,6 +18,15 @@
 //! Auth: same bearer-token middleware as every other `/v1/*` route.
 //! Pass the token via `?token=<bearer>` or `Sec-WebSocket-Protocol:
 //! squad-bearer.<token>` (browser WS cannot set `Authorization` headers).
+//!
+//! # Persistence
+//!
+//! The PTY is owned by a per-agent [`squad_terminal_manager::PtyRegistry`],
+//! not by the WebSocket. Connecting **attaches** to the live session (and
+//! replays its scrollback so the screen looks the same); closing the socket
+//! only **detaches** — the `claude` process keeps running so the user can
+//! navigate away and come back. `DELETE` on the same path is the explicit
+//! "close this terminal for good" action.
 
 use crate::state::ServerState;
 use axum::{
@@ -25,18 +34,20 @@ use axum::{
         ws::{Message, WebSocket},
         Path, Query, State, WebSocketUpgrade,
     },
+    http::StatusCode,
     response::Response,
     routing::get,
     Router,
 };
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::Deserialize;
-use squad_terminal_manager::{claude_install_path, spawn_pty, PtyEvent};
+use squad_terminal_manager::{resolve_claude_bin, PtyBroadcast};
 use std::path::PathBuf;
 use std::sync::Arc;
+use tokio::sync::broadcast::error::RecvError;
 
 pub fn router() -> Router<Arc<ServerState>> {
-    Router::new().route("/agents/:agent_path/pty", get(pty_ws))
+    Router::new().route("/agents/:agent_path/pty", get(pty_ws).delete(pty_kill))
 }
 
 #[derive(Debug, Deserialize)]
@@ -70,73 +81,91 @@ async fn pty_ws(
     ws.on_upgrade(move |socket| handle_pty_socket(socket, agent_path, query, state))
 }
 
+/// Explicit teardown: kill the agent's PTY and forget it. This is the only
+/// path that terminates a session — detaching a WebSocket never does.
+async fn pty_kill(
+    Path(agent_path): Path<String>,
+    State(state): State<Arc<ServerState>>,
+) -> StatusCode {
+    state.pty_registry.kill(&agent_path);
+    StatusCode::NO_CONTENT
+}
+
 async fn handle_pty_socket(
     socket: WebSocket,
     agent_path: String,
     query: PtyQuery,
-    _state: Arc<ServerState>,
+    state: Arc<ServerState>,
 ) {
     let working_dir = PathBuf::from(&agent_path);
+    let claude_bin = resolve_claude_bin();
 
-    // Resolve claude binary path the same way as structured sessions.
-    let claude_bin = if claude_install_path::is_installed() {
-        claude_install_path::cli_path()
-    } else {
-        PathBuf::from("claude")
-    };
-
-    let handle = match spawn_pty(claude_bin, Some(working_dir), query.cols, query.rows) {
-        Ok(h) => h,
+    // Attach to the live session for this agent, spawning one if needed. The
+    // PTY outlives this WebSocket — we're just one of possibly several views.
+    let session = match state.pty_registry.get_or_spawn(
+        &agent_path,
+        claude_bin,
+        working_dir,
+        query.cols,
+        query.rows,
+    ) {
+        Ok(s) => s,
         Err(e) => {
             tracing::error!("[pty] failed to spawn: {e}");
-            let msg = format!(
-                "{{\"type\":\"error\",\"message\":{}}}",
-                serde_json::json!(e)
-            );
+            let msg = format!("{{\"type\":\"error\",\"message\":{}}}", serde_json::json!(e));
             let mut ws = socket;
             let _ = ws.send(Message::Text(msg)).await;
             return;
         }
     };
 
+    // Atomically grab the scrollback snapshot + a live subscription.
+    let (snapshot, mut broadcast_rx) = session.attach();
     let (mut sink, mut stream) = socket.split();
-    let write_tx = handle.write_tx.clone();
-    let resize_tx = handle.resize_tx.clone();
-    let mut data_rx = handle.data_rx;
 
-    // Spawn a task to forward PTY output → WS frames.
+    // Replay what happened before we attached so the reopened terminal shows
+    // the same screen the user left.
+    if !snapshot.is_empty() && sink.send(Message::Binary(snapshot)).await.is_err() {
+        return;
+    }
+    // Re-fit the live PTY to this client's viewport.
+    let _ = session.resize(query.cols, query.rows).await;
+
+    // Forward live PTY output → WS frames.
     let pty_to_ws = tokio::spawn(async move {
-        while let Some(event) = data_rx.recv().await {
-            match event {
-                PtyEvent::Data(bytes) => {
-                    if sink.send(Message::Binary(bytes)).await.is_err() {
+        loop {
+            match broadcast_rx.recv().await {
+                Ok(PtyBroadcast::Data(bytes)) => {
+                    if sink.send(Message::Binary((*bytes).clone())).await.is_err() {
                         break;
                     }
                 }
-                PtyEvent::Exit(code) => {
+                Ok(PtyBroadcast::Exit(code)) => {
                     let msg = format!("{{\"type\":\"exit\",\"code\":{code}}}");
                     let _ = sink.send(Message::Text(msg)).await;
                     break;
                 }
+                // Slow client fell behind; the next reattach replays scrollback
+                // so a visual gap self-heals. Keep streaming.
+                Err(RecvError::Lagged(_)) => continue,
+                Err(RecvError::Closed) => break,
             }
         }
     });
 
-    // Main loop: read WS frames from client → PTY stdin or resize.
+    // Main loop: WS frames from client → PTY stdin or resize.
     while let Some(frame) = stream.next().await {
         match frame {
             Ok(Message::Binary(bytes)) => {
-                if write_tx.send(bytes).await.is_err() {
+                if !session.write_bytes(bytes).await {
                     break;
                 }
             }
             Ok(Message::Text(txt)) => {
-                if let Ok(ctrl) = serde_json::from_str::<ControlMsg>(&txt) {
-                    match ctrl {
-                        ControlMsg::Resize { cols, rows } => {
-                            let _ = resize_tx.send((cols, rows)).await;
-                        }
-                    }
+                if let Ok(ControlMsg::Resize { cols, rows }) =
+                    serde_json::from_str::<ControlMsg>(&txt)
+                {
+                    let _ = session.resize(cols, rows).await;
                 }
             }
             Ok(Message::Close(_)) | Err(_) => break,
@@ -144,5 +173,7 @@ async fn handle_pty_socket(
         }
     }
 
+    // Detach only: stop forwarding to this (now-gone) socket. The PTY keeps
+    // running in the registry for the next reattach.
     pty_to_ws.abort();
 }

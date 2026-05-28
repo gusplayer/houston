@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Compass, Plus, Users } from "lucide-react";
+import { Compass, Plus, Users, PanelRightClose, Power } from "lucide-react";
 import { getEngine } from "../../lib/engine";
 import {
   Button,
@@ -71,6 +71,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
     currentAgent ? s.agentMissionSearchLoading[currentAgent.folderPath] ?? false : false,
   );
   const setAgentMissionSearchQuery = useUIStore((s) => s.setAgentMissionSearchQuery);
+  const addToast = useUIStore((s) => s.addToast);
   const uiTourActive = useUIStore((s) => s.uiTourActive);
   const setUiTourActive = useUIStore((s) => s.setUiTourActive);
   const [panelContainer, setPanelContainer] = useState<HTMLDivElement | null>(null);
@@ -246,6 +247,47 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                   className="h-full flex flex-col overflow-hidden border-l border-border"
                   style={{ width: `${dockWidth}px`, minWidth: 360 }}
                 >
+                  {/* Dock header: "Hide" detaches (the PTY keeps running in the
+                      engine for reattach); "End" kills the session for good. */}
+                  <div className="shrink-0 flex items-center justify-between gap-2 px-3 py-2 border-b border-border">
+                    <span className="text-xs font-medium text-muted-foreground truncate">
+                      {t("shell:terminal.title", { name: currentAgent.name })}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title={t("shell:terminal.hide")}
+                        aria-label={t("shell:terminal.hide")}
+                        onClick={() => setMissionPanelOpen(false)}
+                      >
+                        <PanelRightClose className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title={t("shell:terminal.end")}
+                        aria-label={t("shell:terminal.end")}
+                        onClick={() => {
+                          const path = currentAgent.folderPath;
+                          getEngine()
+                            .killPty(path)
+                            .catch((err) =>
+                              addToast({
+                                title: t("shell:terminal.endError"),
+                                description:
+                                  err instanceof Error ? err.message : String(err),
+                                variant: "error",
+                              }),
+                            );
+                          setChatPanelViewMode("chat");
+                          setMissionPanelOpen(false);
+                        }}
+                      >
+                        <Power className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
                   <Suspense
                     fallback={
                       <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground">

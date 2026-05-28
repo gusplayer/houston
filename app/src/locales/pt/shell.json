@@ -53,6 +53,12 @@
     "protectedRosterPartialDescription_one": "{{count}} membro padrão não pôde ser contratado. Você pode tentar novamente pelo recrutador.",
     "protectedRosterPartialDescription_other": "{{count}} membros padrão não puderam ser contratados. Você pode tentar novamente pelo recrutador."
   },
+  "terminal": {
+    "title": "{{name}} · terminal",
+    "hide": "Ocultar terminal (continua rodando)",
+    "end": "Encerrar sessão",
+    "endError": "Não foi possível encerrar a sessão do terminal"
+  },
   "uiTour": {
     "counter": "Tour {{current}} de {{total}}",
     "next": "Próximo",

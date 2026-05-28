@@ -7,6 +7,7 @@ use squad_db::Database;
 use squad_engine_core::routines::scheduler::RoutineSchedulerState;
 use squad_engine_core::{attachments::AttachmentUploadStore, paths::EnginePaths, EngineState};
 use squad_file_watcher::WatcherState;
+use squad_terminal_manager::PtyRegistry;
 use squad_tunnel::{TunnelIdentity, TunnelRuntimeState};
 use squad_ui_events::BroadcastEventSink;
 use std::sync::Arc;
@@ -31,6 +32,10 @@ pub struct ServerState {
     pub mobile_access: MobileAccessStore,
     /// Pending binary attachment uploads keyed by upload id.
     pub attachment_uploads: AttachmentUploadStore,
+    /// Persistent interactive PTY sessions, one per agent path. Survives WS
+    /// disconnects so terminals reattach where they left off and agents run
+    /// in parallel.
+    pub pty_registry: PtyRegistry,
 }
 
 impl ServerState {
@@ -85,6 +90,7 @@ impl ServerState {
             tunnel_runtime,
             mobile_access,
             attachment_uploads: AttachmentUploadStore::default(),
+            pty_registry: PtyRegistry::new(),
         }
     }
 }

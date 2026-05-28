@@ -31,7 +31,18 @@ pub enum PtyEvent {
 }
 
 /// Kill signal sent from the WS handler to the PTY controller thread.
-struct PtyKill;
+pub struct PtyKill;
+
+/// The channels behind a `PtyHandle`, split out so the persistent
+/// [`crate::pty_registry::PtyRegistry`] can own the read receiver while
+/// keeping cloneable senders. The kill sender stays valid for the life of
+/// the session so a session can be terminated without owning the handle.
+pub struct PtyParts {
+    pub data_rx: mpsc::Receiver<PtyEvent>,
+    pub write_tx: mpsc::Sender<Vec<u8>>,
+    pub resize_tx: mpsc::Sender<(u16, u16)>,
+    pub kill_tx: mpsc::Sender<PtyKill>,
+}
 
 /// Handle to a running PTY session. Drop to abandon (does NOT kill child);
 /// call `kill()` for explicit termination.
@@ -59,6 +70,18 @@ impl PtyHandle {
     /// Kill the subprocess and close the session.
     pub fn kill(self) {
         let _ = self.cmd_tx.blocking_send(PtyKill);
+    }
+
+    /// Consume the handle into its raw channels. Used by the persistent
+    /// registry, which pumps `data_rx` into a broadcast + scrollback buffer
+    /// and keeps the senders to drive the still-running PTY.
+    pub fn into_parts(self) -> PtyParts {
+        PtyParts {
+            data_rx: self.data_rx,
+            write_tx: self.write_tx,
+            resize_tx: self.resize_tx,
+            kill_tx: self.cmd_tx,
+        }
     }
 }
 

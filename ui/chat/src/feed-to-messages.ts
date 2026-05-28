@@ -7,6 +7,7 @@
  */
 
 import type { FeedItem, ToolRuntimeErrorEntry } from "./types";
+import { dedupeFeed } from "./feed-merge";
 
 export interface ToolEntry {
   name: string;
@@ -32,7 +33,11 @@ export interface ChatMessage {
   source?: string;
 }
 
-export function feedItemsToMessages(items: FeedItem[]): ChatMessage[] {
+export function feedItemsToMessages(rawItems: FeedItem[]): ChatMessage[] {
+  // Collapse back-to-back duplicate final messages before grouping. Without
+  // this, a turn that arrives from both the live WS stream and a history
+  // reload renders as two identical assistant bubbles.
+  const items = dedupeFeed(rawItems);
   const messages: ChatMessage[] = [];
   let cur: ChatMessage | null = null;
 
