@@ -49,6 +49,7 @@ use axum::{
 };
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::Deserialize;
+use squad_engine_core::sessions::resolve_workspace_id;
 use squad_terminal_manager::{resolve_claude_bin, Provider, PtyBroadcast};
 use squad_ui_events::{EventSink, SquadEvent};
 use std::path::PathBuf;
@@ -149,7 +150,7 @@ async fn handle_pty_socket(
     let session = match state.pty_registry.get_or_spawn(
         &agent_path,
         claude_bin,
-        working_dir,
+        working_dir.clone(),
         query.cols,
         query.rows,
         resume_session_id,
@@ -163,6 +164,16 @@ async fn handle_pty_socket(
             return;
         }
     };
+
+    // Register the agent with the transcript ingest service so its
+    // Claude JSONL transcripts are polled for usage data. Idempotent.
+    let workspace_id = resolve_workspace_id(&state.engine.paths, &working_dir)
+        .unwrap_or_default();
+    state
+        .engine
+        .transcript_ingest
+        .register_agent(agent_path.clone(), working_dir.clone(), workspace_id)
+        .await;
 
     // Emit "running" as soon as we attach (fresh spawn or reattach). The
     // frontend maps this to the sidebar running glow for this agent.

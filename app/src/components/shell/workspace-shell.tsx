@@ -280,7 +280,6 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                                 variant: "error",
                               }),
                             );
-                          setChatPanelViewMode("chat");
                           setMissionPanelOpen(false);
                         }}
                       >
@@ -300,16 +299,11 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                       // session's socket fully tears down before the new one
                       // connects — avoids the cross-agent reconnect race.
                       key={currentAgent.folderPath}
-                      // Continue the agent's primary chat thread so the
-                      // terminal and chat share one claude conversation.
                       wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath, {
                         sessionKey: `chat-${currentAgent.id}`,
                       })}
                       className="flex-1 min-h-0 px-3 py-3"
-                      onClose={() => {
-                        setChatPanelViewMode("chat");
-                        setMissionPanelOpen(false);
-                      }}
+                      onClose={() => setMissionPanelOpen(false)}
                     />
                   </Suspense>
                 </div>
@@ -335,8 +329,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 agentFolderPath={currentAgent.folderPath}
                 onNavigate={setViewMode}
                 onOpenChatPanel={() => {
-                  const wasOpen = missionPanelOpen && chatPanelViewMode === "chat";
-                  setChatPanelViewMode("chat");
+                  const wasOpen = missionPanelOpen && chatPanelViewMode === "terminal";
+                  setChatPanelViewMode("terminal");
                   setMissionPanelOpen(true);
                   if (hasActivityTab) setViewMode("activity");
                   if (!wasOpen) setTimeout(() => useUIStore.getState().onStartMission?.(), 50);

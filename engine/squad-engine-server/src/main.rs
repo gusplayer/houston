@@ -132,6 +132,10 @@ async fn main() {
 
     let state = Arc::new(state);
 
+    // Start the transcript ingest polling loop (single background task that
+    // tails ~/.claude/projects/<agent-cwd>/*.jsonl for all active agents).
+    state.engine.transcript_ingest.start();
+
     // Spawn the tunnel client if identity allocated. Needs the engine
     // port, which we know now.
     spawn_tunnel_if_allocated(state.clone(), actual.port());

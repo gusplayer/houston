@@ -1,6 +1,7 @@
 //! `EngineState` — the runtime container passed to every route handler.
 
 use crate::paths::EnginePaths;
+use crate::sessions::transcript_ingest::TranscriptIngest;
 use crate::sessions::SessionRuntime;
 use squad_db::Database;
 use squad_ui_events::DynEventSink;
@@ -13,6 +14,9 @@ pub struct EngineState {
     pub db: Database,
     /// Per-engine session state (Claude-session-ID tracker, pid map).
     pub sessions: SessionRuntime,
+    /// Tails Claude Code JSONL transcripts to derive session usage for
+    /// interactive (xterm) sessions. Single source of truth for all usage.
+    pub transcript_ingest: TranscriptIngest,
     /// Product-layer prompt prefix supplied by the embedding app (e.g. the
     /// Houston desktop app) via env. Prepended to caller-less sessions.
     /// Empty string if unset.
@@ -24,11 +28,13 @@ pub struct EngineState {
 
 impl EngineState {
     pub fn new(paths: EnginePaths, events: DynEventSink, db: Database) -> Self {
+        let transcript_ingest = TranscriptIngest::new(db.clone(), events.clone());
         Self {
             paths,
             events,
             db,
             sessions: SessionRuntime::default(),
+            transcript_ingest,
             app_system_prompt: String::new(),
             app_onboarding_prompt: String::new(),
         }

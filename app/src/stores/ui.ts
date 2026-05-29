@@ -128,7 +128,7 @@ export const useUIStore = create<UIState>((set) => ({
   agentMissionSearchQueries: {},
   agentMissionSearchLoading: {},
   missionPanelOpen: false,
-  chatPanelViewMode: "chat",
+  chatPanelViewMode: "terminal",
   dockWidth: readInitialDockWidth(),
   jobDescriptionTarget: null,
   tutorialActive: false,
