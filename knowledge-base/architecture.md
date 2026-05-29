@@ -57,7 +57,7 @@ the workspace root `Cargo.toml`.
 - `squad-tunnel` — outbound reverse tunnel client; desktop engine dials the relay so mobile can reach it through NAT. Heartbeat + watchdog; tunnel identity stays stable across normal network failures and only re-allocates on relay auth rejection.
 - `squad-skills` — skill discovery + management
 - `squad-methodology` — parallel-dev methodology templates + project seeding (`seed_project_methodology` writes `.claude/{agents,hooks,commands,rules,method.config}` + `claude-method.md` into a project repo). Pure file I/O; consumed by `squad-engine-core::methodology`.
-- `squad-engine-core` — runtime container (`EngineState`, paths, `workspaces::*`, `agents::{activity,routines,routine_runs,config,conversations,files,prompt,self_improvement}`, `sessions::{history,provider,summarize}`, `routines::{runner,runs,scheduler,engine_dispatcher}`, `store`, `sync`, `worktree`, `provider`, `attachments`, `preferences`, `conversations`, `skills`, `agent_configs`, `methodology`). Domain logic relocated from the Tauri adapter.
+- `squad-engine-core` — runtime container (`EngineState`, paths, `workspaces::*`, `agents::{activity,routines,routine_runs,config,conversations,files,prompt,self_improvement}`, `sessions::{history,provider,summarize,transcript_ingest}`, `routines::{runner,runs,scheduler,engine_dispatcher}`, `store`, `sync`, `worktree`, `provider`, `attachments`, `preferences`, `conversations`, `skills`, `agent_configs`, `methodology`). Domain logic relocated from the Tauri adapter.
 - `squad-engine-protocol` — wire types (REST DTOs, WS envelope, error codes, `PROTOCOL_VERSION`). Matches `ui/engine-client/src/types.ts`.
 - `squad-engine-server` — axum HTTP+WS binary `squad-engine`. The process every client talks to. Full REST surface live — 19 route modules covering workspaces, agents CRUD, sessions, agent data + files, routines + scheduler, skills, store, composio, claude (runtime install), tunnel + pairing, worktrees, shell, attachments, preferences, providers, agent-configs, conversations, watcher, usage, methodology. See `knowledge-base/engine-protocol.md` for the complete table.
 
@@ -75,6 +75,22 @@ would. The supervisor (`app/src-tauri/src/engine_supervisor.rs`) pipes
 stdin so engine sees EOF on parent death and exits cleanly (no orphan
 engines holding ports). All domain Tauri commands are deleted — only
 OS-native glue remains in `app/src-tauri/src/commands/`.
+
+**Telemetry architecture (xterm-first):** xterm is the primary human surface.
+Agents' conversations happen in the interactive PTY (no `-p` stream-json).
+Usage and feed data come from Claude Code's own JSONL transcripts at
+`~/.claude/projects/<encoded-cwd>/<session-id>.jsonl` via
+`sessions::transcript_ingest::TranscriptIngest` — a single background
+task that polls every 3 s per registered agent:
+
+- `assistant` lines with `message.usage` → `upsert_session_usage` → dashboard
+- `user` / `assistant` content blocks → `chat_feed` rows + `FeedItem` WS events
+  → desktop history + mobile feed (only for sessions not already owned by the
+  headless runner; runner still writes feed for routines and mobile-send turns)
+- `.sid` updated on first ingest-owned session so `history::load` resolves it
+
+Routine/headless sessions use `session_key = "routine-{id}-run-{id}"` (never
+collides with interactive `"chat-{agentId}"`). Each has its own Claude session.
 
 ## App-side Rust (`app/`)
 

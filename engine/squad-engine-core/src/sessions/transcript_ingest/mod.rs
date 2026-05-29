@@ -1,39 +1,36 @@
-//! Derives session usage from Claude Code's on-disk JSONL transcripts.
+//! Derives session usage and chat feed from Claude Code JSONL transcripts.
 //!
-//! Claude Code writes a `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl`
-//! file for every conversation, regardless of how it was invoked (interactive
-//! REPL, `--print`, or `--resume`). Each `assistant` line carries a full
-//! `message.usage` object with input/output/cache token counts. This module
-//! tails those files and upserts into `session_usage` — making the dashboard
-//! reflect xterm sessions that the structured session_runner never sees.
+//! One background task (3 s poll) tails `~/.claude/projects/<cwd>/*.jsonl`
+//! for every registered agent. Each `assistant` line → usage upsert +
+//! `SessionUsageChanged`. `user` / `assistant` content → `chat_feed` rows +
+//! `FeedItem` WS events so desktop history and mobile mirror xterm turns.
 //!
-//! One background task polls every 3 seconds across all registered agents.
-//! Only complete lines (ending with `\n`) are consumed; the byte offset
-//! advances to the end of the last complete line so partial lines at the
-//! write frontier are never mistaken for valid JSON.
+//! Feed ownership is determined lazily: if `chat_feed` already has rows for a
+//! `sessionId` (written by the headless runner), the ingest skips feed
+//! writing for that session (usage still recorded). This prevents duplicate
+//! entries for routine / mobile-send sessions.
 
+pub mod feed;
+
+use feed::{translate_assistant_content, translate_user_line, write_sid};
 use squad_db::{Database, SessionUsageDelta};
 use squad_ui_events::{DynEventSink, SquadEvent};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::time::{interval, Duration};
 
 // ---------------------------------------------------------------------------
-// Path helpers
+// Path helpers (pub so PTY route / tests can verify encoding)
 // ---------------------------------------------------------------------------
 
-/// Claude Code encodes the CWD as the project dir name by replacing every
-/// `/` and `.` with `-`. The leading `/` becomes a leading `-`.
 pub fn encode_cwd(path: &Path) -> String {
     path.to_string_lossy()
         .replace('/', "-")
         .replace('.', "-")
 }
 
-/// Absolute path to the Claude Code transcript dir for `working_dir`.
-/// Returns `None` if the home dir cannot be determined.
 pub fn transcript_dir(working_dir: &Path) -> Option<PathBuf> {
     dirs::home_dir().map(|h| {
         h.join(".claude")
@@ -46,17 +43,16 @@ pub fn transcript_dir(working_dir: &Path) -> Option<PathBuf> {
 // Cost estimation
 // ---------------------------------------------------------------------------
 
-fn compute_cost(model: &str, input: u64, output: u64, cache_write: u64, cache_read: u64) -> f64 {
-    // Approximate per-million token prices (USD) by model family.
+fn compute_cost(model: &str, input: u64, output: u64, cw: u64, cr: u64) -> f64 {
     let (ip, op, cwp, crp): (f64, f64, f64, f64) = if model.contains("opus") {
         (15.0, 75.0, 18.75, 1.50)
     } else if model.contains("haiku") {
         (0.80, 4.0, 1.0, 0.08)
     } else {
-        (3.0, 15.0, 3.75, 0.30) // sonnet / default
+        (3.0, 15.0, 3.75, 0.30)
     };
-    let per_m = |t: u64, p: f64| (t as f64 / 1_000_000.0) * p;
-    per_m(input, ip) + per_m(output, op) + per_m(cache_write, cwp) + per_m(cache_read, crp)
+    let m = |t: u64, p: f64| (t as f64 / 1_000_000.0) * p;
+    m(input, ip) + m(output, op) + m(cw, cwp) + m(cr, crp)
 }
 
 // ---------------------------------------------------------------------------
@@ -68,24 +64,25 @@ struct AgentEntry {
     agent_path: String,
     working_dir: PathBuf,
     workspace_id: String,
+    /// Squad session key used for FeedItem events and .sid updates.
+    /// Populated when registered from the PTY route.
+    session_key: Option<String>,
 }
 
 #[derive(Default)]
 struct IngestState {
-    /// Registered agents to watch. Keyed by agent_path; registration is
-    /// idempotent so repeated PTY attaches don't add duplicates.
     agents: HashMap<String, AgentEntry>,
-    /// Byte offset per JSONL file — tracks how far we've read each transcript
-    /// so we never re-process the same lines.
     offsets: HashMap<PathBuf, u64>,
+    /// Session IDs the ingest has claimed for feed writing (runner not writing).
+    feed_owned: HashSet<String>,
+    /// Session IDs the runner owns (already has chat_feed rows → ingest skips feed).
+    runner_owned: HashSet<String>,
 }
 
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
-/// Cheap to clone (wraps an `Arc`). Add to `EngineState` and wire to PTY /
-/// session routes so every active agent's transcripts are polled.
 #[derive(Clone)]
 pub struct TranscriptIngest {
     state: Arc<Mutex<IngestState>>,
@@ -95,37 +92,30 @@ pub struct TranscriptIngest {
 
 impl TranscriptIngest {
     pub fn new(db: Database, events: DynEventSink) -> Self {
-        Self {
-            state: Arc::new(Mutex::new(IngestState::default())),
-            db,
-            events,
-        }
+        Self { state: Arc::new(Mutex::new(IngestState::default())), db, events }
     }
 
-    /// Start the background polling loop. Must be called once after the tokio
-    /// runtime is running (i.e. from an async context).
     pub fn start(&self) {
         let this = self.clone();
         tokio::spawn(async move { this.run().await });
     }
 
-    /// Register an agent so its transcript dir is included in the poll loop.
-    /// Idempotent: safe to call on every PTY attach.
     pub async fn register_agent(
         &self,
         agent_path: String,
         working_dir: PathBuf,
         workspace_id: String,
+        session_key: Option<String>,
     ) {
         let mut s = self.state.lock().await;
         s.agents.insert(
             agent_path.clone(),
-            AgentEntry { agent_path, working_dir, workspace_id },
+            AgentEntry { agent_path, working_dir, workspace_id, session_key },
         );
     }
 
     // -----------------------------------------------------------------------
-    // Internal loop
+    // Loop
     // -----------------------------------------------------------------------
 
     async fn run(&self) {
@@ -160,34 +150,31 @@ impl TranscriptIngest {
             *s.offsets.get(&path).unwrap_or(&0)
         };
         let Ok(content) = tokio::fs::read(&path).await else { return };
-        if content.len() as u64 <= offset {
-            return;
-        }
+        if content.len() as u64 <= offset { return; }
         let new_bytes = &content[offset as usize..];
-        // Only consume up to the last complete line (ends with '\n').
         let Some(last_nl) = new_bytes.iter().rposition(|&b| b == b'\n') else { return };
-        let process_bytes = &new_bytes[..=last_nl];
         let new_offset = offset + last_nl as u64 + 1;
+        let Ok(text) = std::str::from_utf8(&new_bytes[..=last_nl]) else { return };
 
-        let Ok(text) = std::str::from_utf8(process_bytes) else { return };
         for line in text.lines() {
             let line = line.trim();
-            if line.is_empty() {
-                continue;
-            }
-            if let Ok(obj) = serde_json::from_str::<serde_json::Value>(line) {
-                if obj["type"].as_str() == Some("assistant") {
-                    self.ingest_assistant(&obj, agent).await;
-                }
+            if line.is_empty() { continue; }
+            let Ok(obj) = serde_json::from_str::<serde_json::Value>(line) else { continue };
+            match obj["type"].as_str() {
+                Some("assistant") => self.handle_assistant(&obj, agent).await,
+                Some("user") => self.handle_user(&obj, agent).await,
+                _ => {}
             }
         }
         self.state.lock().await.offsets.insert(path, new_offset);
     }
 
-    async fn ingest_assistant(&self, obj: &serde_json::Value, agent: &AgentEntry) {
-        if agent.workspace_id.is_empty() {
-            return;
-        }
+    // -----------------------------------------------------------------------
+    // Line handlers
+    // -----------------------------------------------------------------------
+
+    async fn handle_assistant(&self, obj: &serde_json::Value, agent: &AgentEntry) {
+        if agent.workspace_id.is_empty() { return; }
         let msg = &obj["message"];
         let Some(usage) = msg.get("usage") else { return };
         let Some(session_id) = obj["sessionId"].as_str() else { return };
@@ -196,7 +183,6 @@ impl TranscriptIngest {
         let cw = usage["cache_creation_input_tokens"].as_u64().unwrap_or(0);
         let cr = usage["cache_read_input_tokens"].as_u64().unwrap_or(0);
         let model = msg["model"].as_str().unwrap_or("claude-sonnet");
-        let cost = compute_cost(model, input, output, cw, cr);
 
         let delta = SessionUsageDelta {
             session_key: session_id,
@@ -207,11 +193,11 @@ impl TranscriptIngest {
             output_tokens: output,
             cache_creation_input_tokens: cw,
             cache_read_input_tokens: cr,
-            cost_usd: cost,
+            cost_usd: compute_cost(model, input, output, cw, cr),
             model: Some(model),
         };
         if let Err(e) = self.db.upsert_session_usage(delta).await {
-            tracing::warn!("[transcript_ingest] upsert failed for {session_id}: {e}");
+            tracing::warn!("[transcript_ingest] usage upsert failed {session_id}: {e}");
             return;
         }
         self.events.emit(SquadEvent::SessionUsageChanged {
@@ -220,6 +206,65 @@ impl TranscriptIngest {
             session_key: session_id.to_string(),
             provider: "anthropic".to_string(),
         });
+
+        // Feed items for history/mobile.
+        if self.claim_feed(session_id, agent).await {
+            let rows = translate_assistant_content(msg);
+            self.write_feed(session_id, agent, rows).await;
+        }
+    }
+
+    async fn handle_user(&self, obj: &serde_json::Value, agent: &AgentEntry) {
+        let Some(session_id) = obj["sessionId"].as_str() else { return };
+        if self.claim_feed(session_id, agent).await {
+            let rows = translate_user_line(obj);
+            self.write_feed(session_id, agent, rows).await;
+        }
+    }
+
+    /// Returns `true` if the ingest owns feed writing for this session.
+    /// On first encounter: checks `chat_feed`; empty → claim + write .sid.
+    async fn claim_feed(&self, session_id: &str, agent: &AgentEntry) -> bool {
+        {
+            let s = self.state.lock().await;
+            if s.feed_owned.contains(session_id) { return true; }
+            if s.runner_owned.contains(session_id) { return false; }
+        }
+        // First time seeing this session_id — check the DB.
+        let existing = self.db.list_chat_feed_by_session(session_id).await
+            .map(|r| !r.is_empty())
+            .unwrap_or(false);
+        let mut s = self.state.lock().await;
+        if existing {
+            s.runner_owned.insert(session_id.to_string());
+            false
+        } else {
+            s.feed_owned.insert(session_id.to_string());
+            // Update .sid so history::load can find this session via session_key.
+            if let (Some(sk), wd) = (&agent.session_key, &agent.working_dir) {
+                write_sid(wd, sk, session_id);
+            }
+            true
+        }
+    }
+
+    async fn write_feed(&self, session_id: &str, agent: &AgentEntry, rows: Vec<feed::FeedRow>) {
+        let session_key = agent.session_key.as_deref().unwrap_or(session_id);
+        for row in rows {
+            if let Err(e) = self.db.add_chat_feed_item_by_session(
+                session_id, &row.feed_type, &row.data_json, "xterm",
+            ).await {
+                tracing::warn!("[transcript_ingest] feed write failed: {e}");
+                continue;
+            }
+            if let Some(item) = row.item {
+                self.events.emit(SquadEvent::FeedItem {
+                    agent_path: agent.agent_path.clone(),
+                    session_key: session_key.to_string(),
+                    item,
+                });
+            }
+        }
     }
 }
 

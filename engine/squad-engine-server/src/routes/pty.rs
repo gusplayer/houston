@@ -166,13 +166,18 @@ async fn handle_pty_socket(
     };
 
     // Register the agent with the transcript ingest service so its
-    // Claude JSONL transcripts are polled for usage data. Idempotent.
+    // Claude JSONL transcripts are polled for usage and feed data. Idempotent.
     let workspace_id = resolve_workspace_id(&state.engine.paths, &working_dir)
         .unwrap_or_default();
     state
         .engine
         .transcript_ingest
-        .register_agent(agent_path.clone(), working_dir.clone(), workspace_id)
+        .register_agent(
+            agent_path.clone(),
+            working_dir.clone(),
+            workspace_id,
+            query.session_key.clone(),
+        )
         .await;
 
     // Emit "running" as soon as we attach (fresh spawn or reattach). The
