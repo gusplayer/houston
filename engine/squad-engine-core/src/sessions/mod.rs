@@ -23,6 +23,7 @@ pub mod history;
 pub mod provider;
 pub mod summarize;
 mod summary_text;
+pub mod transcript_ingest;
 mod workdir_locks;
 
 use crate::agents::prompt as agent_prompt;
