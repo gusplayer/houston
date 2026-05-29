@@ -5,16 +5,34 @@ interface AgentSidebarIconProps {
   color?: string;
   running: boolean;
   runningLabel: string;
+  /** Fine-grained PTY status for multi-state indicator.
+   * "running" = Claude actively generating (spinning glow).
+   * "waiting" = REPL idle, waiting for input (yellow pulse).
+   * undefined = no indicator override; falls back to `running` for
+   * activity-based glow. */
+  ptyStatus?: "running" | "waiting";
 }
 
 export function AgentSidebarIcon({
   color,
   running,
   runningLabel,
+  ptyStatus,
 }: AgentSidebarIconProps) {
   const avatar = (
     <SquadAvatar color={resolveAgentColor(color)} diameter={20} />
   );
+
+  if (ptyStatus === "waiting") {
+    return (
+      <span
+        className="size-6 shrink-0 rounded-full flex items-center justify-center pty-waiting-pulse"
+        title={runningLabel}
+      >
+        {avatar}
+      </span>
+    );
+  }
 
   if (!running) return avatar;
 

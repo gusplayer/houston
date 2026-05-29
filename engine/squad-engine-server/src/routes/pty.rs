@@ -55,6 +55,7 @@ use squad_ui_events::{EventSink, SquadEvent};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::broadcast::error::RecvError;
+use tokio::time::Duration;
 
 /// Session key used for PTY lifecycle events. Must not collide with structured
 /// session keys (activity-*, chat-*, routine-*).
@@ -232,6 +233,17 @@ async fn handle_pty_socket(
         }
     });
 
+    // Idle watcher: emits "waiting" after 2 s of no PTY output (Claude
+    // finished its turn), and "running" again when output resumes. Aborted
+    // together with pty_to_ws on WS disconnect so there is at most one
+    // watcher per live connection, not per historical attach.
+    let (_, mut idle_rx) = session.attach();
+    let idle_watcher = tokio::spawn(idle_watch(
+        idle_rx,
+        state.events.clone(),
+        agent_path.clone(),
+    ));
+
     // Main loop: WS frames from client → PTY stdin or resize.
     while let Some(frame) = stream.next().await {
         match frame {
@@ -252,7 +264,57 @@ async fn handle_pty_socket(
         }
     }
 
-    // Detach only: stop forwarding to this (now-gone) socket. The PTY keeps
-    // running in the registry for the next reattach.
+    // Detach: the PTY keeps running in the registry for the next reattach.
+    // Emit "waiting" so the sidebar indicator shows the session is alive but
+    // no longer being actively monitored by any client.
+    state.events.emit(SquadEvent::SessionStatus {
+        agent_path: agent_path.clone(),
+        session_key: PTY_SESSION_KEY.to_string(),
+        status: "waiting".to_string(),
+        error: None,
+    });
     pty_to_ws.abort();
+    idle_watcher.abort();
+}
+
+/// Watch the PTY broadcast channel for idle periods.
+///
+/// After 2 s of no output bytes the PTY is considered idle (Claude finished
+/// its turn and is waiting for input). Emits `"waiting"` once on transition
+/// in, and `"running"` when output resumes. Terminates on process exit.
+async fn idle_watch(
+    mut rx: tokio::sync::broadcast::Receiver<PtyBroadcast>,
+    events: impl EventSink + Send + 'static,
+    agent_path: String,
+) {
+    let mut is_idle = false;
+    loop {
+        match tokio::time::timeout(Duration::from_secs(2), rx.recv()).await {
+            Ok(Ok(PtyBroadcast::Data(_))) => {
+                if is_idle {
+                    is_idle = false;
+                    events.emit(SquadEvent::SessionStatus {
+                        agent_path: agent_path.clone(),
+                        session_key: PTY_SESSION_KEY.to_string(),
+                        status: "running".to_string(),
+                        error: None,
+                    });
+                }
+            }
+            Ok(Ok(PtyBroadcast::Exit(_))) => break,
+            Ok(Err(RecvError::Lagged(_))) => continue,
+            Ok(Err(_)) => break,
+            Err(_) /* 2 s timeout = idle */ => {
+                if !is_idle {
+                    is_idle = true;
+                    events.emit(SquadEvent::SessionStatus {
+                        agent_path: agent_path.clone(),
+                        session_key: PTY_SESSION_KEY.to_string(),
+                        status: "waiting".to_string(),
+                        error: None,
+                    });
+                }
+            }
+        }
+    }
 }

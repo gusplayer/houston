@@ -66,6 +66,7 @@ export function useSessionEvents() {
           if (
             status === "starting" ||
             status === "running" ||
+            status === "waiting" ||
             status === "completed" ||
             status === "error"
           ) {

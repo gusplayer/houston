@@ -29,6 +29,7 @@ pub fn encode_cwd(path: &Path) -> String {
     path.to_string_lossy()
         .replace('/', "-")
         .replace('.', "-")
+        .replace(' ', "-")
 }
 
 pub fn transcript_dir(working_dir: &Path) -> Option<PathBuf> {
@@ -281,6 +282,14 @@ mod tests {
         assert_eq!(
             encode_cwd(Path::new("/Users/foo/.squad/workspaces/ws/Alex")),
             "-Users-foo--squad-workspaces-ws-Alex"
+        );
+    }
+
+    #[test]
+    fn encode_cwd_replaces_spaces() {
+        assert_eq!(
+            encode_cwd(Path::new("/Users/foo/.dev-houston/workspaces/workspace 3/Steve")),
+            "-Users-foo--dev-houston-workspaces-workspace-3-Steve"
         );
     }
 

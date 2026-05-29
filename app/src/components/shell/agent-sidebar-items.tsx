@@ -38,6 +38,7 @@ export function buildAgentSidebarItems({
           color={agent.color}
           running={hasRunning}
           runningLabel={runningLabel(summary.runningCount)}
+          ptyStatus={summary.ptyStatus}
         />
       ),
       trailing:

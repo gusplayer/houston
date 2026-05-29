@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type SessionRunStatus = "starting" | "running" | "completed" | "error";
+export type SessionRunStatus = "starting" | "running" | "waiting" | "completed" | "error";
 
 interface SessionStatusState {
   statuses: Record<string, SessionRunStatus>;
@@ -29,5 +29,9 @@ export function useSessionStatus(agentPath: string, sessionKey: string) {
 }
 
 export function isActiveSessionStatus(status: SessionRunStatus | undefined) {
+  return status === "starting" || status === "running" || status === "waiting";
+}
+
+export function isWorkingSessionStatus(status: SessionRunStatus | undefined) {
   return status === "starting" || status === "running";
 }

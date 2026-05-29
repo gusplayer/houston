@@ -5,6 +5,7 @@ import {
   useSessionStatusStore,
   getSessionStatusKey,
   isActiveSessionStatus,
+  isWorkingSessionStatus,
 } from "../../stores/session-status";
 import { buildAgentActivitySummaries } from "./agent-activity-summary-model";
 
@@ -22,9 +23,13 @@ export function useAgentActivitySummaries(
     const summaries = buildAgentActivitySummaries(agents, conversations ?? []);
     for (const agent of agents) {
       const ptyKey = getSessionStatusKey(agent.folderPath, "pty");
-      if (isActiveSessionStatus(sessionStatuses[ptyKey])) {
-        const s = summaries[agent.id];
-        if (s) s.runningCount += 1;
+      const ptyRawStatus = sessionStatuses[ptyKey];
+      const s = summaries[agent.id];
+      if (!s) continue;
+
+      if (isActiveSessionStatus(ptyRawStatus)) {
+        s.runningCount += 1;
+        s.ptyStatus = isWorkingSessionStatus(ptyRawStatus) ? "running" : "waiting";
       }
     }
     return summaries;

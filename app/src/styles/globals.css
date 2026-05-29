@@ -23,6 +23,27 @@ body {
     Arial, sans-serif;
 }
 
+/* xterm.js — hide the internal scrollbar so it doesn't bleed outside
+   the clipping container. Scrollback is accessed by xterm internally. */
+.xterm .xterm-viewport {
+  overflow-y: hidden !important;
+  scrollbar-width: none;
+}
+.xterm .xterm-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* PTY waiting indicator: yellow ring that gently pulses to signal the
+   terminal session is alive and idle (Claude finished its turn). */
+@keyframes pty-waiting-ring {
+  0%, 100% { box-shadow: 0 0 0 1.5px rgba(234, 179, 8, 0.55); }
+  50%       { box-shadow: 0 0 0 3px   rgba(234, 179, 8, 0.20); }
+}
+.pty-waiting-pulse {
+  border: 1.5px solid rgba(234, 179, 8, 0.70);
+  animation: pty-waiting-ring 2s ease-in-out infinite;
+}
+
 [data-theme="dark"] .houston-update-logo-light {
   display: none;
 }

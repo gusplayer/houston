@@ -302,7 +302,7 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                       wsUrl={getEngine().ptyWsUrl(currentAgent.folderPath, {
                         sessionKey: `chat-${currentAgent.id}`,
                       })}
-                      className="flex-1 min-h-0 px-3 py-3"
+                      className="flex-1 min-h-0 overflow-hidden"
                       onClose={() => setMissionPanelOpen(false)}
                     />
                   </Suspense>

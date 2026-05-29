@@ -12,6 +12,10 @@ export interface ActivityConversationSummaryInput {
 export interface AgentActivitySummary {
   needsYouCount: number;
   runningCount: number;
+  /** Live PTY session status for this agent. "running" = Claude actively
+   * generating, "waiting" = REPL idle (waiting for input), undefined = no
+   * active PTY session. */
+  ptyStatus: "running" | "waiting" | undefined;
 }
 
 export function buildAgentActivitySummaries(
@@ -22,7 +26,7 @@ export function buildAgentActivitySummaries(
   const agentIdByPath = new Map<string, string>();
 
   for (const agent of agents) {
-    summaries[agent.id] = { needsYouCount: 0, runningCount: 0 };
+    summaries[agent.id] = { needsYouCount: 0, runningCount: 0, ptyStatus: undefined };
     agentIdByPath.set(agent.folderPath, agent.id);
   }
 

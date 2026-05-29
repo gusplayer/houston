@@ -297,7 +297,7 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
             padding: 0,
           }}
         >
-          Back to chat
+          Close
         </button>
       </div>
     );
