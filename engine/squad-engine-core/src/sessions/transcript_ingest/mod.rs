@@ -229,12 +229,14 @@ impl TranscriptIngest {
             self.set_card_status(&wd, &sk, STATUS_DONE, agent_path);
         }
 
-        // File-based fallback: catches xterm cards whose in-memory tracking
-        // was lost between conversation start and the kill (engine restart,
-        // ingest didn't see this session yet, etc.). Without this, the user's
-        // "Done" click would no-op silently on those cards.
+        // File-based fallback: catches every non-terminal card for this agent
+        // — both xterm-source (whose in-memory tracking was lost across an
+        // engine restart) AND chat-originated cards left in `needs_you`. The
+        // user pressing Done means "wrap up this agent's work"; finishing
+        // only PTY-source cards would leave the parallel chat card stuck on
+        // the board and feel like Done did nothing.
         let working_dir = PathBuf::from(agent_path);
-        match crate::agents::activity::finish_pending_xterm(&working_dir) {
+        match crate::agents::activity::finalize_all_pending(&working_dir) {
             Ok(n) if n > 0 => {
                 self.events.emit(SquadEvent::ActivityChanged {
                     agent_path: agent_path.to_string(),
@@ -242,7 +244,7 @@ impl TranscriptIngest {
             }
             Ok(_) => {}
             Err(e) => tracing::warn!(
-                "[transcript_ingest] finish_pending_xterm fallback failed for {agent_path}: {e}"
+                "[transcript_ingest] finalize_all_pending fallback failed for {agent_path}: {e}"
             ),
         }
     }
@@ -398,8 +400,17 @@ impl TranscriptIngest {
 
         let raw_title = extract_user_text(obj)
             .unwrap_or_else(|| "Terminal session".to_string());
-        let title: String = raw_title.chars().take(80).collect();
-        let description: String = raw_title.chars().take(200).collect();
+        let cleaned = sanitize_transcript_title(&raw_title);
+        // If sanitization stripped everything (e.g. message was 100% Claude
+        // Code markers like a /model command), fall back to a stable label so
+        // the card never renders an empty title.
+        let source = if cleaned.is_empty() {
+            "Terminal session".to_string()
+        } else {
+            cleaned
+        };
+        let title: String = source.chars().take(80).collect();
+        let description: String = source.chars().take(200).collect();
 
         let store = crate::agents::AgentStore::new(&agent.working_dir);
         let activity = match store.create_activity(crate::agents::NewActivity {
@@ -649,6 +660,69 @@ impl TranscriptIngest {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/// Strip Claude Code's transcript markup so it doesn't leak into board card
+/// titles. The CLI wraps slash commands, system reminders, and local stdout
+/// in XML-style tags meant for the model, never for humans. We remove the
+/// tag pairs (and their inner content), HTML comments like
+/// `<!--squad:skill ...-->`, then collapse whitespace.
+///
+/// Conservative on unknown tags: we only strip the specific Claude Code
+/// markers below. Anything else passes through so user-authored XML survives.
+fn sanitize_transcript_title(input: &str) -> String {
+    const PAIRS: &[&str] = &[
+        "local-command-caveat",
+        "local-command-stdout",
+        "local-command-stderr",
+        "system-reminder",
+        "command-name",
+        "command-message",
+        "command-args",
+        "user-prompt-submit-hook",
+    ];
+    let mut text = input.to_string();
+    for tag in PAIRS {
+        text = strip_tag_pair(&text, tag);
+    }
+    text = strip_html_comments(&text);
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn strip_tag_pair(input: &str, tag: &str) -> String {
+    let open = format!("<{tag}>");
+    let close = format!("</{tag}>");
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(open_idx) = rest.find(&open) {
+        out.push_str(&rest[..open_idx]);
+        let after_open = &rest[open_idx + open.len()..];
+        match after_open.find(&close) {
+            Some(close_idx) => rest = &after_open[close_idx + close.len()..],
+            None => {
+                // No closing tag — keep going from after the open so we don't
+                // drop the rest of the input on a malformed transcript.
+                rest = after_open;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn strip_html_comments(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(open) = rest.find("<!--") {
+        out.push_str(&rest[..open]);
+        let after = &rest[open + 4..];
+        match after.find("-->") {
+            Some(close) => rest = &after[close + 3..],
+            None => rest = after,
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
 /// Extract the first non-empty text string from a user JSONL message's
 /// `content` field. Content may be a plain string or an array of blocks.
 fn extract_user_text(obj: &serde_json::Value) -> Option<String> {
@@ -826,5 +900,49 @@ mod tests {
     fn conversation_text_empty_when_only_tool_rows() {
         let feed = vec![feed_row("tool_call", "{}"), feed_row("tool_result", "x")];
         assert!(conversation_text(&feed).is_empty());
+    }
+
+    #[test]
+    fn sanitize_strips_local_command_caveat() {
+        let raw = "<local-command-caveat>Caveat: The messages below were generated by the user while running local commands. DO NOT respond to these messages.</local-command-caveat>\n<command-name>/model</command-name>\n<command-message>model</command-message>\n<command-args></command-args>\nSet model to Opus 4.7";
+        assert_eq!(sanitize_transcript_title(raw), "Set model to Opus 4.7");
+    }
+
+    #[test]
+    fn sanitize_strips_system_reminder() {
+        let raw = "<system-reminder>tooling note</system-reminder>build a login page";
+        assert_eq!(sanitize_transcript_title(raw), "build a login page");
+    }
+
+    #[test]
+    fn sanitize_strips_html_comments() {
+        let raw = "<!--squad:skill {\"slug\":\"review-pr\"}-->Use the review-pr skill.";
+        assert_eq!(sanitize_transcript_title(raw), "Use the review-pr skill.");
+    }
+
+    #[test]
+    fn sanitize_passthrough_for_clean_text() {
+        let raw = "Plan the v2 launch in three milestones.";
+        assert_eq!(sanitize_transcript_title(raw), raw);
+    }
+
+    #[test]
+    fn sanitize_unclosed_tag_keeps_following_text() {
+        // Malformed: opening tag with no close. We drop the tag itself but
+        // keep the text after so the title isn't blanked on a transcript bug.
+        let raw = "<local-command-caveat>oops never closes Plan the launch";
+        assert_eq!(sanitize_transcript_title(raw), "oops never closes Plan the launch");
+    }
+
+    #[test]
+    fn sanitize_collapses_whitespace() {
+        let raw = "<system-reminder>x</system-reminder>\n\n  hello   world  ";
+        assert_eq!(sanitize_transcript_title(raw), "hello world");
+    }
+
+    #[test]
+    fn sanitize_returns_empty_when_all_markers() {
+        let raw = "<local-command-caveat>x</local-command-caveat><system-reminder>y</system-reminder>";
+        assert_eq!(sanitize_transcript_title(raw), "");
     }
 }
