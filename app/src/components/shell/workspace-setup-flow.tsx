@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { Button, Input } from "@squad/core";
+import { tauriProvider } from "../../lib/tauri";
+import { PROVIDERS } from "../../lib/providers";
 import { ProviderPicker } from "./provider-picker";
 
 interface Props {
@@ -11,6 +13,24 @@ interface Props {
   onComplete: (name: string, provider: string, model: string) => void;
 }
 
+/**
+ * Resolve the first provider with `cli_installed && authenticated`. Order
+ * matches the visual order in `PROVIDERS` so behavior is stable. Returns
+ * null if neither is ready. Used by the step-1 → step-2 auto-skip.
+ */
+async function firstReadyProvider() {
+  for (const p of PROVIDERS) {
+    try {
+      const status = await tauriProvider.checkStatus(p.id);
+      if (status.cli_installed && status.authenticated) return p;
+    } catch {
+      // checkStatus failure (e.g. engine offline) just means "not ready" for
+      // auto-skip purposes — fall through and let the picker render.
+    }
+  }
+  return null;
+}
+
 export function WorkspaceSetupFlow({ mode, onComplete }: Props) {
   const { t } = useTranslation(["setup", "common"]);
   const [step, setStep] = useState<1 | 2>(1);
@@ -18,9 +38,26 @@ export function WorkspaceSetupFlow({ mode, onComplete }: Props) {
   const [provider, setProvider] = useState<string | null>(null);
   const [model, setModel] = useState<string | null>(null);
 
-  const handleNameSubmit = (e: FormEvent) => {
+  /** Tracks whether we've already attempted the auto-skip so step 2 doesn't
+   * fire it on every state change. The user can still hit Back → Continue and
+   * we'll re-evaluate, which is what they want if they meanwhile connected. */
+  const autoSkipAttempted = useRef(false);
+
+  const handleNameSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    // If the user already has at least one provider connected, the provider
+    // picker has zero actionable input — skip it and create the workspace with
+    // the first ready provider's defaults. The user can swap models later in
+    // settings. Keeps onboarding to a single step in the happy path.
+    if (!autoSkipAttempted.current) {
+      autoSkipAttempted.current = true;
+      const ready = await firstReadyProvider();
+      if (ready) {
+        onComplete(name.trim(), ready.id, ready.defaultModel);
+        return;
+      }
+    }
     setStep(2);
   };
 

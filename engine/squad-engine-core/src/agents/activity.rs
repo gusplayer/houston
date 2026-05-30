@@ -176,6 +176,33 @@ pub fn finish_pending_xterm(root: &Path) -> CoreResult<usize> {
     Ok(changed)
 }
 
+/// Flip every non-terminal card to "done", regardless of source agent.
+/// Called from the explicit PTY-kill ("Done") path so chat-originated cards
+/// stuck on `needs_you` also close out when the user says "I'm done with
+/// this agent". The user pressed Done after seeing the agent finish — the
+/// intent is to wrap up the agent's whole current activity, not just the
+/// PTY-spawned slice of it.
+///
+/// Returns the number of cards changed so the caller can decide whether to
+/// emit an `ActivityChanged` event.
+pub fn finalize_all_pending(root: &Path) -> CoreResult<usize> {
+    let mut items = list(root)?;
+    let now = Utc::now().to_rfc3339();
+    let mut changed = 0;
+    for item in items.iter_mut() {
+        let is_terminal_state = matches!(item.status.as_str(), "done" | "cancelled" | "error");
+        if !is_terminal_state {
+            item.status = "done".to_string();
+            item.updated_at = Some(now.clone());
+            changed += 1;
+        }
+    }
+    if changed > 0 {
+        write_json(root, FILE, &items)?;
+    }
+    Ok(changed)
+}
+
 /// Flip stale xterm cards stuck on "running" to "needs_you", skipping any
 /// whose `session_key` is in `tracked_keys` (sessions the ingest is actively
 /// managing this engine run). xterm "running" liveness lives in the ingest's
