@@ -16,9 +16,11 @@
     "historyErrorDescription": "Parte do texto de tarefas antigas não pôde ser carregada."
   },
   "columns": {
+    "upNext": "Na fila",
     "running": "Em execução",
     "needsYou": "Precisa de você",
-    "done": "Pronto"
+    "done": "Pronto",
+    "queueTask": "Enfileirar tarefa"
   },
   "empty": {
     "boardTitle": "Ainda sem conversas",

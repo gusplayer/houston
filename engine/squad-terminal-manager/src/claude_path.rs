@@ -133,6 +133,55 @@ pub fn shell_path() -> OsString {
         .unwrap_or_else(|| std::env::var_os("PATH").unwrap_or_default())
 }
 
+/// The user's **natural** login-shell PATH — what `echo $PATH` returns when
+/// you open a fresh terminal — with NO Squad prepends. We need this to find
+/// the `claude` / `codex` binaries the user authenticated with via the CLI,
+/// rather than Squad's bundled copies (whose Keychain ACL was set by a
+/// different code-signed binary and so can't read the user's creds).
+static USER_SHELL_PATH: OnceLock<Option<OsString>> = OnceLock::new();
+
+/// Find `name` on the user's natural login-shell PATH, skipping `excluded`.
+///
+/// Pass Squad's bundled install path as `excluded` so we pick the user's own
+/// `claude` (Homebrew / npm / nvm / etc.) when both are installed. Returns
+/// `None` when the binary isn't present on the user's PATH at all — the
+/// caller can then fall back to the bundled copy.
+pub fn user_shell_binary_excluding(name: &str, excluded: Option<&std::path::Path>) -> Option<PathBuf> {
+    let path = USER_SHELL_PATH
+        .get_or_init(|| {
+            #[cfg(unix)]
+            {
+                resolve_login_shell_path().or_else(resolve_interactive_shell_path)
+            }
+            #[cfg(not(unix))]
+            {
+                None
+            }
+        })
+        .clone()?;
+    for dir in std::env::split_paths(&path) {
+        let candidate = dir.join(name);
+        if let Some(ex) = excluded {
+            if candidate == ex {
+                continue;
+            }
+        }
+        if candidate.is_file() {
+            return Some(candidate);
+        }
+        #[cfg(windows)]
+        {
+            for ext in ["exe", "cmd", "bat"] {
+                let with_ext = candidate.with_extension(ext);
+                if with_ext.is_file() {
+                    return Some(with_ext);
+                }
+            }
+        }
+    }
+    None
+}
+
 /// Check if `claude` is available using the resolved PATH.
 pub fn is_claude_available() -> bool {
     is_command_available("claude")

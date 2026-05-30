@@ -92,7 +92,14 @@ export function CreateAgentDialog() {
       useUIStore.getState().setViewMode(firstTab);
       handleClose();
     } catch (err) {
-      setError(String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      // Surface the common name-conflict as friendly copy; keep the raw
+      // reason for anything unexpected (minus the error-class prefix).
+      setError(
+        /already exists|conflict/i.test(msg)
+          ? t("newAgent.nameConflict", { name: trimmed })
+          : msg,
+      );
     }
   };
 

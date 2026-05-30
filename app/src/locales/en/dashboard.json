@@ -16,9 +16,11 @@
     "historyErrorDescription": "Some older task text could not be loaded."
   },
   "columns": {
+    "upNext": "Up next",
     "running": "Running",
     "needsYou": "Needs you",
-    "done": "Done"
+    "done": "Done",
+    "queueTask": "Queue task"
   },
   "empty": {
     "boardTitle": "No conversations yet",

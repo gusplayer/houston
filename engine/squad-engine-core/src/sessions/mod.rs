@@ -21,8 +21,12 @@ mod control;
 pub mod file_changes;
 pub mod history;
 pub mod provider;
+pub mod cli_runner;
+pub mod qa_reviewer;
+pub mod spec_writer;
 pub mod summarize;
 mod summary_text;
+pub mod tests_writer;
 pub mod transcript_ingest;
 mod workdir_locks;
 

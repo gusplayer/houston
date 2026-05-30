@@ -48,6 +48,7 @@ import {
 } from "../hooks/queries";
 import { AgentStateAvatar } from "./agent-state-avatar";
 import { PhaseStoryCard } from "./phase-story-card";
+import { autoDraftSpecForStory } from "../lib/story-specs";
 
 const STATUS_COLUMNS: StoryStatus[] = ["todo", "in_progress", "in_review", "done"];
 
@@ -143,7 +144,7 @@ export function UnifiedBoard({
     const phase: StoryPhase =
       addingTo.phase ??
       (phaseFilter !== "all" ? phaseFilter : "discovery");
-    await createStory.mutateAsync({
+    const newStory = await createStory.mutateAsync({
       title: draftTitle.trim(),
       status: addingTo.status,
       phase,
@@ -152,8 +153,22 @@ export function UnifiedBoard({
       assignedAgentId: agentFilter ?? null,
       priority: "medium",
     });
+    // Phase 0 — Steve PM auto-drafts the SDD spec via his configured LLM.
+    // Background; errors are swallowed so they never block creation.
+    void autoDraftAndPersist(newStory);
     setDraftTitle("");
     setAddingTo(null);
+  }
+
+  async function autoDraftAndPersist(story: Story) {
+    const relPath = await autoDraftSpecForStory({
+      story,
+      agents: agentsProp ?? [],
+      projects: projects ?? [],
+    });
+    if (relPath) {
+      await updateStory.mutateAsync({ id: story.id, patch: { specPath: relPath } });
+    }
   }
 
   function moveStory(id: string, patch: Partial<Story>) {

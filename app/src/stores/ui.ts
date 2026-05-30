@@ -73,6 +73,17 @@ interface UIState {
    * "Save as routine" chip in chat; consumed and cleared by RoutinesTab
    * on mount or when it detects a pending value. */
   routinePrefill: Partial<RoutineFormData> | null;
+  /** One-shot request to open the dashboard on a specific sub-view
+   * ("missions" | "phases" | "usage"). Set by the terminal toolbar's Usage
+   * action alongside `setViewMode("dashboard")`; consumed and cleared by the
+   * Dashboard on mount. */
+  pendingDashboardView: string | null;
+  setPendingDashboardView: (view: string | null) => void;
+  /** Per-agent suffix bumped when the user ends or restarts the terminal
+   * conversation. Combined into the WS sessionKey so the next attach lands
+   * on a fresh claude session instead of `--resume`-ing the old one. */
+  terminalTaskNonce: Record<string, number>;
+  bumpTerminalTaskNonce: (agentPath: string) => void;
   setRoutinePrefill: (data: Partial<RoutineFormData> | null) => void;
   setViewMode: (mode: string) => void;
   setAssistantPanelOpen: (open: boolean) => void;
@@ -105,6 +116,30 @@ const DOCK_WIDTH_DEFAULT = 560;
 const DOCK_WIDTH_MIN = 360;
 const DOCK_WIDTH_MAX = 1200;
 
+const CHAT_PANEL_VIEW_MODE_KEY = "squad.chatPanelViewMode";
+const TERMINAL_TASK_NONCE_KEY = "squad.terminalTaskNonce";
+
+function readInitialTerminalTaskNonce(): Record<string, number> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(TERMINAL_TASK_NONCE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+// Remember the surface the user last used (chat vs terminal) so opening a
+// card reopens the same one instead of flipping between them.
+function readInitialChatPanelViewMode(): "chat" | "terminal" {
+  if (typeof window === "undefined") return "terminal";
+  return window.localStorage.getItem(CHAT_PANEL_VIEW_MODE_KEY) === "chat"
+    ? "chat"
+    : "terminal";
+}
+
 function readInitialDockWidth(): number {
   if (typeof window === "undefined") return DOCK_WIDTH_DEFAULT;
   const raw = window.localStorage.getItem(DOCK_WIDTH_KEY);
@@ -128,7 +163,7 @@ export const useUIStore = create<UIState>((set) => ({
   agentMissionSearchQueries: {},
   agentMissionSearchLoading: {},
   missionPanelOpen: false,
-  chatPanelViewMode: "terminal",
+  chatPanelViewMode: readInitialChatPanelViewMode(),
   dockWidth: readInitialDockWidth(),
   jobDescriptionTarget: null,
   tutorialActive: false,
@@ -136,8 +171,23 @@ export const useUIStore = create<UIState>((set) => ({
   storeAgentId: null,
   instructionSuggestion: null,
   routinePrefill: null,
+  pendingDashboardView: null,
+  terminalTaskNonce: readInitialTerminalTaskNonce(),
   selectedConversationByAgent: {},
 
+  setPendingDashboardView: (pendingDashboardView) => set({ pendingDashboardView }),
+  bumpTerminalTaskNonce: (agentPath) =>
+    set((s) => {
+      const next = { ...s.terminalTaskNonce, [agentPath]: Date.now() };
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem(TERMINAL_TASK_NONCE_KEY, JSON.stringify(next));
+        } catch {
+          // ignore quota / serialization failures
+        }
+      }
+      return { terminalTaskNonce: next };
+    }),
   setRoutinePrefill: (routinePrefill) => set({ routinePrefill }),
   setViewMode: (viewMode) => set({ viewMode }),
   setAssistantPanelOpen: (assistantPanelOpen) => set({ assistantPanelOpen }),
@@ -185,7 +235,12 @@ export const useUIStore = create<UIState>((set) => ({
       return { agentMissionSearchLoading: next };
     }),
   setMissionPanelOpen: (missionPanelOpen) => set({ missionPanelOpen }),
-  setChatPanelViewMode: (chatPanelViewMode) => set({ chatPanelViewMode }),
+  setChatPanelViewMode: (chatPanelViewMode) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(CHAT_PANEL_VIEW_MODE_KEY, chatPanelViewMode);
+    }
+    set({ chatPanelViewMode });
+  },
   setDockWidth: (rawWidth) => {
     const width = Math.min(DOCK_WIDTH_MAX, Math.max(DOCK_WIDTH_MIN, Math.round(rawWidth)));
     if (typeof window !== "undefined") {

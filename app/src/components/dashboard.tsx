@@ -58,6 +58,20 @@ export function Dashboard() {
   // a fuller picture of where each story lives. The legacy Missions board is
   // still reachable via the toggle for a simpler glance at what's running.
   const [boardView, setBoardView] = useState<"missions" | "phases" | "usage">("phases");
+  // Honor a one-shot view request (e.g. the terminal toolbar's Usage button
+  // navigates here and asks for the usage sub-view), then clear it.
+  const pendingDashboardView = useUIStore((s) => s.pendingDashboardView);
+  const setPendingDashboardView = useUIStore((s) => s.setPendingDashboardView);
+  useEffect(() => {
+    if (
+      pendingDashboardView === "missions" ||
+      pendingDashboardView === "phases" ||
+      pendingDashboardView === "usage"
+    ) {
+      setBoardView(pendingDashboardView);
+      setPendingDashboardView(null);
+    }
+  }, [pendingDashboardView, setPendingDashboardView]);
   const [filterPath, setFilterPath] = useState("");
   const [missionSearchQuery, setMissionSearchQuery] = useState("");
   const [agentPickerOpen, setAgentPickerOpen] = useState(false);
@@ -82,10 +96,12 @@ export function Dashboard() {
   const openNewMission = useCallback(() => setAgentPickerOpen(true), [setAgentPickerOpen]);
   const MC_COLUMNS: KanbanColumnConfig[] = buildMissionBoardColumns(
     {
+      upNext: t("dashboard:columns.upNext"),
       running: t("dashboard:columns.running"),
       needsYou: t("dashboard:columns.needsYou"),
       done: t("dashboard:columns.done"),
       newMission: t("dashboard:empty.newMission"),
+      queueTask: t("dashboard:columns.queueTask"),
     },
     openNewMission,
   );

@@ -5,6 +5,7 @@
     "store": "Store",
     "workspace": "My Team",
     "integrations": "Integrations",
+    "specs": "Specs",
     "settings": "Settings",
     "yourAgents": "Your Agents",
     "selectWorkspace": "Select workspace",
@@ -57,7 +58,29 @@
     "title": "{{name}} · terminal",
     "hide": "Hide terminal (keeps running)",
     "end": "End session",
-    "endError": "Couldn't end the terminal session"
+    "endError": "Couldn't end the terminal session",
+    "toolbar": {
+      "finish": "Done",
+      "finishHint": "Finish this task: mark it done and close the terminal",
+      "finishConfirmTitle": "Finish this task?",
+      "finishConfirmBody": "The session ends and the card moves to Done. You can start a new task anytime.",
+      "newTask": "New task",
+      "newTaskHint": "Finish this one and start a fresh conversation",
+      "newTaskConfirmTitle": "Start a new task?",
+      "newTaskConfirmBody": "The current task is marked done and a fresh conversation starts.",
+      "compact": "Compact",
+      "compactHint": "Compact the context (/compact): summarize and free space, keep working",
+      "clear": "Clear",
+      "clearHint": "Clear the context (/clear): wipe the conversation, same task",
+      "clearConfirmTitle": "Clear the context?",
+      "clearConfirmBody": "The conversation context is wiped. The task stays open with a clean slate.",
+      "usage": "Usage",
+      "usageHint": "View full usage",
+      "costHint": "Estimated cost of this session at API list rates. Not what you pay on a subscription (e.g. Claude Max).",
+      "cancel": "Cancel",
+      "context": "Context",
+      "contextHint": "Context used: {{pct}}%. Use Compact or Clear to free space."
+    }
   },
   "uiTour": {
     "counter": "Tour {{current}} of {{total}}",
@@ -186,7 +209,8 @@
     "createAgent": "Create Agent"
   },
   "newAgent": {
-    "dialogTitle": "New agent"
+    "dialogTitle": "New agent",
+    "nameConflict": "An agent named \"{{name}}\" already exists. Choose a different name."
   },
   "recruit": {
     "entryAction": "Recruit Team",

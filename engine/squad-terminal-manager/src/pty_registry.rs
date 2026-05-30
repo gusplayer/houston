@@ -127,6 +127,8 @@ impl PtyRegistry {
         cols: u16,
         rows: u16,
         resume_session_id: Option<String>,
+        api_key_override: Option<String>,
+        model: Option<String>,
     ) -> Result<Arc<PtySession>, String> {
         {
             let map = self.sessions.lock().unwrap();
@@ -137,7 +139,15 @@ impl PtyRegistry {
             }
         }
 
-        let handle = spawn_pty(claude_bin, Some(working_dir), cols, rows, resume_session_id)?;
+        let handle = spawn_pty(
+            claude_bin,
+            Some(working_dir),
+            cols,
+            rows,
+            resume_session_id,
+            api_key_override,
+            model,
+        )?;
         let parts = handle.into_parts();
         let (broadcast_tx, _keep) = broadcast::channel(BROADCAST_CAP);
         let session = Arc::new(PtySession {
@@ -206,14 +216,26 @@ async fn pump(
     sessions.lock().unwrap().remove(&agent_path);
 }
 
-/// Resolve the `claude` binary the same way structured sessions do: prefer
-/// the engine-managed install, fall back to a bare `claude` on PATH.
+/// Resolve the `claude` binary for the interactive PTY.
+///
+/// For the PTY we prefer the user's own `claude` (the one they authenticated
+/// with via `claude auth login` in their terminal) over Squad's bundled copy
+/// — different binaries can't share macOS Keychain credentials, so the
+/// bundled copy would show a first-run "Welcome to Claude Code" screen even
+/// though the user is fully signed in. Falls back to the bundled install,
+/// then to a bare `claude` on PATH when nothing else is available.
 pub fn resolve_claude_bin() -> PathBuf {
-    if crate::claude_install_path::is_installed() {
-        crate::claude_install_path::cli_path()
+    let bundled = if crate::claude_install_path::is_installed() {
+        Some(crate::claude_install_path::cli_path())
     } else {
-        PathBuf::from("claude")
+        None
+    };
+    if let Some(user_bin) =
+        crate::claude_path::user_shell_binary_excluding("claude", bundled.as_deref())
+    {
+        return user_bin;
     }
+    bundled.unwrap_or_else(|| PathBuf::from("claude"))
 }
 
 #[cfg(test)]

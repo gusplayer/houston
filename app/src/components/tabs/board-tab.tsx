@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AIBoard } from "@squad/board";
 import type { KanbanItem, NewPanelOpener } from "@squad/board";
 import type { FeedItem } from "@squad/chat";
-import { Terminal, GitBranch } from "lucide-react";
+import { Terminal, GitBranch, Play } from "lucide-react";
 
 import { useFeedStore } from "../../stores/feeds";
 import { useUIStore } from "../../stores/ui";
@@ -23,7 +23,7 @@ import {
 import { useAgentChatPanel } from "../use-agent-chat-panel";
 import { tauriActivity, tauriChat, tauriAttachments, tauriWorktree, tauriShell, tauriTerminal, tauriConfig, tauriPreferences } from "../../lib/tauri";
 import { openAgentHref } from "../../lib/open-href";
-import { createMission } from "../../lib/create-mission";
+import { createMission, startQueuedMission } from "../../lib/create-mission";
 import { formatVisibleMessageText } from "../../lib/queued-chat";
 import { buildAttachmentPrompt } from "../../lib/attachment-message";
 import { queryKeys } from "../../lib/query-keys";
@@ -93,18 +93,30 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
   const openerRef = useRef<NewPanelOpener | null>(null);
   const emptyAutoOpenKeyRef = useRef<string | null>(null);
   const [newPanelOpenerReady, setNewPanelOpenerReady] = useState(false);
+  // When true, the next composer submit parks the task in the queue ("Up
+  // next") instead of starting it. Reset right after the submit consumes it.
+  const [queueMode, setQueueMode] = useState(false);
   const openDefaultMission = useCallback(() => {
+    setQueueMode(false); // a normal "new mission" must not inherit queue mode
+    if (agentModes?.length) setPendingAgentMode(agentModes[0].id);
+    openerRef.current?.({ focusComposer: true });
+  }, [agentModes]);
+  const openQueueTask = useCallback(() => {
+    setQueueMode(true);
     if (agentModes?.length) setPendingAgentMode(agentModes[0].id);
     openerRef.current?.({ focusComposer: true });
   }, [agentModes]);
   const boardColumns = buildMissionBoardColumns(
     {
+      upNext: t("dashboard:columns.upNext"),
       running: t("dashboard:columns.running"),
       needsYou: t("dashboard:columns.needsYou"),
       done: t("dashboard:columns.done"),
       newMission: t("empty.newMission"),
+      queueTask: t("dashboard:columns.queueTask"),
     },
     openDefaultMission,
+    openQueueTask,
   );
 
   const items: KanbanItem[] = useMemo(
@@ -355,10 +367,55 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
     [updateActivity],
   );
 
+  // Run a queued task: send its stored prompt. The engine flips it to
+  // "running", so it leaves "Up next" on its own.
+  const handleStartQueued = useCallback(
+    async (item: KanbanItem) => {
+      const prompt = item.description?.trim() || item.title;
+      const sessionKey = `activity-${item.id}`;
+      pushFeedItem(path, sessionKey, { feed_type: "user_message", data: prompt });
+      setLoading((prev) => ({ ...prev, [sessionKey]: true }));
+      try {
+        await startQueuedMission(path, item.id, prompt, {
+          providerOverride: chatProvider ?? undefined,
+          modelOverride: chatModel ?? undefined,
+        });
+      } catch (err) {
+        setLoading((prev) => ({ ...prev, [sessionKey]: false }));
+        addToast({
+          title: t("cardActions.startError"),
+          description: err instanceof Error ? err.message : String(err),
+          variant: "error",
+        });
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: queryKeys.activity(path) });
+    },
+    [path, chatProvider, chatModel, pushFeedItem, queryClient, addToast, t],
+  );
+
   const handleCreateConversation = useCallback(
     async (text: string, files: File[]) => {
       const agentMode = pendingAgentMode ?? agentModes?.[0]?.id;
       const mode = agentModes?.find((m) => m.id === agentMode);
+
+      // Queue path: park the task in "Up next" without starting a session.
+      if (queueMode) {
+        setQueueMode(false);
+        const { conversationId } = await createMission(
+          { id: agent.id, name: agent.name, color: agent.color, folderPath: path },
+          text,
+          {
+            queued: true,
+            agentMode,
+            providerOverride: chatProvider ?? undefined,
+            modelOverride: chatModel ?? undefined,
+          },
+        );
+        setPendingAgentMode(null);
+        queryClient.invalidateQueries({ queryKey: queryKeys.activity(path) });
+        return conversationId;
+      }
 
       // Check if worktree mode is enabled
       let worktreePath: string | undefined;
@@ -411,7 +468,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
       analytics.track("mission_created", { agent_mode: agentMode ?? "default" });
       return conversationId;
     },
-    [path, agent.id, agent.name, agent.color, pushFeedItem, pendingAgentMode, agentModes, chatProvider, chatModel, queryClient, t],
+    [path, agent.id, agent.name, agent.color, pushFeedItem, pendingAgentMode, agentModes, chatProvider, chatModel, queryClient, t, queueMode],
   );
 
   // Derive the session key for an activity, using custom key if set by routine runner
@@ -522,6 +579,19 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
 
   const cardActions = useCallback(
     (item: KanbanItem) => {
+      // Queued tasks get a Start action that kicks off their stored prompt.
+      if (item.status === "queued") {
+        return (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleStartQueued(item); }}
+            className="flex items-center gap-0.5 h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium hover:opacity-90 transition-opacity duration-200"
+            title={t("cardActions.startTooltip")}
+          >
+            <Play className="size-2.5" />
+            {t("cardActions.start")}
+          </button>
+        );
+      }
       const wtPath = item.metadata?.worktreePath as string | undefined;
       if (!wtPath) return undefined;
       return (
@@ -535,7 +605,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
         </button>
       );
     },
-    [handleRunInTerminal, t],
+    [handleRunInTerminal, handleStartQueued, t],
   );
 
   const panelActions = useCallback(
@@ -626,7 +696,7 @@ export default function BoardTab({ agent, agentDef }: TabProps) {
           prepareAttachments={attachmentValidation.prepareAttachments}
           onAttachmentRejections={attachmentValidation.onAttachmentRejections}
           onOpenLink={handleOpenLink}
-          actions={agentModes ? cardActions : undefined}
+          actions={cardActions}
           panelActions={panelActions}
           cardAvatar={<AgentCardAvatar color={agent.color} />}
           thinkingIndicator={<SquadThinkingIndicator />}

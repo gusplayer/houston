@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Terminal, SquareTerminal, FileText } from "lucide-react";
+import { Terminal, SquareTerminal, FileText } from "lucide-react";
 import { cn, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@squad/core";
 import { tauriTerminal, tauriPreferences } from "../../lib/tauri";
 
@@ -12,7 +12,6 @@ interface RightRailProps {
   hasInternalTerminal: boolean;
   agentFolderPath: string | undefined;
   onNavigate: (tab: string) => void;
-  onOpenChatPanel: () => void;
   onOpenInternalTerminal: () => void;
   onCloseMissionPanel: () => void;
 }
@@ -58,19 +57,10 @@ export function RightRail({
   hasInternalTerminal,
   agentFolderPath,
   onNavigate,
-  onOpenChatPanel,
   onOpenInternalTerminal,
   onCloseMissionPanel,
 }: RightRailProps) {
   const { t } = useTranslation("shell");
-
-  const handleChat = () => {
-    if (missionPanelOpen && chatPanelViewMode === "chat") {
-      onCloseMissionPanel();
-    } else {
-      onOpenChatPanel();
-    }
-  };
 
   const handleInternalTerminal = () => {
     if (missionPanelOpen && chatPanelViewMode === "terminal") {
@@ -88,13 +78,15 @@ export function RightRail({
 
   return (
     <TooltipProvider delayDuration={400}>
-      <div className="flex w-12 shrink-0 flex-col items-center gap-1 border-l border-border py-3">
-        <RailButton
-          icon={<MessageCircle className="size-[18px]" />}
-          label={t("rightRail.chat")}
-          active={missionPanelOpen && chatPanelViewMode === "chat"}
-          onClick={handleChat}
-        />
+      {/* `data-keep-panel-open`: the right rail is a control surface for the
+          dock, not "outside" of it. Without this, AIBoard's outside-click
+          handler closes the panel on mousedown before the rail button's
+          onClick reads the updated state — making a "minimize" click look
+          like "close then reopen" and forcing a double click. */}
+      <div
+        data-keep-panel-open
+        className="flex w-12 shrink-0 flex-col items-center gap-1 border-l border-border py-3"
+      >
         {hasInternalTerminal && (
           <RailButton
             icon={<SquareTerminal className="size-[18px]" />}

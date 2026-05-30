@@ -4,10 +4,10 @@ import { cn } from "@squad/core";
 import type { UsageRange } from "@squad/engine-client";
 import { useWorkspaceStore } from "../stores/workspaces";
 import { useAgentStore } from "../stores/agents";
+import { useAgentCatalogStore } from "../stores/agent-catalog";
 import { useWorkspaceUsage } from "../hooks/queries/use-usage";
 import { WorkspaceTotals } from "./usage/usage-totals";
-import { AgentCards } from "./usage/usage-agent-cards";
-import { RecentSessions } from "./usage/usage-recent-sessions";
+import { AgentUsageList } from "./usage/usage-agent-list";
 import { SessionDetailDrawer } from "./usage/usage-detail-drawer";
 
 const RANGES: UsageRange[] = ["today", "7d", "30d", "all"];
@@ -16,7 +16,15 @@ export function UsageDashboard() {
   const { t } = useTranslation(["usage", "common"]);
   const workspace = useWorkspaceStore((s) => s.current);
   const agents = useAgentStore((s) => s.agents);
+  const getById = useAgentCatalogStore((s) => s.getById);
   const [range, setRange] = useState<UsageRange>("today");
+
+  const getRole = (agentPath: string) => {
+    const a = agents.find((x) => x.folderPath === agentPath);
+    return (a && getById(a.configId)?.config.roleLabel) || "";
+  };
+  const getColor = (agentPath: string) =>
+    agents.find((x) => x.folderPath === agentPath)?.color;
   const [openSession, setOpenSession] = useState<{
     agentPath: string;
     sessionKey: string;
@@ -58,35 +66,31 @@ export function UsageDashboard() {
             sessions: t("usage:totals.sessions"),
             turns: t("usage:totals.turns"),
             costHelp: t("usage:totals.costHelp"),
+            costTooltip: t("usage:totals.costTooltip"),
             empty: t("usage:totals.empty"),
           }}
         />
 
-        <AgentCards
+        <AgentUsageList
           agents={data?.agents ?? []}
+          sessions={data?.sessions ?? []}
           allAgents={agents}
           totalCost={data?.totals.costUsd ?? 0}
-          labels={{
-            title: t("usage:agents.title"),
-            sessions: t("usage:agents.sessions"),
-            tokens: t("usage:agents.tokens"),
-            empty: t("usage:agents.empty"),
-          }}
-        />
-
-        <RecentSessions
-          sessions={data?.sessions ?? []}
-          agents={agents}
+          getRole={getRole}
+          getColor={getColor}
           onOpenSession={(agentPath, sessionKey) =>
             setOpenSession({ agentPath, sessionKey })
           }
           labels={{
-            title: t("usage:sessions.title"),
-            empty: t("usage:sessions.empty"),
-            window: t("usage:sessions.window"),
-            cost: t("usage:sessions.cost"),
-            inspect: t("usage:sessions.inspect"),
-            turns: t("usage:sessions.turns"),
+            title: t("usage:agents.title"),
+            sessions: t("usage:agents.sessions"),
+            tokens: t("usage:agents.tokens"),
+            turns: t("usage:agents.turns"),
+            empty: t("usage:agents.empty"),
+            byModel: t("usage:agents.byModel"),
+            recentSessions: t("usage:agents.recentSessions"),
+            context: t("usage:agents.context"),
+            details: t("usage:agents.details"),
           }}
         />
       </div>

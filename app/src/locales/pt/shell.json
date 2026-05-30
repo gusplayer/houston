@@ -5,6 +5,7 @@
     "store": "Store",
     "workspace": "Minha equipe",
     "integrations": "Integrações",
+    "specs": "Specs",
     "settings": "Configurações",
     "yourAgents": "Seus agentes",
     "selectWorkspace": "Escolha um espaço de trabalho",
@@ -57,7 +58,29 @@
     "title": "{{name}} · terminal",
     "hide": "Ocultar terminal (continua rodando)",
     "end": "Encerrar sessão",
-    "endError": "Não foi possível encerrar a sessão do terminal"
+    "endError": "Não foi possível encerrar a sessão do terminal",
+    "toolbar": {
+      "finish": "Pronto",
+      "finishHint": "Finaliza esta tarefa: marca como pronta e fecha o terminal",
+      "finishConfirmTitle": "Finalizar esta tarefa?",
+      "finishConfirmBody": "A sessão termina e o cartão vai para Pronto. Você pode iniciar uma nova tarefa quando quiser.",
+      "newTask": "Nova tarefa",
+      "newTaskHint": "Finaliza esta e inicia uma conversa nova",
+      "newTaskConfirmTitle": "Iniciar uma nova tarefa?",
+      "newTaskConfirmBody": "A tarefa atual é marcada como pronta e uma conversa nova começa.",
+      "compact": "Compactar",
+      "compactHint": "Compacta o contexto (/compact): resume e libera espaço, você continua",
+      "clear": "Limpar",
+      "clearHint": "Limpa o contexto (/clear): apaga a conversa, mesma tarefa",
+      "clearConfirmTitle": "Limpar o contexto?",
+      "clearConfirmBody": "O contexto da conversa é apagado. A tarefa continua aberta do zero.",
+      "usage": "Uso",
+      "usageHint": "Ver uso completo",
+      "costHint": "Custo estimado desta sessão pelas tarifas de lista da API. Não é o que você paga em uma assinatura (ex. Claude Max).",
+      "cancel": "Cancelar",
+      "context": "Contexto",
+      "contextHint": "Contexto usado: {{pct}}%. Use Compactar ou Limpar para liberar espaço."
+    }
   },
   "uiTour": {
     "counter": "Tour {{current}} de {{total}}",
@@ -186,7 +209,8 @@
     "createAgent": "Criar agente"
   },
   "newAgent": {
-    "dialogTitle": "Novo agente"
+    "dialogTitle": "Novo agente",
+    "nameConflict": "Já existe um agente chamado \"{{name}}\". Escolha outro nome."
   },
   "recruit": {
     "entryAction": "Recrutar equipe",

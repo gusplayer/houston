@@ -7,7 +7,13 @@
  *   server → client: Binary frames (raw ANSI terminal output)
  *                    Text frames {"type":"exit","code":N} | {"type":"error","message":"..."}
  */
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 // Consumers must import "@xterm/xterm/css/xterm.css" in their app-level CSS or
@@ -24,7 +30,14 @@ export interface SquadTerminalProps {
   className?: string;
 }
 
-export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTerminalProps) {
+/** Imperative handle for driving the live PTY from a parent (e.g. a toolbar). */
+export interface SquadTerminalHandle {
+  /** Write raw bytes to the PTY stdin — e.g. `"\x0c"` (Ctrl+L) to clear. */
+  sendInput: (data: string) => void;
+}
+
+export const SquadTerminal = forwardRef<SquadTerminalHandle, SquadTerminalProps>(
+  function SquadTerminal({ wsUrl, onExit, onClose, className }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // Stable refs so effects don't re-run on callback identity changes.
@@ -32,8 +45,19 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
   const onCloseRef = useRef(onClose);
   onExitRef.current = onExit;
   onCloseRef.current = onClose;
+  // Live socket, lifted to a ref so the imperative handle can write to it.
+  const wsRef = useRef<WebSocket | null>(null);
   // Track whether onerror fired so onclose knows not to call onClose automatically.
   const hadConnectionErrorRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    sendInput: (data: string) => {
+      const ws = wsRef.current;
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(new TextEncoder().encode(data));
+      }
+    },
+  }), []);
 
   useEffect(() => {
     hadConnectionErrorRef.current = false;
@@ -142,6 +166,7 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
       connect = () => {
         if (isDisposed) return;
         ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
         ws.binaryType = "arraybuffer";
 
         ws.onopen = () => {
@@ -258,6 +283,7 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
       try { onBinaryDisposer?.dispose(); } catch {}
       try { ws?.close(); } catch {}
       try { term?.dispose(); } catch {}
+      wsRef.current = null;
     };
   // Re-mount only when the WS URL changes (new agent or reconnect).
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -310,4 +336,4 @@ export function SquadTerminal({ wsUrl, onExit, onClose, className }: SquadTermin
       style={{ width: "100%", height: "100%" }}
     />
   );
-}
+});

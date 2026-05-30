@@ -134,6 +134,11 @@ export function InlineModelSelector({
             left: coords.left,
             width: coords.width,
             zIndex: 100,
+            // Portaled to <body>, which Radix's modal Dialog marks
+            // pointer-events:none. Re-enable here so the model buttons are
+            // actually clickable (otherwise the dropdown shows but selection
+            // does nothing — it stayed stuck on the default model).
+            pointerEvents: "auto",
           }}
         >
           {PROVIDERS.map((prov) => {
@@ -153,11 +158,16 @@ export function InlineModelSelector({
                 </div>
                 {prov.models.map((m) => {
                   const isActive = prov.id === provider && m.id === model;
+                  // Always allow switching models within the provider you're
+                  // already on (e.g. Sonnet → Opus). The connection probe can
+                  // be flaky/Unknown, and gating the current provider's models
+                  // on it left users stuck on the default model.
+                  const selectable = connected || prov.id === provider;
                   return (
                     <button
                       key={m.id}
                       type="button"
-                      disabled={!connected}
+                      disabled={!selectable}
                       onClick={() => {
                         onSelect(prov.id, m.id);
                         setOpen(false);
@@ -165,7 +175,7 @@ export function InlineModelSelector({
                       className={cn(
                         "w-full flex items-start gap-2.5 px-3 py-2 rounded-lg text-left transition-colors",
                         isActive ? "bg-accent" : "hover:bg-accent/50",
-                        !connected && "opacity-50 cursor-not-allowed",
+                        !selectable && "opacity-50 cursor-not-allowed",
                       )}
                     >
                       <div className="w-4 shrink-0 mt-0.5 flex justify-center">
