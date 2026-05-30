@@ -91,6 +91,10 @@ export type SquadEvent =
         agent_path: string;
         session_key: string;
         provider: string;
+        /** Input-side tokens of the latest turn (context fed to the model). */
+        context_tokens?: number;
+        /** Model context window for that turn (e.g. 200000). */
+        context_window?: number;
       };
     }
   | {

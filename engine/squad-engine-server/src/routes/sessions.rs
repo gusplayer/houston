@@ -23,7 +23,8 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use squad_engine_core::sessions::{
-    self, history, resolve_agent_dir, resolve_provider, summarize, SessionRuntime, StartParams,
+    self, history, qa_reviewer, resolve_agent_dir, resolve_provider, spec_writer, summarize,
+    tests_writer, SessionRuntime, StartParams,
 };
 use squad_engine_core::CoreError;
 use squad_terminal_manager::Provider;
@@ -45,6 +46,9 @@ pub fn router() -> Router<Arc<ServerState>> {
             get(load_history),
         )
         .route("/sessions/summarize", post(summarize_activity))
+        .route("/sessions/draft-spec", post(draft_spec_route))
+        .route("/sessions/draft-tests", post(draft_tests_route))
+        .route("/sessions/qa-review-spec", post(qa_review_route))
 }
 
 #[derive(Debug, Deserialize)]
@@ -210,6 +214,119 @@ async fn summarize_activity(
     Ok(Json(
         summarize::summarize(&req.message, provider, model.as_deref()).await?,
     ))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DraftSpecRequest {
+    pub title: String,
+    #[serde(default)]
+    pub description: String,
+    /// Agent whose configured provider+model is used to author the spec
+    /// (typically Steve PM). Falls back to `provider`/`model` overrides below.
+    #[serde(default)]
+    pub agent_path: Option<String>,
+    #[serde(default)]
+    pub provider: Option<String>,
+    #[serde(default)]
+    pub model: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DraftSpecResponse {
+    /// EARS-formatted markdown body (no YAML frontmatter — the caller wraps).
+    pub content: String,
+}
+
+async fn draft_spec_route(
+    State(st): State<Arc<ServerState>>,
+    Json(req): Json<DraftSpecRequest>,
+) -> Result<Json<DraftSpecResponse>, ApiError> {
+    let (provider, model) = resolve_author(&st, req.provider.as_deref(), req.agent_path.as_deref(), req.model)?;
+    let content =
+        spec_writer::draft_spec(&req.title, &req.description, provider, model.as_deref()).await?;
+    Ok(Json(DraftSpecResponse { content }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DraftTestsRequest {
+    pub spec_title: String,
+    pub spec_body: String,
+    /// Agent whose configured provider+model writes the test plan (typically
+    /// Jeff QA). Falls back to `provider`/`model` overrides below.
+    #[serde(default)]
+    pub agent_path: Option<String>,
+    #[serde(default)]
+    pub provider: Option<String>,
+    #[serde(default)]
+    pub model: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DraftTestsResponse {
+    /// Markdown body (no YAML frontmatter — caller wraps).
+    pub content: String,
+}
+
+async fn draft_tests_route(
+    State(st): State<Arc<ServerState>>,
+    Json(req): Json<DraftTestsRequest>,
+) -> Result<Json<DraftTestsResponse>, ApiError> {
+    let (provider, model) = resolve_author(&st, req.provider.as_deref(), req.agent_path.as_deref(), req.model)?;
+    let content =
+        tests_writer::draft_tests(&req.spec_title, &req.spec_body, provider, model.as_deref())
+            .await?;
+    Ok(Json(DraftTestsResponse { content }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QaReviewRequest {
+    pub spec_body: String,
+    #[serde(default)]
+    pub tests_body: String,
+    #[serde(default)]
+    pub agent_path: Option<String>,
+    #[serde(default)]
+    pub provider: Option<String>,
+    #[serde(default)]
+    pub model: Option<String>,
+}
+
+async fn qa_review_route(
+    State(st): State<Arc<ServerState>>,
+    Json(req): Json<QaReviewRequest>,
+) -> Result<Json<qa_reviewer::QaReviewResult>, ApiError> {
+    let (provider, model) = resolve_author(&st, req.provider.as_deref(), req.agent_path.as_deref(), req.model)?;
+    Ok(Json(
+        qa_reviewer::qa_review_spec(&req.spec_body, &req.tests_body, provider, model.as_deref())
+            .await?,
+    ))
+}
+
+/// Shared resolution for the LLM author: explicit `provider` overrides win,
+/// then the agent's configured provider, else default Anthropic.
+fn resolve_author(
+    st: &Arc<ServerState>,
+    provider: Option<&str>,
+    agent_path: Option<&str>,
+    model: Option<String>,
+) -> Result<(Provider, Option<String>), ApiError> {
+    if let Some(p_str) = provider {
+        let p = p_str
+            .parse()
+            .map_err(|e: String| CoreError::BadRequest(e))?;
+        return Ok((p, model));
+    }
+    if let Some(ap) = agent_path {
+        let agent_dir = resolve_agent_dir(&st.engine.paths, ap);
+        let resolved = resolve_provider(&st.engine.paths, &agent_dir);
+        return Ok((resolved.provider, model.or(resolved.model)));
+    }
+    Ok((Provider::Anthropic, model))
 }
 
 async fn cancel_session(

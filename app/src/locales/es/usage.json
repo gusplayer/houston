@@ -13,21 +13,19 @@
     "sessions": "Sesiones",
     "turns": "Turnos",
     "costHelp": "Equivalente a tarifa de API",
+    "costTooltip": "Estimado a tarifas de lista de la API de Anthropic. No es lo que pagas con una suscripción (ej. Claude Max).",
     "empty": "Aun no hay consumo en este rango."
   },
   "agents": {
     "title": "Por agente",
     "sessions": "sesiones",
     "tokens": "tokens",
-    "empty": "Sin actividad de agentes en este rango."
-  },
-  "sessions": {
-    "title": "Sesiones recientes",
-    "empty": "Sin sesiones en este rango.",
-    "window": "Ventana",
-    "cost": "Costo",
-    "inspect": "Inspeccionar",
-    "turns": "turnos"
+    "turns": "turnos",
+    "empty": "Sin actividad de agentes en este rango.",
+    "byModel": "Por modelo",
+    "recentSessions": "Sesiones recientes",
+    "context": "Contexto",
+    "details": "Detalles"
   },
   "breakdown": {
     "title": "Contexto de la sesion",

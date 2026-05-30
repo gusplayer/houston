@@ -79,6 +79,12 @@ export interface CreateMissionOptions {
   title?: string;
   /** Source text used for async AI title generation. Defaults to `text`. */
   titleText?: string;
+  /**
+   * Create the activity in the queue ("Up next") instead of starting it now.
+   * The task's prompt is stored as the description; `startQueuedMission`
+   * runs it later. No Claude session is started at creation.
+   */
+  queued?: boolean;
 }
 
 export interface CreateMissionResult {
@@ -115,6 +121,37 @@ export async function createMission(
   );
   const conversationId = item.id;
   const sessionKey = sessionKeyForActivity(conversationId);
+
+  // Queue path: park the task in "Up next" without starting a session. Its
+  // prompt lives in the description; `startQueuedMission` runs it on demand.
+  if (opts.queued) {
+    await tauriActivity.update(agent.folderPath, conversationId, {
+      status: "queued",
+    });
+    if (!opts.title) {
+      void refreshMissionTitle({
+        agentPath: agent.folderPath,
+        activityId: conversationId,
+        text: titleText,
+        provider: opts.providerOverride,
+        model: opts.modelOverride,
+      });
+    }
+    return {
+      conversationId,
+      sessionKey,
+      conversation: {
+        id: conversationId,
+        title,
+        description,
+        agentName: agent.name,
+        agentColor: agent.color,
+        status: "queued",
+        updatedAt: nowIso(),
+        agentPath: agent.folderPath,
+      },
+    };
+  }
 
   try {
     const prompt = opts.buildPrompt
@@ -161,4 +198,28 @@ export async function createMission(
   };
 
   return { conversationId, sessionKey, conversation };
+}
+
+/**
+ * Start a previously-queued activity: send its stored prompt to Claude. The
+ * engine flips the activity to "running" when the session starts, so the card
+ * moves out of "Up next" on its own.
+ */
+export async function startQueuedMission(
+  agentPath: string,
+  activityId: string,
+  prompt: string,
+  opts: {
+    promptFile?: string;
+    providerOverride?: string;
+    modelOverride?: string;
+    effortOverride?: string;
+  } = {},
+): Promise<void> {
+  await tauriChat.send(agentPath, prompt, sessionKeyForActivity(activityId), {
+    mode: opts.promptFile,
+    providerOverride: opts.providerOverride,
+    modelOverride: opts.modelOverride,
+    effortOverride: opts.effortOverride,
+  });
 }

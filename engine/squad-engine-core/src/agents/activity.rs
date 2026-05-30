@@ -4,6 +4,7 @@ use super::store::{read_json, write_json};
 use super::types::{Activity, ActivityUpdate, NewActivity};
 use crate::error::{CoreError, CoreResult};
 use chrono::Utc;
+use std::collections::HashSet;
 use std::path::Path;
 use uuid::Uuid;
 
@@ -147,4 +148,62 @@ pub fn set_status_by_session_key(
     let result = item.clone();
     write_json(root, FILE, &items)?;
     Ok(Some(result))
+}
+
+/// Flip every xterm activity card to "done" that isn't already in a terminal
+/// state (`done` / `cancelled` / `error`). This is the file-based fallback the
+/// PTY kill route uses so the user's "Done" click ALWAYS moves the card to
+/// the Done column — even when in-memory xterm tracking was lost (e.g. the
+/// engine restarted between conversation start and the click). Returns the
+/// number of cards changed so the caller can decide whether to emit
+/// `ActivityChanged`.
+pub fn finish_pending_xterm(root: &Path) -> CoreResult<usize> {
+    let mut items = list(root)?;
+    let now = Utc::now().to_rfc3339();
+    let mut changed = 0;
+    for item in items.iter_mut() {
+        let is_xterm = item.agent.as_deref() == Some("xterm");
+        let is_terminal_state = matches!(item.status.as_str(), "done" | "cancelled" | "error");
+        if is_xterm && !is_terminal_state {
+            item.status = "done".to_string();
+            item.updated_at = Some(now.clone());
+            changed += 1;
+        }
+    }
+    if changed > 0 {
+        write_json(root, FILE, &items)?;
+    }
+    Ok(changed)
+}
+
+/// Flip stale xterm cards stuck on "running" to "needs_you", skipping any
+/// whose `session_key` is in `tracked_keys` (sessions the ingest is actively
+/// managing this engine run). xterm "running" liveness lives in the ingest's
+/// in-memory state, so cards left over from a previous engine run never get
+/// flipped and keep their "running" glow forever. Called on agent
+/// registration to clear them. Returns the number changed.
+pub fn demote_stale_xterm_running(
+    root: &Path,
+    tracked_keys: &HashSet<String>,
+) -> CoreResult<usize> {
+    let mut items = list(root)?;
+    let now = Utc::now().to_rfc3339();
+    let mut changed = 0;
+    for item in items.iter_mut() {
+        let is_xterm = item.agent.as_deref() == Some("xterm");
+        let is_running = item.status == "running";
+        let tracked = item
+            .session_key
+            .as_deref()
+            .is_some_and(|k| tracked_keys.contains(k));
+        if is_xterm && is_running && !tracked {
+            item.status = "needs_you".to_string();
+            item.updated_at = Some(now.clone());
+            changed += 1;
+        }
+    }
+    if changed > 0 {
+        write_json(root, FILE, &items)?;
+    }
+    Ok(changed)
 }

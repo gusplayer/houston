@@ -96,6 +96,13 @@ pub enum SquadEvent {
         agent_path: String,
         session_key: String,
         provider: String,
+        /// Input-side tokens of the latest turn (input + cache creation +
+        /// cache read) — i.e. how much context was fed to the model. Lets the
+        /// terminal show a context-usage bar. 0 when unknown.
+        context_tokens: u64,
+        /// Model context window for the same turn (e.g. 200_000). 0 when
+        /// unknown. `context_tokens / context_window` is the fill ratio.
+        context_window: u64,
     },
     /// Learnings changed (.squad/learnings/learnings.json).
     LearningsChanged { agent_path: String },

@@ -49,7 +49,7 @@ use axum::{
 };
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::Deserialize;
-use squad_engine_core::sessions::resolve_workspace_id;
+use squad_engine_core::sessions::{resolve_provider, resolve_workspace_id, squad_credits_key};
 use squad_terminal_manager::{resolve_claude_bin, Provider, PtyBroadcast};
 use squad_ui_events::{EventSink, SquadEvent};
 use std::path::PathBuf;
@@ -108,6 +108,13 @@ async fn pty_kill(
     State(state): State<Arc<ServerState>>,
 ) -> StatusCode {
     state.pty_registry.kill(&agent_path);
+    // Explicit teardown is the user saying "this conversation is done" — move
+    // its board card(s) to the Done column.
+    state
+        .engine
+        .transcript_ingest
+        .finish_xterm_activity(&agent_path)
+        .await;
     // Emit completed so the sidebar glow clears immediately on explicit kill.
     state.events.emit(SquadEvent::SessionStatus {
         agent_path,
@@ -146,6 +153,25 @@ async fn handle_pty_socket(
         _ => None,
     };
 
+    // Resolve the agent's provider + model so the terminal launches with the
+    // model the user picked (e.g. "opus"). The PTY always runs `claude`
+    // (Anthropic), so only pass a model for Anthropic agents — a non-Anthropic
+    // id would make `claude` error.
+    let resolved = resolve_provider(&state.engine.paths, &working_dir);
+    let model = match resolved.provider {
+        Provider::Anthropic => resolved.model.clone(),
+        _ => None,
+    };
+    // Forward the Squad Credits key only when the agent actually resolves to
+    // the Squad Credits provider (future: sell credits when a user's own
+    // session runs out). Otherwise the PTY uses the user's own claude session
+    // (keychain/OAuth) — OAuth users are unaffected.
+    let api_key_override = if resolved.uses_squad_credits {
+        squad_credits_key()
+    } else {
+        None
+    };
+
     // Attach to the live session for this agent, spawning one if needed. The
     // PTY outlives this WebSocket — we're just one of possibly several views.
     let session = match state.pty_registry.get_or_spawn(
@@ -155,6 +181,8 @@ async fn handle_pty_socket(
         query.cols,
         query.rows,
         resume_session_id,
+        api_key_override,
+        model,
     ) {
         Ok(s) => s,
         Err(e) => {

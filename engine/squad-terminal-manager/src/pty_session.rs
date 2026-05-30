@@ -101,6 +101,8 @@ pub fn spawn_pty(
     cols: u16,
     rows: u16,
     resume_session_id: Option<String>,
+    api_key_override: Option<String>,
+    model: Option<String>,
 ) -> Result<PtyHandle, String> {
     let pty_system = NativePtySystem::default();
     let size = PtySize { rows, cols, pixel_width: 0, pixel_height: 0 };
@@ -111,11 +113,25 @@ pub fn spawn_pty(
 
     let mut cmd = CommandBuilder::new(&claude_bin);
     cmd.env("PATH", crate::claude_path::shell_path());
+    // Squad Credits key (when configured) → run the terminal on Squad-sold
+    // credits. When None, the PTY inherits the engine environment and uses
+    // the user's own claude session (keychain/OAuth), so OAuth users behave
+    // exactly like a standalone terminal — no override.
+    if let Some(key) = api_key_override {
+        cmd.env("ANTHROPIC_API_KEY", key);
+    }
     // Interactive REPL mode — no -p flag, no --output-format.
     // Continue the chat's conversation when we know its session id.
     if let Some(id) = resume_session_id {
         cmd.arg("--resume");
         cmd.arg(id);
+    }
+    // Launch with the agent's configured model (e.g. "sonnet" / "opus") so the
+    // terminal matches the model the user picked. Only set for Anthropic
+    // agents — the PTY always runs `claude`, which rejects non-Anthropic ids.
+    if let Some(m) = model {
+        cmd.arg("--model");
+        cmd.arg(m);
     }
     cmd.arg("--dangerously-skip-permissions");
     cmd.env_remove("CLAUDE_CODE_ENTRYPOINT");

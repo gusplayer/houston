@@ -5,7 +5,10 @@
     "approve": "Mover a Listo",
     "approveTooltip": "Mover a Listo",
     "renameTooltip": "Cambiar título",
-    "deleteTooltip": "Eliminar"
+    "deleteTooltip": "Eliminar",
+    "start": "Iniciar",
+    "startTooltip": "Iniciar esta tarea en cola",
+    "startError": "No se pudo iniciar la tarea"
   },
   "deleteCard": {
     "titleWithName": "¿Eliminar \"{{name}}\"?",

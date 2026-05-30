@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox } from "lucide-react";
+import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox, FileText } from "lucide-react";
 import { ConfirmDialog } from "@squad/core";
 import { AppSidebar, WorkspaceSwitcher } from "@squad/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -57,6 +57,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     viewMode === "dashboard" ||
     viewMode === "store" ||
     viewMode === "connections" ||
+    viewMode === "specs" ||
     viewMode === "settings" ||
     viewMode === "workspace" ||
     viewMode === "inbox";
@@ -183,6 +184,12 @@ export function Sidebar({ children }: { children: ReactNode }) {
             icon: <Blend className="h-4 w-4" />,
             onClick: () => setViewMode("connections"),
             dataAttrs: { "data-tour-target": "nav-connections" },
+          },
+          {
+            id: "specs",
+            label: t("shell:sidebar.specs"),
+            icon: <FileText className="h-4 w-4" />,
+            onClick: () => setViewMode("specs"),
           },
           {
             id: "settings",

@@ -667,6 +667,67 @@ export class SquadClient {
     });
   }
 
+  /**
+   * Generate an EARS-format SDD spec body from a story title + description.
+   * The engine shells out to the agent's configured CLI (Steve PM by
+   * convention) so the spec author is whichever provider+model the user
+   * already has connected. Returns the markdown body only — the caller is
+   * responsible for prepending YAML frontmatter and writing the file.
+   */
+  draftSpec(
+    title: string,
+    description: string,
+    opts: SummarizeOptions = {},
+  ): Promise<{ content: string }> {
+    return this.request("POST", "/sessions/draft-spec", {
+      title,
+      description,
+      agentPath: opts.agentPath,
+      provider: opts.provider,
+      model: opts.model,
+    });
+  }
+
+  /**
+   * Derive a TDD test plan from an EARS spec body. The engine uses the
+   * provided agent's configured LLM (Jeff QA by convention) so the test
+   * author matches the user's setup. Returns markdown only — the caller
+   * prepends YAML frontmatter and writes the file.
+   */
+  draftTests(
+    specTitle: string,
+    specBody: string,
+    opts: SummarizeOptions = {},
+  ): Promise<{ content: string }> {
+    return this.request("POST", "/sessions/draft-tests", {
+      specTitle,
+      specBody,
+      agentPath: opts.agentPath,
+      provider: opts.provider,
+      model: opts.model,
+    });
+  }
+
+  /**
+   * Ask Jeff QA to evaluate the spec + tests for completeness. Returns
+   * `{ approve, reasons }`. Approve=true means the caller can apply the
+   * approval to the file (frontmatter status → approved, approved_by →
+   * jeff-qa). Approve=false comes with 1-3 reasons explaining what's missing.
+   */
+  qaReviewSpec(
+    specBody: string,
+    testsBody: string,
+    opts: SummarizeOptions = {},
+  ): Promise<{ approve: boolean; reasons: string[] }> {
+    return this.request("POST", "/sessions/qa-review-spec", {
+      specBody,
+      testsBody,
+      agentPath: opts.agentPath,
+      provider: opts.provider,
+      model: opts.model,
+    });
+  }
+
   // ---------- routine scheduler ----------
 
   runRoutineNow(agentPath: string, routineId: string): Promise<void> {

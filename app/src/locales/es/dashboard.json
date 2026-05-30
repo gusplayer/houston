@@ -16,9 +16,11 @@
     "historyErrorDescription": "No se pudo cargar parte del texto de tareas anteriores."
   },
   "columns": {
+    "upNext": "En cola",
     "running": "En curso",
     "needsYou": "Necesita tu atención",
-    "done": "Listo"
+    "done": "Listo",
+    "queueTask": "Encolar tarea"
   },
   "empty": {
     "boardTitle": "Aún no hay conversaciones",

@@ -5,7 +5,10 @@
     "approve": "Mover para Pronto",
     "approveTooltip": "Mover para Pronto",
     "renameTooltip": "Mudar título",
-    "deleteTooltip": "Excluir"
+    "deleteTooltip": "Excluir",
+    "start": "Iniciar",
+    "startTooltip": "Iniciar esta tarefa na fila",
+    "startError": "Não foi possível iniciar a tarefa"
   },
   "deleteCard": {
     "titleWithName": "Excluir \"{{name}}\"?",

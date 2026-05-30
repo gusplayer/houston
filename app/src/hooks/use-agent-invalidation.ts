@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { SquadEvent } from "@squad/core";
 import { queryKeys } from "../lib/query-keys";
 import { subscribeSquadEvents } from "../lib/events";
+import { useSessionContextStore } from "../stores/session-context";
 
 /**
  * Maps agent-change events from Rust (both Tauri command emissions
@@ -63,6 +64,18 @@ export function useAgentInvalidation() {
           qc.invalidateQueries({
             queryKey: queryKeys.contextBreakdown(p.data.agent_path, p.data.session_key),
           });
+          // Feed the terminal's context bar + inline cost with the latest
+          // turn's footprint and the session it belongs to.
+          if (p.data.context_window && p.data.context_window > 0) {
+            useSessionContextStore
+              .getState()
+              .setContext(
+                p.data.agent_path,
+                p.data.context_tokens ?? 0,
+                p.data.context_window,
+                p.data.session_key,
+              );
+          }
           break;
         // SessionStatus triggers activity invalidation (agent finished → status changed)
         case "SessionStatus":

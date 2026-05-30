@@ -257,4 +257,68 @@ mod tests {
         assert_eq!(read.name, "alpha");
         assert_eq!(read.provider.as_deref(), Some("anthropic"));
     }
+
+    #[test]
+    fn finish_pending_xterm_flips_active_xterm_cards_only() {
+        let d = tmp();
+        let s = AgentStore::new(d.path());
+        s.ensure_squad_dir().unwrap();
+        // running xterm card → should flip to done.
+        let xterm_running = s
+            .create_activity(NewActivity {
+                title: "xterm running".into(),
+                description: String::new(),
+                agent: Some("xterm".into()),
+                ..Default::default()
+            })
+            .unwrap();
+        // needs_you xterm card → should also flip.
+        let xterm_needs = s
+            .create_activity(NewActivity {
+                title: "xterm needs_you".into(),
+                description: String::new(),
+                agent: Some("xterm".into()),
+                ..Default::default()
+            })
+            .unwrap();
+        s.update_activity(
+            &xterm_needs.id,
+            ActivityUpdate { status: Some("needs_you".into()), ..Default::default() },
+        )
+        .unwrap();
+        // already-done xterm card → stays done.
+        let xterm_done = s
+            .create_activity(NewActivity {
+                title: "xterm done".into(),
+                description: String::new(),
+                agent: Some("xterm".into()),
+                ..Default::default()
+            })
+            .unwrap();
+        s.update_activity(
+            &xterm_done.id,
+            ActivityUpdate { status: Some("done".into()), ..Default::default() },
+        )
+        .unwrap();
+        // non-xterm running card → must NOT be touched (it's structured chat).
+        let chat_running = s
+            .create_activity(NewActivity {
+                title: "chat running".into(),
+                description: String::new(),
+                agent: Some("execution".into()),
+                ..Default::default()
+            })
+            .unwrap();
+
+        let changed = activity::finish_pending_xterm(d.path()).unwrap();
+        assert_eq!(changed, 2, "only xterm running + needs_you should flip");
+
+        let items = s.list_activity().unwrap();
+        let by_id: std::collections::HashMap<_, _> =
+            items.iter().map(|i| (i.id.clone(), i.clone())).collect();
+        assert_eq!(by_id[&xterm_running.id].status, "done");
+        assert_eq!(by_id[&xterm_needs.id].status, "done");
+        assert_eq!(by_id[&xterm_done.id].status, "done");
+        assert_eq!(by_id[&chat_running.id].status, "running", "non-xterm untouched");
+    }
 }

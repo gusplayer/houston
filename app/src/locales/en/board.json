@@ -5,7 +5,10 @@
     "approve": "Move to done",
     "approveTooltip": "Move to done",
     "renameTooltip": "Change title",
-    "deleteTooltip": "Delete"
+    "deleteTooltip": "Delete",
+    "start": "Start",
+    "startTooltip": "Start this queued task",
+    "startError": "Couldn't start the task"
   },
   "deleteCard": {
     "titleWithName": "Delete \"{{name}}\"?",
