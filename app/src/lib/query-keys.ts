@@ -11,6 +11,11 @@ export const queryKeys = {
   skills: (agentPath: string) => ["skills", agentPath] as const,
   skillDetail: (agentPath: string, name: string) =>
     ["skill-detail", agentPath, name] as const,
+  // Library: user-owned primitives (skills/roles/MCPs) installed at
+  // `~/.squad/library/<kind>/<slug>/`. Global across all workspaces.
+  userLibrary: (kind: string) => ["user-library", kind] as const,
+  libraryCatalog: (kind: string, query: string) =>
+    ["library-catalog", kind, query] as const,
   files: (agentPath: string) => ["files", agentPath] as const,
   instructions: (agentPath: string) =>
     ["instructions", agentPath] as const,

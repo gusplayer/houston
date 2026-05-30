@@ -36,6 +36,12 @@ import type {
   InstallCommunityRequest,
   InstallFromGithub,
   InstallFromRepoRequest,
+  InstallFromUrlRequest,
+  InstallFromUrlResponse,
+  LibraryItem,
+  LibraryKind,
+  CopyLibraryToAgentRequest,
+  CopyLibraryToAgentResponse,
   InstalledConfig,
   ListWorktreesRequest,
   NewActivity,
@@ -502,6 +508,26 @@ export class SquadClient {
   }
   checkAgentUpdates(): Promise<string[]> {
     return this.request("POST", "/agents/check-updates");
+  }
+
+  // ---------- library (user-owned primitives) ----------
+
+  installFromUrl(req: InstallFromUrlRequest): Promise<InstallFromUrlResponse> {
+    return this.request("POST", "/library/install-from-url", req);
+  }
+  listLibrary(kind: LibraryKind): Promise<LibraryItem[]> {
+    return this.request("GET", `/library/${kind}`);
+  }
+  copyLibraryToAgent(
+    kind: LibraryKind,
+    slug: string,
+    req: CopyLibraryToAgentRequest,
+  ): Promise<CopyLibraryToAgentResponse> {
+    return this.request(
+      "POST",
+      `/library/${kind}/${this.seg(slug)}/copy-to-agent`,
+      req,
+    );
   }
 
   // ---------- attachments ----------

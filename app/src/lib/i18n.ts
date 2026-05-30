@@ -30,6 +30,7 @@ import eventsEn from "../locales/en/events.json";
 import storeEn from "../locales/en/store.json";
 import usageEn from "../locales/en/usage.json";
 import specsEn from "../locales/en/specs.json";
+import libraryEn from "../locales/en/library.json";
 import commonEs from "../locales/es/common.json";
 import setupEs from "../locales/es/setup.json";
 import legalEs from "../locales/es/legal.json";
@@ -48,6 +49,7 @@ import eventsEs from "../locales/es/events.json";
 import storeEs from "../locales/es/store.json";
 import usageEs from "../locales/es/usage.json";
 import specsEs from "../locales/es/specs.json";
+import libraryEs from "../locales/es/library.json";
 import commonPt from "../locales/pt/common.json";
 import setupPt from "../locales/pt/setup.json";
 import legalPt from "../locales/pt/legal.json";
@@ -66,6 +68,7 @@ import eventsPt from "../locales/pt/events.json";
 import storePt from "../locales/pt/store.json";
 import usagePt from "../locales/pt/usage.json";
 import specsPt from "../locales/pt/specs.json";
+import libraryPt from "../locales/pt/library.json";
 
 export const SUPPORTED_LOCALES = ["en", "es", "pt"] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -130,6 +133,7 @@ const resources = {
     store: storeEn,
     usage: usageEn,
     specs: specsEn,
+    library: libraryEn,
   },
   es: {
     common: commonEs,
@@ -150,6 +154,7 @@ const resources = {
     store: storeEs,
     usage: usageEs,
     specs: specsEs,
+    library: libraryEs,
   },
   pt: {
     common: commonPt,
@@ -170,6 +175,7 @@ const resources = {
     store: storePt,
     usage: usagePt,
     specs: specsPt,
+    library: libraryPt,
   },
 } as const;
 
@@ -210,6 +216,7 @@ void i18n
       "store",
       "usage",
       "specs",
+      "library",
     ],
     interpolation: { escapeValue: false }, // react already escapes
     detection: {

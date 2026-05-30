@@ -496,6 +496,47 @@ export interface ImportedWorkspace {
   agentIds: string[];
 }
 
+// ---------- Library (user-owned primitives) ----------
+
+/**
+ * Wire shape for `/v1/library/*` — three kinds of installable primitives
+ * the user can browse, install from a URL, and assign to agents.
+ * Skills are the only kind that supports `copyLibraryToAgent` in M1.
+ */
+export type LibraryKind = "skill" | "role" | "mcp";
+
+export interface LibraryItem {
+  kind: LibraryKind;
+  slug: string;
+  name: string;
+  description: string;
+  sourceUrl?: string;
+  installedAt: string;
+  /** Reserved for the future verified-publisher program (Vercel / Anthropic-style). */
+  verified: boolean;
+  image?: string;
+  integrations?: string[];
+}
+
+export interface InstallFromUrlRequest {
+  url: string;
+}
+
+export interface InstallFromUrlResponse {
+  kind: LibraryKind;
+  slug: string;
+  item: LibraryItem;
+  path: string;
+}
+
+export interface CopyLibraryToAgentRequest {
+  agentPath: string;
+}
+
+export interface CopyLibraryToAgentResponse {
+  targetPath: string;
+}
+
 // ---------- Tunnel (mobile pairing + paired-device management) ----------
 
 export interface TunnelStatus {

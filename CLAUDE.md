@@ -70,6 +70,7 @@ Need specific knowledge? Load on demand:
 - Team library (Alex, Maya, Diego…), per-agent project binding, workspace stories, phase ownership, agent-state avatar, team manifest export/import, project docs, Workspace settings page → `knowledge-base/team-library.md`
 - One-time release setup: updater keypair, Apple signing, telemetry secrets → `knowledge-base/release-setup.md`
 - Store marketplace: in-app page, deep links, website pages, mock community agents, deferred infra → `knowledge-base/store-marketplace.md`
+- User library (skills/roles/MCPs): install-from-URL, GitHub topic discovery, two-step assign-to-agent → `knowledge-base/library.md`
 - Engine wire protocol (REST + WS) → `knowledge-base/engine-protocol.md`
 - `squad-engine` binary ops → `knowledge-base/engine-server.md`
 - Bundled CLIs (codex universal, composio per-arch) + runtime claude-code installer → `knowledge-base/cli-bundling.md`

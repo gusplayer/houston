@@ -25,6 +25,7 @@ import type events from "../locales/en/events.json";
 import type store from "../locales/en/store.json";
 import type usage from "../locales/en/usage.json";
 import type specs from "../locales/en/specs.json";
+import type library from "../locales/en/library.json";
 
 declare module "react-i18next" {
   interface CustomTypeOptions {
@@ -48,6 +49,7 @@ declare module "react-i18next" {
       store: typeof store;
       usage: typeof usage;
       specs: typeof specs;
+      library: typeof library;
     };
   }
 }
