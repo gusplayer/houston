@@ -240,7 +240,10 @@
   "knowledge": {
     "noWorkspaceTitle": "Nenhum workspace selecionado",
     "noWorkspaceDescription": "Escolha um workspace para ver o conhecimento.",
-    "subtitle": "Docs curados injetados nos prompts dos agentes. Filtros de audiência continuam valendo."
+    "subtitle": "Docs curados injetados nos prompts dos agentes. Filtros de audiência continuam valendo.",
+    "subnavLabel": "Filtros de conhecimento",
+    "subnavAll": "Tudo",
+    "subnavSpecs": "Specs"
   },
   "library": {
     "noWorkspaceTitle": "Nenhum workspace selecionado",
