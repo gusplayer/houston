@@ -23,6 +23,7 @@ import RepoTab from "../components/tabs/repo-tab";
 import McpTab from "../components/tabs/mcp-tab";
 import UnifiedBoardTab from "../components/tabs/unified-board-tab";
 import DocsTab from "../components/tabs/docs-tab";
+import QueueTab from "../components/tabs/queue-tab";
 
 const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   chat: ChatTab,
@@ -42,6 +43,7 @@ const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   mcp: McpTab,
   sprints: UnifiedBoardTab,
   docs: DocsTab,
+  queue: QueueTab,
 };
 
 // Cache for custom bundle components so they're not re-created on every render

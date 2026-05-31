@@ -726,7 +726,26 @@ export interface Sprint {
   updatedAt: string;
 }
 
-export type StoryStatus = "backlog" | "todo" | "in_progress" | "in_review" | "done" | "cancelled";
+/**
+ * Story lifecycle states.
+ *
+ * Workspace-board lanes: `todo`, `in_progress`, `in_review`, `done`.
+ * `backlog` / `cancelled` are off-board.
+ *
+ * `running` / `needs_you` mirror the per-session live states a routine or
+ * terminal turn produces. They are accepted on the workspace board so that
+ * routine-surfaced and session-backed cards continue to land on the board
+ * (Phase 2: agent Queue is a filtered slice of this board).
+ */
+export type StoryStatus =
+  | "backlog"
+  | "todo"
+  | "in_progress"
+  | "running"
+  | "needs_you"
+  | "in_review"
+  | "done"
+  | "cancelled";
 export type StoryPriority = "low" | "medium" | "high" | "critical";
 
 /**
@@ -764,6 +783,21 @@ export interface Story {
   assignedAgentId?: string | null;
   labels?: string[];
   prUrl?: string | null;
+  /**
+   * Session linkage — populated when a Story tracks a live session
+   * (terminal turn or routine run). Lets the agent's Queue resume the
+   * conversation without a separate Activity row. Phase 2.
+   */
+  claudeSessionId?: string | null;
+  sessionKey?: string | null;
+  worktreePath?: string | null;
+  routineId?: string | null;
+  routineRunId?: string | null;
+  /** Origin of the story: "chat" | "routine" | "xterm" | "manual". */
+  source?: string | null;
+  /** Provider override when the Story spawns a session ("anthropic" | "openai"). */
+  provider?: string | null;
+  model?: string | null;
   createdAt: string;
   updatedAt: string;
 }

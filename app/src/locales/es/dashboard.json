@@ -98,6 +98,14 @@
       "cancelled": "Cancelado"
     }
   },
+  "queue": {
+    "emptyTitle": "Sin trabajo en cola",
+    "emptyDescription": "Asigna una historia a este agente desde el tablero del espacio para verla aquí.",
+    "openBoardCta": "Abrir el tablero del espacio",
+    "subtitle_one": "{{count}} elemento en la cola",
+    "subtitle_other": "{{count}} elementos en la cola",
+    "needsYou": "Te necesita"
+  },
   "skillPicker": {
     "title": "Elige un skill",
     "description": "Explora los skills que este agente ya sabe hacer.",
