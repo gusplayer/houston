@@ -240,7 +240,10 @@
   "knowledge": {
     "noWorkspaceTitle": "Sin workspace seleccionado",
     "noWorkspaceDescription": "Elige un workspace para ver su conocimiento.",
-    "subtitle": "Docs curados que se inyectan en los prompts de los agentes. Los filtros de audiencia se mantienen."
+    "subtitle": "Docs curados que se inyectan en los prompts de los agentes. Los filtros de audiencia se mantienen.",
+    "subnavLabel": "Filtros de conocimiento",
+    "subnavAll": "Todo",
+    "subnavSpecs": "Specs"
   },
   "library": {
     "noWorkspaceTitle": "Sin workspace seleccionado",

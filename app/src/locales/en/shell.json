@@ -240,7 +240,10 @@
   "knowledge": {
     "noWorkspaceTitle": "No workspace selected",
     "noWorkspaceDescription": "Pick a workspace to see its knowledge.",
-    "subtitle": "Curated docs that get injected into agent prompts. Audience filters still apply."
+    "subtitle": "Curated docs that get injected into agent prompts. Audience filters still apply.",
+    "subnavLabel": "Knowledge filters",
+    "subnavAll": "All",
+    "subnavSpecs": "Specs"
   },
   "library": {
     "noWorkspaceTitle": "No workspace selected",
