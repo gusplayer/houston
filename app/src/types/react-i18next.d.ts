@@ -22,7 +22,6 @@ import type integrations from "../locales/en/integrations.json";
 import type providers from "../locales/en/providers.json";
 import type errors from "../locales/en/errors.json";
 import type events from "../locales/en/events.json";
-import type store from "../locales/en/store.json";
 import type usage from "../locales/en/usage.json";
 import type specs from "../locales/en/specs.json";
 
@@ -45,7 +44,6 @@ declare module "react-i18next" {
       providers: typeof providers;
       errors: typeof errors;
       events: typeof events;
-      store: typeof store;
       usage: typeof usage;
       specs: typeof specs;
     };

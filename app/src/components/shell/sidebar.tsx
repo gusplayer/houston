@@ -1,6 +1,6 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox, FileText, FolderGit2, BookOpen, Sparkles } from "lucide-react";
+import { LayoutDashboard, Blend, Settings, Building2, FileText, FolderGit2, BookOpen, Sparkles } from "lucide-react";
 import { ConfirmDialog } from "@squad/core";
 import { AppSidebar, WorkspaceSwitcher } from "@squad/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -55,24 +55,13 @@ export function Sidebar({ children }: { children: ReactNode }) {
   });
   const isTopLevel =
     viewMode === "dashboard" ||
-    viewMode === "store" ||
     viewMode === "connections" ||
     viewMode === "specs" ||
     viewMode === "settings" ||
     viewMode === "workspace" ||
     viewMode === "projects" ||
     viewMode === "knowledge" ||
-    viewMode === "library" ||
-    viewMode === "inbox";
-
-  const inboxCount = useMemo(
-    () =>
-      Object.values(activitySummaries).reduce(
-        (acc, s) => acc + s.needsYouCount,
-        0,
-      ),
-    [activitySummaries],
-  );
+    viewMode === "library";
 
   const handleWorkspaceSwitch = async (wsId: string) => {
     if (wsId === currentWorkspace?.id) return;
@@ -155,25 +144,6 @@ export function Sidebar({ children }: { children: ReactNode }) {
             icon: <LayoutDashboard className="h-4 w-4" />,
             onClick: () => setViewMode("dashboard"),
             dataAttrs: { "data-tour-target": "nav-dashboard" },
-          },
-          {
-            id: "inbox",
-            label: t("shell:sidebar.inbox"),
-            icon: <Inbox className="h-4 w-4" />,
-            onClick: () => setViewMode("inbox"),
-            trailing:
-              inboxCount > 0 ? (
-                <span className="rounded-full bg-amber-500 text-[10px] font-medium text-white px-1.5 leading-4 min-w-4 text-center">
-                  {inboxCount}
-                </span>
-              ) : undefined,
-          },
-          {
-            id: "store",
-            label: t("shell:sidebar.store"),
-            icon: <Store className="h-4 w-4" />,
-            onClick: () => setViewMode("store"),
-            dataAttrs: { "data-tour-target": "nav-store" },
           },
           {
             id: "workspace",

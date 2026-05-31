@@ -1,8 +1,6 @@
 {
   "sidebar": {
     "missionControl": "Overview",
-    "inbox": "Inbox",
-    "store": "Store",
     "workspace": "My Team",
     "projects": "Projects",
     "knowledge": "Knowledge",
@@ -12,7 +10,7 @@
     "settings": "Settings",
     "yourAgents": "Your Agents",
     "selectWorkspace": "Select workspace",
-    "addAgent": "New agent",
+    "addAgent": "Recruit",
     "agentMenu": "Agent menu",
     "color": "Color",
     "changeColor": "Change color",
@@ -199,10 +197,6 @@
     "relaunchAction": "Relaunch Squad",
     "retryAction": "Try again"
   },
-  "store": {
-    "searchPlaceholder": "Search the store...",
-    "noResults": "No agents match your search"
-  },
   "naming": {
     "dialogTitle": "Name your Agent",
     "newAgentFallback": "New Agent",
@@ -322,22 +316,5 @@
     "internalTerminal": "Terminal",
     "terminal": "Open in Warp",
     "brief": "Playbook"
-  },
-  "inbox": {
-    "title": "Inbox",
-    "untitled": "Untitled task",
-    "statusNeedsYou": "Needs you",
-    "statusError": "Errored",
-    "emptyTitle": "All clear",
-    "emptyDescription": "No agent is blocked or waiting on you in this workspace right now.",
-    "relative": {
-      "justNow": "just now",
-      "minutes_one": "{{count}} min ago",
-      "minutes_other": "{{count}} min ago",
-      "hours_one": "{{count}} hr ago",
-      "hours_other": "{{count}} hrs ago",
-      "days_one": "{{count}} day ago",
-      "days_other": "{{count}} days ago"
-    }
   }
 }

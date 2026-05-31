@@ -27,7 +27,6 @@ import integrationsEn from "../locales/en/integrations.json";
 import providersEn from "../locales/en/providers.json";
 import errorsEn from "../locales/en/errors.json";
 import eventsEn from "../locales/en/events.json";
-import storeEn from "../locales/en/store.json";
 import usageEn from "../locales/en/usage.json";
 import specsEn from "../locales/en/specs.json";
 import commonEs from "../locales/es/common.json";
@@ -45,7 +44,6 @@ import integrationsEs from "../locales/es/integrations.json";
 import providersEs from "../locales/es/providers.json";
 import errorsEs from "../locales/es/errors.json";
 import eventsEs from "../locales/es/events.json";
-import storeEs from "../locales/es/store.json";
 import usageEs from "../locales/es/usage.json";
 import specsEs from "../locales/es/specs.json";
 import commonPt from "../locales/pt/common.json";
@@ -63,7 +61,6 @@ import integrationsPt from "../locales/pt/integrations.json";
 import providersPt from "../locales/pt/providers.json";
 import errorsPt from "../locales/pt/errors.json";
 import eventsPt from "../locales/pt/events.json";
-import storePt from "../locales/pt/store.json";
 import usagePt from "../locales/pt/usage.json";
 import specsPt from "../locales/pt/specs.json";
 
@@ -127,7 +124,6 @@ const resources = {
     providers: providersEn,
     errors: errorsEn,
     events: eventsEn,
-    store: storeEn,
     usage: usageEn,
     specs: specsEn,
   },
@@ -147,7 +143,6 @@ const resources = {
     providers: providersEs,
     errors: errorsEs,
     events: eventsEs,
-    store: storeEs,
     usage: usageEs,
     specs: specsEs,
   },
@@ -167,7 +162,6 @@ const resources = {
     providers: providersPt,
     errors: errorsPt,
     events: eventsPt,
-    store: storePt,
     usage: usagePt,
     specs: specsPt,
   },
@@ -207,7 +201,6 @@ void i18n
       "providers",
       "errors",
       "events",
-      "store",
       "usage",
       "specs",
     ],

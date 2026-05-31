@@ -17,7 +17,6 @@ import { analytics } from "./lib/analytics";
 import { loadTheme } from "./lib/theme";
 import { isAuthConfigured } from "./lib/supabase";
 import { installDeepLinkListener } from "./lib/auth";
-import { installStoreDeepLinkListener } from "./lib/store-deep-link";
 import { useSession } from "./hooks/use-session";
 import { SignInScreen } from "./components/auth/sign-in-screen";
 import { PersonalAssistantOnboarding } from "./components/onboarding/personal-assistant-onboarding";
@@ -45,24 +44,12 @@ export default function App() {
     loadTheme();
   }, []);
 
-  // Deep-link listeners. Both are idempotent, safe to mount twice under
-  // React Strict-Mode without stacking handlers.
-  //   - Auth listener: handles Supabase OAuth callbacks. No-op when auth
-  //     isn't configured (SUPABASE_URL empty in local dev).
-  //   - Store listener: handles `squad://store/agent/<id>` to switch to
-  //     the Store view and open the detail dialog. Always installed
-  //     because the Store works without Supabase being configured.
+  // Auth deep-link listener — idempotent under React Strict-Mode.
+  // No-op when auth isn't configured (SUPABASE_URL empty in local dev).
   useEffect(() => {
     const unlistenAuth = isAuthConfigured() ? installDeepLinkListener() : null;
-    const unlistenStorePromise = installStoreDeepLinkListener();
     return () => {
       if (unlistenAuth) unlistenAuth();
-      unlistenStorePromise.then((fn) => fn()).catch((err) => {
-        // Unmount-cleanup: the user is gone, so a toast would land on the
-        // sign-in screen or empty shell. Log at error level instead so the
-        // bug-report bundle picks it up.
-        console.error("[store-deep-link] cleanup failed:", err);
-      });
     };
   }, []);
 
