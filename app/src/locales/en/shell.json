@@ -6,6 +6,7 @@
     "workspace": "My Team",
     "projects": "Projects",
     "knowledge": "Knowledge",
+    "library": "Library",
     "integrations": "Integrations",
     "specs": "Specs",
     "settings": "Settings",
@@ -238,6 +239,17 @@
     "noWorkspaceTitle": "No workspace selected",
     "noWorkspaceDescription": "Pick a workspace to see its knowledge.",
     "subtitle": "Curated docs that get injected into agent prompts. Audience filters still apply."
+  },
+  "library": {
+    "noWorkspaceTitle": "No workspace selected",
+    "noWorkspaceDescription": "Pick a workspace to see its abilities pool.",
+    "noAgentsTitle": "No agents yet",
+    "noAgentsDescription": "Hire an agent to start filling the abilities pool.",
+    "subtitle": "Skills, MCPs, and routines available across this workspace. Open an agent to manage its enabled abilities.",
+    "openAgentHint": "Open agent to manage abilities",
+    "skillsChip": "Skills",
+    "mcpChip": "MCPs",
+    "routinesChip": "Routines"
   },
   "workspace": {
     "noWorkspace": "No workspace selected",

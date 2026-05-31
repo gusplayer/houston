@@ -11,7 +11,6 @@ export const devAgent: AgentConfig = {
   roleLabel: "Dev",
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
   claudeMd: "# Dev agent\n\nYou are a senior engineering companion. Read the current repo structure before suggesting changes. Prefer concrete file paths, exact commands, and code over prose explanations.",

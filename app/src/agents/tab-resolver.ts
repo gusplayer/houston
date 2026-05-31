@@ -9,7 +9,6 @@ import type { AgentTab, AgentDefinition, TabProps } from "../lib/types";
 import ChatTab from "../components/tabs/chat-tab";
 import BoardTab from "../components/tabs/board-tab";
 import ConnectionsTab from "../components/tabs/connections-tab";
-import IntegrationsTab from "../components/tabs/integrations-tab";
 import JobDescriptionTab from "../components/tabs/job-description-tab";
 import RoutinesTab from "../components/tabs/routines-tab";
 import EventsTab from "../components/tabs/events-tab";
@@ -25,7 +24,6 @@ import QueueTab from "../components/tabs/queue-tab";
 const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   chat: ChatTab,
   board: BoardTab,
-  integrations: IntegrationsTab,
   connections: ConnectionsTab,
   "job-description": JobDescriptionTab,
   routines: RoutinesTab,

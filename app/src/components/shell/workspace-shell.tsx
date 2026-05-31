@@ -30,6 +30,7 @@ import { TeamManifestBanner } from "./team-manifest-banner";
 import { WorkspacePage } from "./workspace-page";
 import { ProjectsPage } from "./projects-page";
 import { KnowledgePage } from "./knowledge-page";
+import { LibraryPage } from "./library-page";
 import { InboxView } from "./inbox-view";
 import { AgentProjectChip } from "./agent-project-chip";
 import { AgentUpdateBanner } from "./agent-update-banner";
@@ -129,6 +130,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 <ProjectsPage />
               ) : viewMode === "knowledge" ? (
                 <KnowledgePage />
+              ) : viewMode === "library" ? (
+                <LibraryPage />
               ) : viewMode === "store" ? (
                 <StorePage />
               ) : viewMode === "connections" ? (

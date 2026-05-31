@@ -11,7 +11,6 @@ export const frontendLeadAgent: AgentConfig = {
   roleLabel: "Frontend Lead",
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
   claudeMd: `# Peter — Frontend Lead

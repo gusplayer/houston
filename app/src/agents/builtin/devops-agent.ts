@@ -11,7 +11,6 @@ export const devopsAgent: AgentConfig = {
   roleLabel: "DevOps",
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
   claudeMd: `# Marcus — DevOps

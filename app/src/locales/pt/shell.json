@@ -6,6 +6,7 @@
     "workspace": "Minha equipe",
     "projects": "Projetos",
     "knowledge": "Conhecimento",
+    "library": "Biblioteca",
     "integrations": "Integrações",
     "specs": "Specs",
     "settings": "Configurações",
@@ -238,6 +239,17 @@
     "noWorkspaceTitle": "Nenhum workspace selecionado",
     "noWorkspaceDescription": "Escolha um workspace para ver o conhecimento.",
     "subtitle": "Docs curados injetados nos prompts dos agentes. Filtros de audiência continuam valendo."
+  },
+  "library": {
+    "noWorkspaceTitle": "Nenhum workspace selecionado",
+    "noWorkspaceDescription": "Escolha um workspace para ver seu pool de habilidades.",
+    "noAgentsTitle": "Sem agentes ainda",
+    "noAgentsDescription": "Contrate um agente para começar a preencher o pool de habilidades.",
+    "subtitle": "Skills, MCPs e rotinas disponíveis neste workspace. Abra um agente para gerenciar suas habilidades ativas.",
+    "openAgentHint": "Abrir agente para gerenciar habilidades",
+    "skillsChip": "Skills",
+    "mcpChip": "MCPs",
+    "routinesChip": "Rotinas"
   },
   "workspace": {
     "noWorkspace": "Nenhum workspace selecionado",

@@ -12,7 +12,6 @@ export const qaAgent: AgentConfig = {
   protected: true,
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
   claudeMd: `# Jeff — QA Engineer
