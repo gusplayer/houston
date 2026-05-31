@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox, FileText, FolderGit2, BookOpen } from "lucide-react";
+import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox, FileText, FolderGit2, BookOpen, Sparkles } from "lucide-react";
 import { ConfirmDialog } from "@squad/core";
 import { AppSidebar, WorkspaceSwitcher } from "@squad/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -62,6 +62,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     viewMode === "workspace" ||
     viewMode === "projects" ||
     viewMode === "knowledge" ||
+    viewMode === "library" ||
     viewMode === "inbox";
 
   const inboxCount = useMemo(
@@ -191,6 +192,12 @@ export function Sidebar({ children }: { children: ReactNode }) {
             label: t("shell:sidebar.knowledge"),
             icon: <BookOpen className="h-4 w-4" />,
             onClick: () => setViewMode("knowledge"),
+          },
+          {
+            id: "library",
+            label: t("shell:sidebar.library"),
+            icon: <Sparkles className="h-4 w-4" />,
+            onClick: () => setViewMode("library"),
           },
           {
             id: "connections",

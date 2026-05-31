@@ -11,7 +11,6 @@ export const designerAgent: AgentConfig = {
   roleLabel: "UI/UX Designer",
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
   claudeMd: `# Carlo — UI/UX Designer

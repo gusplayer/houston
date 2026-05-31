@@ -9,7 +9,6 @@ export const blankAgent: AgentConfig = {
   author: "Squad",
   tags: ["blank", "custom", "starter"],
   extensionTabs: [
-    { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
   claudeMd: "",
