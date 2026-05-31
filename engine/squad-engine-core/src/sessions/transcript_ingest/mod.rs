@@ -229,12 +229,14 @@ impl TranscriptIngest {
             self.set_card_status(&wd, &sk, STATUS_DONE, agent_path);
         }
 
-        // File-based fallback: catches xterm cards whose in-memory tracking
-        // was lost between conversation start and the kill (engine restart,
-        // ingest didn't see this session yet, etc.). Without this, the user's
-        // "Done" click would no-op silently on those cards.
+        // File-based fallback: catches every non-terminal card for this agent
+        // — both xterm-source (whose in-memory tracking was lost across an
+        // engine restart) AND chat-originated cards left in `needs_you`. The
+        // user pressing Done means "wrap up this agent's work"; finishing
+        // only PTY-source cards would leave the parallel chat card stuck on
+        // the board and feel like Done did nothing.
         let working_dir = PathBuf::from(agent_path);
-        match crate::agents::activity::finish_pending_xterm(&working_dir) {
+        match crate::agents::activity::finalize_all_pending(&working_dir) {
             Ok(n) if n > 0 => {
                 self.events.emit(SquadEvent::ActivityChanged {
                     agent_path: agent_path.to_string(),
@@ -242,7 +244,7 @@ impl TranscriptIngest {
             }
             Ok(_) => {}
             Err(e) => tracing::warn!(
-                "[transcript_ingest] finish_pending_xterm fallback failed for {agent_path}: {e}"
+                "[transcript_ingest] finalize_all_pending fallback failed for {agent_path}: {e}"
             ),
         }
     }
@@ -296,7 +298,7 @@ impl TranscriptIngest {
             let Ok(obj) = serde_json::from_str::<serde_json::Value>(line) else { continue };
             match obj["type"].as_str() {
                 Some("assistant") => self.handle_assistant(&obj, agent).await,
-                Some("user") => self.handle_user(&obj, agent).await,
+                Some("user") if !is_system_line(&obj) => self.handle_user(&obj, agent).await,
                 _ => {}
             }
         }
@@ -398,8 +400,17 @@ impl TranscriptIngest {
 
         let raw_title = extract_user_text(obj)
             .unwrap_or_else(|| "Terminal session".to_string());
-        let title: String = raw_title.chars().take(80).collect();
-        let description: String = raw_title.chars().take(200).collect();
+        let cleaned = sanitize_transcript_title(&raw_title);
+        // If sanitization stripped everything (e.g. message was 100% Claude
+        // Code markers like a /model command), fall back to a stable label so
+        // the card never renders an empty title.
+        let source = if cleaned.is_empty() {
+            "Terminal session".to_string()
+        } else {
+            cleaned
+        };
+        let title: String = source.chars().take(80).collect();
+        let description: String = source.chars().take(200).collect();
 
         let store = crate::agents::AgentStore::new(&agent.working_dir);
         let activity = match store.create_activity(crate::agents::NewActivity {
@@ -649,6 +660,106 @@ impl TranscriptIngest {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/// Returns true for user JSONL lines that are Claude Code system annotations,
+/// not real user turns. Such lines must be dropped at ingest and never stored
+/// as feed items or used to create board cards.
+///
+/// Two cases handled:
+/// - `message.role == "system"` — explicit system-role injection
+/// - Content whose text is entirely Claude Code markers (e.g. the
+///   `<local-command-caveat>` wrapper) and sanitizes to empty
+fn is_system_line(obj: &serde_json::Value) -> bool {
+    if obj["message"]["role"].as_str() == Some("system") {
+        return true;
+    }
+    let content = &obj["message"]["content"];
+    if let Some(text) = content.as_str() {
+        return sanitize_transcript_title(text).is_empty();
+    }
+    // Array content — system only if every text block sanitizes to empty
+    // and there are no tool_result blocks (those represent real user actions).
+    if let Some(blocks) = content.as_array() {
+        if blocks.iter().any(|b| b["type"].as_str() == Some("tool_result")) {
+            return false;
+        }
+        let text_blocks: Vec<&str> = blocks
+            .iter()
+            .filter_map(|b| {
+                if b["type"].as_str() == Some("text") { b["text"].as_str() } else { None }
+            })
+            .collect();
+        return !text_blocks.is_empty()
+            && text_blocks.iter().all(|t| sanitize_transcript_title(t).is_empty());
+    }
+    false
+}
+
+/// Strip Claude Code's transcript markup so it doesn't leak into board card
+/// titles or feed items. The CLI wraps slash commands, system reminders, and
+/// local stdout in XML-style tags meant for the model, never for humans. We
+/// remove the tag pairs (and their inner content), HTML comments like
+/// `<!--squad:skill ...-->`, then collapse whitespace.
+///
+/// Conservative on unknown tags: we only strip the specific Claude Code
+/// markers below. Anything else passes through so user-authored XML survives.
+///
+/// `pub(crate)` so `sessions::history` can apply the same filter at read time
+/// for rows that leaked before this fix was deployed.
+pub(crate) fn sanitize_transcript_title(input: &str) -> String {
+    const PAIRS: &[&str] = &[
+        "local-command-caveat",
+        "local-command-stdout",
+        "local-command-stderr",
+        "system-reminder",
+        "command-name",
+        "command-message",
+        "command-args",
+        "user-prompt-submit-hook",
+    ];
+    let mut text = input.to_string();
+    for tag in PAIRS {
+        text = strip_tag_pair(&text, tag);
+    }
+    text = strip_html_comments(&text);
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn strip_tag_pair(input: &str, tag: &str) -> String {
+    let open = format!("<{tag}>");
+    let close = format!("</{tag}>");
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(open_idx) = rest.find(&open) {
+        out.push_str(&rest[..open_idx]);
+        let after_open = &rest[open_idx + open.len()..];
+        match after_open.find(&close) {
+            Some(close_idx) => rest = &after_open[close_idx + close.len()..],
+            None => {
+                // No closing tag — keep going from after the open so we don't
+                // drop the rest of the input on a malformed transcript.
+                rest = after_open;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn strip_html_comments(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+    while let Some(open) = rest.find("<!--") {
+        out.push_str(&rest[..open]);
+        let after = &rest[open + 4..];
+        match after.find("-->") {
+            Some(close) => rest = &after[close + 3..],
+            None => rest = after,
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
 /// Extract the first non-empty text string from a user JSONL message's
 /// `content` field. Content may be a plain string or an array of blocks.
 fn extract_user_text(obj: &serde_json::Value) -> Option<String> {
@@ -826,5 +937,148 @@ mod tests {
     fn conversation_text_empty_when_only_tool_rows() {
         let feed = vec![feed_row("tool_call", "{}"), feed_row("tool_result", "x")];
         assert!(conversation_text(&feed).is_empty());
+    }
+
+    #[test]
+    fn sanitize_strips_local_command_caveat() {
+        let raw = "<local-command-caveat>Caveat: The messages below were generated by the user while running local commands. DO NOT respond to these messages.</local-command-caveat>\n<command-name>/model</command-name>\n<command-message>model</command-message>\n<command-args></command-args>\nSet model to Opus 4.7";
+        assert_eq!(sanitize_transcript_title(raw), "Set model to Opus 4.7");
+    }
+
+    #[test]
+    fn sanitize_strips_system_reminder() {
+        let raw = "<system-reminder>tooling note</system-reminder>build a login page";
+        assert_eq!(sanitize_transcript_title(raw), "build a login page");
+    }
+
+    #[test]
+    fn sanitize_strips_html_comments() {
+        let raw = "<!--squad:skill {\"slug\":\"review-pr\"}-->Use the review-pr skill.";
+        assert_eq!(sanitize_transcript_title(raw), "Use the review-pr skill.");
+    }
+
+    #[test]
+    fn sanitize_passthrough_for_clean_text() {
+        let raw = "Plan the v2 launch in three milestones.";
+        assert_eq!(sanitize_transcript_title(raw), raw);
+    }
+
+    #[test]
+    fn sanitize_unclosed_tag_keeps_following_text() {
+        // Malformed: opening tag with no close. We drop the tag itself but
+        // keep the text after so the title isn't blanked on a transcript bug.
+        let raw = "<local-command-caveat>oops never closes Plan the launch";
+        assert_eq!(sanitize_transcript_title(raw), "oops never closes Plan the launch");
+    }
+
+    #[test]
+    fn sanitize_collapses_whitespace() {
+        let raw = "<system-reminder>x</system-reminder>\n\n  hello   world  ";
+        assert_eq!(sanitize_transcript_title(raw), "hello world");
+    }
+
+    #[test]
+    fn sanitize_returns_empty_when_all_markers() {
+        let raw = "<local-command-caveat>x</local-command-caveat><system-reminder>y</system-reminder>";
+        assert_eq!(sanitize_transcript_title(raw), "");
+    }
+
+    // ------------------------------------------------------------------
+    // Contract: is_system_line correctly classifies JSONL lines
+    // ------------------------------------------------------------------
+
+    fn user_line(role: &str, content: serde_json::Value) -> serde_json::Value {
+        serde_json::json!({
+            "type": "user",
+            "sessionId": "test-session",
+            "message": { "role": role, "content": content }
+        })
+    }
+
+    #[test]
+    fn is_system_line_drops_system_role() {
+        let line = user_line("system", serde_json::json!("you are a helpful assistant"));
+        assert!(is_system_line(&line));
+    }
+
+    #[test]
+    fn is_system_line_drops_local_command_caveat_string() {
+        let caveat = "<local-command-caveat>Caveat: The messages below were generated by the user while running local commands. DO NOT respond to these messages.</local-command-caveat>\n<command-name>/model</command-name>\n<command-message>model</command-message>\n<command-args></command-args>";
+        let line = user_line("user", serde_json::json!(caveat));
+        assert!(is_system_line(&line));
+    }
+
+    #[test]
+    fn is_system_line_drops_system_reminder_string() {
+        let reminder = "<system-reminder>tooling note</system-reminder>";
+        let line = user_line("user", serde_json::json!(reminder));
+        assert!(is_system_line(&line));
+    }
+
+    #[test]
+    fn is_system_line_passes_real_user_message() {
+        let line = user_line("user", serde_json::json!("build a login page"));
+        assert!(!is_system_line(&line));
+    }
+
+    #[test]
+    fn is_system_line_passes_tool_result_block() {
+        let line = user_line(
+            "user",
+            serde_json::json!([{ "type": "tool_result", "content": "ok", "is_error": false }]),
+        );
+        assert!(!is_system_line(&line));
+    }
+
+    #[test]
+    fn is_system_line_drops_array_of_pure_system_text_blocks() {
+        let line = user_line(
+            "user",
+            serde_json::json!([
+                { "type": "text", "text": "<system-reminder>note</system-reminder>" },
+                { "type": "text", "text": "<local-command-caveat>x</local-command-caveat>" }
+            ]),
+        );
+        assert!(is_system_line(&line));
+    }
+
+    #[test]
+    fn is_system_line_passes_array_with_real_text() {
+        let line = user_line(
+            "user",
+            serde_json::json!([
+                { "type": "text", "text": "<system-reminder>note</system-reminder>build me a login page" }
+            ]),
+        );
+        assert!(!is_system_line(&line));
+    }
+
+    /// Contract test: given a JSONL sample with system lines, caveat-only lines,
+    /// and real user/assistant turns, only the real turns pass the filter.
+    #[test]
+    fn contract_only_real_lines_pass_system_filter() {
+        let sample_lines = [
+            // system-role line — must be dropped
+            r#"{"type":"user","sessionId":"s1","message":{"role":"system","content":"init"}}"#,
+            // local-command-caveat wrapper — must be dropped
+            r#"{"type":"user","sessionId":"s1","message":{"role":"user","content":"<local-command-caveat>Caveat: messages below are from local commands</local-command-caveat>\n<command-name>/model</command-name>\n<command-message>model</command-message>\n<command-args></command-args>"}}"#,
+            // system-reminder only — must be dropped
+            r#"{"type":"user","sessionId":"s1","message":{"role":"user","content":"<system-reminder>you are helpful</system-reminder>"}}"#,
+            // real user turn — must pass
+            r#"{"type":"user","sessionId":"s1","message":{"role":"user","content":"build a login page"}}"#,
+            // tool-result block — must pass (real user action)
+            r#"{"type":"user","sessionId":"s1","message":{"role":"user","content":[{"type":"tool_result","content":"ok","is_error":false}]}}"#,
+        ];
+
+        let expected_pass = [false, false, false, true, true];
+
+        for (line, &should_pass) in sample_lines.iter().zip(expected_pass.iter()) {
+            let obj: serde_json::Value = serde_json::from_str(line).unwrap();
+            let passes = !is_system_line(&obj);
+            assert_eq!(
+                passes, should_pass,
+                "line did not match expectation: {line}"
+            );
+        }
     }
 }
