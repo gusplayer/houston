@@ -19,7 +19,6 @@ import PromptsTab from "../components/tabs/prompts-tab";
 import LearningsTab from "../components/tabs/learnings-tab";
 import SkillsTab from "../components/tabs/skills-tab";
 import ConfigTab from "../components/tabs/config-tab";
-import RepoTab from "../components/tabs/repo-tab";
 import McpTab from "../components/tabs/mcp-tab";
 import UnifiedBoardTab from "../components/tabs/unified-board-tab";
 import DocsTab from "../components/tabs/docs-tab";
@@ -39,7 +38,6 @@ const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   learnings: LearningsTab,
   skills: SkillsTab,
   config: ConfigTab,
-  repo: RepoTab,
   mcp: McpTab,
   sprints: UnifiedBoardTab,
   docs: DocsTab,

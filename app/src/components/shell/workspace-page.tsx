@@ -313,7 +313,7 @@ function repoFolderName(repoPath: string): string {
   return repoPath.replace(/\/+$/, "").split("/").pop() ?? repoPath;
 }
 
-function ProjectsSection({ workspaceId }: { workspaceId: string }) {
+export function ProjectsSection({ workspaceId }: { workspaceId: string }) {
   const { t } = useTranslation(["shell", "agents"]);
   const { data: projects } = useProjects(workspaceId);
   const createProject = useCreateProject(workspaceId);

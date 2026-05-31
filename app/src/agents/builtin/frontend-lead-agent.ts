@@ -10,7 +10,6 @@ export const frontendLeadAgent: AgentConfig = {
   tags: ["frontend", "react", "nextjs", "web", "tailwind"],
   roleLabel: "Frontend Lead",
   extensionTabs: [
-    { id: "repo", label: "Repo", builtIn: "repo" },
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
     { id: "docs", label: "Docs", builtIn: "docs" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },

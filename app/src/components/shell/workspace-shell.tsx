@@ -28,6 +28,7 @@ import { CreateAgentDialog } from "./create-workspace-dialog";
 import { RecruitTeamDialog } from "./recruit-team-dialog";
 import { TeamManifestBanner } from "./team-manifest-banner";
 import { WorkspacePage } from "./workspace-page";
+import { ProjectsPage } from "./projects-page";
 import { InboxView } from "./inbox-view";
 import { AgentProjectChip } from "./agent-project-chip";
 import { AgentUpdateBanner } from "./agent-update-banner";
@@ -123,6 +124,8 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 <InboxView />
               ) : viewMode === "workspace" ? (
                 <WorkspacePage />
+              ) : viewMode === "projects" ? (
+                <ProjectsPage />
               ) : viewMode === "store" ? (
                 <StorePage />
               ) : viewMode === "connections" ? (

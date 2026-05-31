@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox, FileText } from "lucide-react";
+import { LayoutDashboard, Blend, Settings, Store, Building2, Inbox, FileText, FolderGit2 } from "lucide-react";
 import { ConfirmDialog } from "@squad/core";
 import { AppSidebar, WorkspaceSwitcher } from "@squad/layout";
 import { useWorkspaceStore } from "../../stores/workspaces";
@@ -60,6 +60,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     viewMode === "specs" ||
     viewMode === "settings" ||
     viewMode === "workspace" ||
+    viewMode === "projects" ||
     viewMode === "inbox";
 
   const inboxCount = useMemo(
@@ -177,6 +178,12 @@ export function Sidebar({ children }: { children: ReactNode }) {
             label: t("shell:sidebar.workspace"),
             icon: <Building2 className="h-4 w-4" />,
             onClick: () => setViewMode("workspace"),
+          },
+          {
+            id: "projects",
+            label: t("shell:sidebar.projects"),
+            icon: <FolderGit2 className="h-4 w-4" />,
+            onClick: () => setViewMode("projects"),
           },
           {
             id: "connections",
