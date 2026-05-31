@@ -1,0 +1,51 @@
+{
+  "skillsTab": {
+    "browse": "Explorar librería"
+  },
+  "dialog": {
+    "title": {
+      "skill": "Librería de skills",
+      "role": "Librería de roles",
+      "mcp": "Librería de servidores MCP"
+    },
+    "searchPlaceholder": "Buscar por nombre, autor o palabra clave",
+    "addByUrl": "Agregar por URL",
+    "source": {
+      "all": "Todos",
+      "community": "Comunidad",
+      "mine": "Mis instalados"
+    },
+    "loading": "Cargando librería...",
+    "empty": "Nada por aquí todavía. Prueba otro filtro o agrega uno por URL.",
+    "installed": "Se instaló {{name}} en tu librería",
+    "installError": "Falló la instalación",
+    "addedToAgent": "Se agregó {{name}} a este agente",
+    "addError": "No se pudo agregar al agente"
+  },
+  "card": {
+    "install": "Instalar",
+    "addToAgent": "Agregar a este agente",
+    "inAgent": "En este agente",
+    "source": "Fuente",
+    "noDescription": "Sin descripción."
+  },
+  "badges": {
+    "verified": "Verificado"
+  },
+  "addByUrl": {
+    "title": "Agregar desde URL",
+    "body": "Pega la URL de un repo de GitHub. Detectamos skill, role o MCP por su contenido.",
+    "placeholder": "https://github.com/owner/repo",
+    "submit": "Instalar",
+    "installing": "Instalando...",
+    "cancel": "Cancelar",
+    "success": "Se instaló {{name}}",
+    "error": "Falló la instalación",
+    "unverifiedWarning": "Cualquiera puede publicar en la librería. Revisa el repo antes de instalar.",
+    "detected": {
+      "skill": "Detectado: skill",
+      "role": "Detectado: role",
+      "mcp": "Detectado: servidor MCP"
+    }
+  }
+}

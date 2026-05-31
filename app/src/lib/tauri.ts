@@ -455,6 +455,28 @@ export const tauriStore = {
     ),
 };
 
+// ─── Library (user-owned primitives — skills/roles/MCPs) ───────────────
+
+import type {
+  CopyLibraryToAgentResponse,
+  InstallFromUrlResponse,
+  LibraryItem,
+  LibraryKind,
+} from "@squad/engine-client";
+
+export const tauriLibrary = {
+  installFromUrl: (url: string) =>
+    call<InstallFromUrlResponse>("library_install_from_url", () =>
+      getEngine().installFromUrl({ url }),
+    ),
+  list: (kind: LibraryKind) =>
+    call<LibraryItem[]>("library_list", () => getEngine().listLibrary(kind)),
+  copyToAgent: (kind: LibraryKind, slug: string, agentPath: string) =>
+    call<CopyLibraryToAgentResponse>("library_copy_to_agent", () =>
+      getEngine().copyLibraryToAgent(kind, slug, { agentPath }),
+    ),
+};
+
 // ─── Conversations ────────────────────────────────────────────────────
 
 interface RawConversation {

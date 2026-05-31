@@ -59,6 +59,16 @@ export function CreateWorkspaceDialog({
     }
   }
 
+  /** After roster hire + loadAgents, open the CTO (Sam) first. Without this,
+   * setCurrent is left at whatever was last touched — usually Adam (architect),
+   * since he's hired last in PROTECTED_CONFIG_IDS. The CTO is the workspace
+   * lead, so that is who the user should land on. */
+  function focusCtoAgent() {
+    const agents = useAgentStore.getState().agents;
+    const cto = agents.find((a) => a.configId === "cto-agent");
+    if (cto) useAgentStore.getState().setCurrent(cto);
+  }
+
   /** PUT methodology config after workspace creation. Non-blocking: failure
    * surfaces as a warning toast, but the workspace itself is already created. */
   async function applyMethodologyIfRequested(workspaceId: string) {
@@ -101,6 +111,7 @@ export function CreateWorkspaceDialog({
         setCurrentWorkspace(imported);
         await hireDefaultRoster(imported.id);
         await loadAgents(imported.id);
+        focusCtoAgent();
         await applyMethodologyIfRequested(imported.id);
       }
       analytics.track("workspace_created", { source: "github_import" });
@@ -180,6 +191,7 @@ export function CreateWorkspaceDialog({
               await hireDefaultRoster(ws.id);
               setCurrentWorkspace(ws);
               await loadAgents(ws.id);
+              focusCtoAgent();
               await applyMethodologyIfRequested(ws.id);
               handleClose();
             }}

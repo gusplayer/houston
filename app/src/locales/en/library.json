@@ -1,0 +1,51 @@
+{
+  "skillsTab": {
+    "browse": "Browse library"
+  },
+  "dialog": {
+    "title": {
+      "skill": "Skills library",
+      "role": "Roles library",
+      "mcp": "MCP servers library"
+    },
+    "searchPlaceholder": "Search by name, owner, or keyword",
+    "addByUrl": "Add by URL",
+    "source": {
+      "all": "All",
+      "community": "Community",
+      "mine": "Mine"
+    },
+    "loading": "Loading library...",
+    "empty": "Nothing here yet. Try a different filter, or add one by URL.",
+    "installed": "Installed {{name}} in your library",
+    "installError": "Install failed",
+    "addedToAgent": "Added {{name}} to this agent",
+    "addError": "Could not add to agent"
+  },
+  "card": {
+    "install": "Install",
+    "addToAgent": "Add to this agent",
+    "inAgent": "In this agent",
+    "source": "Source",
+    "noDescription": "No description provided."
+  },
+  "badges": {
+    "verified": "Verified"
+  },
+  "addByUrl": {
+    "title": "Add from URL",
+    "body": "Paste a GitHub repo URL. We detect skill, role, or MCP from its contents.",
+    "placeholder": "https://github.com/owner/repo",
+    "submit": "Install",
+    "installing": "Installing...",
+    "cancel": "Cancel",
+    "success": "Installed {{name}}",
+    "error": "Install failed",
+    "unverifiedWarning": "Anyone can publish to the library. Review the repo before installing.",
+    "detected": {
+      "skill": "Detected: skill",
+      "role": "Detected: role",
+      "mcp": "Detected: MCP server"
+    }
+  }
+}

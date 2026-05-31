@@ -5,6 +5,7 @@
 //! Transport-neutral: REST handlers and tests call it the same way.
 
 use crate::error::{CoreError, CoreResult};
+use crate::sessions::transcript_ingest::sanitize_transcript_title;
 use serde::Serialize;
 use squad_agents_conversations::session_id_tracker::session_ids_for_history;
 use squad_db::Database;
@@ -40,6 +41,17 @@ pub async fn load(
 
     Ok(rows
         .into_iter()
+        .filter(|row| {
+            // Read-time guard: drop user_message rows whose content is pure
+            // Claude Code system markup that leaked before the ingest filter
+            // was deployed. Rows that aren't user_message pass through.
+            if row.feed_type == "user_message" {
+                if let Ok(text) = serde_json::from_str::<String>(&row.data_json) {
+                    return !sanitize_transcript_title(&text).is_empty();
+                }
+            }
+            true
+        })
         .map(|row| {
             let data = serde_json::from_str::<serde_json::Value>(&row.data_json)
                 .unwrap_or(serde_json::Value::String(row.data_json));

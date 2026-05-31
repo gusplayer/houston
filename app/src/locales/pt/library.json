@@ -1,0 +1,51 @@
+{
+  "skillsTab": {
+    "browse": "Explorar biblioteca"
+  },
+  "dialog": {
+    "title": {
+      "skill": "Biblioteca de skills",
+      "role": "Biblioteca de papéis",
+      "mcp": "Biblioteca de servidores MCP"
+    },
+    "searchPlaceholder": "Buscar por nome, autor ou palavra-chave",
+    "addByUrl": "Adicionar por URL",
+    "source": {
+      "all": "Todos",
+      "community": "Comunidade",
+      "mine": "Meus instalados"
+    },
+    "loading": "Carregando biblioteca...",
+    "empty": "Nada aqui ainda. Tente outro filtro ou adicione um por URL.",
+    "installed": "{{name}} foi instalado na sua biblioteca",
+    "installError": "Falha na instalação",
+    "addedToAgent": "{{name}} foi adicionado a este agente",
+    "addError": "Não foi possível adicionar ao agente"
+  },
+  "card": {
+    "install": "Instalar",
+    "addToAgent": "Adicionar a este agente",
+    "inAgent": "Neste agente",
+    "source": "Fonte",
+    "noDescription": "Sem descrição."
+  },
+  "badges": {
+    "verified": "Verificado"
+  },
+  "addByUrl": {
+    "title": "Adicionar via URL",
+    "body": "Cole a URL de um repositório do GitHub. Detectamos skill, papel ou MCP pelo conteúdo.",
+    "placeholder": "https://github.com/owner/repo",
+    "submit": "Instalar",
+    "installing": "Instalando...",
+    "cancel": "Cancelar",
+    "success": "{{name}} foi instalado",
+    "error": "Falha na instalação",
+    "unverifiedWarning": "Qualquer pessoa pode publicar na biblioteca. Revise o repositório antes de instalar.",
+    "detected": {
+      "skill": "Detectado: skill",
+      "role": "Detectado: papel",
+      "mcp": "Detectado: servidor MCP"
+    }
+  }
+}

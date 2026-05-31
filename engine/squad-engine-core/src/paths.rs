@@ -41,4 +41,9 @@ impl EnginePaths {
     pub fn agents_dir(&self) -> PathBuf {
         self.home_dir.join("agents")
     }
+
+    /// User-installed library primitives: `<home>/library/{skill,role,mcp}/<slug>/`.
+    pub fn library_dir(&self) -> PathBuf {
+        self.home_dir.join("library")
+    }
 }

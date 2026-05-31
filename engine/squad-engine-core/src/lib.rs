@@ -11,6 +11,7 @@ pub mod attachments;
 pub mod conversations;
 pub mod error;
 pub mod git_bash;
+pub mod library;
 pub mod methodology;
 pub mod paths;
 pub mod preferences;

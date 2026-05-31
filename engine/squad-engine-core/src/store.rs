@@ -539,7 +539,11 @@ pub fn parse_github_ref(input: &str) -> CoreResult<(String, String)> {
     )))
 }
 
-async fn fetch_github_raw(owner: &str, repo: &str, filename: &str) -> CoreResult<Option<Vec<u8>>> {
+pub async fn fetch_github_raw(
+    owner: &str,
+    repo: &str,
+    filename: &str,
+) -> CoreResult<Option<Vec<u8>>> {
     let url = format!("https://raw.githubusercontent.com/{owner}/{repo}/main/{filename}");
     let client = reqwest::Client::new();
     let resp = client

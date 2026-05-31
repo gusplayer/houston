@@ -10,6 +10,7 @@ pub mod conversations;
 pub mod error;
 pub mod git;
 pub mod health;
+pub mod library;
 pub mod mcps;
 pub mod methodology;
 pub mod preferences;
