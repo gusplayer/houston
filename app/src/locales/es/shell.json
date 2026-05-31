@@ -1,8 +1,6 @@
 {
   "sidebar": {
     "missionControl": "Vista general",
-    "inbox": "Inbox",
-    "store": "Store",
     "workspace": "Mi equipo",
     "projects": "Proyectos",
     "knowledge": "Conocimiento",
@@ -12,7 +10,7 @@
     "settings": "Configuración",
     "yourAgents": "Tus agentes",
     "selectWorkspace": "Elige un espacio de trabajo",
-    "addAgent": "Nuevo agente",
+    "addAgent": "Reclutar",
     "agentMenu": "Menú del agente",
     "color": "Color",
     "changeColor": "Cambiar color",
@@ -199,10 +197,6 @@
     "relaunchAction": "Reiniciar Squad",
     "retryAction": "Intentar otra vez"
   },
-  "store": {
-    "searchPlaceholder": "Buscar en la tienda...",
-    "noResults": "Ningún agente coincide con tu búsqueda"
-  },
   "naming": {
     "dialogTitle": "Nombra tu agente",
     "newAgentFallback": "Nuevo agente",
@@ -322,22 +316,5 @@
     "internalTerminal": "Terminal",
     "terminal": "Abrir en Warp",
     "brief": "Playbook"
-  },
-  "inbox": {
-    "title": "Inbox",
-    "untitled": "Tarea sin título",
-    "statusNeedsYou": "Te necesita",
-    "statusError": "Con error",
-    "emptyTitle": "Todo al día",
-    "emptyDescription": "Ningún agente está bloqueado o esperando por ti en este workspace ahora mismo.",
-    "relative": {
-      "justNow": "hace un momento",
-      "minutes_one": "hace {{count}} min",
-      "minutes_other": "hace {{count}} min",
-      "hours_one": "hace {{count}} h",
-      "hours_other": "hace {{count}} h",
-      "days_one": "hace {{count}} día",
-      "days_other": "hace {{count}} días"
-    }
   }
 }

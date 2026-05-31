@@ -21,7 +21,6 @@ import { Dashboard } from "../dashboard";
 import { IntegrationsView } from "../tabs/integrations-view";
 import { SpecsView } from "../specs-view";
 import { SettingsView } from "../settings/settings-view";
-import { StorePage } from "../store/store-page";
 import { Sidebar } from "./sidebar";
 import { SquadLogo } from "./experience-card";
 import { CreateAgentDialog } from "./create-workspace-dialog";
@@ -31,7 +30,6 @@ import { WorkspacePage } from "./workspace-page";
 import { ProjectsPage } from "./projects-page";
 import { KnowledgePage } from "./knowledge-page";
 import { LibraryPage } from "./library-page";
-import { InboxView } from "./inbox-view";
 import { AgentProjectChip } from "./agent-project-chip";
 import { AgentUpdateBanner } from "./agent-update-banner";
 import { DetailPanelProvider } from "./detail-panel-context";
@@ -87,11 +85,13 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
   const needsYouCount = (activities ?? []).filter((a) => a.status === "needs_you").length;
   const isAgentView =
     viewMode !== "dashboard" &&
-    viewMode !== "store" &&
     viewMode !== "workspace" &&
+    viewMode !== "projects" &&
+    viewMode !== "knowledge" &&
+    viewMode !== "library" &&
     viewMode !== "connections" &&
-    viewMode !== "settings" &&
-    viewMode !== "inbox";
+    viewMode !== "specs" &&
+    viewMode !== "settings";
   const tabIds = new Set(tabs.map((tab) => tab.id));
   const firstAgentTab = agentDef?.config.defaultTab ?? tabs[0]?.id ?? "activity";
   // Map a desired tab id to one this agent actually has, falling back to its
@@ -122,8 +122,6 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
               <TeamManifestBanner />
               {viewMode === "dashboard" ? (
                 <Dashboard />
-              ) : viewMode === "inbox" ? (
-                <InboxView />
               ) : viewMode === "workspace" ? (
                 <WorkspacePage />
               ) : viewMode === "projects" ? (
@@ -132,8 +130,6 @@ export function WorkspaceShell({ toasts, onDismissToast }: WorkspaceShellProps) 
                 <KnowledgePage />
               ) : viewMode === "library" ? (
                 <LibraryPage />
-              ) : viewMode === "store" ? (
-                <StorePage />
               ) : viewMode === "connections" ? (
                 <IntegrationsView title={t("shell:sidebar.integrations")} />
               ) : viewMode === "specs" ? (
