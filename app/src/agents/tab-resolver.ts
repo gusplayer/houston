@@ -8,7 +8,6 @@ import type { AgentTab, AgentDefinition, TabProps } from "../lib/types";
 (window as any).Squad = { React, ReactDOM, jsxRuntime };
 import ChatTab from "../components/tabs/chat-tab";
 import BoardTab from "../components/tabs/board-tab";
-import FilesTab from "../components/tabs/files-tab";
 import ConnectionsTab from "../components/tabs/connections-tab";
 import IntegrationsTab from "../components/tabs/integrations-tab";
 import JobDescriptionTab from "../components/tabs/job-description-tab";
@@ -21,13 +20,11 @@ import SkillsTab from "../components/tabs/skills-tab";
 import ConfigTab from "../components/tabs/config-tab";
 import McpTab from "../components/tabs/mcp-tab";
 import UnifiedBoardTab from "../components/tabs/unified-board-tab";
-import DocsTab from "../components/tabs/docs-tab";
 import QueueTab from "../components/tabs/queue-tab";
 
 const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   chat: ChatTab,
   board: BoardTab,
-  files: FilesTab,
   integrations: IntegrationsTab,
   connections: ConnectionsTab,
   "job-description": JobDescriptionTab,
@@ -40,7 +37,6 @@ const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   config: ConfigTab,
   mcp: McpTab,
   sprints: UnifiedBoardTab,
-  docs: DocsTab,
   queue: QueueTab,
 };
 

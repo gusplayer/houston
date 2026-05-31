@@ -11,7 +11,6 @@ export const devAgent: AgentConfig = {
   roleLabel: "Dev",
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "docs", label: "Docs", builtIn: "docs" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
   defaultTab: "activity",
