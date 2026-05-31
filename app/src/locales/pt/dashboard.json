@@ -98,6 +98,14 @@
       "cancelled": "Cancelado"
     }
   },
+  "queue": {
+    "emptyTitle": "Sem trabalho na fila",
+    "emptyDescription": "Atribua uma história a este agente no quadro do workspace para vê-la aqui.",
+    "openBoardCta": "Abrir o quadro do workspace",
+    "subtitle_one": "{{count}} item na fila",
+    "subtitle_other": "{{count}} itens na fila",
+    "needsYou": "Precisa de você"
+  },
   "skillPicker": {
     "title": "Escolha um skill",
     "description": "Veja os skills que este agente já sabe fazer.",

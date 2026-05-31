@@ -98,6 +98,14 @@
       "cancelled": "Cancelled"
     }
   },
+  "queue": {
+    "emptyTitle": "No queued work",
+    "emptyDescription": "Assign a story to this agent from the workspace board to see it here.",
+    "openBoardCta": "Open the workspace board",
+    "subtitle_one": "{{count}} item in queue",
+    "subtitle_other": "{{count}} items in queue",
+    "needsYou": "Waiting on you"
+  },
   "skillPicker": {
     "title": "Pick a skill",
     "description": "Browse the skills this agent already knows how to do.",

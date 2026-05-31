@@ -49,5 +49,15 @@
   },
   "selectedSkill": {
     "cancel": "Close"
+  },
+  "status": {
+    "backlog": "Backlog",
+    "todo": "To do",
+    "in_progress": "In progress",
+    "running": "Running",
+    "needs_you": "Needs you",
+    "in_review": "In review",
+    "done": "Done",
+    "cancelled": "Cancelled"
   }
 }
