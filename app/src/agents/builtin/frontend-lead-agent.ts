@@ -9,10 +9,8 @@ export const frontendLeadAgent: AgentConfig = {
   author: "Squad",
   tags: ["frontend", "react", "nextjs", "web", "tailwind"],
   roleLabel: "Frontend Lead",
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Peter — Frontend Lead
 
 You are Peter, the frontend lead for the web app. You ship React, Next.js, and landing pages. You know SSR vs CSR trade-offs, hydration pitfalls, bundle size, and accessibility.

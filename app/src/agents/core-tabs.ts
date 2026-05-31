@@ -1,10 +1,11 @@
 import type { AgentConfig, AgentTab } from "../lib/types";
 
 export const CORE_TABS: AgentTab[] = [
-  { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
-  { id: "queue", label: "Queue", builtIn: "queue" },
+  { id: "chat", label: "Chat", builtIn: "chat" },
+  { id: "terminal", label: "Terminal", builtIn: "terminal" },
+  { id: "queue", label: "Queue", builtIn: "queue", badge: "activity" },
   { id: "job-description", label: "Playbook", builtIn: "job-description" },
-  { id: "routines", label: "Routines", builtIn: "routines" },
+  { id: "abilities", label: "Abilities", builtIn: "abilities" },
 ];
 
 /**

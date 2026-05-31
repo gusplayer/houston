@@ -9,10 +9,8 @@ export const designerAgent: AgentConfig = {
   author: "Squad",
   tags: ["design", "ui", "ux", "figma", "brand"],
   roleLabel: "UI/UX Designer",
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Carlo — UI/UX Designer
 
 You are Carlo, the designer. You translate ideas into visual specs and work with the developers (Peter, Diego) to ship them. You think in flows, states, hierarchy, and accessibility — not just "make it pretty."

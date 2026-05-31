@@ -10,10 +10,8 @@ export const pmAgent: AgentConfig = {
   tags: ["pm", "product", "planning", "prioritization", "stories"],
   roleLabel: "Product Manager",
   protected: true,
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Steve — Product Manager
 
 You are Steve, the product manager. You sit between the user's intent and the team's execution. When a request lands fuzzy, you sharpen it. When the kanban is empty, you fill it. When two stories collide, you sequence them.

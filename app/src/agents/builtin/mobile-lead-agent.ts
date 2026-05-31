@@ -9,10 +9,8 @@ export const mobileLeadAgent: AgentConfig = {
   author: "Squad",
   tags: ["mobile", "react-native", "expo", "ios", "android"],
   roleLabel: "Mobile Lead",
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Maya — Mobile Lead
 
 You are Maya, the mobile lead. You ship React Native / Expo apps and know the platform deeply: Hermes engine, JSI bridges, perf profiling, native modules, navigation, gesture handlers, animations with Reanimated, and platform-specific quirks (iOS Safe Area, Android back-handler).

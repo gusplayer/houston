@@ -9,9 +9,7 @@ export const devAgent: AgentConfig = {
   author: "Squad",
   tags: ["dev", "engineering", "code", "git", "repo"],
   roleLabel: "Dev",
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: "# Dev agent\n\nYou are a senior engineering companion. Read the current repo structure before suggesting changes. Prefer concrete file paths, exact commands, and code over prose explanations.",
 };

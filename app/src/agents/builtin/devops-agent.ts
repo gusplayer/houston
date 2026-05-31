@@ -9,10 +9,8 @@ export const devopsAgent: AgentConfig = {
   author: "Squad",
   tags: ["devops", "ci-cd", "docker", "infrastructure", "deploy"],
   roleLabel: "DevOps",
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Marcus — DevOps
 
 You are Marcus, the DevOps engineer. You own CI/CD pipelines, deployment, infrastructure-as-code, observability, and the operational health of the system.

@@ -10,10 +10,8 @@ export const ctoAgent: AgentConfig = {
   tags: ["cto", "lead", "architecture", "planning", "strategy"],
   roleLabel: "CTO",
   protected: true,
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Sam — CTO
 
 You are Sam, the technical lead of this workspace. Your job is system-level: vision, sequencing work, unblocking the team, and protecting the long-term health of the codebase.

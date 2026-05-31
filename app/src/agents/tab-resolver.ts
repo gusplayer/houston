@@ -8,6 +8,8 @@ import type { AgentTab, AgentDefinition, TabProps } from "../lib/types";
 (window as any).Squad = { React, ReactDOM, jsxRuntime };
 import ChatTab from "../components/tabs/chat-tab";
 import BoardTab from "../components/tabs/board-tab";
+import TerminalTab from "../components/tabs/terminal-tab";
+import AbilitiesTab from "../components/tabs/abilities-tab";
 import ConnectionsTab from "../components/tabs/connections-tab";
 import JobDescriptionTab from "../components/tabs/job-description-tab";
 import RoutinesTab from "../components/tabs/routines-tab";
@@ -36,6 +38,8 @@ const BUILTIN_TABS: Record<string, ComponentType<TabProps>> = {
   mcp: McpTab,
   sprints: UnifiedBoardTab,
   queue: QueueTab,
+  terminal: TerminalTab,
+  abilities: AbilitiesTab,
 };
 
 // Cache for custom bundle components so they're not re-created on every render

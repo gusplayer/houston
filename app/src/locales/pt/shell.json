@@ -209,6 +209,14 @@
     "dialogTitle": "Novo agente",
     "nameConflict": "Já existe um agente chamado \"{{name}}\". Escolha outro nome."
   },
+  "abilities": {
+    "tablistLabel": "Habilidades do agente",
+    "panes": {
+      "skills": "Skills",
+      "mcps": "MCPs",
+      "routines": "Rotinas"
+    }
+  },
   "recruit": {
     "entryAction": "Recrutar equipe",
     "title": "Recrute sua equipe",
