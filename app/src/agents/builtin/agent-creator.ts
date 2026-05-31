@@ -11,7 +11,6 @@ export const agentCreator: AgentConfig = {
   roleLabel: "Agent Builder",
   tabs: [
     { id: "chat", label: "Chat", builtIn: "chat" },
-    { id: "files", label: "Files", builtIn: "files" },
   ],
   defaultTab: "chat",
   claudeMd: `## Instructions

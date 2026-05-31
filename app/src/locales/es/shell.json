@@ -5,6 +5,7 @@
     "store": "Store",
     "workspace": "Mi equipo",
     "projects": "Proyectos",
+    "knowledge": "Conocimiento",
     "integrations": "Integraciones",
     "specs": "Specs",
     "settings": "Configuración",
@@ -232,6 +233,11 @@
     "noWorkspaceDescription": "Elige un workspace para ver sus proyectos.",
     "subtitle_one": "{{count}} proyecto, {{stories}} historias asignadas",
     "subtitle_other": "{{count}} proyectos, {{stories}} historias asignadas"
+  },
+  "knowledge": {
+    "noWorkspaceTitle": "Sin workspace seleccionado",
+    "noWorkspaceDescription": "Elige un workspace para ver su conocimiento.",
+    "subtitle": "Docs curados que se inyectan en los prompts de los agentes. Los filtros de audiencia se mantienen."
   },
   "workspace": {
     "noWorkspace": "Sin workspace seleccionado",

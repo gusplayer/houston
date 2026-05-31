@@ -165,7 +165,7 @@ function TeamRoster({ workspaceId: _workspaceId }: { workspaceId: string }) {
 
 // ── Section: Docs ───────────────────────────────────────────────────────
 
-function WorkspaceDocs({ rootPath }: { rootPath: string | undefined }) {
+export function WorkspaceDocs({ rootPath }: { rootPath: string | undefined }) {
   const { t } = useTranslation("agents");
   const { data: docs, isLoading } = useProjectDocs(rootPath);
   const saveDoc = useSaveProjectDoc(rootPath);

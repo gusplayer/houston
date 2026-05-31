@@ -4,7 +4,6 @@ export const CORE_TABS: AgentTab[] = [
   { id: "activity", label: "Activity", builtIn: "board", badge: "activity" },
   { id: "queue", label: "Queue", builtIn: "queue" },
   { id: "job-description", label: "Playbook", builtIn: "job-description" },
-  { id: "files", label: "Files", builtIn: "files" },
   { id: "routines", label: "Routines", builtIn: "routines" },
 ];
 
