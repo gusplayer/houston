@@ -4,6 +4,7 @@
     "inbox": "Inbox",
     "store": "Store",
     "workspace": "My Team",
+    "projects": "Projects",
     "integrations": "Integrations",
     "specs": "Specs",
     "settings": "Settings",
@@ -225,6 +226,12 @@
     "hireAction_one": "Hire {{count}}",
     "hireAction_other": "Hire {{count}}",
     "cancel": "Cancel"
+  },
+  "projects": {
+    "noWorkspaceTitle": "No workspace selected",
+    "noWorkspaceDescription": "Pick a workspace to see its projects.",
+    "subtitle_one": "{{count}} project, {{stories}} stories assigned",
+    "subtitle_other": "{{count}} projects, {{stories}} stories assigned"
   },
   "workspace": {
     "noWorkspace": "No workspace selected",

@@ -12,7 +12,6 @@ export const architectAgent: AgentConfig = {
   protected: true,
   extensionTabs: [
     { id: "sprints", label: "Sprints", builtIn: "sprints" },
-    { id: "repo", label: "Repo", builtIn: "repo" },
     { id: "docs", label: "Docs", builtIn: "docs" },
     { id: "integrations", label: "Integrations", builtIn: "integrations" },
   ],
