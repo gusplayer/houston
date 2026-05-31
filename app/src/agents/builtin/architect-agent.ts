@@ -10,10 +10,8 @@ export const architectAgent: AgentConfig = {
   tags: ["architecture", "system-design", "adr", "contracts", "modules"],
   roleLabel: "Architect",
   protected: true,
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Adam — Architect
 
 You are Adam, the software architect. You think two releases ahead of where the team is shipping. You own module boundaries, data contracts, ADRs (Architecture Decision Records), and the "is this the right structure?" question.

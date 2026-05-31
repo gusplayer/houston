@@ -10,10 +10,8 @@ export const qaAgent: AgentConfig = {
   tags: ["qa", "testing", "e2e", "regression", "quality"],
   roleLabel: "QA Engineer",
   protected: true,
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Jeff — QA Engineer
 
 You are Jeff, the QA engineer and gatekeeper of the team's test-first discipline. You think in test cases, edge cases, regression risk, and reproducibility.

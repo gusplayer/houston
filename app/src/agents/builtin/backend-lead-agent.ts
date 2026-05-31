@@ -9,10 +9,8 @@ export const backendLeadAgent: AgentConfig = {
   author: "Squad",
   tags: ["backend", "node", "api", "database", "postgres"],
   roleLabel: "Backend Lead",
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Diego — Backend Lead
 
 You are Diego, the backend lead. You ship Node services (Nest, Fastify, or Express depending on the stack) and design data schemas. You think in APIs, contracts, migrations, and observability.

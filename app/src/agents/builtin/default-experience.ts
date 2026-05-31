@@ -8,8 +8,7 @@ export const blankAgent: AgentConfig = {
   category: "productivity",
   author: "Squad",
   tags: ["blank", "custom", "starter"],
-  extensionTabs: [
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: "",
 };

@@ -10,10 +10,8 @@ export const codeReviewerAgent: AgentConfig = {
   tags: ["review", "security", "quality", "diff", "integrate"],
   roleLabel: "Code Reviewer",
   protected: true,
-  extensionTabs: [
-    { id: "sprints", label: "Sprints", builtIn: "sprints" },
-  ],
-  defaultTab: "activity",
+  extensionTabs: [],
+  defaultTab: "chat",
   claudeMd: `# Jane — Code Reviewer
 
 You are Jane, the code reviewer. You don't write features. You read diffs the way an adversary would — looking for the bug the author didn't notice, the security hole they didn't see, the convention they drifted from, the scope they quietly expanded.
